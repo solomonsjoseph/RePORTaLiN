@@ -1,57 +1,43 @@
 import pandas as pd
+import os
 
 def load_study_dictionary(file_path):
-    # Load the workbook
-    xls = pd.ExcelFile(file_path, engine='openpyxl') # openpyxl is more robust for .xlsx files
+    # Validate input
+    if not isinstance(file_path, str) or not os.path.exists(file_path):
+        raise FileNotFoundError(f"Invalid or non-existent file: {file_path}")
+    
+    try:
+        # Load workbook and initialize containers
+        xls = pd.ExcelFile(file_path, engine='openpyxl')
+        codelists_df, site_notes_df = pd.DataFrame(), pd.DataFrame()
+        form_sheets = {}
 
-    # Extract all sheet names
-    sheet_names = xls.sheet_names
+        # Process each sheet
+        for sheet in xls.sheet_names:
+            try:
+                df = xls.parse(sheet)
+                df.columns = [str(col).strip() for col in df.columns]
+                
+                if sheet == "New Codelists": codelists_df = df
+                elif sheet == "Notes": site_notes_df = df
+                elif sheet.startswith("tbl"): form_sheets[sheet] = df
+            except Exception as e:
+                print(f"Warning: Error processing sheet '{sheet}': {str(e)}")
 
-    # Initialize containers
-    codelists_df = None
-    site_notes_df = None
-    form_sheets = {}
-
-    # Define expected columns for validation
-    expected_codelist_columns = ['Codelist', 'Descriptors', 'Codes']
-    expected_notes_columns = ['Site', 'Country', 'N']
-    expected_form_columns = ['Data Bank ID', 'Module', 'Form', 'Question', 'Type', 'Code List or format']
-
-    # Iterate through sheets
-    for sheet in sheet_names:
-        df = xls.parse(sheet)
-        df.columns = [str(col).strip() for col in df.columns]  # Normalize column names
-
-        if sheet == "New Codelists":
-            missing = [col for col in expected_codelist_columns if col not in df.columns]
-            if missing:
-                print(f"Warning: Missing columns in 'New Codelists': {missing}")
-            codelists_df = df
-
-        elif sheet == "Notes":
-            missing = [col for col in expected_notes_columns if col not in df.columns]
-            if missing:
-                print(f"Warning: Missing columns in 'Notes': {missing}")
-            site_notes_df = df
-
-        elif sheet.startswith("tbl"):
-            missing = [col for col in expected_form_columns if col not in df.columns]
-            if missing:
-                print(f"Warning: Missing columns in '{sheet}': {missing}")
-            form_sheets[sheet] = df
-
-    # Return structured data
-    return {
-        "codelists": codelists_df,
-        "site_notes": site_notes_df,
-        "forms": form_sheets
-    }
+        return {
+            "codelists": codelists_df,
+            "site_notes": site_notes_df,
+            "forms": form_sheets
+        }
+    except Exception as e:
+        raise ValueError(f"Failed to process Excel file: {str(e)}")
 
 # # Example usage
 # if __name__ == "__main__":
-#     file_path = "data/Data Dictionary and Mapping Specification/RePORT DEB to Tables mapping  2.xlsx"
+#     file_path = "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
 #     data = load_study_dictionary(file_path)
-
 #     print(f"Loaded 'New Codelists' with {len(data['codelists'])} rows.")
 #     print(f"Loaded 'Notes' with {len(data['site_notes'])} rows.")
-#     print(f"Loaded {len(data['forms'])} form sheets: {list(data['forms'].keys())}")
+#     print(f"Loaded {len(data['forms'])} form sheets:")
+#     for sheet_name, df in data['forms'].items():
+#         print(f"   - {sheet_name} ({len(df)} rows)")
