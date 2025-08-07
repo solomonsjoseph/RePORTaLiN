@@ -1,0 +1,560 @@
+{"Codelist":"New codelists","Descriptors":"Descriptors","Codes":"Codes","Group notes \/ thoughts":"Group notes \/ thoughts","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"Brazil","Codes":"BRA","Group notes \/ thoughts":"https:\/\/en.wikipedia.org\/wiki\/ISO_3166-1_alpha-3","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"China","Codes":"CHN","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"India","Codes":"IND","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"Indonesia","Codes":"IDN","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"Philippines","Codes":"PHL","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"South Africa","Codes":"SAF","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"South Korea","Codes":"KOR","Group notes \/ thoughts":"This is the actual ISO code. \"UNK\" stands for refugees from Kosovo","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COUNTRY","Descriptors":"Unknown","Codes":"XXX","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Isoniazid (H)","Codes":"H","Group notes \/ thoughts":"Changed to letters based on discussion.","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Rifampicin (R)","Codes":"R","Group notes \/ thoughts":"Also known as Rifampin","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Pyrazinamide (Z)","Codes":"Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Ethambutol (E)","Codes":"E","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Streptomycin (S)","Codes":"SAF","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Amikacin","Codes":"AMK","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Amoxicillin \/ Clavulanate","Codes":"AMXCIV","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Bedaquiline","Codes":"BDQ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Capreomycin","Codes":"CM","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Clarithromycin","Codes":"CLR","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Clofazimine","Codes":"CFZ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Cycloserine","Codes":"DCS","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Delamanid","Codes":"DLM","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Ethionamide","Codes":"ETO","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Imipenem \/ Cilastatin","Codes":"IPMCIN","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Kanamycin","Codes":"KM","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Levofloxacin","Codes":"LFX","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Linezolid","Codes":"LZD","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Meropenem","Codes":"MEM","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Moxifloxacin","Codes":"MFX","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Ofloxacin","Codes":"OFX","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Para-aminosalicylic acid (PAS)","Codes":"PAS","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Pretomanid ","Codes":"PMD","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Protionamide","Codes":"PTO","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Rifabutin","Codes":"RFB","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Rifapentine","Codes":"P","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Terizidone","Codes":"TRD","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Thioacetazone","Codes":"T","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Thioamide \/ Thionamide","Codes":"TH","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Other","Codes":"OTH","Group notes \/ thoughts":"OTH","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Unknown","Codes":"UNK","Group notes \/ thoughts":"UNK","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRT","Descriptors":"Not Captured in CRF","Codes":"NOCRF","Group notes \/ thoughts":"NOCRF","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTADMIN","Descriptors":"Directly Observed Therapy (DOT)","Codes":1,"Group notes \/ thoughts":"We can add a separate DOT_TYP variable in the future if any protocol needs data on specificy DOT types","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTADMIN","Descriptors":"Self-Administered Therapy (SAT)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTADMIN","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTADMIN","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Baseline (BL)","Codes":"BL","Group notes \/ thoughts":"Need to review the later sets of codes, eg M4, M6, M12, TBAE, PDC -- when are these used and what protocols do they match with? Are they needed for our first set of studies?","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Week 2 (WK 2)","Codes":"WK2","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 1 (M1)","Codes":"M1","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Week 2 (WK 2)","Codes":"WK6","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 2 (M2)","Codes":"M2","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"End of Treatment (EOT)","Codes":"EOT","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"6-Month Post-Treatment (6Mo post-tx)","Codes":"6MPOST","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"12-Month Post-Treatment (12Mo post-tx)","Codes":"12MPOST","Group notes \/ thoughts":"I think Brazil has a 12 months post, so I added","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Treatment Failure, Relapse, or Withdrawal (TX F\/R\/W)","Codes":"TFRW","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 3 (M3)","Codes":"M3","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 4 (M4)","Codes":"M4","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 5 (M5)","Codes":"M5","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 6 (M6) - for many, this is EOT. (Enter EOT unless MDR TB or special circumstances)","Codes":"M6","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 7 (M7)","Codes":"M7","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 12 (M12)","Codes":"M12","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 15 (M15)","Codes":"M15","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 18 (M18)","Codes":"M18","Group notes \/ thoughts":"I had it in SAS formats code but not sure why it was not added here - PM 1\/30\/2024","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Month 24 (M24)","Codes":"M24","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"TB Activation Eval","Codes":"TBAE","Group notes \/ thoughts":"What is this one?","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Prem D\/C","Codes":"PDC","Group notes \/ thoughts":"What is this one? I wasn't sure how to write it out","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Unscheduled","Codes":"UNSCHED","Group notes \/ thoughts":"Unscheduled visits","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Other","Codes":"OTH","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_VISIT","Descriptors":"Not Applicable","Codes":null,"Group notes \/ thoughts":"Use if the VIS_TYP field is not relevant to the record you're entering (e.g., tblTBMED or tblMED when populated with flowchart data)","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Completed Intensive Phase","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Completed Continuation Phase","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"TX failure or drug resistance","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Pregnancy","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Side effect or toxicity","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Incompatibility with ART (antiretroviral therapy)","Codes":6,"Group notes \/ thoughts":"We are ok with the extended code list","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Drug interaction","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Participant stopped taking medication","Codes":8,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Lost to follow-up","Codes":9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Dose adjustment (e.g., for weight change)","Codes":10,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Death","Codes":11,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Drug not available \/ stockout","Codes":12,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Transfer out","Codes":13,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TRTADJ","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SMEARPREPMETH","Descriptors":"Concentrated","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SMEARPREPMETH","Descriptors":"Unconcentrated","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SMEARPREPMETH","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SMEARPREPMETH","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"Scanty","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"1+ (rare)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"2+ (few)","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"3+ (many)","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFB","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFBMETHOD","Descriptors":"Routine AFB (e.g. Ziehl-Neelsen, Kinyoun)","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFBMETHOD","Descriptors":"Fluorescence","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFBMETHOD","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_AFBMETHOD","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":1,"Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":2,"Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":"Pooled specimen (1 and 2)","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":"Not applicable","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECNUM","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Blood","Codes":1,"Group notes \/ thoughts":"We have revised this code list based on what we're seeing from sites, but may need to add to it in the future.","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Plasma","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"PAXgene","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"PBMC","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Extracted DNA","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"RNA","Codes":6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"MTB Isolates","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"QuantiFERON Nil","Codes":8,"Group notes \/ thoughts":"Check order of QFT","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"QuantiFERON TB","Codes":9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"QuantiFERON TB2","Codes":10,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"QuantiFERON M","Codes":11,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Urine","Codes":12,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Saliva","Codes":13,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Sputum","Codes":14,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SPECIMEN","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_POSNEG","Descriptors":"Positive","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_POSNEG","Descriptors":"Negative","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_POSNEG","Descriptors":"Indeterminate","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_POSNEG","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_POSNEG","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"QuantiFERON-TB Gold In-Tube (QFT-GIT)","Codes":1,"Group notes \/ thoughts":"Are these the only IGRA types?","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"QuantiFERON-TB Gold Plus (QFT-Plus)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"In-house assay","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_IGRATYPE","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":"<10","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":"10-100 (1+)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":"101-200 (2+)","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":">200 (3+)","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_COLQUAN","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Susceptible","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Resistant","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Indeterminate","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Contaminated","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Not Done","Codes":5,"Group notes \/ thoughts":"ok","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MSRESCAT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTTYPE","Descriptors":"Xpert MTB\/RIF","Codes":1,"Group notes \/ thoughts":"Are there other Xpert types that we should include?","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTTYPE","Descriptors":"Xpert MTB\/RIF Ultra","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTTYPE","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTTYPE","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTTYPE","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Trace","Codes":1,"Group notes \/ thoughts":"This list of Xpert results comes from RePORT-Brazil. It doesn't look like other countries have Xpert for Phase 1","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Very Low","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Low","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Medium","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"High","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_XPERTRESULT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Pneumonia, not otherwise specified","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Non-Tuberculous Mycobacteria (NTM)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Lung cancer","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Viral upper respiratory infection","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Malaria","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Asthma","Codes":6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Chronic obstructive pulmonary disease (COPD)","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBALTDIAG","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Participant was provisionally enrolled but not confirmed to have active pulmonary TB","Codes":1,"Group notes \/ thoughts":"Merged Cohort A and Cohort B reasons since they mostly overlapped (maintaining 1 code list is easier)","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Participant was provisionally enrolled but was confirmed by a culture that was conducted on respiratory secretions obtained by bronchoalveolar lavage or bronchial wash","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"More than 1 week of anti-TB therapy was received before the required baseline sputum specimens for storage were collected","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"HIV test was not completed within the Month 1 Visit window","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Met one of the following TB outcomes: Treatment failure, TB Relapse, Emerging Resistance","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Physician decision (Investigator determines that further participation would be detrimental to the health or well-being of the subject)","Codes":6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Inadvertent enrollment","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Withdrawal by participant","Codes":8,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Withdrawal by parent\/guardian","Codes":9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Lost to follow up","Codes":10,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Moved out of area","Codes":11,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Discontinued from the parent protocol","Codes":12,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Study terminated by funding organization or other government agency","Codes":13,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Participant developed active TB (Cohort B only)","Codes":14,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Death","Codes":15,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"The required baseline biorepository specimens for storage were not collected\n\n","Codes":16,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DSTERMA","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Before this date","Codes":"B","Group notes \/ thoughts":"\"B\" for \"before\"","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Exact to the date","Codes":"D","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Exact to the month","Codes":"M","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Exact to the year","Codes":"Y","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"After the date","Codes":"A","Group notes \/ thoughts":"\"A\" for \"after\"","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Unknown","Codes":"U","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_A","Descriptors":"Not Captured in CRF","Codes":"N","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"ND","Descriptors":"Not Done","Codes":0,"Group notes \/ thoughts":"ND code updated on 8 Aug 2022. Old code (\"87\" removed)","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"ND","Descriptors":"Done","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"ND","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"ND","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Absent","Codes":0,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Left","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Right","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Both","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Location not specified","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRLOC","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDSTARTRS","Descriptors":"Treatment (incl. for presumptive dx)","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDSTARTRS","Descriptors":"Prophylaxis (primary or secondary)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDSTARTRS","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDSTARTRS","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Treatment failure (i.e. virological, immunological, and \/or clinical failure)","Codes":1,"Group notes \/ thoughts":"From here to 17 matches IeDEA MEDRS codes (for future collab)","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Virological failure","Codes":1.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Partial virological failure","Codes":1.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Immunological failure - CD4 drop","Codes":1.3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Clinical progression","Codes":1.4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Resistance (based on test result)","Codes":1.5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Abnormal fat redistribution","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Concern of cardiovascular disease","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Dyslipidaemia","Codes":3.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Cardiovascular disease","Codes":3.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Hypersensitivity reaction","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity, predominantly from abdomen\/G-I tract","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - GI tract","Codes":5.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - Liver","Codes":5.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - Pancreas","Codes":5.3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity, predominantly from nervous system","Codes":6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - peripheral neuropathy","Codes":6.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - neuropsychiatric","Codes":6.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - headache","Codes":6.3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity, predominantly from kidneys","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity, predominantly from endocrine system","Codes":8,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Diabetes","Codes":8.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Haematological toxicity (anemia, etc.)","Codes":9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Hyperlactataemia\/lactic acidosis","Codes":10,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Bone toxicity","Codes":11,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Social contra-indication","Codes":15,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Contra-indication unspecified","Codes":16,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Contra-indication expired","Codes":16.8,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Contra-indication - other","Codes":16.9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"MTCT regimen completed","Codes":17,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Pregnancy - toxicity concerns (during pregnancy)","Codes":40,"Group notes \/ thoughts":"From here down  to 67.6 are IeDEA codes minus 30 (#-30), because otherwise we overlapped with the Unknown and Not in CRF codes used for RePORT","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Pregnancy - switch to a more appropriate regimen for PMTCT","Codes":45,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Death","Codes":58,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Side effect - any of the above not mentioned","Codes":60,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Comorbidity","Codes":60.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - other (not mentioned above)","Codes":61,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Toxicity - unspecified","Codes":61.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"More effective treatment available","Codes":62,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Simplified treatment available","Codes":62.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Treatment too complex","Codes":62.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Drug interaction","Codes":62.3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Drug interaction - commencing TB\/BCG treatment","Codes":62.31,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Drug interaction - ended TB\/BCG treatment","Codes":62.32,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Change in eligibility criteria (e.g. child old enough for tablets; refrigerator no longer available)","Codes":62.33,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Protocol change","Codes":62.4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Regular treatment termination (used in tblMED e.g. for DAAs against HCV, antibiotics)","Codes":62.5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"End of empiric therapy","Codes":62.6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Change in treatment not due to side-effects, failure, poor adherence or contra-indication","Codes":62.9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Change to a generic drug","Codes":62.91,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Change to branded drug","Codes":62.92,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Structured Treatment Interruption (STI)","Codes":63,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Structured Treatment Interruption (STI)-at high CD4","Codes":63.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Patient's wish\/ decision, not specified above","Codes":64,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Non-compliance","Codes":64.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Defaulter","Codes":64.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Physician's decision, not specified above","Codes":65,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Pregnancy","Codes":66,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Pregnancy intended","Codes":66.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Pregnancy ended","Codes":66.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Study treatment","Codes":67,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Study treatment commenced","Codes":67.1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Study treatment completed","Codes":67.2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Drug not available","Codes":67.6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Other causes, not specified above","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDRS","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"(see note)","Codes":null,"Group notes \/ thoughts":"Use ATC codes available here https:\/\/www.whocc.no\/atc_ddd_index\/  . We can compose a quick picklist of ATC codes based on what everyone finds in their datasets","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Drugs for acid related disorders","Codes":"A02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Antacids","Codes":"A02A","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"H2 receptor antagonists","Codes":"A02BA","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ranitidine","Codes":"A02BA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Proton pump inhibitors","Codes":"A02BC","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Omeprazole","Codes":"A02BC01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Pantoprazole","Codes":"A02BC02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Esomeprazole","Codes":"A02BC05\t","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Metoclopramide ","Codes":"A03FA01 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Domperidone","Codes":"A03FA03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Itopride","Codes":"A03FA07 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ondansetron","Codes":"A04AA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Bile and liver therapy","Codes":"A05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ursodeoxycholic acid","Codes":"A05AA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Mesalazine","Codes":"A07EC02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Drugs used in diabetes (unspecified)","Codes":"A10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Insulin or insulin analogue","Codes":"A10A","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Biguanides","Codes":"A10BA","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Metformin","Codes":"A10BA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Sulfonylureas","Codes":"A10BB","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Glibenclamide","Codes":"A10BB01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Glipizide","Codes":"A10BB07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Gliclazide","Codes":"A10BB09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Glimepiride","Codes":"A10BB12","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Alpha glucosidase inhibitors\n","Codes":"A10BF","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Thiazolidinediones (also glitazones)","Codes":"A10BG ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Sitagliptin","Codes":"A10BH01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Vidagliptin","Codes":"A10BH02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Saxagliptin","Codes":"A10BH03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Teneligliptin","Codes":"A10BH08 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Sodium-glucose co-transporter 2 (SGLT2) inhibitors","Codes":"A10BK","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Repaglinide","Codes":"A10BX02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Other blood glucose lowering drugs, excl insulins","Codes":"A10BX","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Vitamin D and analogues","Codes":"A11CC ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Warfarin","Codes":"B01AA03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Heparin","Codes":"B01AB01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Enoxaparin","Codes":"B01AB05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Clopidogrel","Codes":"B01AC04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Prasugrel","Codes":"B01AC22","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Rivaroxaban","Codes":"B01AF01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Sodium bicarbonate","Codes":"B05CB04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Hydralazine","Codes":"C02DB02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Hydrochlorothiazide","Codes":"C03AA03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Furosemide","Codes":"C03CA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Purine Derivatives (Etofylline)","Codes":"C04AD","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ramipril and diuretics","Codes":"C09AA05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Amlodipine","Codes":"C08CA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Spironolactone","Codes":"C03DA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Metoprolol","Codes":"C07AB02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atenolol","Codes":"C07AB03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Bisoprolol","Codes":"C07AB07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Calcium channel blockers","Codes":"C08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"ACE inhibitors, plain","Codes":"C09AA","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ramipril and diuretics","Codes":"C09AA05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Enalapril and diuretics","Codes":"C09BA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atorvastatin and Acetylsalicylic acid","Codes":"C10BX08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Telmisartan","Codes":"C09CA07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Telmisartan and diuretics","Codes":"C09DA07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Losartan","Codes":"C09CA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"HMG CoA reductase inhibitors\/ Statins","Codes":"C10AA","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atorvastatin","Codes":"C10AA05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atorvastatin and Acetylsalicylic acid","Codes":"C10BX08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Corticosteroids for systemic use","Codes":"H02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Prednisolone","Codes":"H02AB06 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Hydrocortisone","Codes":"H02AB09 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Levothyroxine sodium","Codes":"H03AA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Doxycycline","Codes":"J01AA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Combinations of sulfonamides and trimethoprim, incl. derivatives","Codes":"J01EE","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Trimethoprim \/ Sulfamethoxazole (also co-trimoxazole)","Codes":"J01EE01 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Fluoroquinolones","Codes":"J01MA ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"ART unspecified","Codes":"J05A","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"PI unspecified","Codes":"J05AE","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Mozenavir (DMP-450)","Codes":"J05AE-MOZ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Saquinavir (gel, not specified)","Codes":"J05AE01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Saquinavir hard gel (INVIRASE)","Codes":"J05AE01-SQH","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Saquinavir soft gel (FORTOVASE)","Codes":"J05AE01-SQS","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Indinavir (CRIXIVAN)","Codes":"J05AE02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ritonavir (NORVIR)","Codes":"J05AE03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ritonavir high dose (NORVIR)","Codes":"J05AE03-H","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Ritonavir low dose (NORVIR)","Codes":"J05AE03-L","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Nelfinavir (VIRACEPT)","Codes":"J05AE04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Amprenavir (AGENERASE)","Codes":"J05AE05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lopinavir\/Ritonavir (Kaletra). Former code: J05AE06","Codes":"J05AR10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Fos-amprenavir (Telzir, Lexiva)","Codes":"J05AE07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atazanavir (Reyataz)","Codes":"J05AE08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Tipranavir (Aptivus)","Codes":"J05AE09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Darunavir (TMC-114, Prezista)","Codes":"J05AE10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"NRTI unspecified","Codes":"J05AF","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Alovudine","Codes":"J05AF-ALO","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Amdoxovir (DADP)","Codes":"J05AF-AMD","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Fozivudine tidoxi","Codes":"J05AF-FOZ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lodenosine (trial drug)","Codes":"J05AF-LDN","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Reverset","Codes":"J05AF-RVT","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Zidovudine (AZT, RETROVIR)","Codes":"J05AF01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Didanosine (ddI) (VIDEX)","Codes":"J05AF02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Zalcitabine (ddC) (HIVID)","Codes":"J05AF03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Stavudine (d4T) (ZERIT)","Codes":"J05AF04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lamivudine (3TC, EPIVIR)","Codes":"J05AF05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Abacavir (1592U89) (ZIAGEN)","Codes":"J05AF06","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Tenofovir (VIREAD)","Codes":"J05AF07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Adefovir (PREVEON)","Codes":"J05AF08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Emtricitabine","Codes":"J05AF09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Entecavir","Codes":"J05AF10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Telbivudine","Codes":"J05AF11","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"tenofovir alafenamide","Codes":"J05AF13","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"NNRTI unspecified","Codes":"J05AG","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Capravirine","Codes":"J05AG-CPV","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"DPC 083","Codes":"J05AG-DPC083","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"DPC 961","Codes":"J05AG-DPC961","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Emivirine (MKC442)","Codes":"J05AG-EMV","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Etravirine (TMC 125). Former code: J05AG-ETV","Codes":"J05AG04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Loviride","Codes":"J05AG-LOV","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Rilpivirine (TMC-278). Former code: J05AG-RPV","Codes":"J05AG05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Nevirapine (VIRAMUN)","Codes":"J05AG01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Delavirdine (U-90152) (RESCRIPTOR)","Codes":"J05AG02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Efavirenz (DMP-266) (STOCRIN, SUSTIVA)","Codes":"J05AG03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Doravirine","Codes":"J05AG06","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"raltegravir","Codes":"J05AJ01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Elvitegravir (former code: J05AX11)","Codes":"J05AJ02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"dolutegravir","Codes":"J05AJ03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Cabotegravir","Codes":"J05AJ04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Combivir (Zidovudine\/Lamivudine)","Codes":"J05AR01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Kivexa (Lamivudine\/Abacavir)","Codes":"J05AR02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Truvada (Tenofovir\/Emtricabine)","Codes":"J05AR03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Trizivir (Zidovudine\/Lamivudine\/Abacavir)","Codes":"J05AR04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Douvir-N (Zidovudine\/Lamivudine\/Nevirapine)","Codes":"J05AR05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atripla (Emtricitabine\/Tenofovir\/Efavirenz)","Codes":"J05AR06","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Triomune (Stavudine\/Lamivudine\/Nevirapine)","Codes":"J05AR07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Eviplera\/Complera (Emtricitabine\/Tenofovir\/Rilpivirine)","Codes":"J05AR08","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Stribild (Emtricitabine\/Tenofovir\/Elvitegravir\/Cobicistat)","Codes":"J05AR09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Kaletra\/Aluvia (Lopinavir\/Ritonavir)","Codes":"J05AR10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lamivudine, tenofovir disoproxil and efavirenz","Codes":"J05AR11","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lamivudine and tenofovir disoproxil","Codes":"J05AR12","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Lamivudine, abacavir and dolutegravir","Codes":"J05AR13","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Darunavir and cobicistat","Codes":"J05AR14","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Evotaz (atazanavir and cobicistat)","Codes":"J05AR15","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"lamivudine and raltegravir","Codes":"J05AR16","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"emtricitabine and tenofovir alafenamide","Codes":"J05AR17","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"emtricitabine, tenofovir alafenamide, elvitegravir and cobicistat","Codes":"J05AR18","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"emtricitabine, tenofovir alafenamide and rilpivirine","Codes":"J05AR19","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"emtricitabine, tenofovir alafenamide and bictegravir","Codes":"J05AR20","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"dolutegravir and rilpivirine","Codes":"J05AR21","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"emtricitabine, tenofovir alafenamide, darunavir and cobicistat","Codes":"J05AR22","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Atazanavir and ritonavir","Codes":"J05AR23","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"lamivudine, tenofovir disoproxil and doravirine","Codes":"J05AR24","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"lamivudine and dolutegravir","Codes":"J05AR25","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"lamivudine, tenofovir disoproxil and dolutegravir","Codes":"J05AR27","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Tenofir and emtricitabine","Codes":"J05AR30","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Vicriviroc (Schering)","Codes":"J05AX-VIC","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Enfurvirtide (Fuzeon , T-20)","Codes":"J05AX07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Maraviroc (Pfizer)","Codes":"J05AX09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Dolutegravir (deprecated; replaced by J05AJ03)","Codes":"J05AX12","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"fostemsavir","Codes":"J05AX29","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Antineoplastic Agents","Codes":"L01 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Hydroxyurea\/Hydroxycarbamid (Litalir)","Codes":"L01XX05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Endocrine Therapy","Codes":"L02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Filgrastim ","Codes":"L03AA02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Anti-inflammatory and Anti-rheumatic products, non- steroids","Codes":"M01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Diclofenac","Codes":"M01AB05","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Aceclofenac","Codes":"M01AB16","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Allopurinol","Codes":"M04AA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Febuxostat","Codes":"M04AA03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Tramadol and Paracetamol ","Codes":"N02AJ13 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Pregabalin ","Codes":"N02BF02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Salicylic acid and derivatives","Codes":"N02BA","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Antiepileptics","Codes":"N03A","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Phenytoin","Codes":"N03AB02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Antipsychotics","Codes":"N05A","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Haloperidol","Codes":"N05AD01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Amitriptyline","Codes":"N06AA09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Sertraline","Codes":"N06AB06","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Albendazole\n","Codes":"P02CA03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Bronchodialators unspecified","Codes":"R03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Formoterol and Budesonide","Codes":"R03AK07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Salbutamol","Codes":"R03CC02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Tiotropium bromide","Codes":"R03BB04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Doxofylline","Codes":"R03DA11","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Montelukast","Codes":"R03DC03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Bromhexine","Codes":"R05CB02","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Codeine","Codes":"R05DA04","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Cetirizine","Codes":"R06AE07","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Levocetirizine","Codes":"R06AE09","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MED","Descriptors":"Cobicistat","Codes":"V03AX03","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Oral","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Sublingual","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Rectal","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Intravenous (IV)","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Intramuscular (IM)","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Subcutaneous","Codes":6,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Transdermal","Codes":7,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Intranasal","Codes":8,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Inhaled","Codes":9,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Vaginal","Codes":10,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_MEDADMIN","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRRS","Descriptors":"Pregnancy","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRRS","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRRS","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_CXRRS","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"TB Outcome Status: Bacteriologic cure","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"TB Outcome Status: Bacteriologic status indeterminate","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"TB Outcome Status: Bacteriologic failure","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"TB Outcome Status: Bacteriologic relapse","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"TB Outcome Status: Emerging resistance","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTBACT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTCLIN","Descriptors":"TB Outcome Status: Clinical response","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTCLIN","Descriptors":"TB Outcome Status: Clinical failure","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTCLIN","Descriptors":"TB Outcome Status: Clinical relapse","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTCLIN","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTCLIN","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"TB Outcome Status: Not Tuberculosis","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"TB Outcome Status: Death","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"TB Outcome Status: Treatment incomplete","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"TB Outcome Status: Lost to follow-up\/unknown","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_OUTOTH","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"(see note)","Codes":null,"Group notes \/ thoughts":"Use ICD11 codes available in searchable portal here https:\/\/icd.who.int\/ct11\/icd11_mms\/en\/release  . We can add more codes based on what everyone finds in their datasets","__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Respiratory tuberculosis","Codes":"1B10 ","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Tuberculosis of the nervous system","Codes":"1B11","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Tuberculosis of other systems and organs","Codes":"1B12","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Miliary tuberculosis","Codes":"1B13","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Latent tuberculosis","Codes":"1B14","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Tuberculosis, unspecified","Codes":"1B1Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Non-tuberculous mycobacterial infection","Codes":"1B21","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Other specified malignant neoplasms of oesophagus","Codes":"2B70.Y","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"HIV","Codes":"1C62.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hepatitis B","Codes":"1E51.0Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hepatitis B Surface Antigen","Codes":"1E51.Y","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hepatitis C","Codes":"1E51.1","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Malaria","Codes":"1F4Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Genitocrural dermatophytosis (Tinea cruris)","Codes":"1F28.3","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Malignant neoplasm of Breast","Codes":"2C6Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Malignant neoplasm of Accessory sinus","Codes":"2C22.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Lung Cancer","Codes":"2C25.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Cancer, unspecified","Codes":"2D4Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Carcinoma in situ of cervix uteri","Codes":"2E66.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Iron deficiency anemia, unspecified","Codes":"3A00.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hypothyroidism, unspecified","Codes":"5A00.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Subclinical iodine-deficiency hypothyroidism","Codes":"5A00.22","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Type 1 diabetes mellitus","Codes":"5A10","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Diabetes mellitus, type unspecified","Codes":"5A14","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Intermediate hyperglycaemia , unspecified","Codes":"5A40.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Primary hyperparathyroidism","Codes":"5A51.0","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Vitamin D deficiency, unspecified","Codes":"5B57.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Unspecified disorders of lipoprotein metabolism or lipidaemia","Codes":"5C8Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Depression","Codes":"6A7Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hypertension","Codes":"BA00.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Ischaemic heart diseases, unspecified*","Codes":"BA6Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Acute pulmonary thromboembolism","Codes":"BB00. 0","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Pulmonary arterial hypertension associated with portal hypertension","Codes":"BB01.0","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Deep vein thrombosis","Codes":"BD71","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Cardiovascular disease (CVD)","Codes":"BE2Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Allergic rhinitis, unspecified","Codes":"CA08.0Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Chronic obstructive pulmonary disease (COPD)","Codes":"CA22.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Asthma","Codes":"CA23","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Pneumonia, unspecified","Codes":"CA40.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Pneumoconiosis due to dust containing silica (Silicosis)","Codes":"CA60.0Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Respiratory diseases principally affecting the lung interstitium, unspecified","Codes":"CB0Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Hepatitis (unspecified)","Codes":"DB97.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Portal vein thrombosis","Codes":"DB98. 3","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Inflammatory bowel diseases, unspecified","Codes":"DD7Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Crohn disease, unspecified site","Codes":"DD70.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Chronic kidney disease, stage 5 (requiring hemodialysis)","Codes":"GB61.5","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Chronic kidney disease (CKD), unspecified stage","Codes":"GB61.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"COVID-19","Codes":"RA01","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Epilepsy or seizures, unspecified","Codes":"8A6Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Seizures due to cerebrovascular diseases","Codes":"8A63.Y","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Stroke not known if ischaemic or haemorrhagic","Codes":"8B20","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Osteoarthritis, unspecified","Codes":"FA0Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISID","Descriptors":"Rheumatoid arthritis, serology unspecified","Codes":"FA20.Z","Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISCERT","Descriptors":"Definitive diagnosis","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISCERT","Descriptors":"Presumptive diagnosis","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISCERT","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISCERT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_DISCERT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SEX","Descriptors":"Male","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SEX","Descriptors":"Female","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_SEX","Descriptors":"Other","Codes":87,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTCOMP","Descriptors":"Yes","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTCOMP","Descriptors":"No, defaulted","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTCOMP","Descriptors":"No, other reason","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTCOMP","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
+{"Codelist":"_TBTRTCOMP","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"New Codelists","__table__":"New Codelists_table2"}
