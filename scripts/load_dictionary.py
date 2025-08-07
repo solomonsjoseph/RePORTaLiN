@@ -9,7 +9,6 @@ import pandas as pd
 import os
 import sys
 from pathlib import Path
-import argparse
 import json
 
 
@@ -18,66 +17,13 @@ def expand_user_path(path_str):
     return Path(os.path.expanduser(str(path_str)))
 
 
-def find_excel_file(filename=None, directory=None):
-    """Find Excel file in specified directory or common locations."""
-    search_paths = []
-    common_dirs = [".", "~/Documents", "~/Downloads", "~/Desktop"]
-    extensions = [".xlsx", ".xls", ".xlsm"]
-    
-    # Build search paths
-    if filename and directory:
-        search_paths.append(Path(directory) / filename)
-    
-    if filename:
-        for common_dir in common_dirs:
-            search_paths.append(expand_user_path(common_dir) / filename)
-    
-    if directory:
-        dir_path = expand_user_path(directory)
-        for ext in extensions:
-            search_paths.extend(dir_path.glob(f"*{ext}"))
-    
-    if not (filename or directory):
-        for common_dir in common_dirs:
-            dir_path = expand_user_path(common_dir)
-            for ext in extensions:
-                search_paths.extend(dir_path.glob(f"*{ext}"))
-    
-    # Find existing files
-    found_files = [path for path in search_paths if path.exists()]
-    
-    if not found_files:
-        print("No Excel files found in the specified locations.")
-        return None
-    
-    # Return single file or prompt for selection
-    if len(found_files) == 1:
-        return found_files[0]
-    
-    print("\nMultiple Excel files found. Please select one:")
-    for i, file_path in enumerate(found_files, 1):
-        print(f"{i}. {file_path}")
-    
-    try:
-        choice = int(input("\nEnter the number of your choice (or 0 to cancel): "))
-        return found_files[choice - 1] if 1 <= choice <= len(found_files) else None
-    except (ValueError, IndexError):
-        print("Invalid selection. Canceled.")
-        return None
-
-
 def extract_tables(input_path):
     """Extract tables from Excel workbook, handling both vertical and horizontal table separation."""
     # Setup and file validation
     input_path = expand_user_path(input_path)
     if not input_path.exists():
         print(f"Error: File not found: '{input_path}'", file=sys.stderr)
-        found_path = find_excel_file(input_path.name)
-        if not found_path:
-            print("Could not find the Excel file.")
-            return {}
-        input_path = found_path
-        print(f"Found Excel file at: '{input_path}'")
+        return {}
     
     # Load workbook
     try:
@@ -180,6 +126,7 @@ def save_tables_as_jsonl(tables_by_sheet, output_dir):
     output_path = expand_user_path(output_dir)
     output_path.mkdir(exist_ok=True, parents=True)
     saved_count = 0
+    saved_tables = []
     
     for sheet, tables in tables_by_sheet.items():
         # Create directory for sheet
@@ -205,55 +152,56 @@ def save_tables_as_jsonl(tables_by_sheet, output_dir):
                 table.to_json(out_file, orient="records", lines=True, force_ascii=False)
                 print(f"  Saved {len(table)} records to {out_file.name}")
                 saved_count += 1
+                saved_tables.append({
+                    "sheet": sheet,
+                    "table_name": table_name,
+                    "path": str(out_file),
+                    "rows": len(table),
+                    "columns": len(table.columns) - 2  # Subtract metadata columns
+                })
             except Exception as e:
                 print(f"Failed to save {sheet}/{table_name}: {e}", file=sys.stderr)
     
     print(f"Successfully saved {saved_count} tables as JSONL files in '{output_path}'")
-    return saved_count
+    return saved_tables
 
 
-def extract_and_save_tables(input_path=None, output_dir=None):
-    """Extract tables from Excel file and save as JSONL files."""
-    # Find input file if not specified
-    if not input_path:
-        print("No input file specified. Searching for Excel files...")
-        input_path = find_excel_file() or ""
-        if not input_path:
-            print("No Excel files found. Please specify a file path.")
-            return 0
+def load_study_dictionary(file_path):
+    """
+    Load study dictionary from Excel file and extract tables to JSONL format.
     
-    # Set default output directory
-    if not output_dir:
-        output_dir = expand_user_path(input_path).parent / "extracted_tables"
-    
-    print(f"Starting extraction from '{input_path}' to '{output_dir}'")
-    tables = extract_tables(input_path)
-    if not tables:
-        print("No tables were extracted.")
-        return 0
+    Parameters:
+        file_path (str): Path to the Excel file containing the study dictionary
         
-    saved = save_tables_as_jsonl(tables, output_dir)
-    print(f"Process complete: {saved} tables extracted and saved")
-    return saved
-
-
-def main():
-    """Parse command-line arguments and run the extraction process."""
-    parser = argparse.ArgumentParser(
-        description="Extract tables from Excel files and save as JSONL."
-    )
-    parser.add_argument("-i", "--input", help="Input Excel file path")
-    parser.add_argument("-o", "--output", help="Output directory for JSONL files")
-    parser.add_argument("--search-dir", help="Directory to search for Excel files")
+    Returns:
+        list: Information about the extracted tables
+    """
+    # Default paths
+    input_path = "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
+    output_dir = "data/data_dictionary_and_mapping_specifications/json_output"
     
-    args = parser.parse_args()
+    # Override with provided path if specified
+    if file_path:
+        input_path = file_path
     
-    # If search directory provided but no input file, search that directory
-    if args.search_dir and not args.input:
-        args.input = find_excel_file(directory=args.search_dir)
+    print(f"Loading study dictionary from: {input_path}")
+    print(f"Saving extracted tables to: {output_dir}")
     
-    extract_and_save_tables(args.input, args.output)
+    # Extract tables from the Excel file
+    tables = extract_tables(input_path)
+    
+    if not tables:
+        print("No tables were extracted from the study dictionary.")
+        return []
+    
+    # Save tables as JSONL files
+    saved_tables = save_tables_as_jsonl(tables, output_dir)
+    
+    print(f"Study dictionary processing complete: {len(saved_tables)} tables extracted and saved")
+    return saved_tables
 
 
+# This allows the script to be run standalone for testing
 if __name__ == "__main__":
-    main()
+    # When run directly, use the default paths
+    load_study_dictionary(None)
