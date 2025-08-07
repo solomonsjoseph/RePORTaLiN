@@ -1,8 +1,15 @@
 """
-extract_tables_to_jsonl.py
+Extract tables from Excel workbooks and save as JSONL files for RAG applications.
 
-Extract multiple tables from each sheet of an Excel workbook, clean NaN-only columns,
-and save each table as a line-delimited JSON (JSONL) file with metadata for RAG ingestion.
+Functions:
+    expand_user_path: Expands user paths (~/directory)
+    extract_tables: Extracts tables from Excel workbook by sheet
+    save_tables_as_jsonl: Saves tables as JSONL with metadata
+    load_study_dictionary: Main function to process dictionary
+
+Each table is extracted by identifying column groups separated by blank columns
+and row groups separated by blank rows. Metadata (__sheet__, __table__) is added
+to each record. Output maintains sheet/table hierarchy in directory structure.
 """
 
 import pandas as pd
