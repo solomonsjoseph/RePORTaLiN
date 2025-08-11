@@ -1,0 +1,14 @@
+{"sheet":"Codelists","table_name":"Codelists_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/Codelists\/Codelists_table.jsonl","rows":635,"columns":7,"exists":true}
+{"sheet":"Notes","table_name":"Notes_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/Notes\/Notes_table.jsonl","rows":19,"columns":16,"exists":true}
+{"sheet":"tblENROL","table_name":"tblENROL_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblENROL\/tblENROL_table.jsonl","rows":23,"columns":17,"exists":true}
+{"sheet":"tblHISTORY","table_name":"tblHISTORY_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblHISTORY\/tblHISTORY_table.jsonl","rows":50,"columns":17,"exists":true}
+{"sheet":"tblVIS","table_name":"tblVIS_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblVIS\/tblVIS_table.jsonl","rows":39,"columns":17,"exists":true}
+{"sheet":"tblCXR","table_name":"tblCXR_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblCXR\/tblCXR_table.jsonl","rows":41,"columns":17,"exists":true}
+{"sheet":"tblTBMED","table_name":"tblTBMED_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblTBMED\/tblTBMED_table.jsonl","rows":16,"columns":17,"exists":true}
+{"sheet":"tblTBLAB","table_name":"tblTBLAB_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblTBLAB\/tblTBLAB_table.jsonl","rows":58,"columns":17,"exists":true}
+{"sheet":"tblLAB","table_name":"tblLAB_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblLAB\/tblLAB_table.jsonl","rows":33,"columns":17,"exists":true}
+{"sheet":"tblDIS","table_name":"tblDIS_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblDIS\/tblDIS_table.jsonl","rows":11,"columns":16,"exists":true}
+{"sheet":"tblMED","table_name":"tblMED_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblMED\/tblMED_table.jsonl","rows":14,"columns":15,"exists":true}
+{"sheet":"tblOUTCOME","table_name":"tblOUTCOME_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblOUTCOME\/tblOUTCOME_table.jsonl","rows":30,"columns":17,"exists":true}
+{"sheet":"tblOFFSTUDY","table_name":"tblOFFSTUDY_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblOFFSTUDY\/tblOFFSTUDY_table.jsonl","rows":18,"columns":17,"exists":true}
+{"sheet":"tblSPECIMEN","table_name":"tblSPECIMEN_table","path":"data\/data_dictionary_and_mapping_specifications\/json_output\/tblSPECIMEN\/tblSPECIMEN_table.jsonl","rows":60,"columns":17,"exists":true}
