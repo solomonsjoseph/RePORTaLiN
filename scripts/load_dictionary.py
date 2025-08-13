@@ -3,27 +3,8 @@ import logging
 from pathlib import Path
 import os
 
-# Configure logging without INFO:root prefix
+# Configure logging
 logging.basicConfig(format='%(message)s', level=logging.INFO)
-
-def expand_path(path_str):
-    return Path(path_str).expanduser()
-
-def group_columns(df):
-    blank_cols = [c for c in df.columns if df[c].isnull().all() and (pd.isna(c) or str(c).startswith("Unnamed"))]
-    col_groups, temp = [], []
-    for col in df.columns:
-        if col in blank_cols:
-            if temp: col_groups.append(temp); temp = []
-        else:
-            temp.append(col)
-    if temp: col_groups.append(temp)
-    return col_groups
-
-def group_rows(df_sub):
-    blank_rows = df_sub.isnull().all(axis=1)
-    row_idx = [0] + blank_rows[blank_rows].index.tolist() + [len(df_sub)]
-    return [(row_idx[i], row_idx[i+1]) for i in range(len(row_idx)-1)]
 
 def extract_tables(input_path, preserve_na=True):
     """Extract tables from Excel file by identifying column/row groups."""
@@ -44,32 +25,39 @@ def extract_tables(input_path, preserve_na=True):
                     parse_options.update({"keep_default_na": False, "na_values": []})
                 df = xls.parse(sheet, **parse_options)
                 
-                # Identify blank columns and group by them
+                # Identify blank columns and group content columns
                 blank_cols = [c for c in df.columns if df[c].isnull().all() and 
                              (pd.isna(c) or str(c).startswith("Unnamed"))]
                 
-                # Group columns
-                col_groups, temp = [], []
+                # Group columns by blank column separators
+                col_groups = []
+                current_group = []
                 for col in df.columns:
                     if col in blank_cols:
-                        if temp: col_groups.append(temp); temp = []
-                    else: temp.append(col)
-                if temp: col_groups.append(temp)
+                        if current_group:
+                            col_groups.append(current_group)
+                            current_group = []
+                    else:
+                        current_group.append(col)
+                if current_group:
+                    col_groups.append(current_group)
                 
-                # Extract tables
+                # Extract tables from each column group
                 tables = []
-                for group_cols in col_groups:
-                    df_sub = df[group_cols]
-                    blank_rows = df_sub.isnull().all(axis=1)
-                    row_indices = [0] + blank_rows[blank_rows].index.tolist() + [len(df_sub)]
+                for cols in col_groups:
+                    subset = df[cols]
+                    # Find blank rows (all null across these columns)
+                    blank_rows = subset.isnull().all(axis=1)
+                    blank_indices = [0] + blank_rows[blank_rows].index.tolist() + [len(subset)]
                     
-                    # Create tables based on row groups
-                    for i in range(len(row_indices)-1):
-                        start, end = row_indices[i], row_indices[i+1]
-                        table = df_sub.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
+                    # Extract tables between blank rows
+                    for i in range(len(blank_indices)-1):
+                        start, end = blank_indices[i], blank_indices[i+1]
+                        table = subset.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
                         if not table.empty:
-                            # Clean all-null columns
-                            for col in table.columns[table.isnull().all()]:
+                            # Clean null columns
+                            null_cols = table.columns[table.isnull().all()]
+                            for col in null_cols:
                                 if pd.isna(col) or str(col).startswith("Unnamed"):
                                     table.drop(columns=[col], inplace=True)
                                 else:
@@ -95,19 +83,17 @@ def save_tables(tables_by_sheet, output_dir):
     output_path.mkdir(parents=True, exist_ok=True)
     
     for sheet, tables in tables_by_sheet.items():
-        sheet_dir = output_path / sheet.replace(" ", "_")
+        # Create a safer folder name
+        folder_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in sheet).strip()
+        sheet_dir = output_path / folder_name
         sheet_dir.mkdir(exist_ok=True)
         
+        # Save each table (or single table without number)
         for i, table in enumerate(tables, 1):
-            # Only add number if multiple tables
-            if len(tables) == 1:
-                table_name = f"{sheet}_table"
-            else:
-                table_name = f"{sheet}_table{i}"
-            
+            table_name = f"{folder_name}_table{i if len(tables) > 1 else ''}"
             out_file = sheet_dir / f"{table_name}.jsonl"
             
-            # Don't overwrite existing files
+            # Skip existing files
             if out_file.exists():
                 logging.info(f"File already exists, not overwriting: {out_file}")
                 continue
@@ -127,15 +113,17 @@ def save_tables(tables_by_sheet, output_dir):
 
 def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True):
     """Load study dictionary from Excel and save as JSONL files."""
+    # Use default paths if not provided
     file_path = file_path or "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
     json_output_dir = json_output_dir or "data/data_dictionary_and_mapping_specifications/json_output"
     
+    # Extract and save tables
     tables = extract_tables(file_path, preserve_na=preserve_na)
     if tables:
         save_tables(tables, json_output_dir)
-        return tables  # Return the tables dictionary instead of just the count
+        return tables
     return {}
 
 if __name__ == "__main__":
-    num_tables = load_study_dictionary()
-    logging.info(f"Processed {num_tables} sheets")
+    tables = load_study_dictionary()
+    logging.info(f"Processed {len(tables)} sheets")
