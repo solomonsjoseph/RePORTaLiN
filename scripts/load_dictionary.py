@@ -25,47 +25,57 @@ def extract_tables(input_path, preserve_na=True):
                     parse_options.update({"keep_default_na": False, "na_values": []})
                 df = xls.parse(sheet, **parse_options)
                 
-                # Special case: Codelists sheet has 3 distinct tables (Codelists, Variable Endings, and New Codelists)
+                # Special case: Codelists sheet has 3 distinct tables
                 if sheet == "Codelists":
                     logging.info(f"Note: '{sheet}' sheet contains 3 distinct tables instead of 1")
                 
-                # Identify blank columns and group content columns
+                # Identify blank columns (separators)
                 blank_cols = [c for c in df.columns if df[c].isnull().all() and 
-                             (pd.isna(c) or str(c).startswith("Unnamed"))]
+                              (pd.isna(c) or str(c).startswith("Unnamed"))]
                 
-                # Group columns by blank column separators
+                # Group columns by blank separators
                 col_groups = []
                 current_group = []
+                
                 for col in df.columns:
                     if col in blank_cols:
-                        if current_group:
+                        if current_group:  # Only add non-empty groups
                             col_groups.append(current_group)
                             current_group = []
                     else:
                         current_group.append(col)
-                if current_group:
+                
+                if current_group:  # Add the last group if not empty
                     col_groups.append(current_group)
                 
-                # Extract tables from each column group
+                # Process each column group to find tables
                 tables = []
                 for cols in col_groups:
+                    # Get data for these columns
                     subset = df[cols]
-                    # Find blank rows (all null across these columns)
+                    
+                    # Find blank rows (separators)
                     blank_rows = subset.isnull().all(axis=1)
                     blank_indices = [0] + blank_rows[blank_rows].index.tolist() + [len(subset)]
                     
                     # Extract tables between blank rows
                     for i in range(len(blank_indices)-1):
                         start, end = blank_indices[i], blank_indices[i+1]
+                        if start == end:  # Skip empty sections
+                            continue
+                            
                         table = subset.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
                         if not table.empty:
-                            # Clean null columns
-                            null_cols = table.columns[table.isnull().all()]
-                            for col in null_cols:
-                                if pd.isna(col) or str(col).startswith("Unnamed"):
-                                    table.drop(columns=[col], inplace=True)
-                                else:
+                            # Remove empty columns
+                            table = table.drop(columns=[c for c in table.columns 
+                                                      if table[c].isnull().all() and 
+                                                         (pd.isna(c) or str(c).startswith("Unnamed"))])
+                            
+                            # Set empty values for named empty columns
+                            for col in table.columns:
+                                if not pd.isna(col) and not str(col).startswith("Unnamed") and table[col].isnull().all():
                                     table[col] = ""
+                                    
                             tables.append(table)
                 
                 if tables:
@@ -87,13 +97,14 @@ def save_tables(tables_by_sheet, output_dir):
     output_path.mkdir(parents=True, exist_ok=True)
     
     for sheet, tables in tables_by_sheet.items():
-        # Create a safer folder name
+        # Create folder for sheet
         folder_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in sheet).strip()
         sheet_dir = output_path / folder_name
         sheet_dir.mkdir(exist_ok=True)
         
-        # Save each table (or single table without number)
+        # Save each table
         for i, table in enumerate(tables, 1):
+            # Generate filename (add number only if multiple tables)
             table_name = f"{folder_name}_table{i if len(tables) > 1 else ''}"
             out_file = sheet_dir / f"{table_name}.jsonl"
             
@@ -121,7 +132,6 @@ def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True
     file_path = file_path or "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
     json_output_dir = json_output_dir or "data/data_dictionary_and_mapping_specifications/json_output"
     
-    # Extract and save tables
     tables = extract_tables(file_path, preserve_na=preserve_na)
     if tables:
         save_tables(tables, json_output_dir)
