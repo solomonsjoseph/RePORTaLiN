@@ -25,6 +25,10 @@ def extract_tables(input_path, preserve_na=True):
                     parse_options.update({"keep_default_na": False, "na_values": []})
                 df = xls.parse(sheet, **parse_options)
                 
+                # Special case: Codelists sheet has 3 distinct tables (Codelists, Variable Endings, and New Codelists)
+                if sheet == "Codelists":
+                    logging.info(f"Note: '{sheet}' sheet contains 3 distinct tables instead of 1")
+                
                 # Identify blank columns and group content columns
                 blank_cols = [c for c in df.columns if df[c].isnull().all() and 
                              (pd.isna(c) or str(c).startswith("Unnamed"))]
