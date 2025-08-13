@@ -1,120 +1,143 @@
-"""
-Extract tables from Excel workbooks and save as JSONL files for RAG applications.
-
-Functions:
-    expand_user_path: Expands user paths (~/directory)
-    extract_tables: Extracts tables from Excel workbook by sheet
-    save_tables_as_jsonl: Saves tables as JSONL with metadata
-    load_study_dictionary: Main function to process dictionary
-
-Each table is extracted by identifying column groups separated by blank columns
-and row groups separated by blank rows. Metadata (__sheet__, __table__) is added
-to each record. Output maintains sheet/table hierarchy in directory structure.
-"""
-
 import pandas as pd
-import os, sys
+import logging
 from pathlib import Path
-import json
+import os
 
-def expand_user_path(path_str):
-    return Path(os.path.expanduser(str(path_str)))
+# Configure logging
+logging.basicConfig(format='%(message)s', level=logging.INFO)
 
-def extract_tables(input_path):
-    input_path = expand_user_path(input_path)
+def extract_tables(input_path, preserve_na=True):
+    """Extract tables from Excel file by identifying column/row groups."""
+    input_path = Path(os.path.expanduser(str(input_path)))
     if not input_path.exists():
-        print(f"Error: File not found: '{input_path}'", file=sys.stderr)
+        logging.error(f"File not found: {input_path}")
         return {}
     
     try:
-        print(f"Loading workbook from '{input_path}'")
         xls = pd.ExcelFile(input_path, engine="openpyxl")
+        tables_by_sheet = {}
+        
+        for sheet in xls.sheet_names:
+            try:
+                # Parse with NA preservation if requested
+                parse_options = {"dtype": object}
+                if preserve_na:
+                    parse_options.update({"keep_default_na": False, "na_values": []})
+                df = xls.parse(sheet, **parse_options)
+                
+                # Special case: Codelists sheet has 3 distinct tables
+                if sheet == "Codelists":
+                    logging.info(f"Note: '{sheet}' sheet contains 3 distinct tables instead of 1")
+                
+                # Identify blank columns (separators)
+                blank_cols = [c for c in df.columns if df[c].isnull().all() and 
+                              (pd.isna(c) or str(c).startswith("Unnamed"))]
+                
+                # Group columns by blank separators
+                col_groups = []
+                current_group = []
+                
+                for col in df.columns:
+                    if col in blank_cols:
+                        if current_group:  # Only add non-empty groups
+                            col_groups.append(current_group)
+                            current_group = []
+                    else:
+                        current_group.append(col)
+                
+                if current_group:  # Add the last group if not empty
+                    col_groups.append(current_group)
+                
+                # Process each column group to find tables
+                tables = []
+                for cols in col_groups:
+                    # Get data for these columns
+                    subset = df[cols]
+                    
+                    # Find blank rows (separators)
+                    blank_rows = subset.isnull().all(axis=1)
+                    blank_indices = [0] + blank_rows[blank_rows].index.tolist() + [len(subset)]
+                    
+                    # Extract tables between blank rows
+                    for i in range(len(blank_indices)-1):
+                        start, end = blank_indices[i], blank_indices[i+1]
+                        if start == end:  # Skip empty sections
+                            continue
+                            
+                        table = subset.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
+                        if not table.empty:
+                            # Remove empty columns
+                            table = table.drop(columns=[c for c in table.columns 
+                                                      if table[c].isnull().all() and 
+                                                         (pd.isna(c) or str(c).startswith("Unnamed"))])
+                            
+                            # Set empty values for named empty columns
+                            for col in table.columns:
+                                if not pd.isna(col) and not str(col).startswith("Unnamed") and table[col].isnull().all():
+                                    table[col] = ""
+                                    
+                            tables.append(table)
+                
+                if tables:
+                    tables_by_sheet[sheet] = tables
+                    logging.info(f"Extracted {len(tables)} tables from '{sheet}'")
+                    
+            except Exception as e:
+                logging.error(f"Failed to process sheet '{sheet}': {e}")
+        
+        return tables_by_sheet
+        
     except Exception as e:
-        print(f"Error loading workbook: {e}", file=sys.stderr)
+        logging.error(f"Error loading workbook: {e}")
         return {}
-    
-    tables_by_sheet, total_tables = {}, 0
-    
-    for sheet_name in xls.sheet_names:
-        print(f"Processing sheet: '{sheet_name}'")
-        try:
-            df = xls.parse(sheet_name, dtype=object)
-            blank_cols = [c for c in df.columns if df[c].isnull().all() and (pd.isna(c) or str(c).startswith("Unnamed"))]
-            
-            # Group columns
-            cols, col_groups, temp = list(df.columns), [], []
-            for col in cols:
-                if col in blank_cols:
-                    if temp: col_groups.append(temp); temp = []
-                else: temp.append(col)
-            if temp: col_groups.append(temp)
-            
-            # Extract tables
-            tables = []
-            for group_cols in col_groups:
-                df_sub = df[group_cols]
-                blank_rows = df_sub.isnull().all(axis=1)
-                row_idx = [0] + blank_rows[blank_rows].index.tolist() + [len(df_sub)]
-                
-                for start, end in zip(row_idx, row_idx[1:]):
-                    table = df_sub.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
-                    if table.empty: continue
-                    
-                    # Clean columns
-                    for col in table.columns[table.isnull().all()]:
-                        if pd.isna(col) or str(col).startswith("Unnamed"): table.drop(columns=[col], inplace=True)
-                        else: table[col] = ""
-                    
-                    tables.append(table)
-                    total_tables += 1
-            
-            if tables:
-                tables_by_sheet[sheet_name] = tables
-                print(f"  Extracted {len(tables)} tables from '{sheet_name}'")
-                
-        except Exception as e:
-            print(f"Failed to process sheet '{sheet_name}': {e}", file=sys.stderr)
-    
-    return tables_by_sheet
 
-def save_tables_as_jsonl(tables_by_sheet, output_dir):
-    output_path = expand_user_path(output_dir)
-    output_path.mkdir(exist_ok=True, parents=True)
-    saved_tables = []
+def save_tables(tables_by_sheet, output_dir):
+    """Save extracted tables as JSONL files with metadata."""
+    output_path = Path(os.path.expanduser(str(output_dir)))
+    output_path.mkdir(parents=True, exist_ok=True)
     
     for sheet, tables in tables_by_sheet.items():
-        safe_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in sheet).strip()
-        sheet_dir = output_path / safe_name
+        # Create folder for sheet
+        folder_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in sheet).strip()
+        sheet_dir = output_path / folder_name
         sheet_dir.mkdir(exist_ok=True)
         
-        for i, table in enumerate(tables, start=1):
-            table_name = f"{safe_name}_table{i}"
+        # Save each table
+        for i, table in enumerate(tables, 1):
+            # Generate filename (add number only if multiple tables)
+            table_name = f"{folder_name}_table{i if len(tables) > 1 else ''}"
             out_file = sheet_dir / f"{table_name}.jsonl"
             
+            # Skip existing files
+            if out_file.exists():
+                logging.info(f"File already exists, not overwriting: {out_file}")
+                continue
+                
             # Add metadata and save
             table = table.copy()
-            table["__sheet__"], table["__table__"] = sheet, table_name
-            if out_file.exists(): out_file.unlink()
+            table["__sheet__"] = sheet
+            table["__table__"] = table_name
             
             try:
                 table.to_json(out_file, orient="records", lines=True, force_ascii=False)
-                saved_tables.append({
-                    "sheet": sheet, "table_name": table_name, "path": str(out_file),
-                    "rows": len(table), "columns": len(table.columns) - 2
-                })
+                logging.info(f"Saved {len(table)} rows to {out_file}")
             except Exception as e:
-                print(f"Failed to save {sheet}/{table_name}: {e}", file=sys.stderr)
+                logging.error(f"Failed to save {table_name}: {e}")
     
-    return saved_tables
+    return True
 
-def load_study_dictionary(file_path=None, json_output_dir=None):
-    # Default paths
-    input_path = file_path or "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
-    output_dir = json_output_dir or "data/data_dictionary_and_mapping_specifications/json_output"
+def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True):
+    """Load study dictionary from Excel and save as JSONL files."""
+    # Use default paths if not provided
+    file_path = file_path or "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
+    json_output_dir = json_output_dir or "data/data_dictionary_and_mapping_specifications/json_output"
     
-    # Extract and save tables
-    tables = extract_tables(input_path)
-    return [] if not tables else save_tables_as_jsonl(tables, output_dir)
+    tables = extract_tables(file_path, preserve_na=preserve_na)
+    if tables:
+        save_tables(tables, json_output_dir)
+        return tables
+    return {}
 
 if __name__ == "__main__":
-    load_study_dictionary()
+    tables = load_study_dictionary()
+    logging.info(f"Processed {len(tables)} sheets")
