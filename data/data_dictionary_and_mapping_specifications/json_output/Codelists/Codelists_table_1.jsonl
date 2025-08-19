@@ -1,0 +1,74 @@
+{"Codelist":"_DWELL","Descriptors":"City","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DWELL","Descriptors":"Town\/Suburb","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DWELL","Descriptors":"Rural (countryside)","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DWELL","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DWELL","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Never married","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Married\/Living together","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Separated\/divorced","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Widowed","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Not applicable (child)","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_MARISTAT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"NY","Descriptors":"No","Codes":0,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"NY","Descriptors":"Yes","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"NY","Descriptors":"Not applicable","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"NY","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":"Refuse to answer was categorized as unknown","__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"NY","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_INCOME","Descriptors":"Low income (bottom 25%)","Codes":1,"Group notes \/ thoughts":"May be tricky to map for some countries","__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_INCOME","Descriptors":"Medium or High income (top 75%)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_INCOME","Descriptors":"Refused to answer","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_INCOME","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_INCOME","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":"< 1 year ago","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":"1- < 5 years ago","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":"5 - 10 years ago","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":">= 10 years ago","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_BCGRTPT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_CURRENTFORMER","Descriptors":"No, Never","Codes":0,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_CURRENTFORMER","Descriptors":"Yes, Current","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_CURRENTFORMER","Descriptors":"Yes, Former","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_CURRENTFORMER","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_CURRENTFORMER","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"Never","Codes":0,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"Monthly or less","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"2 to 4 times a month","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"2 to 3 times a week","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"4 or more times a week","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCFRQ","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"1 or 2","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"3 or 4","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"5 or 6","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"7, 8, or 9","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"10 or more","Codes":5,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALCDOSTXT","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Never","Codes":0,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Less than monthly","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Monthly","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Weekly","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Daily or almost daily","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_ALC6FRQ","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"Improved, no signs\/symptoms present","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"Improved, but signs\/symptoms still present","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"No change","Codes":3,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"Worsened","Codes":4,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SSCHG","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Medical report","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Medical report - laboratory result","Codes":11,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Medical report - clinical chart","Codes":12,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Self report","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_SOURCE","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DOSETYPE","Descriptors":"DOT card","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DOSETYPE","Descriptors":"Self report","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DOSETYPE","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_DOSETYPE","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_TBNEW","Descriptors":"New","Codes":1,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_TBNEW","Descriptors":"Previously treated (relapsed)","Codes":2,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_TBNEW","Descriptors":"Unknown","Codes":88,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
+{"Codelist":"_TBNEW","Descriptors":"Not Captured in CRF","Codes":99,"Group notes \/ thoughts":null,"__sheet__":"Codelists","__table__":"Codelists_table_1"}
