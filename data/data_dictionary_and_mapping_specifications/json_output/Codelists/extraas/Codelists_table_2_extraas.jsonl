@@ -1,0 +1,5 @@
+{"Variable Endings":"For Numeric Values","Description":null,"__sheet__":"Codelists","__table__":"Codelists_table_2"}
+{"Variable Endings":"Use -88 as code for \"Unknown\" to avoid possibly valid values (usually it's 88)","Description":null,"__sheet__":"Codelists","__table__":"Codelists_table_2"}
+{"Variable Endings":"Use -99 as code for \"Not Captured in CRF\" to avoid possibly valid values (usually it's 99)","Description":null,"__sheet__":"Codelists","__table__":"Codelists_table_2"}
+{"Variable Endings":"For Dates","Description":null,"__sheet__":"Codelists","__table__":"Codelists_table_2"}
+{"Variable Endings":"Use 1900-01-01 as an Unknown date","Description":null,"__sheet__":"Codelists","__table__":"Codelists_table_2"}

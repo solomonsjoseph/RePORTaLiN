@@ -1,130 +1,149 @@
 import pandas as pd
-import logging
-from pathlib import Path
 import os
+from scripts.utils import logging_utils as log
 
-# Configure logging
-logging.basicConfig(format='%(message)s', level=logging.INFO)
+# --- Helper function to deduplicate column names ---
+def deduplicate_columns(columns):
+    """Makes column names unique by appending a suffix to duplicates."""
+    new_cols, counts = [], {}
+    for col in columns:
+        col_str = str(col) if pd.notna(col) else "Unnamed"
+        if col_str in counts:
+            counts[col_str] += 1
+            new_cols.append(f"{col_str}_{counts[col_str]}")
+        else:
+            new_cols.append(col_str)
+            counts[col_str] = 0
+    return new_cols
 
-def extract_tables(input_path, preserve_na=True):
-    """Extract tables from Excel file by identifying column/row groups."""
-    input_path = Path(os.path.expanduser(str(input_path)))
-    if not input_path.exists():
-        logging.error(f"File not found: {input_path}")
-        return {}
-    
+# --- Step 2: Main Function to Extract and Save Tables ---
+def process_excel_file(excel_path, output_dir, preserve_na=True):
+    """
+    Extracts all distinct tables from an Excel file and saves them as JSONL.
+
+    Args:
+        excel_path (str): Path to the source Excel file.
+        output_dir (str): The main directory where output folders will be created.
+        preserve_na (bool): If True, reads blank cells as empty strings instead of NaN.
+    """
+    # --- Setup Paths ---
+    if not os.path.exists(excel_path):
+        log.error(f"Input file not found: {excel_path}")
+        return
+
+    log.info(f"Output will be saved in: '{output_dir}'")
     try:
-        xls = pd.ExcelFile(input_path, engine="openpyxl")
-        tables_by_sheet = {}
-        
-        for sheet in xls.sheet_names:
-            try:
-                # Parse with NA preservation if requested
-                parse_options = {"dtype": object}
-                if preserve_na:
-                    parse_options.update({"keep_default_na": False, "na_values": []})
-                df = xls.parse(sheet, **parse_options)
-                
-                # Special case: Codelists sheet has 3 distinct tables
-                if sheet == "Codelists":
-                    logging.info(f"Note: '{sheet}' sheet contains 3 distinct tables instead of 1")
-                
-                # Identify blank columns (separators)
-                blank_cols = [c for c in df.columns if df[c].isnull().all() and 
-                              (pd.isna(c) or str(c).startswith("Unnamed"))]
-                
-                # Group columns by blank separators
-                col_groups = []
-                current_group = []
-                
-                for col in df.columns:
-                    if col in blank_cols:
-                        if current_group:  # Only add non-empty groups
-                            col_groups.append(current_group)
-                            current_group = []
-                    else:
-                        current_group.append(col)
-                
-                if current_group:  # Add the last group if not empty
-                    col_groups.append(current_group)
-                
-                # Process each column group to find tables
-                tables = []
-                for cols in col_groups:
-                    # Get data for these columns
-                    subset = df[cols]
-                    
-                    # Find blank rows (separators)
-                    blank_rows = subset.isnull().all(axis=1)
-                    blank_indices = [0] + blank_rows[blank_rows].index.tolist() + [len(subset)]
-                    
-                    # Extract tables between blank rows
-                    for i in range(len(blank_indices)-1):
-                        start, end = blank_indices[i], blank_indices[i+1]
-                        if start == end:  # Skip empty sections
-                            continue
-                            
-                        table = subset.iloc[start:end].dropna(how="all", axis=0).reset_index(drop=True)
-                        if not table.empty:
-                            # Remove empty columns
-                            table = table.drop(columns=[c for c in table.columns 
-                                                      if table[c].isnull().all() and 
-                                                         (pd.isna(c) or str(c).startswith("Unnamed"))])
-                            
-                            # Set empty values for named empty columns
-                            for col in table.columns:
-                                if not pd.isna(col) and not str(col).startswith("Unnamed") and table[col].isnull().all():
-                                    table[col] = ""
-                                    
-                            tables.append(table)
-                
-                if tables:
-                    tables_by_sheet[sheet] = tables
-                    logging.info(f"Extracted {len(tables)} tables from '{sheet}'")
-                    
-            except Exception as e:
-                logging.error(f"Failed to process sheet '{sheet}': {e}")
-        
-        return tables_by_sheet
-        
-    except Exception as e:
-        logging.error(f"Error loading workbook: {e}")
-        return {}
+        os.makedirs(output_dir, exist_ok=True)
+    except OSError as e:
+        log.error(f"Cannot create output directory {output_dir}: {e}")
+        return
 
-def save_tables(tables_by_sheet, output_dir):
-    """Save extracted tables as JSONL files with metadata."""
-    output_path = Path(os.path.expanduser(str(output_dir)))
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    for sheet, tables in tables_by_sheet.items():
-        # Create folder for sheet
-        folder_name = "".join(c if c.isalnum() or c in "._- " else "_" for c in sheet).strip()
-        sheet_dir = output_path / folder_name
-        sheet_dir.mkdir(exist_ok=True)
-        
-        # Save each table
-        for i, table in enumerate(tables, 1):
-            # Generate filename (add number only if multiple tables)
-            table_name = f"{folder_name}_table{i if len(tables) > 1 else ''}"
-            out_file = sheet_dir / f"{table_name}.jsonl"
+    # --- Read Excel File ---
+    try:
+        xls = pd.ExcelFile(excel_path)
+    except Exception as e:
+        log.error(f"Failed to read Excel workbook: {e}")
+        return
+
+    log.info(f"Processing workbook: '{excel_path}'")
+    for sheet_name in xls.sheet_names:
+        try:
+            log.info(f"--- Processing sheet: '{sheet_name}' ---")
+
+            # Define parsing options based on preserve_na flag
+            parse_options = {'header': None}
+            if preserve_na:
+                parse_options.update({'keep_default_na': False, 'na_values': ['']})
+                log.info("Reading sheet with 'preserve_na' mode enabled.")
             
-            # Skip existing files
-            if out_file.exists():
-                logging.info(f"File already exists, not overwriting: {out_file}")
+            df = pd.read_excel(xls, sheet_name=sheet_name, **parse_options)
+            
+            # --- Grid-Splitting Logic ---
+            empty_rows = df.index[df.isnull().all(axis=1)].tolist()
+            row_boundaries = [-1] + empty_rows + [df.shape[0]]
+            horizontal_strips = []
+            for i in range(len(row_boundaries) - 1):
+                start_row, end_row = row_boundaries[i] + 1, row_boundaries[i+1]
+                if start_row < end_row:
+                    horizontal_strips.append(df.iloc[start_row:end_row])
+
+            all_tables = []
+            for strip in horizontal_strips:
+                empty_cols = strip.columns[strip.isnull().all(axis=0)].tolist()
+                col_boundaries = [-1] + empty_cols + [df.shape[1]]
+                for j in range(len(col_boundaries) - 1):
+                    start_col, end_col = col_boundaries[j] + 1, col_boundaries[j+1]
+                    if start_col < end_col:
+                        table_df = strip.iloc[:, start_col:end_col].copy()
+                        table_df.dropna(how='all', axis=0, inplace=True)
+                        table_df.dropna(how='all', axis=1, inplace=True)
+                        if not table_df.empty:
+                            all_tables.append(table_df)
+
+            if not all_tables:
+                log.info("No data tables found on this sheet.")
                 continue
-                
-            # Add metadata and save
-            table = table.copy()
-            table["__sheet__"] = sheet
-            table["__table__"] = table_name
+
+            log.info(f"Found {len(all_tables)} table(s) on this sheet.")
+
+            # --- Clean, Add Metadata, and Save Tables ---
+            folder_name = "".join(c for c in sheet_name if c.isalnum() or c in "._- ").strip()
+            sheet_dir = os.path.join(output_dir, folder_name)
+            os.makedirs(sheet_dir, exist_ok=True)
             
-            try:
-                table.to_json(out_file, orient="records", lines=True, force_ascii=False)
-                logging.info(f"Saved {len(table)} rows to {out_file}")
-            except Exception as e:
-                logging.error(f"Failed to save {table_name}: {e}")
+            # Flag for "ignore below" detection
+            ignore_mode_activated = False
+            
+            # Process all tables
+            for i, table_df in enumerate(all_tables):
+                table_df.reset_index(drop=True, inplace=True)
+                
+                # Check for "ignore below" in headers (case-insensitive)
+                if not ignore_mode_activated:
+                    header_row = table_df.iloc[0]
+                    for idx, col in enumerate(header_row):
+                        if "ignore below" in str(col).lower().strip():
+                            log.info(f"Found 'ignore below' in table {i+1}. Tables will be saved to extraas folder.")
+                            ignore_mode_activated = True
+                            # Remove the "ignore below" column
+                            table_df = table_df.drop(table_df.columns[idx], axis=1)
+                            break
+                
+                # Set headers and prepare data
+                table_df.columns = deduplicate_columns(table_df.iloc[0])
+                table_df = table_df.iloc[1:].reset_index(drop=True)
+                if table_df.empty:
+                    continue
+                
+                # Set output location based on ignore_mode
+                if ignore_mode_activated:
+                    extraas_dir = os.path.join(sheet_dir, "extraas")
+                    os.makedirs(extraas_dir, exist_ok=True)
+                    table_suffix = f"_table_{i+1}" if len(all_tables) > 1 else "_table"
+                    table_name = f"extraas{table_suffix}"
+                    output_path = os.path.join(extraas_dir, f"{table_name}.jsonl")
+                    metadata_name = f"{folder_name}_extraas{table_suffix}"
+                else:
+                    table_suffix = f"_table_{i+1}" if len(all_tables) > 1 else "_table"
+                    table_name = f"{folder_name}{table_suffix}"
+                    output_path = os.path.join(sheet_dir, f"{table_name}.jsonl")
+                    metadata_name = table_name
+                
+                # Skip existing files
+                if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                    log.warning(f"File exists and is not empty. Skipping: {output_path}")
+                    continue
+                
+                # Add metadata and save
+                table_df['__sheet__'] = sheet_name
+                table_df['__table__'] = metadata_name
+                table_df.to_json(output_path, orient='records', lines=True, force_ascii=False)
+                log.info(f"Saved {len(table_df)} rows to '{output_path}'")
+
+        except Exception as e:
+            log.error(f"❌ An unexpected error occurred on sheet '{sheet_name}' ❌: {e}", exc_info=True)
     
-    return True
+    log.success("Processing complete! Tables after 'ignore below' markers and other information not part of the tables are saved to 'extraas' subfolder.")
 
 def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True):
     """Load study dictionary from Excel and save as JSONL files."""
@@ -132,12 +151,27 @@ def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True
     file_path = file_path or "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
     json_output_dir = json_output_dir or "data/data_dictionary_and_mapping_specifications/json_output"
     
-    tables = extract_tables(file_path, preserve_na=preserve_na)
-    if tables:
-        save_tables(tables, json_output_dir)
-        return tables
-    return {}
+    # Use the new process_excel_file function to replace the old extract_tables + save_tables flow
+    process_excel_file(
+        excel_path=file_path,
+        output_dir=json_output_dir,
+        preserve_na=preserve_na
+    )
+    
+    return True
 
+# --- Step 3: DEFINE PATHS AND RUN THE SCRIPT ---
 if __name__ == "__main__":
-    tables = load_study_dictionary()
-    logging.info(f"Processed {len(tables)} sheets")
+    # Default values
+    source_excel_file = "data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx"
+    save_location_path = "data/data_dictionary_and_mapping_specifications/json_output"
+    PRESERVE_BLANK_CELLS = True
+    
+    # Run the load_study_dictionary function which calls process_excel_file
+    load_study_dictionary(
+        file_path=source_excel_file,
+        json_output_dir=save_location_path,
+        preserve_na=PRESERVE_BLANK_CELLS
+    )
+    
+    log.success(f"Processing complete for data dictionary and mapping from {source_excel_file} at {save_location_path}")
