@@ -71,7 +71,8 @@ def _process_and_save_tables(all_tables, sheet_name, output_dir):
                 if "ignore below" in str(col).lower().strip():
                     log.info(f"Found 'ignore below' in table {i+1}. Subsequent tables will be saved to 'extraas' folder.")
                     ignore_mode_activated = True
-                    table_df = table_df.drop(table_df.columns[idx], axis=1) # Remove the marker column
+                    # Remove the marker column
+                    table_df = table_df.drop(table_df.columns[idx], axis=1)
                     break
         
         # Set headers and clean up the table
