@@ -149,8 +149,8 @@ def process_excel_file(excel_path, output_dir, preserve_na=True):
 
         except Exception as e:
             log.error(f"❌ An unexpected error occurred on sheet '{sheet_name}' ❌: {e}", exc_info=True)
-    
-    log.success("Processing complete!")
+
+    log.success("Excel file processing complete!")
 
 def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True):
     """Load study dictionary from Excel and save as JSONL files."""
