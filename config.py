@@ -16,7 +16,11 @@ RESULTS_DIR = os.path.join(ROOT_DIR, "results")
 
 # --- Step 0: Data Dictionary Paths ---
 DICTIONARY_EXCEL_FILE = os.path.join(DATA_DIR, "data_dictionary_and_mapping_specifications", "RePORT_DEB_to_Tables_mapping.xlsx")
-DICTIONARY_JSON_OUTPUT_DIR = os.path.join(DATA_DIR, "data_dictionary_and_mapping_specifications", "json_output")
+DICTIONARY_JSON_OUTPUT_DIR = os.path.join(RESULTS_DIR, "data_dictionary_mappings")
+
+# --- Step 1: PDF Extraction Paths ---
+PDF_SOURCE_DIR = os.path.join(DATA_DIR, "Annotated_PDFs", "Annotated CRFs - Indo-VAP")
+PDF_EXTRACTION_OUTPUT_DIR = os.path.join(RESULTS_DIR, "pdf_extractions")
 
 # --- Logging Configuration ---
 LOG_LEVEL = log.logging.INFO
