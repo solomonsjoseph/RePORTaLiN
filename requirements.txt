@@ -1,1 +1,14 @@
-pandas
+# Core data manipulation and analysis
+pandas>=2.0.0
+
+# PDF processing and extraction
+PyMuPDF>=1.23.0
+pymupdf4llm>=0.0.5
+
+# Additional dependencies that may be needed
+openpyxl>=3.1.0  # For Excel file reading in load_dictionary.py
+pathlib2>=2.3.0  # For enhanced path operations (if needed for older Python)
+
+# Optional: OCR capabilities (if needed in future)
+# pytesseract>=0.3.10
+# Pillow>=10.0.0
