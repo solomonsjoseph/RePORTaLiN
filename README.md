@@ -1,6 +1,6 @@
 # RePORTaLiN Project
 
-This repository contains a data processing pipeline for the RePORTaLiN project. The scripts are designed to be modular, configurable, and run from a central entry point.
+This repository contains a data dictionary processing pipeline for the RePORTaLiN project. The scripts are designed to be modular, configurable, and run from a central entry point.
 
 ## Project Structure
 

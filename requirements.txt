@@ -1,1 +1,8 @@
-pandas
+# Core data manipulation and analysis
+pandas>=2.0.0
+
+# Excel file processing for data dictionary
+openpyxl>=3.1.0
+
+# Path utilities (for older Python compatibility if needed)
+pathlib2>=2.3.0

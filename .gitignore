@@ -4,3 +4,5 @@ data/data_dictionary_and_mapping_specifications/~$RePORT_DEB_to_Tables_mapping.x
 data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx
 data/data_dictionary_and_mapping_specifications/json_output/tblSPECIMEN/tblSPECIMEN_Extraas_Ignore.jsonl
 .logs/
+.venv/
+.vscode/
