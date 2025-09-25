@@ -149,7 +149,7 @@ def process_excel_file(excel_path, output_dir, preserve_na=True):
             _process_and_save_tables(all_tables, sheet_name, output_dir)
 
         except Exception as e:
-            log.error(f"❌ An unexpected error occurred on sheet '{sheet_name}' ❌: {e}", exc_info=True)
+            log.error(f"An unexpected error occurred on sheet '{sheet_name}': {e}", exc_info=True)
 
     log.success("Excel file processing complete!")
 
