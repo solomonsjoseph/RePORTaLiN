@@ -3,6 +3,7 @@ import argparse
 import sys
 from scripts.load_dictionary import load_study_dictionary
 from scripts.utils import logging_utils as log
+from extract_data import extract_excel_to_jsonl
 import config
 
 def run_dictionary_step():
@@ -21,6 +22,16 @@ def run_dictionary_step():
         log.error(f"An error occurred during data dictionary loading: {e}", exc_info=True)
         sys.exit(1)
 
+def run_extraction_step():
+    """Runs the data extraction step."""
+    try:
+        log.info("--- Step 1: Extracting Raw Data to JSONL ---")
+        extract_excel_to_jsonl()
+        log.success("Data extraction completed successfully.")
+    except Exception as e:
+        log.error(f"An error occurred during data extraction: {e}", exc_info=True)
+        sys.exit(1)
+
 def main():
     # --- Argument Parser Setup ---
     parser = argparse.ArgumentParser(description="RePORTaLiN pipeline for data processing.")
@@ -28,6 +39,11 @@ def main():
         '--skip-dictionary', 
         action='store_true', 
         help="Skip the data dictionary loading step."
+    )
+    parser.add_argument(
+        '--skip-extraction', 
+        action='store_true', 
+        help="Skip the data extraction step."
     )
     args = parser.parse_args()
 
@@ -40,6 +56,12 @@ def main():
         run_dictionary_step()
     else:
         log.info("--- Skipping Step 0: Data Dictionary Loading ---")
+
+    # --- Step 1: Extract Raw Data ---
+    if not args.skip_extraction:
+        run_extraction_step()
+    else:
+        log.info("--- Skipping Step 1: Data Extraction ---")
 
     log.info("RePORTaLiN pipeline finished.")
 

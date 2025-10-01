@@ -14,6 +14,10 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT_DIR, "data")
 RESULTS_DIR = os.path.join(ROOT_DIR, "results")
 
+# --- Step 1: Dataset and Clean Corpus Paths ---
+DATASET_DIR = os.path.join(DATA_DIR, "dataset", "Indo-vap_csv_files")
+CLEAN_CORPUS_DIR = os.path.join(RESULTS_DIR, "Indo-vap")
+
 # --- Step 0: Data Dictionary Paths ---
 DICTIONARY_EXCEL_FILE = os.path.join(DATA_DIR, "data_dictionary_and_mapping_specifications", "RePORT_DEB_to_Tables_mapping.xlsx")
 DICTIONARY_JSON_OUTPUT_DIR = os.path.join(RESULTS_DIR, "data_dictionary_mappings")
