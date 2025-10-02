@@ -16,7 +16,7 @@ RePORTaLiN is a production-ready data processing pipeline designed to extract an
 - 📝 **Comprehensive Logging**: Timestamped logs with detailed operation tracking
 - 📈 **Progress Tracking**: Real-time progress bars for all operations
 - 🔧 **Configurable**: Centralized configuration management
-- 📖 **Well Documented**: Comprehensive user and developer documentation
+- 📖 **Well Documented**: Comprehensive Sphinx documentation (user & developer modes)
 
 ## Project Structure
 
@@ -231,7 +231,7 @@ make clean
 ### Project Statistics
 
 - **Total Lines of Code:** 674 (core)
-- **Documentation:** Comprehensive guides in docs/ folder
+- **Documentation:** Comprehensive Sphinx documentation (user & developer modes)
 - **Execution Time:** ~15-20 seconds for full pipeline
 
 ## Requirements
@@ -269,7 +269,11 @@ chmod 755 .logs/
 - Check paths in `config.py`
 - Ensure data files exist in `data/` directory
 
-For more troubleshooting, see [docs/documentation/IMPLEMENTATION_SUMMARY.md](docs/documentation/IMPLEMENTATION_SUMMARY.md).
+For more troubleshooting, see the Sphinx documentation:
+```bash
+cd docs/sphinx && make dev-mode
+open _build/html/user_guide/troubleshooting.html
+```
 
 ## Contributing
 
