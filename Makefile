@@ -1,0 +1,56 @@
+# Makefile for RePORTaLiN Project
+# Simplified for production use
+
+.PHONY: help install clean run docs
+
+help:
+	@echo "RePORTaLiN Project - Available Commands"
+	@echo "========================================"
+	@echo ""
+	@echo "Setup:"
+	@echo "  make install      - Install all dependencies"
+	@echo ""
+	@echo "Running:"
+	@echo "  make run          - Run the full pipeline"
+	@echo ""
+	@echo "Cleaning:"
+	@echo "  make clean        - Remove Python cache files"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  make docs         - Build Sphinx HTML documentation"
+	@echo "  make docs-open    - Build docs and open in browser"
+	@echo ""
+	@echo "Direct commands you can also use:"
+	@echo "  python main.py                    - Run pipeline"
+	@echo "  cd docs/sphinx && make html       - Build docs"
+	@echo ""
+
+# Setup commands
+install:
+	@echo "Installing dependencies..."
+	pip install -r requirements.txt
+	@echo "✓ Dependencies installed"
+
+# Running command
+run:
+	@echo "Running RePORTaLiN pipeline..."
+	python main.py
+
+# Cleaning command
+clean:
+	@echo "Cleaning up Python cache files..."
+	find . -type d -name "__pycache__" -not -path "./.venv/*" -exec rm -rf {} + 2>/dev/null || true
+	find . -type f -name "*.pyc" -delete 2>/dev/null || true
+	find . -type f -name "*.pyo" -delete 2>/dev/null || true
+	find . -type f -name ".DS_Store" -delete 2>/dev/null || true
+	@echo "✓ Cache files cleaned"
+
+# Documentation commands
+docs:
+	@echo "Building Sphinx documentation..."
+	cd docs/sphinx && $(MAKE) html
+	@echo "✓ Documentation built at docs/sphinx/_build/html/index.html"
+
+docs-open: docs
+	@echo "Opening documentation in browser..."
+	open docs/sphinx/_build/html/index.html || xdg-open docs/sphinx/_build/html/index.html || echo "Please manually open docs/sphinx/_build/html/index.html"

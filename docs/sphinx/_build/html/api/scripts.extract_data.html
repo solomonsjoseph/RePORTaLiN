@@ -1,0 +1,1743 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>scripts.extract_data module &mdash; RePORTaLiN 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="scripts.load_dictionary module" href="scripts.load_dictionary.html" />
+    <link rel="prev" title="scripts package" href="scripts.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            RePORTaLiN
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">👥 User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/introduction.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#key-benefits">Key Benefits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#use-cases">Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#design-philosophy">Design Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/introduction.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#checking-python-version">Checking Python Version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#installation-steps">Installation Steps</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#step-1-clone-the-repository">Step 1: Clone the Repository</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#step-2-create-a-virtual-environment-recommended">Step 2: Create a Virtual Environment (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#step-3-install-dependencies">Step 3: Install Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#verifying-installation">Verifying Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#troubleshooting-installation">Troubleshooting Installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#problem-pip-command-not-found">Problem: “pip: command not found”</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#problem-permission-denied-errors">Problem: “Permission denied” errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#problem-import-errors-after-installation">Problem: Import errors after installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/installation.html#problem-incompatible-python-version">Problem: Incompatible Python version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#upgrading">Upgrading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/installation.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#running-your-first-extraction">Running Your First Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#expected-output">Expected Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#understanding-the-output">Understanding the Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#viewing-the-results">Viewing the Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#command-line-options">Command-Line Options</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/quickstart.html#skip-specific-steps">Skip Specific Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/quickstart.html#view-help">View Help</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#using-make-commands">Using Make Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#working-with-different-datasets">Working with Different Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#checking-the-logs">Checking the Logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#common-first-run-issues">Common First-Run Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/quickstart.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/configuration.html">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#configuration-file">Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#dynamic-dataset-detection">Dynamic Dataset Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#configuration-variables">Configuration Variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#project-root">Project Root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#data-directories">Data Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#dataset-paths">Dataset Paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#output-directories">Output Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#data-dictionary">Data Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#logging-settings">Logging Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#customizing-configuration">Customizing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#example-1-change-log-level">Example 1: Change Log Level</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#example-2-custom-data-location">Example 2: Custom Data Location</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#example-3-different-dictionary-file">Example 3: Different Dictionary File</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#configuration-best-practices">Configuration Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#accessing-configuration">Accessing Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#in-your-code">In Your Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#from-command-line">From Command Line</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#troubleshooting-configuration">Troubleshooting Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#problem-dataset-not-found">Problem: “Dataset not found”</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#problem-permission-denied">Problem: “Permission denied”</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/configuration.html#problem-module-not-found-config">Problem: “Module not found: config”</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configuration.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/usage.html">Usage Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#run-complete-pipeline">Run Complete Pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#skip-specific-steps">Skip Specific Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#working-with-multiple-datasets">Working with Multiple Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#scenario-1-sequential-processing">Scenario 1: Sequential Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#scenario-2-parallel-processing">Scenario 2: Parallel Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#using-as-a-python-module">Using as a Python Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#import-and-use-functions">Import and Use Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#process-single-file">Process Single File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#custom-processing">Custom Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#batch-processing">Batch Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#process-multiple-dictionary-files">Process Multiple Dictionary Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#process-files-matching-pattern">Process Files Matching Pattern</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#working-with-output-files">Working with Output Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#reading-jsonl-files">Reading JSONL Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#combining-multiple-jsonl-files">Combining Multiple JSONL Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#converting-to-other-formats">Converting to Other Formats</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#logging-and-monitoring">Logging and Monitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#view-real-time-logs">View Real-Time Logs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#parse-log-files">Parse Log Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#custom-logging">Custom Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#performance-optimization">Performance Optimization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#process-large-files">Process Large Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#parallel-processing">Parallel Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#graceful-error-handling">Graceful Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#integration-with-other-tools">Integration with Other Tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#use-with-jupyter-notebooks">Use with Jupyter Notebooks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#use-with-data-analysis-tools">Use with Data Analysis Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#automation">Automation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#scheduled-execution">Scheduled Execution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/usage.html#script-wrapper">Script Wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/usage.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/troubleshooting.html">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#installation-issues">Installation Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#module-import-errors">Module Import Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#python-version-issues">Python Version Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#permission-errors">Permission Errors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#data-processing-issues">Data Processing Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#no-excel-files-found">No Excel Files Found</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#empty-output-files">Empty Output Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#memory-errors">Memory Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#date-time-conversion-issues">Date/Time Conversion Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#logging-issues">Logging Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#no-log-files-created">No Log Files Created</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#log-files-too-large">Log Files Too Large</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#configuration-issues">Configuration Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#dataset-not-auto-detected">Dataset Not Auto-Detected</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#wrong-output-directory">Wrong Output Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#path-issues">Path Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#performance-issues">Performance Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#slow-processing">Slow Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#progress-bar-not-showing">Progress Bar Not Showing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#data-quality-issues">Data Quality Issues</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#duplicate-column-names">Duplicate Column Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#missing-data-nan-values">Missing Data/NaN Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#incorrect-data-types">Incorrect Data Types</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#advanced-troubleshooting">Advanced Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#enable-debug-logging">Enable Debug Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#inspect-intermediate-results">Inspect Intermediate Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#test-single-file">Test Single File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#verify-dependencies">Verify Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#getting-help">Getting Help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#common-error-messages">Common Error Messages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#typeerror-object-of-type-timestamp-is-not-json-serializable"><code class="docutils literal notranslate"><span class="pre">TypeError:</span> <span class="pre">Object</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">'Timestamp'</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">JSON</span> <span class="pre">serializable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#unicodedecodeerror"><code class="docutils literal notranslate"><span class="pre">UnicodeDecodeError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guide/troubleshooting.html#permissionerror-errno-13-permission-denied"><code class="docutils literal notranslate"><span class="pre">PermissionError:</span> <span class="pre">[Errno</span> <span class="pre">13]</span> <span class="pre">Permission</span> <span class="pre">denied</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/troubleshooting.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🔧 Developer Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#system-overview">System Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#architecture-diagram">Architecture Diagram</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#core-components">Core Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#main-py-pipeline-orchestrator">1. main.py - Pipeline Orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#config-py-configuration-management">2. config.py - Configuration Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#scripts-extract-data-py-data-extraction">3. scripts/extract_data.py - Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#scripts-load-dictionary-py-dictionary-processing">4. scripts/load_dictionary.py - Dictionary Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#scripts-utils-logging-utils-py-logging-system">5. scripts/utils/logging_utils.py - Logging System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#design-decisions">Design Decisions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#jsonl-format">1. JSONL Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#automatic-table-detection">2. Automatic Table Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#dynamic-dataset-detection">3. Dynamic Dataset Detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#progress-tracking">4. Progress Tracking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#centralized-configuration">5. Centralized Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#module-dependencies">Module Dependencies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/architecture.html#external-dependencies">External Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#error-handling-strategy">Error Handling Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#extensibility-points">Extensibility Points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#performance-characteristics">Performance Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#testing-strategy">Testing Strategy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#security-considerations">Security Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#future-architecture-considerations">Future Architecture Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/architecture.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#making-changes">Making Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#commit-guidelines">Commit Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#coding-standards">Coding Standards</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#python-style">Python Style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#type-hints">Type Hints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#code-organization">Code Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#logging">Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#testing-guidelines">Testing Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#writing-tests">Writing Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#running-tests">Running Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#id2">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#updating-documentation">Updating Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#building-documentation">Building Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#pull-request-process">Pull Request Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#pull-request-template">Pull Request Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#code-review-guidelines">Code Review Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#for-reviewers">For Reviewers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#for-authors">For Authors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#areas-of-contribution">Areas of Contribution</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#features">Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#id3">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/contributing.html#performance">Performance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#questions">Questions?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/contributing.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#test-structure">Test Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#manual-testing">Manual Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#basic-pipeline-test">Basic Pipeline Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#partial-pipeline-test">Partial Pipeline Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#single-file-test">Single File Test</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#unit-testing">Unit Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-configuration">Test Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-data-extraction">Test Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-dictionary-loading">Test Dictionary Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-logging">Test Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#integration-testing">Integration Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-end-to-end-workflow">Test End-to-End Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#test-with-edge-cases">Test with Edge Cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#test-fixtures">Test Fixtures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#creating-test-data">Creating Test Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#using-fixtures">Using Fixtures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#running-tests">Running Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#using-pytest">Using pytest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#using-make">Using Make</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#test-coverage">Test Coverage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#measuring-coverage">Measuring Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#coverage-goals">Coverage Goals</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#mock-testing">Mock Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#mocking-external-dependencies">Mocking External Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#performance-testing">Performance Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#benchmark-tests">Benchmark Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#memory-testing">Memory Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#continuous-integration">Continuous Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/testing.html#github-actions-example">GitHub Actions Example</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/testing.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide/extending.html">Extending RePORTaLiN</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-new-output-formats">Adding New Output Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-adding-csv-export">Example: Adding CSV Export</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-data-transformations">Adding Data Transformations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-adding-data-validation">Example: Adding Data Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-custom-logging">Adding Custom Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-adding-email-notifications">Example: Adding Email Notifications</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-database-support">Adding Database Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-postgresql-output">Example: PostgreSQL Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-parallel-processing">Adding Parallel Processing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-process-files-in-parallel">Example: Process Files in Parallel</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-custom-table-detection">Adding Custom Table Detection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-custom-split-logic">Example: Custom Split Logic</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#adding-plugin-system">Adding Plugin System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-plugin-architecture">Example: Plugin Architecture</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#configuration-file-support">Configuration File Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../developer_guide/extending.html#example-yaml-configuration">Example: YAML Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#best-practices-for-extensions">Best Practices for Extensions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developer_guide/extending.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">📚 API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modules.html#overview">Overview</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="main.html">main module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="main.html#reportalin-main-pipeline">RePORTaLiN Main Pipeline</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#main.run_step"><code class="docutils literal notranslate"><span class="pre">run_step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#pipeline-steps">Pipeline Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#error-handling">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#logging">Logging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="main.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html">config module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#reportalin-configuration-module">RePORTaLiN Configuration Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#config.get_dataset_folder"><code class="docutils literal notranslate"><span class="pre">get_dataset_folder()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#configuration-variables">Configuration Variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#usage-examples">Usage Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="reference internal" href="scripts.html">scripts package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#scripts.extract_excel_to_jsonl"><code class="docutils literal notranslate"><span class="pre">extract_excel_to_jsonl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#scripts.load_study_dictionary"><code class="docutils literal notranslate"><span class="pre">load_study_dictionary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#scripts.process_excel_file"><code class="docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#overview">Overview</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="scripts.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#module-summary">Module Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#quick-examples">Quick Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#module-dependencies">Module Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#core-modules">Core Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#main"><code class="xref py py-mod docutils literal notranslate"><span class="pre">main</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#scripts"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#quick-reference">Quick Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#common-functions">Common Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#common-patterns">Common Patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#process-all-files">Process All Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#read-jsonl-output">Read JSONL Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules.html#custom-processing">Custom Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules.html#module-index">Module Index</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="main.html">main module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="main.html#reportalin-main-pipeline">RePORTaLiN Main Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#main.run_step"><code class="docutils literal notranslate"><span class="pre">run_step()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="main.html#run-step">run_step</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="main.html#id0"><code class="docutils literal notranslate"><span class="pre">run_step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="main.html#main">main</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="main.html#id1"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#pipeline-steps">Pipeline Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="config.html">config module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="config.html#reportalin-configuration-module">RePORTaLiN Configuration Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#config.get_dataset_folder"><code class="docutils literal notranslate"><span class="pre">get_dataset_folder()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#configuration-variables">Configuration Variables</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="config.html#directory-paths">Directory Paths</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#root-dir">ROOT_DIR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#data-dir">DATA_DIR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#results-dir">RESULTS_DIR</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#dataset-paths">Dataset Paths</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#dataset-base-dir">DATASET_BASE_DIR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#dataset-dir">DATASET_DIR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#dataset-name">DATASET_NAME</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#output-paths">Output Paths</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#clean-dataset-dir">CLEAN_DATASET_DIR</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#dictionary-json-output-dir">DICTIONARY_JSON_OUTPUT_DIR</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#dictionary-file">Dictionary File</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#dictionary-excel-file">DICTIONARY_EXCEL_FILE</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#logging-settings">Logging Settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#log-level">LOG_LEVEL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="config.html#log-name">LOG_NAME</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="config.html#get-dataset-folder">get_dataset_folder</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="config.html#id0"><code class="docutils literal notranslate"><span class="pre">get_dataset_folder()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#extract-dataset-name">extract_dataset_name</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#usage-examples">Usage Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="config.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="config.html#custom-configuration">Custom Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="scripts.html">scripts package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#scripts.extract_excel_to_jsonl"><code class="docutils literal notranslate"><span class="pre">extract_excel_to_jsonl()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#scripts.load_study_dictionary"><code class="docutils literal notranslate"><span class="pre">load_study_dictionary()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#scripts.process_excel_file"><code class="docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#overview">Overview</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="scripts.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">scripts.extract_data module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data-extraction-module">Data Extraction Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.clean_record_for_json"><code class="docutils literal notranslate"><span class="pre">clean_record_for_json()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.convert_dataframe_to_jsonl"><code class="docutils literal notranslate"><span class="pre">convert_dataframe_to_jsonl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.extract_excel_to_jsonl"><code class="docutils literal notranslate"><span class="pre">extract_excel_to_jsonl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.find_excel_files"><code class="docutils literal notranslate"><span class="pre">find_excel_files()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.is_dataframe_empty"><code class="docutils literal notranslate"><span class="pre">is_dataframe_empty()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scripts.extract_data.process_excel_file"><code class="docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-flow">Data Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#type-conversions">Type Conversions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#progress-tracking">Progress Tracking</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#performance">Performance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.load_dictionary.html">scripts.load_dictionary module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#data-dictionary-loader-module">Data Dictionary Loader Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#scripts.load_dictionary.load_study_dictionary"><code class="docutils literal notranslate"><span class="pre">load_study_dictionary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#scripts.load_dictionary.process_excel_file"><code class="docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#functions">Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#table-detection">Table Detection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#table-processing">Table Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#column-handling">Column Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#processing-flow">Processing Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#table-detection-algorithm">Table Detection Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#output-structure">Output Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#error-handling">Error Handling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#performance">Performance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.load_dictionary.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.utils.html">scripts.utils subpackage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.critical"><code class="docutils literal notranslate"><span class="pre">critical()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.debug"><code class="docutils literal notranslate"><span class="pre">debug()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.error"><code class="docutils literal notranslate"><span class="pre">error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.get_log_file_path"><code class="docutils literal notranslate"><span class="pre">get_log_file_path()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.setup_logger"><code class="docutils literal notranslate"><span class="pre">setup_logger()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.success"><code class="docutils literal notranslate"><span class="pre">success()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#scripts.utils.warning"><code class="docutils literal notranslate"><span class="pre">warning()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#modules">Modules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#custom-log-levels">Custom Log Levels</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#logging-functions">Logging Functions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#logging-configuration">Logging Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#output-handlers">Output Handlers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#usage-examples">Usage Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#logging-best-practices">Logging Best Practices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="scripts.utils.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-summary">Module Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#extract-data">extract_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#load-dictionary">load_dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#utils">utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#quick-examples">Quick Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#data-extraction">Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#dictionary-loading">Dictionary Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#single-file-processing">Single File Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="scripts.html#custom-logging">Custom Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#module-dependencies">Module Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="scripts.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">📋 Additional Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#version-1-0-0-2025-10-02">Version 1.0.0 (2025-10-02)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#initial-release">Initial Release</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#development-history">Development History</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#pre-release-development">Pre-Release Development</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#migration-notes">Migration Notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#from-pre-1-0-versions">From Pre-1.0 Versions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#future-releases">Future Releases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#planned-features">Planned Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../changelog.html#contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#versioning">Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#release-process">Release Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#deprecation-policy">Deprecation Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#support">Support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../changelog.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#reportalin-license-information">RePORTaLiN License Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#project-information">Project Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#license-terms">License Terms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#example-mit-license">Example MIT License</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#third-party-licenses">Third-Party Licenses</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#pandas">pandas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#openpyxl">openpyxl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#numpy">numpy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#tqdm">tqdm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../license.html#sphinx-and-extensions">Sphinx and Extensions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#documentation-license">Documentation License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#contributing">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#disclaimer">Disclaimer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#contact">Contact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#acknowledgments">Acknowledgments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../license.html#see-also">See Also</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">RePORTaLiN</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="scripts.html">scripts package</a></li>
+      <li class="breadcrumb-item active">scripts.extract_data module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/scripts.extract_data.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-scripts.extract_data">
+<span id="scripts-extract-data-module"></span><h1>scripts.extract_data module<a class="headerlink" href="#module-scripts.extract_data" title="Link to this heading"></a></h1>
+<section id="data-extraction-module">
+<h2>Data Extraction Module<a class="headerlink" href="#data-extraction-module" title="Link to this heading"></a></h2>
+<p>This module provides comprehensive functionality for extracting raw data from Excel
+files and converting them to JSONL (JSON Lines) format. It handles various data types,
+performs data cleaning, and provides robust error handling.</p>
+<dl class="simple">
+<dt>The extraction process includes:</dt><dd><ul class="simple">
+<li><p>Automatic discovery of Excel files in the dataset directory</p></li>
+<li><p>Smart handling of empty DataFrames (preserving column structure)</p></li>
+<li><p>Type conversion for JSON serialization (NaN, datetime, numpy types)</p></li>
+<li><p>Progress tracking with real-time feedback</p></li>
+<li><p>Duplicate file detection to prevent reprocessing</p></li>
+</ul>
+</dd>
+<dt>Key Features:</dt><dd><ul class="simple">
+<li><p><strong>Type Safety</strong>: Converts pandas/numpy types to JSON-compatible formats</p></li>
+<li><p><strong>Empty File Handling</strong>: Creates metadata records for files with headers but no data</p></li>
+<li><p><strong>Progress Tracking</strong>: Visual progress bars for batch processing</p></li>
+<li><p><strong>Error Recovery</strong>: Continues processing even if individual files fail</p></li>
+<li><p><strong>Idempotent</strong>: Skips files that have already been processed</p></li>
+</ul>
+</dd>
+<dt>Functions:</dt><dd><p>clean_record_for_json: Convert pandas record to JSON-serializable format
+find_excel_files: Discover all Excel files in a directory
+is_dataframe_empty: Check if DataFrame has any data or structure
+convert_dataframe_to_jsonl: Convert DataFrame to JSONL format
+process_excel_file: Process a single Excel file
+extract_excel_to_jsonl: Main extraction function for batch processing</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Run extraction as a standalone script:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m scripts.extract_data
+</pre></div>
+</div>
+<p>Or import and use programmatically:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_excel_to_jsonl</span>
+<span class="n">extract_excel_to_jsonl</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="scripts.load_dictionary.html#module-scripts.load_dictionary" title="scripts.load_dictionary"><code class="xref py py-mod docutils literal notranslate"><span class="pre">scripts.load_dictionary</span></code></a>: Data dictionary processing
+<a class="reference internal" href="config.html#module-config" title="config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a>: Configuration and path settings</p>
+</div>
+<dl class="simple">
+<dt>Author:</dt><dd><p>RePORTaLiN Development Team</p>
+</dd>
+<dt>Version:</dt><dd><p>1.0.0</p>
+</dd>
+</dl>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.clean_record_for_json">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">clean_record_for_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#clean_record_for_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.clean_record_for_json" title="Link to this definition"></a></dt>
+<dd><p>Clean a pandas record by converting values to JSON-serializable types.</p>
+<p>This function handles the conversion of pandas/numpy-specific data types
+to standard Python types that can be serialized to JSON. It’s essential
+for preventing serialization errors when writing to JSONL files.</p>
+<dl class="simple">
+<dt>Type conversions performed:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.isna()</span></code> values → <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">np.integer</span></code> / <code class="docutils literal notranslate"><span class="pre">np.floating</span></code> → Python <code class="docutils literal notranslate"><span class="pre">int</span></code> / <code class="docutils literal notranslate"><span class="pre">float</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.Timestamp</span></code> / <code class="docutils literal notranslate"><span class="pre">np.datetime64</span></code> / <code class="docutils literal notranslate"><span class="pre">datetime</span></code> / <code class="docutils literal notranslate"><span class="pre">date</span></code> → <code class="docutils literal notranslate"><span class="pre">str</span></code></p></li>
+<li><p>All other types preserved as-is</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing data from a pandas DataFrame row,
+potentially with pandas/numpy types.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new dictionary with all values converted to JSON-serializable types.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">95.5</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;missing&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cleaned</span> <span class="o">=</span> <span class="n">clean_record_for_json</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cleaned</span>
+<span class="go">{&#39;name&#39;: &#39;John&#39;, &#39;age&#39;: 30, &#39;score&#39;: 95.5, &#39;date&#39;: &#39;2023-01-01 00:00:00&#39;, &#39;missing&#39;: None}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>NaN and None values are converted to JSON <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
+<li><p>Datetime objects are converted to ISO format strings</p></li>
+<li><p>The original record is not modified (a new dict is returned)</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.convert_dataframe_to_jsonl">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">convert_dataframe_to_jsonl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#convert_dataframe_to_jsonl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.convert_dataframe_to_jsonl" title="Link to this definition"></a></dt>
+<dd><p>Convert a DataFrame to JSONL (JSON Lines) format.</p>
+<p>This function writes each row of a DataFrame as a separate JSON object on
+its own line, creating a JSONL file. It handles empty DataFrames gracefully
+by creating metadata records.</p>
+<dl class="simple">
+<dt>Special Cases:</dt><dd><ul class="simple">
+<li><p><strong>Empty DataFrame with columns</strong>: Creates a single metadata record with
+column names and null values, preserving the data structure.</p></li>
+<li><p><strong>DataFrame with data</strong>: Converts each row to a JSON object with the
+source filename added.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame to convert. Can be empty.</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path where the JSONL file will be written.</p></li>
+<li><p><strong>source_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the source Excel file, added to each record
+for traceability.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of JSON records written to the file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">],</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;output.jsonl&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span> <span class="o">=</span> <span class="n">convert_dataframe_to_jsonl</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="s1">&#39;data.xlsx&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+<span class="go">Wrote 2 records</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Each line in the output file is a valid JSON object</p></li>
+<li><p>Files are written with UTF-8 encoding</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">source_file</span></code> field is automatically added to each record</p></li>
+<li><p>Empty DataFrames with columns generate one metadata record</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id3" title="scripts.extract_data.clean_record_for_json"><code class="xref py py-func docutils literal notranslate"><span class="pre">clean_record_for_json()</span></code></a>: Function used to clean each record</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.extract_excel_to_jsonl">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">extract_excel_to_jsonl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#extract_excel_to_jsonl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.extract_excel_to_jsonl" title="Link to this definition"></a></dt>
+<dd><p>Extract all Excel files from the dataset directory and convert to JSONL format.</p>
+<p>This is the main batch processing function that orchestrates the extraction
+of multiple Excel files. It provides comprehensive progress tracking, error
+reporting, and summary statistics.</p>
+<dl class="simple">
+<dt>Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Create output directory if it doesn’t exist</p></li>
+<li><p>Discover all Excel files in the dataset directory</p></li>
+<li><p>Process each file (skipping already-processed files)</p></li>
+<li><p>Track statistics (records, successes, failures)</p></li>
+<li><p>Display comprehensive summary report</p></li>
+</ol>
+</dd>
+<dt>Features:</dt><dd><ul class="simple">
+<li><p><strong>Idempotent</strong>: Skips files that already have output files</p></li>
+<li><p><strong>Progress Tracking</strong>: Visual progress bar with real-time updates</p></li>
+<li><p><strong>Error Recovery</strong>: Continues processing even if individual files fail</p></li>
+<li><p><strong>Summary Statistics</strong>: Detailed report of processing results</p></li>
+</ul>
+</dd>
+<dt>Configuration:</dt><dd><dl class="simple">
+<dt>Uses the following config variables:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config.CLEAN_DATASET_DIR</span></code>: Output directory for JSONL files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.DATASET_DIR</span></code>: Input directory containing Excel files</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Output Format:</dt><dd><p>Each Excel file <code class="docutils literal notranslate"><span class="pre">filename.xlsx</span></code> produces <code class="docutils literal notranslate"><span class="pre">filename.jsonl</span></code> in the
+output directory. The JSONL format has one JSON object per line.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Run as part of the main pipeline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_excel_to_jsonl</span>
+<span class="n">extract_excel_to_jsonl</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Found 43 Excel files to process...
+Processing files: 100%|██████████| 43/43 [00:15&lt;00:00, 2.87file/s]
+
+Extraction complete:
+  - 15,234 total records processed
+  - 42 JSONL files created
+  - 1 file skipped (already exists)
+  - Output directory: results/dataset/Indo-vap
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Creates <code class="docutils literal notranslate"><span class="pre">config.CLEAN_DATASET_DIR</span></code> automatically if missing</p></li>
+<li><p>Skips processing if output file already exists (prevents duplicates)</p></li>
+<li><p>All errors are logged but don’t stop the entire batch process</p></li>
+<li><p>Empty files (no columns/rows) are skipped with a warning</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id1" title="scripts.extract_data.process_excel_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a>: Single file processing function
+<a class="reference internal" href="#id4" title="scripts.extract_data.find_excel_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_excel_files()</span></code></a>: Excel file discovery
+<a class="reference internal" href="config.html#module-config" title="config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a>: Configuration settings</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.find_excel_files">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">find_excel_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#find_excel_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.find_excel_files" title="Link to this definition"></a></dt>
+<dd><p>Find all Excel files (.xlsx) in the specified directory.</p>
+<p>This function searches for Excel files with the .xlsx extension in a given
+directory. It does not search subdirectories (non-recursive).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to the directory to search for Excel files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of Path objects representing found Excel files.</dt><dd><p>Returns an empty list if no files are found.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Path]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">find_excel_files</span><span class="p">(</span><span class="s1">&#39;data/dataset/Indo-vap_csv_files&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">)</span>
+<span class="go">Found 43 files</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">&#39;10_TST.xlsx&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Only searches the immediate directory (not subdirectories)</p></li>
+<li><p>Only matches .xlsx files (not .xls or other Excel formats)</p></li>
+<li><p>Files are returned in the order found by the file system</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.is_dataframe_empty">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">is_dataframe_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#is_dataframe_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.is_dataframe_empty" title="Link to this definition"></a></dt>
+<dd><p>Check if a DataFrame is completely empty (no rows AND no columns).</p>
+<p>This function distinguishes between DataFrames that have structure (columns)
+but no data rows, versus DataFrames that are completely empty. This is
+important for deciding whether to preserve column metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the DataFrame has no columns AND no rows, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Completely empty DataFrame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Has columns but no rows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df2</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Has data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df3</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>A DataFrame with columns but no rows returns False (has structure)</p></li>
+<li><p>Only returns True when both rows and columns are absent</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="scripts.extract_data.process_excel_file">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">process_excel_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excel_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#process_excel_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#scripts.extract_data.process_excel_file" title="Link to this definition"></a></dt>
+<dd><p>Process a single Excel file and convert it to JSONL format.</p>
+<p>This function reads an Excel file, checks if it’s empty, and converts it to
+JSONL format if it contains data or structure. It provides comprehensive
+error handling and detailed logging.</p>
+<dl class="simple">
+<dt>Processing Steps:</dt><dd><ol class="arabic simple">
+<li><p>Determine output file path</p></li>
+<li><p>Read Excel file into DataFrame</p></li>
+<li><p>Check if DataFrame is completely empty</p></li>
+<li><p>Convert to JSONL if data or structure exists</p></li>
+<li><p>Report results or errors</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>excel_file</strong> (<em>Path</em>) – Path object pointing to the Excel file to process.</p></li>
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Directory where the JSONL output file will be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p><strong>success</strong> (bool): True if processing succeeded, False otherwise</p></li>
+<li><p><strong>record_count</strong> (int): Number of records written (0 if failed/skipped)</p></li>
+<li><p><strong>error_message</strong> (Optional[str]): Error description if failed, None otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">excel_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/10_TST.xlsx&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">success</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">process_excel_file</span><span class="p">(</span><span class="n">excel_file</span><span class="p">,</span> <span class="s1">&#39;results/&#39;</span><span class="p">)</span>
+<span class="go">  ✓ Created 10_TST.jsonl with 150 rows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success: </span><span class="si">{</span><span class="n">success</span><span class="si">}</span><span class="s2">, Records: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Success: True, Records: 150</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Empty files are skipped with a warning (not treated as errors)</p></li>
+<li><p>Excel reading errors are caught and returned as error messages</p></li>
+<li><p>All errors are logged to both console and log file</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Output filename matches input filename (with .jsonl extension)</p></li>
+<li><p>Progress messages are written via tqdm for proper formatting</p></li>
+<li><p>Empty DataFrames (no columns and no rows) are skipped entirely</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id2" title="scripts.extract_data.convert_dataframe_to_jsonl"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_dataframe_to_jsonl()</span></code></a>: Conversion function
+<a class="reference internal" href="#id5" title="scripts.extract_data.is_dataframe_empty"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_dataframe_empty()</span></code></a>: Empty file detection</p>
+</div>
+</dd></dl>
+
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">extract_data</span></code> module converts Excel files to JSONL format with intelligent
+type conversion, progress tracking, and comprehensive error handling.</p>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<section id="extract-excel-to-jsonl">
+<h3>extract_excel_to_jsonl<a class="headerlink" href="#extract-excel-to-jsonl" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">extract_excel_to_jsonl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#extract_excel_to_jsonl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd><p>Extract all Excel files from the dataset directory and convert to JSONL format.</p>
+<p>This is the main batch processing function that orchestrates the extraction
+of multiple Excel files. It provides comprehensive progress tracking, error
+reporting, and summary statistics.</p>
+<dl class="simple">
+<dt>Workflow:</dt><dd><ol class="arabic simple">
+<li><p>Create output directory if it doesn’t exist</p></li>
+<li><p>Discover all Excel files in the dataset directory</p></li>
+<li><p>Process each file (skipping already-processed files)</p></li>
+<li><p>Track statistics (records, successes, failures)</p></li>
+<li><p>Display comprehensive summary report</p></li>
+</ol>
+</dd>
+<dt>Features:</dt><dd><ul class="simple">
+<li><p><strong>Idempotent</strong>: Skips files that already have output files</p></li>
+<li><p><strong>Progress Tracking</strong>: Visual progress bar with real-time updates</p></li>
+<li><p><strong>Error Recovery</strong>: Continues processing even if individual files fail</p></li>
+<li><p><strong>Summary Statistics</strong>: Detailed report of processing results</p></li>
+</ul>
+</dd>
+<dt>Configuration:</dt><dd><dl class="simple">
+<dt>Uses the following config variables:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config.CLEAN_DATASET_DIR</span></code>: Output directory for JSONL files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.DATASET_DIR</span></code>: Input directory containing Excel files</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Output Format:</dt><dd><p>Each Excel file <code class="docutils literal notranslate"><span class="pre">filename.xlsx</span></code> produces <code class="docutils literal notranslate"><span class="pre">filename.jsonl</span></code> in the
+output directory. The JSONL format has one JSON object per line.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>Run as part of the main pipeline:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_excel_to_jsonl</span>
+<span class="n">extract_excel_to_jsonl</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Found 43 Excel files to process...
+Processing files: 100%|██████████| 43/43 [00:15&lt;00:00, 2.87file/s]
+
+Extraction complete:
+  - 15,234 total records processed
+  - 42 JSONL files created
+  - 1 file skipped (already exists)
+  - Output directory: results/dataset/Indo-vap
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Creates <code class="docutils literal notranslate"><span class="pre">config.CLEAN_DATASET_DIR</span></code> automatically if missing</p></li>
+<li><p>Skips processing if output file already exists (prevents duplicates)</p></li>
+<li><p>All errors are logged but don’t stop the entire batch process</p></li>
+<li><p>Empty files (no columns/rows) are skipped with a warning</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id1" title="scripts.extract_data.process_excel_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">process_excel_file()</span></code></a>: Single file processing function
+<a class="reference internal" href="#id4" title="scripts.extract_data.find_excel_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_excel_files()</span></code></a>: Excel file discovery
+<a class="reference internal" href="config.html#module-config" title="config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a>: Configuration settings</p>
+</div>
+</dd></dl>
+
+<p>Batch process all Excel files in a directory.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">input_dir</span></code> (str): Directory containing Excel files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): Directory for JSONL output files</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_excel_to_jsonl</span>
+
+<span class="n">extract_excel_to_jsonl</span><span class="p">(</span>
+    <span class="n">input_dir</span><span class="o">=</span><span class="s2">&quot;data/dataset/Indo-vap&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;results/dataset/Indo-vap&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="process-excel-file">
+<h3>process_excel_file<a class="headerlink" href="#process-excel-file" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">process_excel_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excel_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#process_excel_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd><p>Process a single Excel file and convert it to JSONL format.</p>
+<p>This function reads an Excel file, checks if it’s empty, and converts it to
+JSONL format if it contains data or structure. It provides comprehensive
+error handling and detailed logging.</p>
+<dl class="simple">
+<dt>Processing Steps:</dt><dd><ol class="arabic simple">
+<li><p>Determine output file path</p></li>
+<li><p>Read Excel file into DataFrame</p></li>
+<li><p>Check if DataFrame is completely empty</p></li>
+<li><p>Convert to JSONL if data or structure exists</p></li>
+<li><p>Report results or errors</p></li>
+</ol>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>excel_file</strong> (<em>Path</em>) – Path object pointing to the Excel file to process.</p></li>
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Directory where the JSONL output file will be saved.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing:</dt><dd><ul class="simple">
+<li><p><strong>success</strong> (bool): True if processing succeeded, False otherwise</p></li>
+<li><p><strong>record_count</strong> (int): Number of records written (0 if failed/skipped)</p></li>
+<li><p><strong>error_message</strong> (Optional[str]): Error description if failed, None otherwise</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>, Optional[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">excel_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/10_TST.xlsx&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">success</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">process_excel_file</span><span class="p">(</span><span class="n">excel_file</span><span class="p">,</span> <span class="s1">&#39;results/&#39;</span><span class="p">)</span>
+<span class="go">  ✓ Created 10_TST.jsonl with 150 rows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success: </span><span class="si">{</span><span class="n">success</span><span class="si">}</span><span class="s2">, Records: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">Success: True, Records: 150</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Error Handling:</dt><dd><ul class="simple">
+<li><p>Empty files are skipped with a warning (not treated as errors)</p></li>
+<li><p>Excel reading errors are caught and returned as error messages</p></li>
+<li><p>All errors are logged to both console and log file</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Output filename matches input filename (with .jsonl extension)</p></li>
+<li><p>Progress messages are written via tqdm for proper formatting</p></li>
+<li><p>Empty DataFrames (no columns and no rows) are skipped entirely</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id2" title="scripts.extract_data.convert_dataframe_to_jsonl"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_dataframe_to_jsonl()</span></code></a>: Conversion function
+<a class="reference internal" href="#id5" title="scripts.extract_data.is_dataframe_empty"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_dataframe_empty()</span></code></a>: Empty file detection</p>
+</div>
+</dd></dl>
+
+<p>Process a single Excel file.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">input_file</span></code> (str): Path to Excel file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> (str): Directory for output JSONL file</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code>: Processing results with keys:
+- <code class="docutils literal notranslate"><span class="pre">records</span></code> (int): Number of records processed
+- <code class="docutils literal notranslate"><span class="pre">file</span></code> (str): Output file path</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">process_excel_file</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">process_excel_file</span><span class="p">(</span>
+    <span class="s2">&quot;data/dataset/Indo-vap/10_TST.xlsx&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;results/dataset/Indo-vap&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processed </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;records&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="convert-dataframe-to-jsonl">
+<h3>convert_dataframe_to_jsonl<a class="headerlink" href="#convert-dataframe-to-jsonl" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">convert_dataframe_to_jsonl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#convert_dataframe_to_jsonl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd><p>Convert a DataFrame to JSONL (JSON Lines) format.</p>
+<p>This function writes each row of a DataFrame as a separate JSON object on
+its own line, creating a JSONL file. It handles empty DataFrames gracefully
+by creating metadata records.</p>
+<dl class="simple">
+<dt>Special Cases:</dt><dd><ul class="simple">
+<li><p><strong>Empty DataFrame with columns</strong>: Creates a single metadata record with
+column names and null values, preserving the data structure.</p></li>
+<li><p><strong>DataFrame with data</strong>: Converts each row to a JSON object with the
+source filename added.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame to convert. Can be empty.</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path where the JSONL file will be written.</p></li>
+<li><p><strong>source_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the source Excel file, added to each record
+for traceability.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The number of JSON records written to the file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">],</span> <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">25</span><span class="p">,</span> <span class="mi">30</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;output.jsonl&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span> <span class="o">=</span> <span class="n">convert_dataframe_to_jsonl</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="s1">&#39;data.xlsx&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> records&quot;</span><span class="p">)</span>
+<span class="go">Wrote 2 records</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Each line in the output file is a valid JSON object</p></li>
+<li><p>Files are written with UTF-8 encoding</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">source_file</span></code> field is automatically added to each record</p></li>
+<li><p>Empty DataFrames with columns generate one metadata record</p></li>
+</ul>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#id3" title="scripts.extract_data.clean_record_for_json"><code class="xref py py-func docutils literal notranslate"><span class="pre">clean_record_for_json()</span></code></a>: Function used to clean each record</p>
+</div>
+</dd></dl>
+
+<p>Convert a pandas DataFrame to JSONL format.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> (pd.DataFrame): DataFrame to convert</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">output_file</span></code> (str): Path to output JSONL file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_file</span></code> (str): Original source file name (for metadata)</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_dataframe_to_jsonl</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">&quot;input.xlsx&quot;</span><span class="p">)</span>
+<span class="n">convert_dataframe_to_jsonl</span><span class="p">(</span>
+    <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;output.jsonl&quot;</span><span class="p">,</span>
+    <span class="n">source_file</span><span class="o">=</span><span class="s2">&quot;input.xlsx&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="clean-record-for-json">
+<h3>clean_record_for_json<a class="headerlink" href="#clean-record-for-json" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">clean_record_for_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#clean_record_for_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd><p>Clean a pandas record by converting values to JSON-serializable types.</p>
+<p>This function handles the conversion of pandas/numpy-specific data types
+to standard Python types that can be serialized to JSON. It’s essential
+for preventing serialization errors when writing to JSONL files.</p>
+<dl class="simple">
+<dt>Type conversions performed:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.isna()</span></code> values → <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">np.integer</span></code> / <code class="docutils literal notranslate"><span class="pre">np.floating</span></code> → Python <code class="docutils literal notranslate"><span class="pre">int</span></code> / <code class="docutils literal notranslate"><span class="pre">float</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.Timestamp</span></code> / <code class="docutils literal notranslate"><span class="pre">np.datetime64</span></code> / <code class="docutils literal notranslate"><span class="pre">datetime</span></code> / <code class="docutils literal notranslate"><span class="pre">date</span></code> → <code class="docutils literal notranslate"><span class="pre">str</span></code></p></li>
+<li><p>All other types preserved as-is</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary containing data from a pandas DataFrame row,
+potentially with pandas/numpy types.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new dictionary with all values converted to JSON-serializable types.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="mf">95.5</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2023-01-01&#39;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="s1">&#39;missing&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cleaned</span> <span class="o">=</span> <span class="n">clean_record_for_json</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cleaned</span>
+<span class="go">{&#39;name&#39;: &#39;John&#39;, &#39;age&#39;: 30, &#39;score&#39;: 95.5, &#39;date&#39;: &#39;2023-01-01 00:00:00&#39;, &#39;missing&#39;: None}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>NaN and None values are converted to JSON <code class="docutils literal notranslate"><span class="pre">null</span></code></p></li>
+<li><p>Datetime objects are converted to ISO format strings</p></li>
+<li><p>The original record is not modified (a new dict is returned)</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<p>Clean a record for JSON serialization.</p>
+<p>Handles:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.Timestamp</span></code> → string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pd.NA</span></code> / <code class="docutils literal notranslate"><span class="pre">np.nan</span></code> → <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">float('nan')</span></code> → <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p>Other types → preserved</p></li>
+</ul>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">record</span></code> (dict): Record to clean</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code>: Cleaned record</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">clean_record_for_json</span>
+
+<span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2025-01-01&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span>
+    <span class="s1">&#39;missing&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">NA</span>
+<span class="p">}</span>
+
+<span class="n">cleaned</span> <span class="o">=</span> <span class="n">clean_record_for_json</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="c1"># Result: {&#39;date&#39;: &#39;2025-01-01 00:00:00&#39;, &#39;value&#39;: 42, &#39;missing&#39;: None}</span>
+</pre></div>
+</div>
+</section>
+<section id="find-excel-files">
+<h3>find_excel_files<a class="headerlink" href="#find-excel-files" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">find_excel_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#find_excel_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd><p>Find all Excel files (.xlsx) in the specified directory.</p>
+<p>This function searches for Excel files with the .xlsx extension in a given
+directory. It does not search subdirectories (non-recursive).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to the directory to search for Excel files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of Path objects representing found Excel files.</dt><dd><p>Returns an empty list if no files are found.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Path]</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">files</span> <span class="o">=</span> <span class="n">find_excel_files</span><span class="p">(</span><span class="s1">&#39;data/dataset/Indo-vap_csv_files&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">)</span>
+<span class="go">Found 43 files</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="go">&#39;10_TST.xlsx&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>Only searches the immediate directory (not subdirectories)</p></li>
+<li><p>Only matches .xlsx files (not .xls or other Excel formats)</p></li>
+<li><p>Files are returned in the order found by the file system</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<p>Find all Excel files (.xlsx) in a directory.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">directory</span></code> (str): Directory to search</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code>: List of Excel file paths (sorted)</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_excel_files</span>
+
+<span class="n">files</span> <span class="o">=</span> <span class="n">find_excel_files</span><span class="p">(</span><span class="s2">&quot;data/dataset/Indo-vap&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> Excel files&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="is-dataframe-empty">
+<h3>is_dataframe_empty<a class="headerlink" href="#is-dataframe-empty" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-prename descclassname"><span class="pre">scripts.extract_data.</span></span><span class="sig-name descname"><span class="pre">is_dataframe_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/scripts/extract_data.html#is_dataframe_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd><p>Check if a DataFrame is completely empty (no rows AND no columns).</p>
+<p>This function distinguishes between DataFrames that have structure (columns)
+but no data rows, versus DataFrames that are completely empty. This is
+important for deciding whether to preserve column metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pd.DataFrame</em>) – The DataFrame to check.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the DataFrame has no columns AND no rows, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Completely empty DataFrame</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Has columns but no rows</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df2</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Has data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df3</span><span class="p">)</span>
+<span class="go">False</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>A DataFrame with columns but no rows returns False (has structure)</p></li>
+<li><p>Only returns True when both rows and columns are absent</p></li>
+</ul>
+</div>
+</dd></dl>
+
+<p>Check if a DataFrame is empty or contains only NaN values.</p>
+<p><strong>Parameters</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">df</span></code> (pd.DataFrame): DataFrame to check</p></li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span></code>: True if empty, False otherwise</p></li>
+</ul>
+<p><strong>Example</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scripts.extract_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_dataframe_empty</span>
+
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df1</span><span class="p">))</span>  <span class="c1"># True</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df2</span><span class="p">))</span>  <span class="c1"># False</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="data-flow">
+<h2>Data Flow<a class="headerlink" href="#data-flow" title="Link to this heading"></a></h2>
+<p>The extraction process follows this flow:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>1. extract_excel_to_jsonl(input_dir, output_dir)
+   │
+   ├── find_excel_files(input_dir)
+   │   └── Returns: [file1.xlsx, file2.xlsx, ...]
+   │
+   └── For each file:
+       └── process_excel_file(file, output_dir)
+           │
+           ├── Read Excel: pd.read_excel(file)
+           │
+           ├── Check if empty: is_dataframe_empty(df)
+           │   └── If empty: Skip file
+           │
+           └── convert_dataframe_to_jsonl(df, output_file, source)
+               │
+               └── For each record:
+                   ├── clean_record_for_json(record)
+                   │   └── Convert types for JSON
+                   │
+                   └── Write to JSONL file
+</pre></div>
+</div>
+</section>
+<section id="type-conversions">
+<h2>Type Conversions<a class="headerlink" href="#type-conversions" title="Link to this heading"></a></h2>
+<p>The module handles these type conversions:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Input Type</p></th>
+<th class="head"><p>Output Type</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pd.Timestamp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>ISO format</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pd.NA</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Null value</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">np.nan</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Null value</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">float('nan')</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>Null value</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code></p></td>
+<td><p>Preserved</p></td>
+<td><p>As-is</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">str</span></code></p></td>
+<td><p>Preserved</p></td>
+<td><p>As-is</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
+<td><p>Preserved</p></td>
+<td><p>As-is</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<p>The module handles these error scenarios:</p>
+<ol class="arabic simple">
+<li><p><strong>File Not Found</strong>: Logs error and skips file</p></li>
+<li><p><strong>Excel Read Error</strong>: Logs error with details</p></li>
+<li><p><strong>Empty DataFrame</strong>: Skips silently (not an error)</p></li>
+<li><p><strong>Type Conversion Error</strong>: Logs warning, converts to None</p></li>
+<li><p><strong>Write Error</strong>: Logs error and raises exception</p></li>
+</ol>
+</section>
+<section id="progress-tracking">
+<h2>Progress Tracking<a class="headerlink" href="#progress-tracking" title="Link to this heading"></a></h2>
+<p>Uses <code class="docutils literal notranslate"><span class="pre">tqdm</span></code> for progress bars:</p>
+<ul class="simple">
+<li><p>File-level progress: <code class="docutils literal notranslate"><span class="pre">Processing</span> <span class="pre">files:</span> <span class="pre">100%|██|</span> <span class="pre">43/43</span> <span class="pre">[00:15&lt;00:00]</span></code></p></li>
+<li><p>Real-time file count and processing rate</p></li>
+<li><p>Estimated time remaining</p></li>
+</ul>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Link to this heading"></a></h2>
+<p>Typical performance:</p>
+<ul class="simple">
+<li><p><strong>43 files</strong>: ~15-20 seconds</p></li>
+<li><p><strong>~50,000 records</strong>: ~2-3 files/second</p></li>
+<li><p><strong>Memory usage</strong>: One file in memory at a time</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><a class="reference internal" href="scripts.load_dictionary.html#id0" title="scripts.load_dictionary.load_study_dictionary"><code class="xref py py-func docutils literal notranslate"><span class="pre">scripts.load_dictionary.load_study_dictionary()</span></code></a></dt><dd><p>Dictionary processing</p>
+</dd>
+<dt><a class="reference internal" href="config.html#module-config" title="config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a></dt><dd><p>Configuration for paths</p>
+</dd>
+<dt><a class="reference internal" href="../user_guide/usage.html"><span class="doc">Usage Guide</span></a></dt><dd><p>Usage examples</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="scripts.html" class="btn btn-neutral float-left" title="scripts package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="scripts.load_dictionary.html" class="btn btn-neutral float-right" title="scripts.load_dictionary module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, RePORTaLiN Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

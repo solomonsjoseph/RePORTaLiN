@@ -1,8 +1,59 @@
-.DS_Store
+# Python
 __pycache__/
-data/data_dictionary_and_mapping_specifications/~$RePORT_DEB_to_Tables_mapping.xlsx
-data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx
-data/data_dictionary_and_mapping_specifications/json_output/tblSPECIMEN/tblSPECIMEN_Extraas_Ignore.jsonl
-.logs/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
 .venv/
+venv/
+env/
+ENV/
+
+# IDE
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+.logs/
+*.log
+
+# Temporary files
+temp/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Project-specific
+data/data_dictionary_and_mapping_specifications/~$*.xlsx
+data/data_dictionary_and_mapping_specifications/json_output/tblSPECIMEN/tblSPECIMEN_Extraas_Ignore.jsonl
+
+# Results (uncomment if you don't want to track results)
+# results/
