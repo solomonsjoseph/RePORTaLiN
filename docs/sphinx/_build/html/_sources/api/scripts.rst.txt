@@ -62,6 +62,33 @@ See: :doc:`scripts.load_dictionary`
 utils
 ~~~~~
 
+Utility modules including de-identification and logging.
+
+De-identification (``scripts.utils.deidentify``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: scripts.utils.deidentify
+
+PHI/PII de-identification module with pseudonymization and encryption.
+
+Key classes:
+
+- :class:`DeidentificationEngine`: Main processing engine
+- :class:`PseudonymGenerator`: Cryptographic pseudonym generation
+- :class:`DateShifter`: Date shifting with interval preservation
+- :class:`MappingStore`: Encrypted mapping storage
+- :class:`PatternLibrary`: PHI/PII detection patterns
+
+Key functions:
+
+- :func:`deidentify_dataset`: Batch dataset de-identification
+- :func:`validate_dataset`: Dataset validation
+
+See: :doc:`scripts.utils.deidentify`
+
+Logging (``scripts.utils.logging_utils``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. currentmodule:: scripts.utils.logging_utils
 
 Utility modules including centralized logging.
@@ -106,6 +133,38 @@ Dictionary Loading
        output_dir=config.DICTIONARY_JSON_OUTPUT_DIR
    )
 
+De-identification
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from scripts.utils.deidentify import DeidentificationEngine
+   
+   # Initialize engine
+   engine = DeidentificationEngine()
+   
+   # De-identify text
+   original = "Patient John Doe, MRN: 123456, SSN: 123-45-6789"
+   deidentified = engine.deidentify_text(original)
+   
+   # Save mappings
+   engine.save_mappings()
+
+Batch De-identification
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from scripts.utils.deidentify import deidentify_dataset
+   
+   # Process entire dataset
+   stats = deidentify_dataset(
+       input_dir="results/dataset/Indo-vap",
+       output_dir="results/dataset/Indo-vap-deidentified"
+   )
+   
+   print(f"Processed {stats['texts_processed']} texts")
+
 Single File Processing
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -147,8 +206,10 @@ Module Dependencies
    │   └── uses: logging_utils, config
    │
    └── utils/
-       └── logging_utils.py
-           └── uses: config
+       ├── logging_utils.py
+       │   └── uses: config
+       └── deidentify.py
+           └── uses: config, cryptography (optional)
 
 See Also
 --------

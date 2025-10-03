@@ -11,6 +11,9 @@ numpy>=1.24.0
 # Progress bars for user feedback
 tqdm>=4.66.0
 
+# De-identification and Security
+cryptography>=41.0.0
+
 # Documentation Generation
 sphinx>=7.0.0
 sphinx-rtd-theme>=1.3.0

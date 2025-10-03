@@ -59,7 +59,7 @@ Author:
     RePORTaLiN Development Team
 
 Version:
-    1.0.0
+    0.0.1
 """
 import os
 from pathlib import Path

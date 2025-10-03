@@ -13,10 +13,12 @@ RePORTaLiN is a production-ready data processing pipeline designed to extract an
 
 - 🚀 **Fast & Efficient**: Process 43 Excel files in ~15-20 seconds
 - 📊 **Smart Table Detection**: Automatically splits Excel sheets into multiple tables
-- 📝 **Comprehensive Logging**: Timestamped logs with detailed operation tracking
+- � **De-identification**: HIPAA-compliant PHI/PII removal with pseudonymization
+- �📝 **Comprehensive Logging**: Timestamped logs with detailed operation tracking
 - 📈 **Progress Tracking**: Real-time progress bars for all operations
 - 🔧 **Configurable**: Centralized configuration management
 - 📖 **Well Documented**: Comprehensive Sphinx documentation (user & developer modes)
+- 🔒 **Secure**: Encrypted mapping storage for de-identification
 
 ## Project Structure
 
@@ -30,6 +32,7 @@ RePORTaLiN/
 │   ├── extract_data.py             # Excel to JSONL extraction logic
 │   ├── load_dictionary.py          # Data dictionary processor
 │   └── utils/
+│       ├── deidentify.py           # PHI/PII de-identification module
 │       └── logging_utils.py        # Centralized logging
 ├── docs/                           # Documentation
 │   └── sphinx/                     # Sphinx HTML documentation (user & developer modes)
@@ -40,7 +43,9 @@ RePORTaLiN/
 ├── results/                        # Generated JSONL outputs
 │   ├── dataset/
 │   │   └── <dataset_name>/         # Extracted data (e.g., Indo-vap)
-│   └── data_dictionary_mappings/   # Dictionary tables
+│   │   └── <dataset_name>-deidentified/  # De-identified data
+│   ├── data_dictionary_mappings/   # Dictionary tables
+│   └── deidentification/           # De-identification mappings (encrypted)
 └── .logs/                          # Execution logs
 ```
 
@@ -71,6 +76,17 @@ This will:
 3. ✅ Generate JSONL output files in `results/dataset/<dataset_name>/`
 4. ✅ Create timestamped logs in `.logs/`
 
+**To enable de-identification:**
+
+```bash
+python main.py --enable-deidentification
+```
+
+This adds:
+5. ✅ De-identify PHI/PII from extracted data
+6. ✅ Generate de-identified dataset in `results/dataset/<dataset_name>-deidentified/`
+7. ✅ Create encrypted mapping file in `results/deidentification/`
+
 **Note:** The pipeline automatically detects the dataset folder in `data/dataset/` and creates corresponding output in `results/dataset/<dataset_name>/`
 
 **Expected output:**
@@ -87,14 +103,26 @@ RePORTaLiN pipeline finished.
 ### 3. Command-Line Options
 
 ```bash
+# Run with de-identification
+python main.py --enable-deidentification
+
 # Skip data dictionary loading
 python main.py --skip-dictionary
 
 # Skip data extraction
 python main.py --skip-extraction
 
-# Skip both (useful for testing)
-python main.py --skip-dictionary --skip-extraction
+# Skip de-identification (even if enabled)
+python main.py --enable-deidentification --skip-deidentification
+
+# De-identify without encryption (testing only - NOT recommended)
+python main.py --enable-deidentification --no-encryption
+
+# Standalone de-identification
+python -m scripts.utils.deidentify \
+    --input-dir results/dataset/Indo-vap \
+    --output-dir results/dataset/Indo-vap-deidentified \
+    --validate
 ```
 
 ### 4. Using Make Commands
@@ -112,15 +140,32 @@ The main execution script that orchestrates the entire pipeline. It:
 - Sets up logging
 - Loads the data dictionary
 - Extracts data from Excel files
+- De-identifies PHI/PII (optional)
 - Handles errors gracefully
 - Provides progress feedback
 
 ### `scripts/extract_data.py` - Data Extraction
 Converts Excel files to JSONL format with:
 - Automatic data type handling (dates, numbers, NaN values)
+- **Duplicate column removal**: Creates both original and cleaned versions
 - Source file tracking
 - Empty dataframe handling
 - Progress bars for file processing
+
+**Output Files:**
+- `<filename>.jsonl` - Original data with all columns preserved
+- `clean_<filename>.jsonl` - Cleaned data with duplicate columns removed (e.g., SUBJID2, SUBJID3)
+
+### `scripts/utils/deidentify.py` - De-identification
+Removes PHI/PII from text data with:
+- **Comprehensive Detection**: SSN, MRN, phone, email, dates, addresses, ages >89
+- **Pseudonymization**: Consistent, cryptographic placeholders
+- **Encrypted Storage**: Fernet encryption for mapping tables
+- **Date Shifting**: Preserves temporal relationships
+- **Validation**: Ensures no PHI leakage
+- **HIPAA Compliance**: Safe Harbor method compatible
+
+See [Sphinx documentation](docs/sphinx/user_guide/deidentification.rst) for full details.
 
 ### `scripts/load_dictionary.py` - Dictionary Processor
 Processes the data dictionary Excel file with:
@@ -147,15 +192,21 @@ Custom logging system with:
 The pipeline generates two types of outputs:
 
 ### 1. Extracted Data (`results/Indo-vap/`)
-JSONL files containing the extracted data:
+JSONL files containing the extracted data in two versions:
 ```
 results/Indo-vap/
-├── 10_TST.jsonl          (631 records)
-├── 11_IGRA.jsonl         (262 records)
-├── 12A_FUA.jsonl         (2,831 records)
-├── 12B_FUB.jsonl         (1,862 records)
-├── ...                   (43 files total)
+├── 10_TST.jsonl              (631 records - original with all columns)
+├── clean_10_TST.jsonl        (631 records - cleaned, duplicates removed)
+├── 11_IGRA.jsonl             (262 records - original)
+├── clean_11_IGRA.jsonl       (262 records - cleaned)
+├── 12A_FUA.jsonl             (2,831 records - original)
+├── clean_12A_FUA.jsonl       (2,831 records - cleaned)
+├── 12B_FUB.jsonl             (1,862 records - original)
+├── clean_12B_FUB.jsonl       (1,862 records - cleaned)
+├── ...                       (86 files total: 43 original + 43 cleaned)
 ```
+
+**Note:** Cleaned versions (`clean_*.jsonl`) have duplicate columns like SUBJID2, SUBJID3 removed, keeping only the base column names.
 
 ### 2. Data Dictionary Mappings (`results/data_dictionary_mappings/`)
 Processed tables from the data dictionary:
@@ -242,6 +293,7 @@ make clean
   - openpyxl >= 3.1.0
   - numpy >= 1.24.0
   - tqdm >= 4.66.0
+  - cryptography >= 41.0.0 (for de-identification)
 
 ## Troubleshooting
 
@@ -254,7 +306,7 @@ cd /path/to/RePORTaLiN
 python main.py
 ```
 
-**2. No module named 'tqdm':**
+**2. No module named 'tqdm' or 'cryptography':**
 ```bash
 pip install -r requirements.txt
 ```
@@ -268,6 +320,15 @@ chmod 755 .logs/
 **4. File not found errors:**
 - Check paths in `config.py`
 - Ensure data files exist in `data/` directory
+
+**5. De-identification issues:**
+```bash
+# Test de-identification
+python -m scripts.utils.deidentify --help
+
+# See full documentation in Sphinx
+cd docs/sphinx && make html
+```
 
 For more troubleshooting, see the Sphinx documentation:
 ```bash
@@ -293,4 +354,4 @@ For questions or issues, please open an issue on GitHub.
 
 ---
 
-**Status:** ✅ Production Ready | **Version:** 1.0.0
+**Status:** ✅ Production Ready | **Version:** 0.0.1

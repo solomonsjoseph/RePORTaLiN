@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; RePORTaLiN 1.0.0 documentation</title>
+  <title>Index &mdash; RePORTaLiN 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8d563738"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/usage.html#working-with-output-files">Working with Output Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/usage.html#understanding-original-vs-cleaned-files">Understanding Original vs Cleaned Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="user_guide/usage.html#reading-jsonl-files">Reading JSONL Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="user_guide/usage.html#combining-multiple-jsonl-files">Combining Multiple JSONL Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="user_guide/usage.html#converting-to-other-formats">Converting to Other Formats</a></li>
@@ -181,6 +182,68 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/usage.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/deidentification.html">De-identification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#quick-start">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#pipeline-integration">Pipeline Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#supported-phi-pii-types">Supported PHI/PII Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#names">Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#medical-identifiers">Medical Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#government-identifiers">Government Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#contact-information">Contact Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#geographic-information">Geographic Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#temporal-information">Temporal Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#technical-identifiers">Technical Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#custom-identifiers">Custom Identifiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#pseudonym-formats">Pseudonym Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#deidentificationconfig">DeidentificationConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#custom-phi-patterns">Custom PHI Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#advanced-features">Advanced Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#date-shifting">Date Shifting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#encrypted-mapping-storage">Encrypted Mapping Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#record-de-identification">Record De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#security">Security</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#encryption">Encryption</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#cryptographic-pseudonyms">Cryptographic Pseudonyms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#hipaa-compliance">HIPAA Compliance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#performance">Performance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#benchmarks">Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#optimization-tips">Optimization Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#common-issues">Common Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#key-classes">Key Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user_guide/deidentification.html#key-functions">Key Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/deidentification.html#see-also">See Also</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user_guide/troubleshooting.html">Troubleshooting</a><ul>
@@ -409,6 +472,103 @@
 <li class="toctree-l2"><a class="reference internal" href="developer_guide/extending.html#see-also">See Also</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide/production_readiness.html">Production Readiness Assessment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#assessment-for-version-0-0-1">Assessment for Version 0.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#executive-summary">Executive Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#code-quality-metrics">Code Quality Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#module-by-module-review">Module-by-Module Review</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#main-py-pipeline-orchestrator">1. main.py - Pipeline Orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#config-py-configuration-management">2. config.py - Configuration Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#scripts-extract-data-py-data-extraction">3. scripts/extract_data.py - Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#scripts-load-dictionary-py-dictionary-processing">4. scripts/load_dictionary.py - Dictionary Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#scripts-utils-deidentify-py-phi-pii-de-identification">5. scripts/utils/deidentify.py - PHI/PII De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#scripts-utils-logging-utils-py-centralized-logging">6. scripts/utils/logging_utils.py - Centralized Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#scripts-init-py-scripts-utils-init-py">7. scripts/__init__.py &amp; scripts/utils/__init__.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#security-assessment">Security Assessment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#encryption-and-cryptography">Encryption and Cryptography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#input-validation">Input Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#path-safety">Path Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#logical-flow-analysis">Logical Flow Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#pipeline-architecture">Pipeline Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#data-flow">Data Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#configuration-flow">Configuration Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#error-handling-flow">Error Handling Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#code-coherence">Code Coherence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#module-organization">Module Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#naming-conventions">Naming Conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#docstring-coverage">Docstring Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#type-hints">Type Hints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#import-organization">Import Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#documentation-review">Documentation Review</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#sphinx-documentation">Sphinx Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#inline-documentation">Inline Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#readme-md">README.md</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#testing-validation">Testing &amp; Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#import-testing">Import Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#syntax-validation">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#default-configuration">Default Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#cleanup-verification">Cleanup Verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#makefile-functionality">Makefile Functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#known-limitations">Known Limitations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#minor-observations">Minor Observations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#recommendations">Recommendations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#immediate-optional">Immediate (Optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#short-term-future-versions">Short-term (Future Versions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#long-term-roadmap">Long-term (Roadmap)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#appendix-testing-summary">Appendix: Testing Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#module-import-tests">Module Import Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#id1">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#security-scan">Security Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#code-standards">Code Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#file-inventory">File Inventory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#review-checklist">Review Checklist</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#core-functionality">Core Functionality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#code-quality">Code Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#security">Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#deployment">Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#maintenance">Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#verification-tests-performed">Verification Tests Performed</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#import-verification">Import Verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#id2">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#security-scans">Security Scans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#configuration-validation">Configuration Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#cli-verification">CLI Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_guide/production_readiness.html#final-recommendations">Final Recommendations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#immediate-before-deployment">Immediate (Before Deployment)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#short-term-next-1-3-months">Short-term (Next 1-3 months)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer_guide/production_readiness.html#long-term-next-3-6-months">Long-term (Next 3-6 months)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">📚 API Reference</span></p>
 <ul>
@@ -550,6 +710,7 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scripts.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.extract_data.html">scripts.extract_data module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/scripts.extract_data.html#data-extraction-module">Data Extraction Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scripts.extract_data.html#scripts.extract_data.clean_duplicate_columns"><code class="docutils literal notranslate"><span class="pre">clean_duplicate_columns()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scripts.extract_data.html#scripts.extract_data.clean_record_for_json"><code class="docutils literal notranslate"><span class="pre">clean_record_for_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scripts.extract_data.html#scripts.extract_data.convert_dataframe_to_jsonl"><code class="docutils literal notranslate"><span class="pre">convert_dataframe_to_jsonl()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/scripts.extract_data.html#scripts.extract_data.extract_excel_to_jsonl"><code class="docutils literal notranslate"><span class="pre">extract_excel_to_jsonl()</span></code></a></li>
@@ -610,12 +771,18 @@
 <li class="toctree-l2"><a class="reference internal" href="api/scripts.html#module-summary">Module Summary</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#extract-data">extract_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#load-dictionary">load_dictionary</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/scripts.html#utils">utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scripts.html#utils">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/scripts.html#de-identification-scripts-utils-deidentify">De-identification (<code class="docutils literal notranslate"><span class="pre">scripts.utils.deidentify</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/scripts.html#logging-scripts-utils-logging-utils">Logging (<code class="docutils literal notranslate"><span class="pre">scripts.utils.logging_utils</span></code>)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/scripts.html#quick-examples">Quick Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#data-extraction">Data Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#dictionary-loading">Dictionary Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scripts.html#de-identification">De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/scripts.html#batch-de-identification">Batch De-identification</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#single-file-processing">Single File Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/scripts.html#custom-logging">Custom Logging</a></li>
 </ul>
@@ -628,8 +795,8 @@
 <p class="caption" role="heading"><span class="caption-text">📋 Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-1-0-0-2025-10-02">Version 1.0.0 (2025-10-02)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="changelog.html#initial-release">Initial Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-0-1-2025-10-02">Version 0.0.1 (2025-10-02)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="changelog.html#initial-release-de-identification-module">Initial Release - De-identification Module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="changelog.html#development-history">Development History</a><ul>
@@ -705,6 +872,7 @@
 
 <div class="genindex-jumpbox">
  <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
  | <a href="#E"><strong>E</strong></a>
@@ -713,19 +881,37 @@
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/scripts.load_dictionary.html#scripts.load_dictionary._deduplicate_columns">_deduplicate_columns() (in module scripts.load_dictionary)</a>
+      <li><a href="api/scripts.deidentify.html#id12">__init__() (scripts.utils.deidentify.DateShifter method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DateShifter.__init__">[1]</a>, <a href="api/scripts.utils.deidentify.html#id12">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DateShifter.__init__">[3]</a>
+
+      <ul>
+        <li><a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.__init__">(scripts.utils.deidentify.DeidentificationConfig method)</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.__init__">[1]</a>
 </li>
+        <li><a href="api/scripts.deidentify.html#id1">(scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.__init__">[1]</a>, <a href="api/scripts.utils.deidentify.html#id1">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.__init__">[3]</a>
+</li>
+        <li><a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern.__init__">(scripts.utils.deidentify.DetectionPattern method)</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern.__init__">[1]</a>
+</li>
+        <li><a href="api/scripts.deidentify.html#id15">(scripts.utils.deidentify.MappingStore method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore.__init__">[1]</a>, <a href="api/scripts.utils.deidentify.html#id15">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore.__init__">[3]</a>
+</li>
+        <li><a href="api/scripts.deidentify.html#id8">(scripts.utils.deidentify.PseudonymGenerator method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.__init__">[1]</a>, <a href="api/scripts.utils.deidentify.html#id8">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.__init__">[3]</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.load_dictionary.html#scripts.load_dictionary._deduplicate_columns">_deduplicate_columns() (in module scripts.load_dictionary)</a>
+</li>
       <li><a href="api/scripts.load_dictionary.html#scripts.load_dictionary._process_and_save_tables">_process_and_save_tables() (in module scripts.load_dictionary)</a>
 </li>
       <li><a href="api/scripts.load_dictionary.html#scripts.load_dictionary._split_sheet_into_tables">_split_sheet_into_tables() (in module scripts.load_dictionary)</a>
@@ -733,9 +919,33 @@
   </ul></td>
 </tr></table>
 
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id23">ACCOUNT_NUMBER (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ACCOUNT_NUMBER">[1]</a>, <a href="api/scripts.utils.deidentify.html#id23">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ACCOUNT_NUMBER">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id16">add_mapping() (scripts.utils.deidentify.MappingStore method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore.add_mapping">[1]</a>, <a href="api/scripts.utils.deidentify.html#id16">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore.add_mapping">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id24">ADDRESS_CITY (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_CITY">[1]</a>, <a href="api/scripts.utils.deidentify.html#id24">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_CITY">[3]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id25">ADDRESS_STATE (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_STATE">[1]</a>, <a href="api/scripts.utils.deidentify.html#id25">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_STATE">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id26">ADDRESS_STREET (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_STREET">[1]</a>, <a href="api/scripts.utils.deidentify.html#id26">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_STREET">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id27">ADDRESS_ZIP (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_ZIP">[1]</a>, <a href="api/scripts.utils.deidentify.html#id27">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ADDRESS_ZIP">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id28">AGE_OVER_89 (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.AGE_OVER_89">[1]</a>, <a href="api/scripts.utils.deidentify.html#id28">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.AGE_OVER_89">[3]</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.extract_data.html#scripts.extract_data.clean_duplicate_columns">clean_duplicate_columns() (in module scripts.extract_data)</a>
+</li>
       <li><a href="api/scripts.extract_data.html#id3">clean_record_for_json() (in module scripts.extract_data)</a>, <a href="api/scripts.extract_data.html#scripts.extract_data.clean_record_for_json">[1]</a>
 </li>
       <li>
@@ -755,6 +965,8 @@
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.critical">(in module scripts.utils.logging_utils)</a>
 </li>
       </ul></li>
+      <li><a href="api/scripts.deidentify.html#id29">CUSTOM (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.CUSTOM">[1]</a>, <a href="api/scripts.utils.deidentify.html#id29">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.CUSTOM">[3]</a>
+</li>
       <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.CustomFormatter">CustomFormatter (class in scripts.utils.logging_utils)</a>
 </li>
   </ul></td>
@@ -763,17 +975,53 @@
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id30">DATE (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.DATE">[1]</a>, <a href="api/scripts.utils.deidentify.html#id30">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.DATE">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id50">date_shift_range_days (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.date_shift_range_days">[1]</a>, <a href="api/scripts.utils.deidentify.html#id50">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.date_shift_range_days">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id11">DateShifter (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DateShifter">[1]</a>, <a href="api/scripts.utils.deidentify.html#id11">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DateShifter">[3]</a>
+</li>
       <li><a href="api/scripts.utils.html#scripts.utils.debug">debug() (in module scripts.utils)</a>
 
       <ul>
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.debug">(in module scripts.utils.logging_utils)</a>
 </li>
       </ul></li>
+      <li><a href="api/scripts.deidentify.html#id49">DeidentificationConfig (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig">[1]</a>, <a href="api/scripts.utils.deidentify.html#id49">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig">[3]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id0">DeidentificationEngine (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine">[1]</a>, <a href="api/scripts.utils.deidentify.html#id0">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id60">deidentify_dataset() (in module scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.deidentify_dataset">[1]</a>, <a href="api/scripts.utils.deidentify.html#id60">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.deidentify_dataset">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id2">deidentify_record() (scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.deidentify_record">[1]</a>, <a href="api/scripts.utils.deidentify.html#id2">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.deidentify_record">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id3">deidentify_text() (scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.deidentify_text">[1]</a>, <a href="api/scripts.utils.deidentify.html#id3">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.deidentify_text">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id45">description (scripts.utils.deidentify.DetectionPattern attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern.description">[1]</a>, <a href="api/scripts.utils.deidentify.html#id45">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern.description">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id44">DetectionPattern (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern">[1]</a>, <a href="api/scripts.utils.deidentify.html#id44">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id31">DEVICE_ID (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.DEVICE_ID">[1]</a>, <a href="api/scripts.utils.deidentify.html#id31">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.DEVICE_ID">[3]</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id32">EMAIL (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.EMAIL">[1]</a>, <a href="api/scripts.utils.deidentify.html#id32">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.EMAIL">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id51">enable_date_shifting (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_date_shifting">[1]</a>, <a href="api/scripts.utils.deidentify.html#id51">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_date_shifting">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id52">enable_encryption (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_encryption">[1]</a>, <a href="api/scripts.utils.deidentify.html#id52">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_encryption">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id53">enable_validation (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_validation">[1]</a>, <a href="api/scripts.utils.deidentify.html#id53">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.enable_validation">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id54">encryption_key (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.encryption_key">[1]</a>, <a href="api/scripts.utils.deidentify.html#id54">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.encryption_key">[3]</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/scripts.utils.html#scripts.utils.error">error() (in module scripts.utils)</a>
 
@@ -781,8 +1029,8 @@
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.error">(in module scripts.utils.logging_utils)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id17">export_for_audit() (scripts.utils.deidentify.MappingStore method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore.export_for_audit">[1]</a>, <a href="api/scripts.utils.deidentify.html#id17">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore.export_for_audit">[3]</a>
+</li>
       <li><a href="api/scripts.html#scripts.extract_excel_to_jsonl">extract_excel_to_jsonl() (in module scripts)</a>
 
       <ul>
@@ -807,7 +1055,11 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id9">generate() (scripts.utils.deidentify.PseudonymGenerator method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.generate">[1]</a>, <a href="api/scripts.utils.deidentify.html#id9">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.generate">[3]</a>
+</li>
       <li><a href="api/config.html#config.get_dataset_folder">get_dataset_folder() (in module config)</a>, <a href="api/config.html#id0">[1]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id21">get_default_patterns() (scripts.utils.deidentify.PatternLibrary static method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PatternLibrary.get_default_patterns">[1]</a>, <a href="api/scripts.utils.deidentify.html#id21">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PatternLibrary.get_default_patterns">[3]</a>
 </li>
       <li><a href="api/scripts.utils.html#scripts.utils.get_log_file_path">get_log_file_path() (in module scripts.utils)</a>
 
@@ -821,6 +1073,14 @@
 
       <ul>
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.get_logger">(in module scripts.utils.logging_utils)</a>
+</li>
+      </ul></li>
+      <li><a href="api/scripts.deidentify.html#id18">get_pseudonym() (scripts.utils.deidentify.MappingStore method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore.get_pseudonym">[1]</a>, <a href="api/scripts.utils.deidentify.html#id18">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore.get_pseudonym">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id4">get_statistics() (scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.get_statistics">[1]</a>, <a href="api/scripts.utils.deidentify.html#id4">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.get_statistics">[3]</a>
+
+      <ul>
+        <li><a href="api/scripts.deidentify.html#id10">(scripts.utils.deidentify.PseudonymGenerator method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.get_statistics">[1]</a>, <a href="api/scripts.utils.deidentify.html#id10">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PseudonymGenerator.get_statistics">[3]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -837,6 +1097,8 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id33">IP_ADDRESS (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.IP_ADDRESS">[1]</a>, <a href="api/scripts.utils.deidentify.html#id33">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.IP_ADDRESS">[3]</a>
+</li>
       <li><a href="api/scripts.extract_data.html#id5">is_dataframe_empty() (in module scripts.extract_data)</a>, <a href="api/scripts.extract_data.html#scripts.extract_data.is_dataframe_empty">[1]</a>
 </li>
   </ul></td>
@@ -845,12 +1107,22 @@
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id34">LICENSE_NUMBER (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.LICENSE_NUMBER">[1]</a>, <a href="api/scripts.utils.deidentify.html#id34">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.LICENSE_NUMBER">[3]</a>
+</li>
       <li><a href="api/scripts.html#scripts.load_study_dictionary">load_study_dictionary() (in module scripts)</a>
 
       <ul>
         <li><a href="api/scripts.load_dictionary.html#id0">(in module scripts.load_dictionary)</a>, <a href="api/scripts.load_dictionary.html#scripts.load_dictionary.load_study_dictionary">[1]</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id35">LOCATION (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.LOCATION">[1]</a>, <a href="api/scripts.utils.deidentify.html#id35">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.LOCATION">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id55">log_detections (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.log_detections">[1]</a>, <a href="api/scripts.utils.deidentify.html#id55">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.log_detections">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id56">log_level (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.log_level">[1]</a>, <a href="api/scripts.utils.deidentify.html#id56">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.log_level">[3]</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -865,6 +1137,12 @@
 </li>
       </ul></li>
       <li><a href="api/main.html#id1">main() (in module main)</a>, <a href="api/main.html#main.main">[1]</a>
+
+      <ul>
+        <li><a href="api/scripts.deidentify.html#scripts.utils.deidentify.main">(in module scripts.utils.deidentify)</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.main">[1]</a>
+</li>
+      </ul></li>
+      <li><a href="api/scripts.deidentify.html#id14">MappingStore (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore">[1]</a>, <a href="api/scripts.utils.deidentify.html#id14">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore">[3]</a>
 </li>
       <li>
     module
@@ -882,15 +1160,59 @@
 </li>
         <li><a href="api/scripts.utils.html#module-scripts.utils">scripts.utils</a>
 </li>
+        <li><a href="api/scripts.deidentify.html#module-scripts.utils.deidentify">scripts.utils.deidentify</a>, <a href="api/scripts.utils.deidentify.html#module-scripts.utils.deidentify">[1]</a>
+</li>
         <li><a href="api/scripts.utils.html#module-scripts.utils.logging_utils">scripts.utils.logging_utils</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id36">MRN (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.MRN">[1]</a>, <a href="api/scripts.utils.deidentify.html#id36">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.MRN">[3]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id37">NAME_FIRST (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.NAME_FIRST">[1]</a>, <a href="api/scripts.utils.deidentify.html#id37">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.NAME_FIRST">[3]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id38">NAME_FULL (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.NAME_FULL">[1]</a>, <a href="api/scripts.utils.deidentify.html#id38">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.NAME_FULL">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id39">NAME_LAST (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.NAME_LAST">[1]</a>, <a href="api/scripts.utils.deidentify.html#id39">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.NAME_LAST">[3]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id40">ORGANIZATION (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.ORGANIZATION">[1]</a>, <a href="api/scripts.utils.deidentify.html#id40">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.ORGANIZATION">[3]</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id46">pattern (scripts.utils.deidentify.DetectionPattern attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern.pattern">[1]</a>, <a href="api/scripts.utils.deidentify.html#id46">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern.pattern">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id20">PatternLibrary (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PatternLibrary">[1]</a>, <a href="api/scripts.utils.deidentify.html#id20">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PatternLibrary">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id47">phi_type (scripts.utils.deidentify.DetectionPattern attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern.phi_type">[1]</a>, <a href="api/scripts.utils.deidentify.html#id47">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern.phi_type">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id22">PHIType (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType">[1]</a>, <a href="api/scripts.utils.deidentify.html#id22">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id41">PHONE (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.PHONE">[1]</a>, <a href="api/scripts.utils.deidentify.html#id41">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.PHONE">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id57">preserve_date_intervals (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.preserve_date_intervals">[1]</a>, <a href="api/scripts.utils.deidentify.html#id57">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.preserve_date_intervals">[3]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id48">priority (scripts.utils.deidentify.DetectionPattern attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DetectionPattern.priority">[1]</a>, <a href="api/scripts.utils.deidentify.html#id48">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DetectionPattern.priority">[3]</a>
+</li>
       <li><a href="api/scripts.html#scripts.process_excel_file">process_excel_file() (in module scripts)</a>
 
       <ul>
@@ -899,6 +1221,10 @@
         <li><a href="api/scripts.load_dictionary.html#id1">(in module scripts.load_dictionary)</a>, <a href="api/scripts.load_dictionary.html#scripts.load_dictionary.process_excel_file">[1]</a>
 </li>
       </ul></li>
+      <li><a href="api/scripts.deidentify.html#id58">pseudonym_templates (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.pseudonym_templates">[1]</a>, <a href="api/scripts.utils.deidentify.html#id58">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.pseudonym_templates">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id7">PseudonymGenerator (class in scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PseudonymGenerator">[1]</a>, <a href="api/scripts.utils.deidentify.html#id7">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PseudonymGenerator">[3]</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -913,6 +1239,12 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id5">save_mappings() (scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.save_mappings">[1]</a>, <a href="api/scripts.utils.deidentify.html#id5">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.save_mappings">[3]</a>
+
+      <ul>
+        <li><a href="api/scripts.deidentify.html#id19">(scripts.utils.deidentify.MappingStore method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.MappingStore.save_mappings">[1]</a>, <a href="api/scripts.utils.deidentify.html#id19">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.MappingStore.save_mappings">[3]</a>
+</li>
+      </ul></li>
       <li>
     scripts
 
@@ -944,6 +1276,13 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li>
+    scripts.utils.deidentify
+
+      <ul>
+        <li><a href="api/scripts.deidentify.html#module-scripts.utils.deidentify">module</a>, <a href="api/scripts.utils.deidentify.html#module-scripts.utils.deidentify">[1]</a>
+</li>
+      </ul></li>
+      <li>
     scripts.utils.logging_utils
 
       <ul>
@@ -956,12 +1295,38 @@
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.setup_logger">(in module scripts.utils.logging_utils)</a>
 </li>
       </ul></li>
+      <li><a href="api/scripts.deidentify.html#id13">shift_date() (scripts.utils.deidentify.DateShifter method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DateShifter.shift_date">[1]</a>, <a href="api/scripts.utils.deidentify.html#id13">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DateShifter.shift_date">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id42">SSN (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.SSN">[1]</a>, <a href="api/scripts.utils.deidentify.html#id42">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.SSN">[3]</a>
+</li>
+      <li><a href="api/scripts.deidentify.html#id59">strict_mode (scripts.utils.deidentify.DeidentificationConfig attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.strict_mode">[1]</a>, <a href="api/scripts.utils.deidentify.html#id59">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationConfig.strict_mode">[3]</a>
+</li>
       <li><a href="api/scripts.utils.html#scripts.utils.success">success() (in module scripts.utils)</a>
 
       <ul>
         <li><a href="api/scripts.utils.html#scripts.utils.logging_utils.success">(in module scripts.utils.logging_utils)</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id43">URL (scripts.utils.deidentify.PHIType attribute)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.PHIType.URL">[1]</a>, <a href="api/scripts.utils.deidentify.html#id43">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.PHIType.URL">[3]</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id61">validate_dataset() (in module scripts.utils.deidentify)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.validate_dataset">[1]</a>, <a href="api/scripts.utils.deidentify.html#id61">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.validate_dataset">[3]</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/scripts.deidentify.html#id6">validate_deidentification() (scripts.utils.deidentify.DeidentificationEngine method)</a>, <a href="api/scripts.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.validate_deidentification">[1]</a>, <a href="api/scripts.utils.deidentify.html#id6">[2]</a>, <a href="api/scripts.utils.deidentify.html#scripts.utils.deidentify.DeidentificationEngine.validate_deidentification">[3]</a>
+</li>
   </ul></td>
 </tr></table>
 

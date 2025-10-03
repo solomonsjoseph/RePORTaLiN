@@ -16,8 +16,8 @@ project = 'RePORTaLiN'
 copyright = '2025, RePORTaLiN Development Team'
 author = 'RePORTaLiN Development Team'
 
-version = '1.0.0'
-release = '1.0.0'
+version = '0.0.1'
+release = '0.0.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

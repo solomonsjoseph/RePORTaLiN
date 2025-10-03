@@ -5,7 +5,8 @@ RePORTaLiN Main Pipeline
 
 This module serves as the central entry point for the RePORTaLiN data processing pipeline.
 It orchestrates the execution of multiple data processing steps, including data dictionary
-loading and raw data extraction from Excel files to JSONL format.
+loading, raw data extraction from Excel files to JSONL format, and de-identification of
+Protected Health Information (PHI) and Personally Identifiable Information (PII).
 
 The pipeline is designed to be robust, with comprehensive error handling, logging, and
 the ability to skip individual steps for testing or partial execution.
@@ -15,28 +16,36 @@ Example:
 
         $ python main.py
 
+    Run with de-identification::
+
+        $ python main.py --enable-deidentification
+
     Skip specific steps::
 
         $ python main.py --skip-dictionary
         $ python main.py --skip-extraction
+        $ python main.py --enable-deidentification --skip-deidentification
 
 See Also:
     :mod:`scripts.load_dictionary`: Data dictionary loading functionality
     :mod:`scripts.extract_data`: Excel to JSONL extraction functionality
+    :mod:`scripts.utils.deidentify`: PHI/PII de-identification functionality
     :mod:`config`: Configuration management
 
 Author:
     RePORTaLiN Development Team
 
 Version:
-    1.0.0
+    0.0.1
 """
 
 import argparse
 import sys
 from typing import Callable, Any
+from pathlib import Path
 from scripts.load_dictionary import load_study_dictionary
 from scripts.extract_data import extract_excel_to_jsonl
+from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging_utils as log
 import config
 
@@ -96,6 +105,9 @@ def main():
     
     2. **Data Extraction** (Step 1): Extracts raw data from Excel files in the dataset
        directory and converts them to JSONL format with comprehensive validation.
+    
+    3. **De-identification** (Step 2, optional): Removes PHI/PII from extracted data
+       using pseudonymization with encrypted mapping storage. Disabled by default.
 
     The pipeline features:
         - Dynamic dataset detection and configuration
@@ -111,6 +123,16 @@ def main():
         
         --skip-extraction: Skip the data extraction step (Step 1).
             Useful for testing dictionary processing in isolation.
+        
+        --enable-deidentification: Enable de-identification step (Step 2).
+            De-identification is disabled by default. Use this flag to enable it.
+        
+        --skip-deidentification: Skip de-identification even if enabled.
+            Useful for testing other steps without de-identification.
+        
+        --no-encryption: Disable encryption for de-identification mappings.
+            Encryption is ENABLED BY DEFAULT for security.
+            This flag disables it - not recommended for production use.
 
     Environment Variables:
         LOG_LEVEL: Set logging verbosity (default: INFO)
@@ -127,17 +149,22 @@ def main():
 
             $ python main.py
 
+        Run with de-identification::
+
+            $ python main.py --enable-deidentification
+
         Skip data dictionary loading::
 
             $ python main.py --skip-dictionary
 
-        Skip data extraction::
+        De-identify without encryption (testing only)::
 
-            $ python main.py --skip-extraction
+            $ python main.py --enable-deidentification --no-encryption
 
     See Also:
         :func:`scripts.load_dictionary.load_study_dictionary`: Data dictionary processor
         :func:`scripts.extract_data.extract_excel_to_jsonl`: Data extraction function
+        :func:`scripts.utils.deidentify.deidentify_dataset`: De-identification function
         :mod:`config`: Configuration settings and paths
 
     Note:
@@ -145,6 +172,7 @@ def main():
         - Logs are saved to `.logs/` with timestamps
         - The pipeline automatically detects the dataset folder in `data/dataset/`
         - Processing is idempotent - files are skipped if they already exist
+        - De-identification mappings are encrypted and stored separately
     """
     parser = argparse.ArgumentParser(
         description="RePORTaLiN pipeline for data processing.",
@@ -154,6 +182,12 @@ def main():
                        help="Skip data dictionary loading (Step 0).")
     parser.add_argument('--skip-extraction', action='store_true', 
                        help="Skip data extraction (Step 1).")
+    parser.add_argument('--skip-deidentification', action='store_true',
+                       help="Skip de-identification of extracted data (Step 2).")
+    parser.add_argument('--enable-deidentification', action='store_true',
+                       help="Enable de-identification (disabled by default for testing).")
+    parser.add_argument('--no-encryption', action='store_true',
+                       help="Disable encryption for de-identification mappings (encryption enabled by default).")
     args = parser.parse_args()
 
     log.setup_logger(name=config.LOG_NAME, log_level=config.LOG_LEVEL)
@@ -169,6 +203,42 @@ def main():
         run_step("Step 1: Extracting Raw Data to JSONL", extract_excel_to_jsonl)
     else:
         log.info("--- Skipping Step 1: Data Extraction ---")
+
+    # De-identification step (opt-in for now)
+    if args.enable_deidentification and not args.skip_deidentification:
+        def run_deidentification():
+            input_dir = Path(config.CLEAN_DATASET_DIR)
+            output_dir = Path(config.RESULTS_DIR) / "dataset" / f"{config.DATASET_NAME}-deidentified"
+            
+            log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
+            
+            # Configure de-identification
+            deid_config = DeidentificationConfig(
+                enable_encryption=not args.no_encryption,
+                enable_date_shifting=True,
+                enable_validation=True,
+                log_level=config.LOG_LEVEL
+            )
+            
+            # Run de-identification
+            stats = deidentify_dataset(
+                input_dir=input_dir,
+                output_dir=output_dir,
+                config=deid_config
+            )
+            
+            log.info(f"De-identification complete:")
+            log.info(f"  Texts processed: {stats.get('texts_processed', 0)}")
+            log.info(f"  Total detections: {stats.get('total_detections', 0)}")
+            log.info(f"  Unique mappings: {stats.get('total_mappings', 0)}")
+            
+            return stats
+        
+        run_step("Step 2: De-identifying PHI/PII", run_deidentification)
+    elif not args.enable_deidentification:
+        log.info("--- De-identification disabled (use --enable-deidentification to enable) ---")
+    else:
+        log.info("--- Skipping Step 2: De-identification ---")
 
     log.info("RePORTaLiN pipeline finished.")
 

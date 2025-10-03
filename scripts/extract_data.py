@@ -47,7 +47,7 @@ Author:
     RePORTaLiN Development Team
 
 Version:
-    1.0.0
+    0.0.1
 """
 
 import os
@@ -59,6 +59,7 @@ from pathlib import Path
 from typing import List, Tuple, Optional
 from tqdm import tqdm
 import config
+import re
 
 def clean_record_for_json(record: dict) -> dict:
     """
@@ -244,19 +245,21 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
     Process a single Excel file and convert it to JSONL format.
 
     This function reads an Excel file, checks if it's empty, and converts it to
-    JSONL format if it contains data or structure. It provides comprehensive
-    error handling and detailed logging.
+    JSONL format if it contains data or structure. It creates both original and
+    cleaned versions, where the cleaned version removes duplicate columns.
 
     Processing Steps:
-        1. Determine output file path
+        1. Determine output file paths (original and cleaned)
         2. Read Excel file into DataFrame
         3. Check if DataFrame is completely empty
-        4. Convert to JSONL if data or structure exists
-        5. Report results or errors
+        4. Save original version to JSONL
+        5. Remove duplicate columns (SUBJID2, SUBJID3, etc.)
+        6. Save cleaned version to JSONL with "_cleaned" suffix
+        7. Report results or errors
 
     Args:
         excel_file (Path): Path object pointing to the Excel file to process.
-        output_dir (str): Directory where the JSONL output file will be saved.
+        output_dir (str): Directory where both original and cleaned JSONL files will be saved.
 
     Returns:
         Tuple[bool, int, Optional[str]]: A tuple containing:
@@ -268,7 +271,9 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         >>> from pathlib import Path
         >>> excel_file = Path('data/10_TST.xlsx')
         >>> success, count, error = process_excel_file(excel_file, 'results/')
-          ✓ Created 10_TST.jsonl with 150 rows
+          ✓ Created 10_TST.jsonl with 150 rows (original)
+            → Removing duplicate columns: SUBJID2, SUBJID3
+          ✓ Created clean_10_TST.jsonl with 150 rows (cleaned)
         >>> print(f"Success: {success}, Records: {count}")
         Success: True, Records: 150
 
@@ -278,24 +283,35 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         - All errors are logged to both console and log file
 
     Note:
-        - Output filename matches input filename (with .jsonl extension)
+        - Original output filename: ``<filename>.jsonl``
+        - Cleaned output filename: ``clean_<filename>.jsonl``
         - Progress messages are written via tqdm for proper formatting
         - Empty DataFrames (no columns and no rows) are skipped entirely
+        - Duplicate columns like SUBJID2, SUBJID3 are removed in cleaned version
 
     See Also:
         :func:`convert_dataframe_to_jsonl`: Conversion function
         :func:`is_dataframe_empty`: Empty file detection
+        :func:`clean_duplicate_columns`: Duplicate column removal
     """
     try:
         output_file = Path(output_dir) / f"{excel_file.stem}.jsonl"
+        output_file_cleaned = Path(output_dir) / f"clean_{excel_file.stem}.jsonl"
         
         df = pd.read_excel(excel_file)
         if is_dataframe_empty(df):
             tqdm.write(f"  ⊘ Skipping {excel_file.name} (empty)")
             return False, 0, None
         
+        # Save original version
         records_count = convert_dataframe_to_jsonl(df, output_file, excel_file.name)
-        tqdm.write(f"  ✓ Created {output_file.name} with {records_count} rows")
+        tqdm.write(f"  ✓ Created {output_file.name} with {records_count} rows (original)")
+        
+        # Clean duplicate columns like SUBJID2, SUBJID3, etc. and save cleaned version
+        df_cleaned = clean_duplicate_columns(df)
+        records_count_cleaned = convert_dataframe_to_jsonl(df_cleaned, output_file_cleaned, excel_file.name)
+        tqdm.write(f"  ✓ Created {output_file_cleaned.name} with {records_count_cleaned} rows (cleaned)")
+        
         return True, records_count, None
     except Exception as e:
         error_msg = f"Error processing {excel_file.name}: {str(e)}"
@@ -303,26 +319,87 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         return False, 0, error_msg
 
 
+def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove duplicate columns that end with numeric suffixes (e.g., SUBJID2, SUBJID3).
+    
+    This function identifies columns that appear to be duplicates based on naming
+    patterns where a base column name is followed by a numeric suffix (e.g., 
+    SUBJID, SUBJID2, SUBJID3). It keeps only the base column and removes the
+    numbered variants.
+    
+    Detection Pattern:
+        - Looks for columns ending with a number (e.g., "SUBJID2", "ID3", "NAME_1")
+        - Checks if the base name (without the number) exists as a column
+        - Removes the numbered column if the base exists
+    
+    Args:
+        df (pd.DataFrame): The DataFrame with potentially duplicate columns.
+    
+    Returns:
+        pd.DataFrame: A new DataFrame with duplicate columns removed.
+    
+    Example:
+        >>> import pandas as pd
+        >>> df = pd.DataFrame({
+        ...     'SUBJID': ['A001', 'A002'],
+        ...     'SUBJID2': ['A001', 'A002'],
+        ...     'SUBJID3': ['A001', 'A002'],
+        ...     'NAME': ['John', 'Jane']
+        ... })
+        >>> cleaned_df = clean_duplicate_columns(df)
+        >>> list(cleaned_df.columns)
+        ['SUBJID', 'NAME']
+    
+    Note:
+        - The original DataFrame is not modified
+        - Removes columns like: SUBJID2, SUBJID3, VAR_1, VAR_2, etc.
+        - Keeps the base column name without suffix
+        - Case-sensitive matching
+    """
+    columns_to_keep = []
+    columns_to_remove = []
+    
+    for col in df.columns:
+        # Check if column ends with a number (e.g., SUBJID2, SUBJID3, VAR_1)
+        match = re.match(r'^(.+?)_?(\d+)$', str(col))
+        if match:
+            base_name = match.group(1)
+            # If the base column exists, this is a duplicate
+            if base_name in df.columns:
+                columns_to_remove.append(col)
+                continue
+        columns_to_keep.append(col)
+    
+    if columns_to_remove:
+        tqdm.write(f"    → Removing duplicate columns: {', '.join(columns_to_remove)}")
+    
+    return df[columns_to_keep].copy()
+
+
 def extract_excel_to_jsonl():
     """
     Extract all Excel files from the dataset directory and convert to JSONL format.
 
     This is the main batch processing function that orchestrates the extraction
-    of multiple Excel files. It provides comprehensive progress tracking, error
-    reporting, and summary statistics.
+    of multiple Excel files. It creates both original and cleaned versions of each file.
+    The cleaned version has duplicate columns (like SUBJID2, SUBJID3) removed.
 
     Workflow:
         1. Create output directory if it doesn't exist
         2. Discover all Excel files in the dataset directory
         3. Process each file (skipping already-processed files)
-        4. Track statistics (records, successes, failures)
-        5. Display comprehensive summary report
+        4. Save both original and cleaned versions
+        5. Track statistics (records, successes, failures)
+        6. Display comprehensive summary report
 
     Features:
+        - **Dual Output**: Creates both original and cleaned versions
         - **Idempotent**: Skips files that already have output files
         - **Progress Tracking**: Visual progress bar with real-time updates
         - **Error Recovery**: Continues processing even if individual files fail
         - **Summary Statistics**: Detailed report of processing results
+        - **Duplicate Removal**: Cleaned versions remove columns like SUBJID2, SUBJID3
 
     Configuration:
         Uses the following config variables:
@@ -330,8 +407,9 @@ def extract_excel_to_jsonl():
             - ``config.DATASET_DIR``: Input directory containing Excel files
 
     Output Format:
-        Each Excel file ``filename.xlsx`` produces ``filename.jsonl`` in the
-        output directory. The JSONL format has one JSON object per line.
+        Each Excel file ``filename.xlsx`` produces two JSONL files:
+            - ``filename.jsonl`` - Original data with all columns
+            - ``clean_filename.jsonl`` - Data with duplicate columns removed
 
     Example:
         Run as part of the main pipeline::

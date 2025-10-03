@@ -174,6 +174,59 @@ Process Files Matching Pattern
 Working with Output Files
 --------------------------
 
+Understanding Original vs Cleaned Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each extraction creates two versions of every file:
+
+- **Original** (``<filename>.jsonl``): All columns from Excel, including duplicates
+- **Cleaned** (``clean_<filename>.jsonl``): Duplicate columns removed (e.g., SUBJID2, SUBJID3)
+
+.. code-block:: text
+
+   results/dataset/Indo-vap/
+   ├── 10_TST.jsonl              # Original: has SUBJID, SUBJID2, SUBJID3
+   ├── clean_10_TST.jsonl        # Cleaned: only SUBJID (duplicates removed)
+   ├── 11_IGRA.jsonl             # Original
+   ├── clean_11_IGRA.jsonl       # Cleaned
+   └── ...
+
+**When to use each version:**
+
+- **Original files**: Use for data validation, debugging, or when you need all source columns
+- **Cleaned files**: Use for analysis, reporting, or database loading (recommended for most use cases)
+
+Reading Cleaned Files:
+
+.. code-block:: python
+
+   import pandas as pd
+
+   # Read cleaned version (recommended)
+   df = pd.read_json('results/dataset/Indo-vap/clean_10_TST.jsonl', lines=True)
+   
+   # Verify no duplicate columns
+   print("Columns:", df.columns.tolist())
+   # Output: ['SUBJID', 'TST_RESULT', ...] (no SUBJID2, SUBJID3)
+
+Comparing Original vs Cleaned:
+
+.. code-block:: python
+
+   import pandas as pd
+
+   # Load both versions
+   df_original = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
+   df_cleaned = pd.read_json('results/dataset/Indo-vap/clean_10_TST.jsonl', lines=True)
+   
+   # Compare columns
+   print(f"Original columns: {len(df_original.columns)}")
+   print(f"Cleaned columns: {len(df_cleaned.columns)}")
+   
+   # Find removed columns
+   removed = set(df_original.columns) - set(df_cleaned.columns)
+   print(f"Removed duplicate columns: {removed}")
+
 Reading JSONL Files
 ~~~~~~~~~~~~~~~~~~~
 

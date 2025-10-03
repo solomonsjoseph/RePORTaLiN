@@ -38,7 +38,10 @@ Key Features
 📊 **Smart Table Detection**
    Automatically splits Excel sheets into multiple tables
 
-📝 **Comprehensive Logging**
+� **De-identification**
+   HIPAA-compliant PHI/PII removal with pseudonymization
+
+�📝 **Comprehensive Logging**
    Timestamped logs with detailed operation tracking
 
 📈 **Progress Tracking**
@@ -49,6 +52,9 @@ Key Features
 
 📖 **Well Documented**
    Comprehensive user and developer documentation
+
+🔒 **Secure**
+   Encrypted mapping storage for de-identification
 
 Documentation Sections
 ----------------------
@@ -65,6 +71,7 @@ Documentation Sections
    user_guide/quickstart
    user_guide/configuration
    user_guide/usage
+   user_guide/deidentification
    user_guide/troubleshooting
 
 🔧 **For Developers** - Contribute to RePORTaLiN development
@@ -78,6 +85,7 @@ Documentation Sections
    developer_guide/contributing
    developer_guide/testing
    developer_guide/extending
+   developer_guide/production_readiness
 
 📚 **API Reference** - Technical documentation for all modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

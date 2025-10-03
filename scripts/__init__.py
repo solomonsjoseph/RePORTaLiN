@@ -9,4 +9,4 @@ from .load_dictionary import load_study_dictionary, process_excel_file
 from .extract_data import extract_excel_to_jsonl
 
 __all__ = ['load_study_dictionary', 'process_excel_file', 'extract_excel_to_jsonl']
-__version__ = '1.0.0'
+__version__ = '0.0.1'

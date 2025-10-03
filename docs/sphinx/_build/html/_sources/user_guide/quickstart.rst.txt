@@ -44,10 +44,18 @@ After the pipeline completes, you'll find:
    .. code-block:: text
 
       results/dataset/Indo-vap/
-      ├── 10_TST.jsonl              (631 records)
-      ├── 11_IGRA.jsonl             (262 records)
-      ├── 12A_FUA.jsonl             (2,831 records)
-      └── ...                       (43 files total)
+      ├── 10_TST.jsonl              (631 records - original)
+      ├── clean_10_TST.jsonl        (631 records - cleaned)
+      ├── 11_IGRA.jsonl             (262 records - original)
+      ├── clean_11_IGRA.jsonl       (262 records - cleaned)
+      ├── 12A_FUA.jsonl             (2,831 records - original)
+      ├── clean_12A_FUA.jsonl       (2,831 records - cleaned)
+      └── ...                       (86 files: 43 original + 43 cleaned)
+
+   **Note:** Each extraction creates two versions:
+   
+   - **Original** (``<filename>.jsonl``): All columns preserved as-is
+   - **Cleaned** (``clean_<filename>.jsonl``): Duplicate columns removed (e.g., SUBJID2, SUBJID3)
 
 2. **Data Dictionary Mappings** in ``results/data_dictionary_mappings/``
 

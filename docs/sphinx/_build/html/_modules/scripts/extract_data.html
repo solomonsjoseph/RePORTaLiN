@@ -5,14 +5,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>scripts.extract_data &mdash; RePORTaLiN 1.0.0 documentation</title>
+  <title>scripts.extract_data &mdash; RePORTaLiN 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=8d563738"></script>
+      <script src="../../_static/documentation_options.js?v=d45e8c67"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
@@ -150,6 +150,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/usage.html#working-with-output-files">Working with Output Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/usage.html#understanding-original-vs-cleaned-files">Understanding Original vs Cleaned Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guide/usage.html#reading-jsonl-files">Reading JSONL Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guide/usage.html#combining-multiple-jsonl-files">Combining Multiple JSONL Files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guide/usage.html#converting-to-other-formats">Converting to Other Formats</a></li>
@@ -181,6 +182,68 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guide/usage.html#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/deidentification.html">De-identification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#quick-start">Quick Start</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#batch-processing">Batch Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#command-line-interface">Command Line Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#pipeline-integration">Pipeline Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#supported-phi-pii-types">Supported PHI/PII Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#names">Names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#medical-identifiers">Medical Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#government-identifiers">Government Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#contact-information">Contact Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#geographic-information">Geographic Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#temporal-information">Temporal Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#technical-identifiers">Technical Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#custom-identifiers">Custom Identifiers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#pseudonym-formats">Pseudonym Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#deidentificationconfig">DeidentificationConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#custom-phi-patterns">Custom PHI Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#advanced-features">Advanced Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#date-shifting">Date Shifting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#encrypted-mapping-storage">Encrypted Mapping Storage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#record-de-identification">Record De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#security">Security</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#encryption">Encryption</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#cryptographic-pseudonyms">Cryptographic Pseudonyms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#hipaa-compliance">HIPAA Compliance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#performance">Performance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#benchmarks">Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#optimization-tips">Optimization Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#common-issues">Common Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#api-reference">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#key-classes">Key Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guide/deidentification.html#key-functions">Key Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deidentification.html#see-also">See Also</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../user_guide/troubleshooting.html">Troubleshooting</a><ul>
@@ -409,6 +472,103 @@
 <li class="toctree-l2"><a class="reference internal" href="../../developer_guide/extending.html#see-also">See Also</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer_guide/production_readiness.html">Production Readiness Assessment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#assessment-for-version-0-0-1">Assessment for Version 0.0.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#executive-summary">Executive Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#code-quality-metrics">Code Quality Metrics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#module-by-module-review">Module-by-Module Review</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#main-py-pipeline-orchestrator">1. main.py - Pipeline Orchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#config-py-configuration-management">2. config.py - Configuration Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#scripts-extract-data-py-data-extraction">3. scripts/extract_data.py - Data Extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#scripts-load-dictionary-py-dictionary-processing">4. scripts/load_dictionary.py - Dictionary Processing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#scripts-utils-deidentify-py-phi-pii-de-identification">5. scripts/utils/deidentify.py - PHI/PII De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#scripts-utils-logging-utils-py-centralized-logging">6. scripts/utils/logging_utils.py - Centralized Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#scripts-init-py-scripts-utils-init-py">7. scripts/__init__.py &amp; scripts/utils/__init__.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#security-assessment">Security Assessment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#encryption-and-cryptography">Encryption and Cryptography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#input-validation">Input Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#path-safety">Path Safety</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#logical-flow-analysis">Logical Flow Analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#pipeline-architecture">Pipeline Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#data-flow">Data Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#configuration-flow">Configuration Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#error-handling-flow">Error Handling Flow</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#code-coherence">Code Coherence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#module-organization">Module Organization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#naming-conventions">Naming Conventions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#docstring-coverage">Docstring Coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#type-hints">Type Hints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#import-organization">Import Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#documentation-review">Documentation Review</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#sphinx-documentation">Sphinx Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#inline-documentation">Inline Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#readme-md">README.md</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#testing-validation">Testing &amp; Validation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#import-testing">Import Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#syntax-validation">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#default-configuration">Default Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#cleanup-verification">Cleanup Verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#makefile-functionality">Makefile Functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#known-limitations">Known Limitations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#minor-observations">Minor Observations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#recommendations">Recommendations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#immediate-optional">Immediate (Optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#short-term-future-versions">Short-term (Future Versions)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#long-term-roadmap">Long-term (Roadmap)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#appendix-testing-summary">Appendix: Testing Summary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#module-import-tests">Module Import Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#id1">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#security-scan">Security Scan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#code-standards">Code Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#file-inventory">File Inventory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#review-checklist">Review Checklist</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#core-functionality">Core Functionality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#code-quality">Code Quality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#security">Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#documentation">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#deployment">Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#maintenance">Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#verification-tests-performed">Verification Tests Performed</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#import-verification">Import Verification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#id2">Syntax Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#security-scans">Security Scans</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#configuration-validation">Configuration Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#cli-verification">CLI Verification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/production_readiness.html#final-recommendations">Final Recommendations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#immediate-before-deployment">Immediate (Before Deployment)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#short-term-next-1-3-months">Short-term (Next 1-3 months)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../developer_guide/production_readiness.html#long-term-next-3-6-months">Long-term (Next 3-6 months)</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">📚 API Reference</span></p>
 <ul>
@@ -550,6 +710,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scripts.html#submodules">Submodules</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.extract_data.html">scripts.extract_data module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scripts.extract_data.html#data-extraction-module">Data Extraction Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scripts.extract_data.html#scripts.extract_data.clean_duplicate_columns"><code class="docutils literal notranslate"><span class="pre">clean_duplicate_columns()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scripts.extract_data.html#scripts.extract_data.clean_record_for_json"><code class="docutils literal notranslate"><span class="pre">clean_record_for_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scripts.extract_data.html#scripts.extract_data.convert_dataframe_to_jsonl"><code class="docutils literal notranslate"><span class="pre">convert_dataframe_to_jsonl()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/scripts.extract_data.html#scripts.extract_data.extract_excel_to_jsonl"><code class="docutils literal notranslate"><span class="pre">extract_excel_to_jsonl()</span></code></a></li>
@@ -610,12 +771,18 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/scripts.html#module-summary">Module Summary</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#extract-data">extract_data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#load-dictionary">load_dictionary</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#utils">utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#utils">utils</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scripts.html#de-identification-scripts-utils-deidentify">De-identification (<code class="docutils literal notranslate"><span class="pre">scripts.utils.deidentify</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/scripts.html#logging-scripts-utils-logging-utils">Logging (<code class="docutils literal notranslate"><span class="pre">scripts.utils.logging_utils</span></code>)</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/scripts.html#quick-examples">Quick Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#data-extraction">Data Extraction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#dictionary-loading">Dictionary Loading</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#de-identification">De-identification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#batch-de-identification">Batch De-identification</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#single-file-processing">Single File Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/scripts.html#custom-logging">Custom Logging</a></li>
 </ul>
@@ -628,8 +795,8 @@
 <p class="caption" role="heading"><span class="caption-text">📋 Additional Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-1-0-0-2025-10-02">Version 1.0.0 (2025-10-02)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#initial-release">Initial Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../changelog.html#version-0-0-1-2025-10-02">Version 0.0.1 (2025-10-02)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../changelog.html#initial-release-de-identification-module">Initial Release - De-identification Module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../changelog.html#development-history">Development History</a><ul>
@@ -751,7 +918,7 @@
 <span class="sd">    RePORTaLiN Development Team</span>
 
 <span class="sd">Version:</span>
-<span class="sd">    1.0.0</span>
+<span class="sd">    0.0.1</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -763,6 +930,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">config</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 
 <div class="viewcode-block" id="clean_record_for_json">
 <a class="viewcode-back" href="../../api/scripts.extract_data.html#scripts.clean_record_for_json">[docs]</a>
@@ -962,19 +1130,21 @@
 <span class="sd">    Process a single Excel file and convert it to JSONL format.</span>
 
 <span class="sd">    This function reads an Excel file, checks if it&#39;s empty, and converts it to</span>
-<span class="sd">    JSONL format if it contains data or structure. It provides comprehensive</span>
-<span class="sd">    error handling and detailed logging.</span>
+<span class="sd">    JSONL format if it contains data or structure. It creates both original and</span>
+<span class="sd">    cleaned versions, where the cleaned version removes duplicate columns.</span>
 
 <span class="sd">    Processing Steps:</span>
-<span class="sd">        1. Determine output file path</span>
+<span class="sd">        1. Determine output file paths (original and cleaned)</span>
 <span class="sd">        2. Read Excel file into DataFrame</span>
 <span class="sd">        3. Check if DataFrame is completely empty</span>
-<span class="sd">        4. Convert to JSONL if data or structure exists</span>
-<span class="sd">        5. Report results or errors</span>
+<span class="sd">        4. Save original version to JSONL</span>
+<span class="sd">        5. Remove duplicate columns (SUBJID2, SUBJID3, etc.)</span>
+<span class="sd">        6. Save cleaned version to JSONL with &quot;_cleaned&quot; suffix</span>
+<span class="sd">        7. Report results or errors</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        excel_file (Path): Path object pointing to the Excel file to process.</span>
-<span class="sd">        output_dir (str): Directory where the JSONL output file will be saved.</span>
+<span class="sd">        output_dir (str): Directory where both original and cleaned JSONL files will be saved.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Tuple[bool, int, Optional[str]]: A tuple containing:</span>
@@ -986,7 +1156,9 @@
 <span class="sd">        &gt;&gt;&gt; from pathlib import Path</span>
 <span class="sd">        &gt;&gt;&gt; excel_file = Path(&#39;data/10_TST.xlsx&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; success, count, error = process_excel_file(excel_file, &#39;results/&#39;)</span>
-<span class="sd">          ✓ Created 10_TST.jsonl with 150 rows</span>
+<span class="sd">          ✓ Created 10_TST.jsonl with 150 rows (original)</span>
+<span class="sd">            → Removing duplicate columns: SUBJID2, SUBJID3</span>
+<span class="sd">          ✓ Created clean_10_TST.jsonl with 150 rows (cleaned)</span>
 <span class="sd">        &gt;&gt;&gt; print(f&quot;Success: {success}, Records: {count}&quot;)</span>
 <span class="sd">        Success: True, Records: 150</span>
 
@@ -996,29 +1168,101 @@
 <span class="sd">        - All errors are logged to both console and log file</span>
 
 <span class="sd">    Note:</span>
-<span class="sd">        - Output filename matches input filename (with .jsonl extension)</span>
+<span class="sd">        - Original output filename: ``&lt;filename&gt;.jsonl``</span>
+<span class="sd">        - Cleaned output filename: ``clean_&lt;filename&gt;.jsonl``</span>
 <span class="sd">        - Progress messages are written via tqdm for proper formatting</span>
 <span class="sd">        - Empty DataFrames (no columns and no rows) are skipped entirely</span>
+<span class="sd">        - Duplicate columns like SUBJID2, SUBJID3 are removed in cleaned version</span>
 
 <span class="sd">    See Also:</span>
 <span class="sd">        :func:`convert_dataframe_to_jsonl`: Conversion function</span>
 <span class="sd">        :func:`is_dataframe_empty`: Empty file detection</span>
+<span class="sd">        :func:`clean_duplicate_columns`: Duplicate column removal</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">output_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">excel_file</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+        <span class="n">output_file_cleaned</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;clean_</span><span class="si">{</span><span class="n">excel_file</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
         
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">excel_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_dataframe_empty</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
             <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ⊘ Skipping </span><span class="si">{</span><span class="n">excel_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (empty)&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span>
         
+        <span class="c1"># Save original version</span>
         <span class="n">records_count</span> <span class="o">=</span> <span class="n">convert_dataframe_to_jsonl</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">excel_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ✓ Created </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">records_count</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+        <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ✓ Created </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">records_count</span><span class="si">}</span><span class="s2"> rows (original)&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Clean duplicate columns like SUBJID2, SUBJID3, etc. and save cleaned version</span>
+        <span class="n">df_cleaned</span> <span class="o">=</span> <span class="n">clean_duplicate_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">records_count_cleaned</span> <span class="o">=</span> <span class="n">convert_dataframe_to_jsonl</span><span class="p">(</span><span class="n">df_cleaned</span><span class="p">,</span> <span class="n">output_file_cleaned</span><span class="p">,</span> <span class="n">excel_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ✓ Created </span><span class="si">{</span><span class="n">output_file_cleaned</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> with </span><span class="si">{</span><span class="n">records_count_cleaned</span><span class="si">}</span><span class="s2"> rows (cleaned)&quot;</span><span class="p">)</span>
+        
         <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">records_count</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error processing </span><span class="si">{</span><span class="n">excel_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ✗ </span><span class="si">{</span><span class="n">error_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">error_msg</span></div>
+
+
+
+<div class="viewcode-block" id="clean_duplicate_columns">
+<a class="viewcode-back" href="../../api/scripts.extract_data.html#scripts.clean_duplicate_columns">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">clean_duplicate_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Remove duplicate columns that end with numeric suffixes (e.g., SUBJID2, SUBJID3).</span>
+<span class="sd">    </span>
+<span class="sd">    This function identifies columns that appear to be duplicates based on naming</span>
+<span class="sd">    patterns where a base column name is followed by a numeric suffix (e.g., </span>
+<span class="sd">    SUBJID, SUBJID2, SUBJID3). It keeps only the base column and removes the</span>
+<span class="sd">    numbered variants.</span>
+<span class="sd">    </span>
+<span class="sd">    Detection Pattern:</span>
+<span class="sd">        - Looks for columns ending with a number (e.g., &quot;SUBJID2&quot;, &quot;ID3&quot;, &quot;NAME_1&quot;)</span>
+<span class="sd">        - Checks if the base name (without the number) exists as a column</span>
+<span class="sd">        - Removes the numbered column if the base exists</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): The DataFrame with potentially duplicate columns.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A new DataFrame with duplicate columns removed.</span>
+<span class="sd">    </span>
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; df = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;SUBJID&#39;: [&#39;A001&#39;, &#39;A002&#39;],</span>
+<span class="sd">        ...     &#39;SUBJID2&#39;: [&#39;A001&#39;, &#39;A002&#39;],</span>
+<span class="sd">        ...     &#39;SUBJID3&#39;: [&#39;A001&#39;, &#39;A002&#39;],</span>
+<span class="sd">        ...     &#39;NAME&#39;: [&#39;John&#39;, &#39;Jane&#39;]</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; cleaned_df = clean_duplicate_columns(df)</span>
+<span class="sd">        &gt;&gt;&gt; list(cleaned_df.columns)</span>
+<span class="sd">        [&#39;SUBJID&#39;, &#39;NAME&#39;]</span>
+<span class="sd">    </span>
+<span class="sd">    Note:</span>
+<span class="sd">        - The original DataFrame is not modified</span>
+<span class="sd">        - Removes columns like: SUBJID2, SUBJID3, VAR_1, VAR_2, etc.</span>
+<span class="sd">        - Keeps the base column name without suffix</span>
+<span class="sd">        - Case-sensitive matching</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">columns_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># Check if column ends with a number (e.g., SUBJID2, SUBJID3, VAR_1)</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(.+?)_?(\d+)$&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">base_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># If the base column exists, this is a duplicate</span>
+            <span class="k">if</span> <span class="n">base_name</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">columns_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+                <span class="k">continue</span>
+        <span class="n">columns_to_keep</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">columns_to_remove</span><span class="p">:</span>
+        <span class="n">tqdm</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    → Removing duplicate columns: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">columns_to_remove</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">columns_to_keep</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div>
 
 
 
@@ -1029,21 +1273,24 @@
 <span class="sd">    Extract all Excel files from the dataset directory and convert to JSONL format.</span>
 
 <span class="sd">    This is the main batch processing function that orchestrates the extraction</span>
-<span class="sd">    of multiple Excel files. It provides comprehensive progress tracking, error</span>
-<span class="sd">    reporting, and summary statistics.</span>
+<span class="sd">    of multiple Excel files. It creates both original and cleaned versions of each file.</span>
+<span class="sd">    The cleaned version has duplicate columns (like SUBJID2, SUBJID3) removed.</span>
 
 <span class="sd">    Workflow:</span>
 <span class="sd">        1. Create output directory if it doesn&#39;t exist</span>
 <span class="sd">        2. Discover all Excel files in the dataset directory</span>
 <span class="sd">        3. Process each file (skipping already-processed files)</span>
-<span class="sd">        4. Track statistics (records, successes, failures)</span>
-<span class="sd">        5. Display comprehensive summary report</span>
+<span class="sd">        4. Save both original and cleaned versions</span>
+<span class="sd">        5. Track statistics (records, successes, failures)</span>
+<span class="sd">        6. Display comprehensive summary report</span>
 
 <span class="sd">    Features:</span>
+<span class="sd">        - **Dual Output**: Creates both original and cleaned versions</span>
 <span class="sd">        - **Idempotent**: Skips files that already have output files</span>
 <span class="sd">        - **Progress Tracking**: Visual progress bar with real-time updates</span>
 <span class="sd">        - **Error Recovery**: Continues processing even if individual files fail</span>
 <span class="sd">        - **Summary Statistics**: Detailed report of processing results</span>
+<span class="sd">        - **Duplicate Removal**: Cleaned versions remove columns like SUBJID2, SUBJID3</span>
 
 <span class="sd">    Configuration:</span>
 <span class="sd">        Uses the following config variables:</span>
@@ -1051,8 +1298,9 @@
 <span class="sd">            - ``config.DATASET_DIR``: Input directory containing Excel files</span>
 
 <span class="sd">    Output Format:</span>
-<span class="sd">        Each Excel file ``filename.xlsx`` produces ``filename.jsonl`` in the</span>
-<span class="sd">        output directory. The JSONL format has one JSON object per line.</span>
+<span class="sd">        Each Excel file ``filename.xlsx`` produces two JSONL files:</span>
+<span class="sd">            - ``filename.jsonl`` - Original data with all columns</span>
+<span class="sd">            - ``clean_filename.jsonl`` - Data with duplicate columns removed</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        Run as part of the main pipeline::</span>
