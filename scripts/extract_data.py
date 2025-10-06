@@ -305,7 +305,8 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         output_file = original_dir / f"{excel_file.stem}.jsonl"
         output_file_cleaned = cleaned_dir / f"{excel_file.stem}.jsonl"
         
-        df = pd.read_excel(excel_file)
+        # Use openpyxl engine for better performance with .xlsx files
+        df = pd.read_excel(excel_file, engine='openpyxl')
         if is_dataframe_empty(df):
             tqdm.write(f"  ⊘ Skipping {excel_file.name} (empty)")
             return False, 0, None
