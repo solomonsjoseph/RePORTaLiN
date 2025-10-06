@@ -357,18 +357,19 @@ def process_excel_file(excel_path, output_dir, preserve_na=True):
         return log.error(f"Failed to read Excel: {e}")
     
     log.info(f"Processing: '{excel_path}'")
-    for sheet_name in tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet"):
+    for sheet_name in tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
+                           file=sys.stdout, dynamic_ncols=True, leave=True):
         try:
-            log.info(f"--- Sheet: '{sheet_name}' ---")
+            tqdm.write(f"--- Sheet: '{sheet_name}' ---")
             parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
             all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
             if not all_tables:
-                log.info("No tables found.")
+                tqdm.write(f"INFO: No tables found in '{sheet_name}'")
             else:
-                log.info(f"Found {len(all_tables)} table(s).")
+                tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
                 _process_and_save_tables(all_tables, sheet_name, output_dir)
         except Exception as e:
-            log.error(f"Error on sheet '{sheet_name}': {e}", exc_info=True)
+            tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
     log.success("Excel processing complete!")
 
 def load_study_dictionary(file_path=None, json_output_dir=None, preserve_na=True):

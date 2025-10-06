@@ -51,6 +51,7 @@ Version:
 """
 
 import os
+import sys
 import json
 import pandas as pd
 import numpy as np
@@ -271,9 +272,9 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         >>> from pathlib import Path
         >>> excel_file = Path('data/10_TST.xlsx')
         >>> success, count, error = process_excel_file(excel_file, 'results/')
-          ✓ Created 10_TST.jsonl with 150 rows (original)
+          ✓ Created original/10_TST.jsonl with 150 rows (original)
             → Removing duplicate columns: SUBJID2, SUBJID3
-          ✓ Created clean_10_TST.jsonl with 150 rows (cleaned)
+          ✓ Created cleaned/10_TST.jsonl with 150 rows (cleaned)
         >>> print(f"Success: {success}, Records: {count}")
         Success: True, Records: 150
 
@@ -283,8 +284,8 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         - All errors are logged to both console and log file
 
     Note:
-        - Original output filename: ``<filename>.jsonl``
-        - Cleaned output filename: ``clean_<filename>.jsonl``
+        - Original files saved to: ``original/<filename>.jsonl``
+        - Cleaned files saved to: ``cleaned/<filename>.jsonl``
         - Progress messages are written via tqdm for proper formatting
         - Empty DataFrames (no columns and no rows) are skipped entirely
         - Duplicate columns like SUBJID2, SUBJID3 are removed in cleaned version
@@ -295,8 +296,14 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         :func:`clean_duplicate_columns`: Duplicate column removal
     """
     try:
-        output_file = Path(output_dir) / f"{excel_file.stem}.jsonl"
-        output_file_cleaned = Path(output_dir) / f"clean_{excel_file.stem}.jsonl"
+        # Create separate directories for original and cleaned files
+        original_dir = Path(output_dir) / "original"
+        cleaned_dir = Path(output_dir) / "cleaned"
+        original_dir.mkdir(exist_ok=True)
+        cleaned_dir.mkdir(exist_ok=True)
+        
+        output_file = original_dir / f"{excel_file.stem}.jsonl"
+        output_file_cleaned = cleaned_dir / f"{excel_file.stem}.jsonl"
         
         df = pd.read_excel(excel_file)
         if is_dataframe_empty(df):
@@ -305,12 +312,12 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         
         # Save original version
         records_count = convert_dataframe_to_jsonl(df, output_file, excel_file.name)
-        tqdm.write(f"  ✓ Created {output_file.name} with {records_count} rows (original)")
+        tqdm.write(f"  ✓ Created original/{output_file.name} with {records_count} rows (original)")
         
         # Clean duplicate columns like SUBJID2, SUBJID3, etc. and save cleaned version
         df_cleaned = clean_duplicate_columns(df)
         records_count_cleaned = convert_dataframe_to_jsonl(df_cleaned, output_file_cleaned, excel_file.name)
-        tqdm.write(f"  ✓ Created {output_file_cleaned.name} with {records_count_cleaned} rows (cleaned)")
+        tqdm.write(f"  ✓ Created cleaned/{output_file_cleaned.name} with {records_count_cleaned} rows (cleaned)")
         
         return True, records_count, None
     except Exception as e:
@@ -377,6 +384,61 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df[columns_to_keep].copy()
 
 
+def check_file_integrity(file_path: Path) -> bool:
+    """
+    Check if a JSONL file is valid and has readable content.
+    
+    This function validates that a JSONL file exists, is not empty, and contains
+    valid JSON data. It helps prevent skipping corrupted or incomplete files.
+    
+    Validation Steps:
+        1. Check if file exists
+        2. Check if file size is greater than 0
+        3. Attempt to read and parse the first line as JSON
+        4. Verify the parsed data is a dictionary (not null/empty)
+    
+    Args:
+        file_path (Path): Path to the JSONL file to check.
+    
+    Returns:
+        bool: True if file is valid and readable, False otherwise.
+    
+    Example:
+        >>> from pathlib import Path
+        >>> file = Path('results/dataset/Indo-vap/original/10_TST.jsonl')
+        >>> if check_file_integrity(file):
+        ...     print("File is valid")
+        ... else:
+        ...     print("File is corrupted or empty")
+        File is valid
+    
+    Note:
+        - Only checks the first line (for performance)
+        - If first line is valid, assumes rest of file is likely valid
+        - Returns False for any exceptions (file not found, JSON parse errors, etc.)
+    """
+    try:
+        # Check if file exists and has content
+        if not file_path.exists() or file_path.stat().st_size == 0:
+            return False
+        
+        # Try to read and parse the first line
+        with open(file_path, 'r', encoding='utf-8') as f:
+            first_line = f.readline().strip()
+            if not first_line:
+                return False
+            
+            # Validate it's valid JSON
+            data = json.loads(first_line)
+            
+            # Ensure it's a non-empty dictionary
+            return isinstance(data, dict) and len(data) > 0
+            
+    except (json.JSONDecodeError, IOError, OSError) as e:
+        # Any error means the file is not valid
+        return False
+
+
 def extract_excel_to_jsonl():
     """
     Extract all Excel files from the dataset directory and convert to JSONL format.
@@ -408,8 +470,8 @@ def extract_excel_to_jsonl():
 
     Output Format:
         Each Excel file ``filename.xlsx`` produces two JSONL files:
-            - ``filename.jsonl`` - Original data with all columns
-            - ``clean_filename.jsonl`` - Data with duplicate columns removed
+            - ``filename.jsonl`` - Original data with all columns (main directory)
+            - ``cleaned/filename.jsonl`` - Data with duplicate columns removed (cleaned subdirectory)
 
     Example:
         Run as part of the main pipeline::
@@ -452,16 +514,24 @@ def extract_excel_to_jsonl():
     print(f"Found {len(excel_files)} Excel files to process...")
     total_records, files_created, files_skipped, errors = 0, 0, 0, []
     
-    for excel_file in tqdm(excel_files, desc="Processing files", unit="file"):
-        output_file = Path(config.CLEAN_DATASET_DIR) / f"{excel_file.stem}.jsonl"
+    for excel_file in tqdm(excel_files, desc="Processing files", unit="file",
+                           file=sys.stdout, dynamic_ncols=True, leave=True):
+        # Check if files already exist in both original and cleaned directories
+        original_file = Path(config.CLEAN_DATASET_DIR) / "original" / f"{excel_file.stem}.jsonl"
+        cleaned_file = Path(config.CLEAN_DATASET_DIR) / "cleaned" / f"{excel_file.stem}.jsonl"
         
-        # Check if file already exists before processing
-        if output_file.exists():
+        # Check if files exist AND have valid content (integrity check)
+        if (original_file.exists() and cleaned_file.exists() and
+            check_file_integrity(original_file) and check_file_integrity(cleaned_file)):
             files_skipped += 1
-            tqdm.write(f"  ⊙ Skipping {excel_file.name} (output already exists)")
+            tqdm.write(f"  ⊙ Skipping {excel_file.name} (valid output already exists)")
             continue
+        
+        # If files exist but are corrupted, warn and reprocess
+        if original_file.exists() or cleaned_file.exists():
+            tqdm.write(f"  ⚠ Re-processing {excel_file.name} (existing files are corrupted or incomplete)")
             
-        print(f"Processing: {excel_file.name}")
+        tqdm.write(f"Processing: {excel_file.name}")
         success, records_count, error_msg = process_excel_file(excel_file, config.CLEAN_DATASET_DIR)
         if success:
             files_created += 1

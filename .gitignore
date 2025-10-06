@@ -29,6 +29,7 @@ ENV/
 
 # Temporary files
 temp/
+.backup/
 
 # OS
 .DS_Store
