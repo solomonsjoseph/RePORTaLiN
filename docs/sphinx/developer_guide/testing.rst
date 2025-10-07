@@ -43,8 +43,14 @@ Test the full pipeline with real data:
    python main.py
    
    # Check outputs
-   ls -la results/dataset/*/
+   ls -la results/dataset/*/original/
+   ls -la results/dataset/*/cleaned/
    ls -la results/data_dictionary_mappings/
+   
+   # Check deidentified outputs (if enabled)
+   ls -la results/deidentified/*/original/
+   ls -la results/deidentified/*/cleaned/
+   ls -la results/deidentified/mappings/
    
    # Check logs
    cat .logs/reportalin_*.log

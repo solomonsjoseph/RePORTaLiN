@@ -207,10 +207,14 @@ def main():
     # De-identification step (opt-in for now)
     if args.enable_deidentification and not args.skip_deidentification:
         def run_deidentification():
+            # Input directory contains original/ and cleaned/ subdirectories
             input_dir = Path(config.CLEAN_DATASET_DIR)
-            output_dir = Path(config.RESULTS_DIR) / "dataset" / f"{config.DATASET_NAME}-deidentified"
+            
+            # Output to dedicated deidentified directory within results
+            output_dir = Path(config.RESULTS_DIR) / "deidentified" / config.DATASET_NAME
             
             log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
+            log.info(f"Processing both 'original' and 'cleaned' subdirectories...")
             
             # Configure de-identification
             deid_config = DeidentificationConfig(
@@ -220,17 +224,21 @@ def main():
                 log_level=config.LOG_LEVEL
             )
             
-            # Run de-identification
+            # Run de-identification (will process subdirectories recursively)
             stats = deidentify_dataset(
                 input_dir=input_dir,
                 output_dir=output_dir,
-                config=deid_config
+                config=deid_config,
+                process_subdirs=True  # Enable recursive processing
             )
             
             log.info(f"De-identification complete:")
             log.info(f"  Texts processed: {stats.get('texts_processed', 0)}")
             log.info(f"  Total detections: {stats.get('total_detections', 0)}")
             log.info(f"  Unique mappings: {stats.get('total_mappings', 0)}")
+            log.info(f"  Output structure:")
+            log.info(f"    - {output_dir}/original/  (de-identified original files)")
+            log.info(f"    - {output_dir}/cleaned/   (de-identified cleaned files)")
             
             return stats
         

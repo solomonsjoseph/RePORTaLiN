@@ -448,16 +448,26 @@ Data Flow
 **Path**: ✅ COHERENT
 
 1. **Input**: Excel files in ``data/dataset/<name>/``
-2. **Extract**: Convert to JSONL in ``results/dataset/<name>/``
-3. **De-identify**: Process to ``results/dataset/<name>-deidentified/``
-4. **Mappings**: Store in ``results/deidentification/``
+2. **Extract**: Convert to JSONL in ``results/dataset/<name>/`` with subdirectories:
+   
+   - ``original/`` - All columns preserved
+   - ``cleaned/`` - Duplicate columns removed
+
+3. **De-identify**: Process to ``results/deidentified/<name>/`` maintaining structure:
+   
+   - ``original/`` - De-identified original files
+   - ``cleaned/`` - De-identified cleaned files
+
+4. **Mappings**: Store in ``results/deidentified/mappings/``
 
 **Data Integrity**:
 
 - Source filename preserved in all records
+- Directory structure maintained in de-identified output
 - Metadata fields (sheet, table) tracked
 - No data loss during type conversions
 - Validation available for de-identified data
+- Consistent pseudonyms across all files
 
 Configuration Flow
 ~~~~~~~~~~~~~~~~~~

@@ -69,7 +69,7 @@ Example:
 
         from scripts.utils.deidentify import deidentify_dataset
         deidentify_dataset(input_dir="results/dataset/Indo-vap",
-                          output_dir="results/dataset/Indo-vap-deidentified")
+                          output_dir="results/deidentified/Indo-vap")
 
 Author:
     RePORTaLiN Development Team
@@ -637,7 +637,8 @@ class DeidentificationEngine:
         if mapping_store is None:
             try:
                 import config as project_config
-                storage_path = Path(project_config.RESULTS_DIR) / "deidentification" / "mappings.enc"
+                # Store mappings in the deidentified directory for better organization
+                storage_path = Path(project_config.RESULTS_DIR) / "deidentified" / "mappings" / "mappings.enc"
             except (ImportError, AttributeError):
                 # Fallback to current directory if config not available
                 storage_path = Path.cwd() / "deidentification_mappings.enc"
@@ -813,17 +814,23 @@ def deidentify_dataset(
     output_dir: Union[str, Path],
     text_fields: Optional[List[str]] = None,
     config: Optional[DeidentificationConfig] = None,
-    file_pattern: str = "*.jsonl"
+    file_pattern: str = "*.jsonl",
+    process_subdirs: bool = True
 ) -> Dict[str, Any]:
     """
     Batch de-identification of JSONL dataset files.
     
+    Processes JSONL files while maintaining directory structure. If the input
+    directory contains subdirectories (e.g., 'original/', 'cleaned/'), the same
+    structure will be replicated in the output directory.
+    
     Args:
-        input_dir: Directory containing JSONL files
-        output_dir: Directory to write de-identified files
+        input_dir: Directory containing JSONL files (may have subdirectories)
+        output_dir: Directory to write de-identified files (maintains structure)
         text_fields: List of field names to de-identify (all string fields if None)
         config: De-identification configuration
         file_pattern: Glob pattern for files to process
+        process_subdirs: If True, recursively process subdirectories
         
     Returns:
         Dictionary with processing statistics
@@ -835,8 +842,11 @@ def deidentify_dataset(
     # Initialize engine
     engine = DeidentificationEngine(config=config)
     
-    # Find all JSONL files
-    jsonl_files = list(input_path.glob(file_pattern))
+    # Find all JSONL files (including in subdirectories if enabled)
+    if process_subdirs:
+        jsonl_files = list(input_path.rglob(file_pattern))
+    else:
+        jsonl_files = list(input_path.glob(file_pattern))
     
     if not jsonl_files:
         logging.warning(f"No files matching '{file_pattern}' found in {input_dir}")
@@ -849,7 +859,12 @@ def deidentify_dataset(
     
     for jsonl_file in iterator:
         try:
-            output_file = output_path / jsonl_file.name
+            # Compute relative path to maintain directory structure
+            relative_path = jsonl_file.relative_to(input_path)
+            output_file = output_path / relative_path
+            
+            # Ensure output directory exists
+            output_file.parent.mkdir(parents=True, exist_ok=True)
             
             with open(jsonl_file, 'r', encoding='utf-8') as infile, \
                  open(output_file, 'w', encoding='utf-8') as outfile:
@@ -860,7 +875,7 @@ def deidentify_dataset(
                         deidentified_record = engine.deidentify_record(record, text_fields)
                         outfile.write(json.dumps(deidentified_record, ensure_ascii=False) + '\n')
             
-            logging.info(f"Processed: {jsonl_file.name} -> {output_file.name}")
+            logging.info(f"Processed: {relative_path} -> {output_file.relative_to(output_path)}")
             
         except Exception as e:
             logging.error(f"Error processing {jsonl_file}: {e}")

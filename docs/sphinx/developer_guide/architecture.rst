@@ -219,6 +219,37 @@ Step-by-Step Data Flow:
                                   ▼
                         Save as JSONL in:
                         results/dataset/<dataset_name>/
+                            ├── original/  (all columns)
+                            └── cleaned/   (duplicates removed)
+                    │
+                    ▼
+   5. Step 2: deidentify_dataset() [OPTIONAL]
+                    │
+      ┌─────────────┴──────────────┐
+      │                            │
+      ▼                            ▼
+   Recursively find      Process each file
+   JSONL files                    │
+   in subdirs         ┌───────────┴────────────┐
+                      │                        │
+                      ▼                        ▼
+              Detect PHI/PII       Generate pseudonyms
+                      │                        │
+                      ▼                        ▼
+              Replace sensitive    Maintain mappings
+                   data                        │
+                      └───────────┬────────────┘
+                                  │
+                                  ▼
+                        Save de-identified in:
+                        results/deidentified/<dataset_name>/
+                            ├── original/  (de-identified)
+                            ├── cleaned/   (de-identified)
+                            └── _deidentification_audit.json
+                        
+                        Store encrypted mappings:
+                        results/deidentified/mappings/
+                            └── mappings.enc
 
 Design Decisions
 ----------------

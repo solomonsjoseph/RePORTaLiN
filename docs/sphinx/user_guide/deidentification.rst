@@ -14,6 +14,36 @@ The de-identification module implements HIPAA Safe Harbor method compatible de-i
 * **Date Shifting**: Preserves temporal relationships
 * **Validation**: Ensures no PHI leakage
 * **Security**: Built with encryption and access control
+* **Directory Structure Preservation**: Maintains original file organization
+
+Workflow
+--------
+
+The de-identification process is integrated into the main pipeline as Step 2:
+
+**Step 1: Data Extraction**
+
+Excel files are converted to JSONL format with two versions:
+
+* ``results/dataset/Indo-vap/original/`` - All columns preserved
+* ``results/dataset/Indo-vap/cleaned/`` - Duplicate columns removed
+
+**Step 2: De-identification** (Optional)
+
+Both subdirectories are processed while maintaining structure:
+
+* ``results/deidentified/Indo-vap/original/`` - De-identified original files
+* ``results/deidentified/Indo-vap/cleaned/`` - De-identified cleaned files
+* ``results/deidentified/mappings/mappings.enc`` - Encrypted mapping table
+* ``results/deidentified/Indo-vap/_deidentification_audit.json`` - Audit log
+
+**Key Features:**
+
+1. **Consistent Pseudonyms**: Same PHI value gets the same pseudonym across all files
+2. **Encrypted Mappings**: Single encrypted mapping table shared across all datasets
+3. **Structure Preservation**: Output mirrors input directory structure exactly
+4. **Recursive Processing**: Automatically processes all subdirectories
+5. **Audit Trail**: Complete audit log without exposing original values
 
 Quick Start
 -----------
@@ -43,39 +73,56 @@ Batch Processing
 
     from scripts.utils.deidentify import deidentify_dataset
 
-    # Process entire dataset
+    # Process entire dataset (maintains directory structure)
+    # Input directory contains: original/ and cleaned/ subdirectories
     stats = deidentify_dataset(
         input_dir="results/dataset/Indo-vap",
-        output_dir="results/dataset/Indo-vap-deidentified"
+        output_dir="results/deidentified/Indo-vap",
+        process_subdirs=True  # Recursively process subdirectories
     )
 
     print(f"Processed {stats['texts_processed']} texts")
     print(f"Detected {stats['total_detections']} PHI items")
+    
+    # Output structure:
+    # results/deidentified/Indo-vap/
+    #   ├── original/          (de-identified original files)
+    #   ├── cleaned/           (de-identified cleaned files)
+    #   └── _deidentification_audit.json
 
 Command Line Interface
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-    # Basic usage
+    # Basic usage - processes subdirectories recursively
     python -m scripts.utils.deidentify \
         --input-dir results/dataset/Indo-vap \
-        --output-dir results/dataset/Indo-vap-deidentified
+        --output-dir results/deidentified/Indo-vap
 
     # With validation
     python -m scripts.utils.deidentify \
         --input-dir results/dataset/Indo-vap \
-        --output-dir results/dataset/Indo-vap-deidentified \
+        --output-dir results/deidentified/Indo-vap \
         --validate
 
     # Specify text fields
     python -m scripts.utils.deidentify \
         --input-dir results/dataset/Indo-vap \
-        --output-dir results/dataset/Indo-vap-deidentified \
+        --output-dir results/deidentified/Indo-vap \
         --text-fields patient_name notes diagnosis
+        
+    # Disable encryption (not recommended)
+    python -m scripts.utils.deidentify \
+        --input-dir results/dataset/Indo-vap \
+        --output-dir results/deidentified/Indo-vap \
+        --no-encryption
 
 Pipeline Integration
 ~~~~~~~~~~~~~~~~~~~~
+
+The de-identification step processes both ``original/`` and ``cleaned/`` subdirectories
+while maintaining the same file structure in the output directory.
 
 .. code-block:: bash
 
@@ -84,6 +131,27 @@ Pipeline Integration
 
     # Skip de-identification
     python main.py --enable-deidentification --skip-deidentification
+    
+    # Disable encryption (not recommended for production)
+    python main.py --enable-deidentification --no-encryption
+
+**Output Directory Structure:**
+
+.. code-block:: text
+
+    results/
+    ├── dataset/
+    │   └── Indo-vap/
+    │       ├── original/        (extracted JSONL files)
+    │       └── cleaned/         (cleaned JSONL files)
+    ├── deidentified/
+    │   ├── Indo-vap/
+    │   │   ├── original/        (de-identified original files)
+    │   │   ├── cleaned/         (de-identified cleaned files)
+    │   │   └── _deidentification_audit.json
+    │   └── mappings/
+    │       └── mappings.enc     (encrypted mapping table)
+    └── data_dictionary_mappings/
 
 Supported PHI/PII Types
 -----------------------
@@ -186,6 +254,38 @@ Different PHI types use different pseudonym formats:
 Configuration
 -------------
 
+Directory Structure Processing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The de-identification module automatically processes subdirectories to maintain 
+the same file structure between input and output directories:
+
+.. code-block:: python
+
+    from scripts.utils.deidentify import deidentify_dataset
+
+    # Process with subdirectories (default)
+    stats = deidentify_dataset(
+        input_dir="results/dataset/Indo-vap",
+        output_dir="results/deidentified/Indo-vap",
+        process_subdirs=True  # Recursively process all subdirectories
+    )
+    
+    # Process only top-level files (no subdirectories)
+    stats = deidentify_dataset(
+        input_dir="results/dataset/Indo-vap",
+        output_dir="results/deidentified/Indo-vap",
+        process_subdirs=False  # Only process files in the root directory
+    )
+
+**Features:**
+
+* Maintains relative directory structure in output
+* Processes both ``original/`` and ``cleaned/`` subdirectories
+* Creates output directories automatically
+* Preserves file naming conventions
+* Single mapping table shared across all subdirectories
+
 DeidentificationConfig
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -263,6 +363,9 @@ Date shifting preserves temporal relationships while obscuring actual dates:
 Encrypted Mapping Storage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Mapping tables are stored in a centralized location within the ``results/deidentified/mappings/``
+directory:
+
 .. code-block:: python
 
     from cryptography.fernet import Fernet
@@ -280,6 +383,9 @@ Encrypted Mapping Storage
     )
 
     engine = DeidentificationEngine(config=config)
+    
+    # Mappings stored in: results/deidentified/mappings/mappings.enc
+    # This single mapping file is used across all datasets and subdirectories
 
 Record De-identification
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -313,15 +419,17 @@ Validation
     else:
         print("✓ No PHI detected")
 
-    # Validate entire dataset
+    # Validate entire dataset (processes all subdirectories)
     from scripts.utils.deidentify import validate_dataset
 
     validation_results = validate_dataset(
-        "results/dataset/Indo-vap-deidentified"
+        "results/deidentified/Indo-vap"
     )
 
     print(f"Valid: {validation_results['is_valid']}")
     print(f"Issues: {len(validation_results['potential_phi_found'])}")
+    print(f"Files validated: {validation_results['total_files']}")
+    print(f"Records validated: {validation_results['total_records']}")
 
 Security
 --------
@@ -439,6 +547,52 @@ The de-identification module can be tested using the main pipeline:
     # Test on a small dataset
     python main.py --enable-deidentification
 
+Expected Output
+~~~~~~~~~~~~~~~
+
+When processing the Indo-vap dataset:
+
+.. code-block:: text
+
+    De-identifying files: 100%|██████████| 86/86 [00:08<00:00, 10.34it/s]
+    INFO:reportalin:De-identification complete:
+    INFO:reportalin:  Texts processed: 1854110
+    INFO:reportalin:  Total detections: 365620
+    INFO:reportalin:  Unique mappings: 5398
+    INFO:reportalin:  Output structure:
+    INFO:reportalin:    - results/deidentified/Indo-vap/original/  (de-identified original files)
+    INFO:reportalin:    - results/deidentified/Indo-vap/cleaned/   (de-identified cleaned files)
+
+**What happens:**
+
+* Processes both ``original/`` and ``cleaned/`` subdirectories (43 files each = 86 total)
+* Detects and replaces PHI/PII in all string fields
+* Creates 5,398 unique pseudonym mappings
+* Generates encrypted mapping table at ``results/deidentified/mappings/mappings.enc``
+* Exports audit log at ``results/deidentified/Indo-vap/_deidentification_audit.json``
+
+**Sample De-identification:**
+
+Before:
+
+.. code-block:: json
+
+    {
+        "HHC1": "10200009B",
+        "TST_DAT1": "2014-06-11 00:00:00",
+        "TST_ENDAT1": "2014-06-14 00:00:00"
+    }
+
+After:
+
+.. code-block:: json
+
+    {
+        "HHC1": "[MRN-XTHM4A]",
+        "TST_DAT1": "[DATE-A4A986]",
+        "TST_ENDAT1": "[DATE-B3C874]"
+    }
+
 Verification
 ~~~~~~~~~~~~~
 
@@ -461,6 +615,14 @@ Troubleshooting
 
 Common Issues
 ~~~~~~~~~~~~~
+
+**"No files matching '*.jsonl' found"**
+
+.. code-block:: python
+
+    # Solution: Ensure extraction step completed first
+    python main.py --skip-deidentification  # Run extraction
+    python main.py --enable-deidentification --skip-extraction  # Then deidentify
 
 **Encryption error - "cryptography package not available"**
 
@@ -496,6 +658,25 @@ Common Issues
         pattern=your_pattern,
         priority=90  # Higher priority
     )
+
+**Output directory structure different from input**
+
+.. code-block:: python
+
+    # Solution: Ensure process_subdirs is enabled
+    stats = deidentify_dataset(
+        input_dir="results/dataset/Indo-vap",
+        output_dir="results/deidentified/Indo-vap",
+        process_subdirs=True  # Must be True to preserve structure
+    )
+
+**"Could not parse date" warnings**
+
+.. code-block:: text
+
+    # These are normal - dates in YYYY-MM-DD format use fallback placeholders
+    # The module supports MM/DD/YYYY, Month DD YYYY, and other formats
+    # Unsupported formats are replaced with [DATE-HASH] placeholders
 
 API Reference
 -------------

@@ -3,6 +3,78 @@ Changelog
 
 All notable changes to RePORTaLiN are documented here.
 
+Version 0.0.1 (2025-10-06)
+--------------------------
+
+Directory Structure Reorganization & De-identification Enhancement
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Major Update: Improved Data Organization and De-identification**
+
+Reorganized extraction and de-identification output to use subdirectory-based
+structure for better organization and clarity.
+
+**Breaking Changes**:
+
+- **Extraction Output Structure**: Changed from flat file naming (``file.jsonl``, ``clean_file.jsonl``) to subdirectory-based structure (``original/file.jsonl``, ``cleaned/file.jsonl``)
+- **De-identification Output**: Changed from ``results/dataset/<name>-deidentified/`` to ``results/deidentified/<name>/`` with subdirectories preserved
+- **Mapping Storage**: Moved from ``results/deidentification/`` to ``results/deidentified/mappings/``
+
+**New Directory Structure**:
+
+Extraction:
+  - ``results/dataset/<name>/original/`` - All columns preserved
+  - ``results/dataset/<name>/cleaned/`` - Duplicate columns removed
+
+De-identification:
+  - ``results/deidentified/<name>/original/`` - De-identified original files
+  - ``results/deidentified/<name>/cleaned/`` - De-identified cleaned files
+  - ``results/deidentified/mappings/mappings.enc`` - Encrypted mapping table
+
+**Enhancements**:
+
+- ✅ **Recursive Processing**: De-identification now processes subdirectories automatically
+- ✅ **Structure Preservation**: Output directory structure mirrors input exactly
+- ✅ **Centralized Mappings**: Single encrypted mapping file for all datasets
+- ✅ **File Integrity Checks**: Validation to prevent reprocessing corrupted files
+- ✅ **Clearer Organization**: Separate directories for original vs cleaned data
+
+**Code Changes**:
+
+- ``scripts/extract_data.py``:
+  - Updated ``process_excel_file()`` to create ``original/`` and ``cleaned/`` subdirectories
+  - Added ``check_file_integrity()`` for validating existing files
+  - Enhanced progress reporting with subdirectory information
+  
+- ``scripts/utils/deidentify.py``:
+  - Added ``process_subdirs`` parameter to ``deidentify_dataset()``
+  - Changed to use ``rglob()`` for recursive file discovery
+  - Updated mapping storage path
+  - Maintains relative directory structure in output
+
+- ``main.py``:
+  - Updated de-identification output path
+  - Enabled recursive subdirectory processing
+  - Enhanced logging output
+
+**Documentation Updates**:
+
+- ✅ Updated all user guide examples with new directory structure
+- ✅ Updated developer guide architecture diagrams
+- ✅ Updated API documentation with new paths
+- ✅ Updated README.md with correct directory structure
+- ✅ Updated quickstart guide
+- ✅ Enhanced de-identification documentation with workflow section
+
+**Test Results**:
+
+- Files processed: 86 (43 original + 43 cleaned)
+- Texts processed: 1,854,110
+- PHI detections: 365,620
+- Unique mappings: 5,398
+- Processing time: ~8 seconds
+- Status: ✅ All tests passing
+
 Version 0.0.1 (2025-10-02)
 --------------------------
 

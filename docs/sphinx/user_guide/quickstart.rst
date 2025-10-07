@@ -44,18 +44,21 @@ After the pipeline completes, you'll find:
    .. code-block:: text
 
       results/dataset/Indo-vap/
-      ├── 10_TST.jsonl              (631 records - original)
-      ├── clean_10_TST.jsonl        (631 records - cleaned)
-      ├── 11_IGRA.jsonl             (262 records - original)
-      ├── clean_11_IGRA.jsonl       (262 records - cleaned)
-      ├── 12A_FUA.jsonl             (2,831 records - original)
-      ├── clean_12A_FUA.jsonl       (2,831 records - cleaned)
-      └── ...                       (86 files: 43 original + 43 cleaned)
+      ├── original/                 (All columns preserved)
+      │   ├── 10_TST.jsonl          (631 records)
+      │   ├── 11_IGRA.jsonl         (262 records)
+      │   ├── 12A_FUA.jsonl         (2,831 records)
+      │   └── ...                   (43 files total)
+      └── cleaned/                  (Duplicate columns removed)
+          ├── 10_TST.jsonl          (631 records)
+          ├── 11_IGRA.jsonl         (262 records)
+          ├── 12A_FUA.jsonl         (2,831 records)
+          └── ...                   (43 files total)
 
-   **Note:** Each extraction creates two versions:
+   **Note:** Each extraction creates two versions in separate subdirectories:
    
-   - **Original** (``<filename>.jsonl``): All columns preserved as-is
-   - **Cleaned** (``clean_<filename>.jsonl``): Duplicate columns removed (e.g., SUBJID2, SUBJID3)
+   - **original/** - All columns preserved as-is from Excel files
+   - **cleaned/** - Duplicate columns removed (e.g., SUBJID2, SUBJID3)
 
 2. **Data Dictionary Mappings** in ``results/data_dictionary_mappings/``
 
@@ -69,7 +72,20 @@ After the pipeline completes, you'll find:
       │   └── tblENROL_table.jsonl
       └── ...                       (14 sheets)
 
-3. **Execution Logs** in ``.logs/``
+3. **De-identified Data** (if ``--enable-deidentification`` is used) in ``results/deidentified/<dataset_name>/``
+
+   .. code-block:: text
+
+      results/deidentified/Indo-vap/
+      ├── original/                 (De-identified original files)
+      │   ├── 10_TST.jsonl
+      │   └── ...
+      ├── cleaned/                  (De-identified cleaned files)
+      │   ├── 10_TST.jsonl
+      │   └── ...
+      └── _deidentification_audit.json
+
+4. **Execution Logs** in ``.logs/``
 
    .. code-block:: text
 
@@ -86,7 +102,7 @@ JSONL files can be viewed in several ways:
 .. code-block:: bash
 
    # View first few lines
-   head results/dataset/Indo-vap/10_TST.jsonl
+   head results/dataset/Indo-vap/original/10_TST.jsonl
 
 **Using Python:**
 
@@ -95,7 +111,7 @@ JSONL files can be viewed in several ways:
    import pandas as pd
    
    # Read JSONL file
-   df = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
+   df = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
    print(df.head())
 
 **Using jq (command-line JSON processor):**
@@ -103,7 +119,7 @@ JSONL files can be viewed in several ways:
 .. code-block:: bash
 
    # Pretty-print first record
-   head -n 1 results/dataset/Indo-vap/10_TST.jsonl | jq
+   head -n 1 results/dataset/Indo-vap/original/10_TST.jsonl | jq
 
 Command-Line Options
 --------------------

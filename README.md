@@ -42,10 +42,17 @@ RePORTaLiN/
 │   └── data_dictionary_and_mapping_specifications/
 ├── results/                        # Generated JSONL outputs
 │   ├── dataset/
-│   │   └── <dataset_name>/         # Extracted data (e.g., Indo-vap)
-│   │   └── <dataset_name>-deidentified/  # De-identified data
-│   ├── data_dictionary_mappings/   # Dictionary tables
-│   └── deidentification/           # De-identification mappings (encrypted)
+│   │   └── <dataset_name>/         # Extracted data
+│   │       ├── original/           # All columns preserved
+│   │       └── cleaned/            # Duplicate columns removed
+│   ├── deidentified/               # De-identified data (optional)
+│   │   ├── <dataset_name>/
+│   │   │   ├── original/           # De-identified original files
+│   │   │   ├── cleaned/            # De-identified cleaned files
+│   │   │   └── _deidentification_audit.json
+│   │   └── mappings/
+│   │       └── mappings.enc        # Encrypted mapping table
+│   └── data_dictionary_mappings/   # Dictionary tables
 └── .logs/                          # Execution logs
 ```
 
@@ -72,7 +79,7 @@ python main.py
 
 This will:
 1. ✅ Load and process the data dictionary (14 sheets)
-2. ✅ Extract data from 43 Excel files
+2. ✅ Extract data from 43 Excel files to both original/ and cleaned/ subdirectories
 3. ✅ Generate JSONL output files in `results/dataset/<dataset_name>/`
 4. ✅ Create timestamped logs in `.logs/`
 
@@ -83,9 +90,9 @@ python main.py --enable-deidentification
 ```
 
 This adds:
-5. ✅ De-identify PHI/PII from extracted data
-6. ✅ Generate de-identified dataset in `results/dataset/<dataset_name>-deidentified/`
-7. ✅ Create encrypted mapping file in `results/deidentification/`
+5. ✅ De-identify PHI/PII from extracted data (both original/ and cleaned/)
+6. ✅ Generate de-identified dataset in `results/deidentified/<dataset_name>/`
+7. ✅ Create encrypted mapping file in `results/deidentified/mappings/`
 
 **Note:** The pipeline automatically detects the dataset folder in `data/dataset/` and creates corresponding output in `results/dataset/<dataset_name>/`
 
@@ -121,7 +128,7 @@ python main.py --enable-deidentification --no-encryption
 # Standalone de-identification
 python -m scripts.utils.deidentify \
     --input-dir results/dataset/Indo-vap \
-    --output-dir results/dataset/Indo-vap-deidentified \
+    --output-dir results/deidentified/Indo-vap \
     --validate
 ```
 
@@ -147,14 +154,15 @@ The main execution script that orchestrates the entire pipeline. It:
 ### `scripts/extract_data.py` - Data Extraction
 Converts Excel files to JSONL format with:
 - Automatic data type handling (dates, numbers, NaN values)
-- **Duplicate column removal**: Creates both original and cleaned versions
+- **Dual output structure**: Creates both original/ and cleaned/ subdirectories
 - Source file tracking
 - Empty dataframe handling
 - Progress bars for file processing
+- Integrity checks for existing files
 
-**Output Files:**
-- `<filename>.jsonl` - Original data with all columns preserved
-- `clean_<filename>.jsonl` - Cleaned data with duplicate columns removed (e.g., SUBJID2, SUBJID3)
+**Output Structure:**
+- `original/<filename>.jsonl` - All columns preserved as-is
+- `cleaned/<filename>.jsonl` - Duplicate columns removed (e.g., SUBJID2, SUBJID3)
 
 ### `scripts/utils/deidentify.py` - De-identification
 Removes PHI/PII from text data with:
@@ -163,7 +171,14 @@ Removes PHI/PII from text data with:
 - **Encrypted Storage**: Fernet encryption for mapping tables
 - **Date Shifting**: Preserves temporal relationships
 - **Validation**: Ensures no PHI leakage
+- **Directory Structure Preservation**: Maintains original/ and cleaned/ organization
+- **Recursive Processing**: Automatically processes all subdirectories
 - **HIPAA Compliance**: Safe Harbor method compatible
+
+**Output Structure:**
+- `results/deidentified/<dataset_name>/original/` - De-identified original files
+- `results/deidentified/<dataset_name>/cleaned/` - De-identified cleaned files
+- `results/deidentified/mappings/mappings.enc` - Encrypted mapping table
 
 See [Sphinx documentation](docs/sphinx/user_guide/deidentification.rst) for full details.
 
@@ -189,26 +204,47 @@ Custom logging system with:
 
 ## Output
 
-The pipeline generates two types of outputs:
+The pipeline generates outputs in a well-organized directory structure:
 
-### 1. Extracted Data (`results/Indo-vap/`)
-JSONL files containing the extracted data in two versions:
+### 1. Extracted Data (`results/dataset/<dataset_name>/`)
+JSONL files containing the extracted data in two subdirectories:
 ```
-results/Indo-vap/
-├── 10_TST.jsonl              (631 records - original with all columns)
-├── clean_10_TST.jsonl        (631 records - cleaned, duplicates removed)
-├── 11_IGRA.jsonl             (262 records - original)
-├── clean_11_IGRA.jsonl       (262 records - cleaned)
-├── 12A_FUA.jsonl             (2,831 records - original)
-├── clean_12A_FUA.jsonl       (2,831 records - cleaned)
-├── 12B_FUB.jsonl             (1,862 records - original)
-├── clean_12B_FUB.jsonl       (1,862 records - cleaned)
-├── ...                       (86 files total: 43 original + 43 cleaned)
+results/dataset/Indo-vap/
+├── original/                 # All columns preserved
+│   ├── 10_TST.jsonl          (631 records)
+│   ├── 11_IGRA.jsonl         (262 records)
+│   ├── 12A_FUA.jsonl         (2,831 records)
+│   ├── 12B_FUB.jsonl         (1,862 records)
+│   └── ...                   (43 files total)
+└── cleaned/                  # Duplicate columns removed
+    ├── 10_TST.jsonl          (631 records)
+    ├── 11_IGRA.jsonl         (262 records)
+    ├── 12A_FUA.jsonl         (2,831 records)
+    ├── 12B_FUB.jsonl         (1,862 records)
+    └── ...                   (43 files total)
 ```
 
-**Note:** Cleaned versions (`clean_*.jsonl`) have duplicate columns like SUBJID2, SUBJID3 removed, keeping only the base column names.
+**Note:** Cleaned versions have duplicate columns like SUBJID2, SUBJID3 removed, keeping only the base column names.
 
-### 2. Data Dictionary Mappings (`results/data_dictionary_mappings/`)
+### 2. De-identified Data (Optional: `results/deidentified/<dataset_name>/`)
+When `--enable-deidentification` is used:
+```
+results/deidentified/Indo-vap/
+├── original/                 # De-identified original files
+│   ├── 10_TST.jsonl
+│   ├── 11_IGRA.jsonl
+│   └── ...                   (43 files)
+├── cleaned/                  # De-identified cleaned files
+│   ├── 10_TST.jsonl
+│   ├── 11_IGRA.jsonl
+│   └── ...                   (43 files)
+└── _deidentification_audit.json  # Audit log (no original values)
+
+results/deidentified/mappings/
+└── mappings.enc              # Encrypted mapping table
+```
+
+### 3. Data Dictionary Mappings (`results/data_dictionary_mappings/`)
 Processed tables from the data dictionary:
 ```
 results/data_dictionary_mappings/
@@ -222,7 +258,7 @@ results/data_dictionary_mappings/
 └── ...                   (14 sheets)
 ```
 
-### 3. Logs (`.logs/`)
+### 4. Logs (`.logs/`)
 Timestamped execution logs:
 ```
 .logs/

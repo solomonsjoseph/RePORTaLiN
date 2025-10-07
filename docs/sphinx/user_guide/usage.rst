@@ -177,24 +177,27 @@ Working with Output Files
 Understanding Original vs Cleaned Files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Each extraction creates two versions of every file:
+Each extraction creates two subdirectories with the same files:
 
-- **Original** (``<filename>.jsonl``): All columns from Excel, including duplicates
-- **Cleaned** (``clean_<filename>.jsonl``): Duplicate columns removed (e.g., SUBJID2, SUBJID3)
+- **original/** - All columns from Excel, including duplicates
+- **cleaned/** - Duplicate columns removed (e.g., SUBJID2, SUBJID3)
 
 .. code-block:: text
 
    results/dataset/Indo-vap/
-   ├── 10_TST.jsonl              # Original: has SUBJID, SUBJID2, SUBJID3
-   ├── clean_10_TST.jsonl        # Cleaned: only SUBJID (duplicates removed)
-   ├── 11_IGRA.jsonl             # Original
-   ├── clean_11_IGRA.jsonl       # Cleaned
-   └── ...
+   ├── original/
+   │   ├── 10_TST.jsonl          # Has SUBJID, SUBJID2, SUBJID3
+   │   ├── 11_IGRA.jsonl
+   │   └── ...
+   └── cleaned/
+       ├── 10_TST.jsonl          # Only SUBJID (duplicates removed)
+       ├── 11_IGRA.jsonl
+       └── ...
 
 **When to use each version:**
 
-- **Original files**: Use for data validation, debugging, or when you need all source columns
-- **Cleaned files**: Use for analysis, reporting, or database loading (recommended for most use cases)
+- **original/** files: Use for data validation, debugging, or when you need all source columns
+- **cleaned/** files: Use for analysis, reporting, or database loading (recommended for most use cases)
 
 Reading Cleaned Files:
 
@@ -203,7 +206,7 @@ Reading Cleaned Files:
    import pandas as pd
 
    # Read cleaned version (recommended)
-   df = pd.read_json('results/dataset/Indo-vap/clean_10_TST.jsonl', lines=True)
+   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
    
    # Verify no duplicate columns
    print("Columns:", df.columns.tolist())
@@ -216,8 +219,8 @@ Comparing Original vs Cleaned:
    import pandas as pd
 
    # Load both versions
-   df_original = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
-   df_cleaned = pd.read_json('results/dataset/Indo-vap/clean_10_TST.jsonl', lines=True)
+   df_original = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
+   df_cleaned = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
    
    # Compare columns
    print(f"Original columns: {len(df_original.columns)}")
@@ -237,7 +240,7 @@ Using Pandas:
    import pandas as pd
 
    # Read JSONL file
-   df = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
+   df = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
    
    # View summary
    print(df.shape)
@@ -251,7 +254,7 @@ Using Standard Library:
    import json
 
    records = []
-   with open('results/dataset/Indo-vap/10_TST.jsonl', 'r') as f:
+   with open('results/dataset/Indo-vap/original/10_TST.jsonl', 'r') as f:
        for line in f:
            records.append(json.loads(line))
    
@@ -265,9 +268,9 @@ Combining Multiple JSONL Files
    import pandas as pd
    from pathlib import Path
 
-   # Combine all JSONL files
+   # Combine all original JSONL files
    dfs = []
-   results_dir = Path("results/dataset/Indo-vap")
+   results_dir = Path("results/dataset/Indo-vap/original")
    
    for jsonl_file in results_dir.glob("*.jsonl"):
        df = pd.read_json(jsonl_file, lines=True)
@@ -284,8 +287,8 @@ Converting to Other Formats
 
    import pandas as pd
 
-   # Read JSONL
-   df = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
+   # Read JSONL (use cleaned version for most analyses)
+   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
 
    # Convert to CSV
    df.to_csv('output.csv', index=False)
@@ -444,8 +447,8 @@ Use with Data Analysis Tools
    import pandas as pd
    import matplotlib.pyplot as plt
 
-   # Load extracted data
-   df = pd.read_json('results/dataset/Indo-vap/10_TST.jsonl', lines=True)
+   # Load extracted data (use cleaned for analysis)
+   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
 
    # Analyze
    df['date'].value_counts().plot(kind='bar')

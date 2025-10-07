@@ -157,10 +157,11 @@ Batch De-identification
 
    from scripts.utils.deidentify import deidentify_dataset
    
-   # Process entire dataset
+   # Process entire dataset (maintains directory structure)
    stats = deidentify_dataset(
        input_dir="results/dataset/Indo-vap",
-       output_dir="results/dataset/Indo-vap-deidentified"
+       output_dir="results/deidentified/Indo-vap",
+       process_subdirs=True
    )
    
    print(f"Processed {stats['texts_processed']} texts")
