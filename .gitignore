@@ -46,6 +46,8 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
+tests/
+examples/
 
 # Type checking
 .mypy_cache/

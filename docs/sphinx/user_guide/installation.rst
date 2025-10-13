@@ -92,7 +92,7 @@ This will install:
 - **pandas** (≥2.0.0): Data manipulation and Excel reading
 - **openpyxl** (≥3.1.0): Excel file format support (.xlsx files)
 - **numpy** (≥1.24.0): Numerical operations
-- **tqdm** (≥4.66.0): Progress bars for user feedback
+- **tqdm** (≥4.66.0): **Required** - Progress bars and clean console output
 
 **Security:**
 
@@ -123,19 +123,7 @@ To verify the installation was successful:
 
    python main.py --help
 
-You should see the usage information without any errors:
-
-.. code-block:: text
-
-   usage: main.py [-h] [--enable-deidentification] [--dataset DATASET]
-
-   RePORTaLiN - Data Extraction Pipeline
-
-   options:
-     -h, --help            show this help message and exit
-     --enable-deidentification
-                           Enable de-identification of PHI/PII
-     --dataset DATASET     Specify dataset folder name
+You should see the usage information without any errors.
 
 **Option 3: Test Run**
 
@@ -144,7 +132,7 @@ You should see the usage information without any errors:
    # Run a quick test (make sure you have data in data/dataset/)
    python main.py
 
-If you see progress bars and no errors, the installation is successful!
+If you see progress bars and status messages without errors, the installation is successful!
 
 Directory Structure
 -------------------

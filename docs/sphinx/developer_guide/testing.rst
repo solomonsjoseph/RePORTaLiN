@@ -6,28 +6,15 @@ This guide covers testing strategies and best practices for RePORTaLiN.
 Overview
 --------
 
-RePORTaLiN uses a comprehensive testing approach with multiple levels:
+RePORTaLiN currently uses manual testing approaches for validation:
 
 1. **Manual Testing**: Running the pipeline on real data
-2. **Integration Testing**: Testing module interactions
-3. **Unit Testing**: Testing individual functions
+2. **Integration Testing**: Testing module interactions manually
+3. **Validation Testing**: Verifying de-identification output
 
-Test Structure
---------------
-
-Tests should be organized by module:
-
-.. code-block:: text
-
-   tests/
-   ├── __init__.py
-   ├── test_config.py              # Configuration tests
-   ├── test_extract_data.py         # Data extraction tests
-   ├── test_load_dictionary.py      # Dictionary loading tests
-   ├── test_logging_utils.py        # Logging tests
-   └── fixtures/                    # Test data
-       ├── sample_data.xlsx
-       └── sample_dictionary.xlsx
+.. note::
+   Automated unit tests are not currently implemented. Future versions may include
+   a comprehensive automated testing suite using pytest.
 
 Manual Testing
 --------------
@@ -85,39 +72,35 @@ Test with a single file:
    result = process_excel_file(str(test_file), str(output_dir))
    print(f"Processed {result.get('records', 0)} records")
 
-Unit Testing
-------------
+Testing Individual Components
+------------------------------
 
-Test Configuration
-~~~~~~~~~~~~~~~~~~
+Test Configuration Module
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verify configuration is correctly loaded:
 
 .. code-block:: python
 
-   # tests/test_config.py
-   import pytest
-   from pathlib import Path
    import config
+   from pathlib import Path
    
-   def test_root_dir_exists():
-       """Test that root directory is valid."""
-       assert Path(config.ROOT_DIR).exists()
+   # Verify paths exist
+   assert Path(config.ROOT_DIR).exists()
+   assert Path(config.DATA_DIR).exists()
    
-   def test_data_dir_path():
-       """Test data directory path construction."""
-       assert config.DATA_DIR.endswith("data")
-   
-   def test_dataset_detection():
-       """Test automatic dataset detection."""
-       assert config.DATASET_NAME is not None
-       assert len(config.DATASET_NAME) > 0
+   # Verify dataset detection
+   print(f"Dataset: {config.DATASET_NAME}")
+   print(f"Input: {config.DATASET_DIR}")
+   print(f"Output: {config.CLEAN_DATASET_DIR}")
 
-Test Data Extraction
-~~~~~~~~~~~~~~~~~~~~
+Test Data Extraction Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Test individual functions in the extract_data module:
 
 .. code-block:: python
 
-   # tests/test_extract_data.py
-   import pytest
    import pandas as pd
    from scripts.extract_data import (
        clean_record_for_json,
@@ -125,129 +108,77 @@ Test Data Extraction
        find_excel_files
    )
    
-   def test_clean_record_for_json():
-       """Test JSON serialization cleaning."""
-       record = {
-           'date': pd.Timestamp('2025-01-01'),
-           'number': 42,
-           'text': 'hello',
-           'missing': pd.NA
-       }
-       
-       cleaned = clean_record_for_json(record)
-       
-       assert cleaned['date'] == '2025-01-01 00:00:00'
-       assert cleaned['number'] == 42
-       assert cleaned['text'] == 'hello'
-       assert cleaned['missing'] is None
+   # Test JSON serialization cleaning
+   record = {
+       'date': pd.Timestamp('2025-01-01'),
+       'number': 42,
+       'text': 'hello',
+       'missing': pd.NA
+   }
+   cleaned = clean_record_for_json(record)
+   print(f"Cleaned record: {cleaned}")
    
-   def test_is_dataframe_empty_true():
-       """Test empty dataframe detection."""
-       df = pd.DataFrame()
-       assert is_dataframe_empty(df) is True
+   # Test empty dataframe detection
+   empty_df = pd.DataFrame()
+   full_df = pd.DataFrame({'a': [1, 2, 3]})
+   print(f"Empty: {is_dataframe_empty(empty_df)}")  # Should be True
+   print(f"Full: {is_dataframe_empty(full_df)}")    # Should be False
    
-   def test_is_dataframe_empty_false():
-       """Test non-empty dataframe."""
-       df = pd.DataFrame({'a': [1, 2, 3]})
-       assert is_dataframe_empty(df) is False
-   
-   def test_find_excel_files(tmp_path):
-       """Test Excel file discovery."""
-       # Create test files
-       test_dir = tmp_path / "data"
-       test_dir.mkdir()
-       (test_dir / "file1.xlsx").touch()
-       (test_dir / "file2.xlsx").touch()
-       (test_dir / "not_excel.txt").touch()
-       
-       files = find_excel_files(test_dir)
-       
-       assert len(files) == 2
-       assert all(f.endswith('.xlsx') for f in files)
+   # Test Excel file discovery
+   files = find_excel_files("data/dataset/Indo-vap_csv_files")
+   print(f"Found {len(files)} Excel files")
 
 Test Dictionary Loading
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+Test the dictionary loading module:
+
 .. code-block:: python
 
-   # tests/test_load_dictionary.py
-   import pytest
-   import pandas as pd
    from scripts.load_dictionary import _deduplicate_columns
    
-   def test_deduplicate_columns_no_duplicates():
-       """Test column deduplication with unique columns."""
-       columns = ['a', 'b', 'c']
-       result = _deduplicate_columns(columns)
-       assert result == ['a', 'b', 'c']
+   # Test column deduplication with unique columns
+   columns1 = ['a', 'b', 'c']
+   result1 = _deduplicate_columns(columns1)
+   print(f"Unique columns: {result1}")  # ['a', 'b', 'c']
    
-   def test_deduplicate_columns_with_duplicates():
-       """Test column deduplication with duplicates."""
-       columns = ['a', 'b', 'a', 'c', 'a']
-       result = _deduplicate_columns(columns)
-       assert result == ['a', 'b', 'a_2', 'c', 'a_3']
-   
-   def test_deduplicate_columns_mixed():
-       """Test with unnamed columns and duplicates."""
-       columns = ['a', 'Unnamed: 1', 'a', 'b']
-       result = _deduplicate_columns(columns)
-       assert 'a_2' in result
+   # Test column deduplication with duplicates
+   columns2 = ['a', 'b', 'a', 'c', 'a']
+   result2 = _deduplicate_columns(columns2)
+   print(f"Deduplicated: {result2}")  # ['a', 'b', 'a_1', 'c', 'a_2']
 
-Test Logging
-~~~~~~~~~~~~
+Test Logging System
+~~~~~~~~~~~~~~~~~~~
+
+Verify the logging system works correctly:
 
 .. code-block:: python
 
-   # tests/test_logging_utils.py
-   import pytest
-   import logging
    from scripts.utils import logging_utils as log
+   import logging
    
-   def test_success_level_exists():
-       """Test that SUCCESS log level is defined."""
-       assert hasattr(logging, 'SUCCESS')
-       assert logging.SUCCESS == 25
+   # Setup logger
+   log.setup_logger(name="test_logger", log_level=logging.DEBUG)
    
-   def test_logger_has_success_method():
-       """Test that logger has success method."""
-       logger = logging.getLogger('test')
-       assert hasattr(logger, 'success')
+   # Test all log levels
+   log.debug("Debug message")
+   log.info("Info message")
+   log.success("Success message")  # Custom SUCCESS level
+   log.warning("Warning message")
+   log.error("Error message")
+   
+   # Verify log file was created
+   import os
+   log_files = os.listdir(".logs/")
+   print(f"Log files: {log_files}")
 
 Integration Testing
 -------------------
 
-Test End-to-End Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~
+Test Complete Workflow
+~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
-
-   # tests/test_integration.py
-   import pytest
-   from pathlib import Path
-   import json
-   from scripts.extract_data import extract_excel_to_jsonl
-   from scripts.load_dictionary import load_study_dictionary
-   
-   def test_full_pipeline(tmp_path):
-       """Test complete pipeline with sample data."""
-       # Set up test directories
-       input_dir = tmp_path / "input"
-       output_dir = tmp_path / "output"
-       input_dir.mkdir()
-       output_dir.mkdir()
-       
-       # Create sample Excel file
-       import pandas as pd
-       df = pd.DataFrame({
-           'id': [1, 2, 3],
-           'name': ['Alice', 'Bob', 'Charlie'],
-           'age': [25, 30, 35]
-       })
-       excel_file = input_dir / "sample.xlsx"
-       df.to_excel(excel_file, index=False)
-       
-       # Run extraction
-       extract_excel_to_jsonl(str(input_dir), str(output_dir))
+Test the full pipeline with sample data:
        
        # Verify output
        jsonl_file = output_dir / "sample.jsonl"

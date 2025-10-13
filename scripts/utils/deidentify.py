@@ -86,10 +86,11 @@ import json
 import hashlib
 import secrets
 import logging
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set, Any, Union
-from dataclasses import dataclass, field, asdict
+from typing import Dict, List, Tuple, Optional, Any, Union
+from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 import base64
@@ -102,11 +103,17 @@ except ImportError:
     CRYPTO_AVAILABLE = False
     logging.warning("cryptography package not available. Mapping encryption disabled.")
 
+from tqdm import tqdm
+
+# Import country regulations module
 try:
-    from tqdm import tqdm
-    TQDM_AVAILABLE = True
+    from scripts.utils.country_regulations import (
+        CountryRegulationManager, DataField
+    )
+    COUNTRY_REGULATIONS_AVAILABLE = True
 except ImportError:
-    TQDM_AVAILABLE = False
+    COUNTRY_REGULATIONS_AVAILABLE = False
+    logging.warning("country_regulations module not available. Country-specific features disabled.")
 
 
 # ============================================================================
@@ -195,6 +202,10 @@ class DeidentificationConfig:
     # Logging
     log_detections: bool = True
     log_level: int = logging.INFO
+    
+    # Country-specific regulations
+    countries: Optional[List[str]] = None  # List of country codes or None for default (IN - India)
+    enable_country_patterns: bool = True  # Enable country-specific detection patterns
 
 
 # ============================================================================
@@ -312,6 +323,57 @@ class PatternLibrary:
         
         # Sort by priority (highest first)
         patterns.sort(key=lambda p: p.priority, reverse=True)
+        return patterns
+    
+    @staticmethod
+    def get_country_specific_patterns(countries: Optional[List[str]] = None) -> List[DetectionPattern]:
+        """
+        Get country-specific detection patterns.
+        
+        Args:
+            countries: List of country codes or None for all
+            
+        Returns:
+            List of DetectionPattern objects for country-specific identifiers
+        """
+        if not COUNTRY_REGULATIONS_AVAILABLE:
+            logging.warning("Country regulations module not available")
+            return []
+        
+        patterns = []
+        
+        try:
+            manager = CountryRegulationManager(countries=countries)
+            country_fields = manager.get_country_specific_fields()
+            
+            for field in country_fields:
+                if field.compiled_pattern:
+                    # Map to appropriate PHIType
+                    if "ssn" in field.name.lower() or "cpf" in field.name.lower() or \
+                       "aadhaar" in field.name.lower() or "nik" in field.name.lower():
+                        phi_type = PHIType.SSN
+                        priority = 92
+                    elif "mrn" in field.name.lower() or "health" in field.name.lower():
+                        phi_type = PHIType.MRN
+                        priority = 88
+                    elif any(x in field.name.lower() for x in ["passport", "id", "voter", "pan"]):
+                        phi_type = PHIType.LICENSE_NUMBER
+                        priority = 85
+                    else:
+                        phi_type = PHIType.CUSTOM
+                        priority = 75
+                    
+                    patterns.append(DetectionPattern(
+                        phi_type=phi_type,
+                        pattern=field.compiled_pattern,
+                        priority=priority,
+                        description=f"{field.display_name}: {field.description}"
+                    ))
+            
+            logging.info(f"Loaded {len(patterns)} country-specific patterns")
+        except Exception as e:
+            logging.error(f"Failed to load country-specific patterns: {e}")
+        
         return patterns
 
 
@@ -627,6 +689,17 @@ class DeidentificationEngine:
         
         # Initialize components
         self.patterns = PatternLibrary.get_default_patterns()
+        
+        # Add country-specific patterns if enabled
+        if self.config.enable_country_patterns and COUNTRY_REGULATIONS_AVAILABLE:
+            country_patterns = PatternLibrary.get_country_specific_patterns(self.config.countries)
+            self.patterns.extend(country_patterns)
+            # Re-sort by priority
+            self.patterns.sort(key=lambda p: p.priority, reverse=True)
+            self.logger = logging.getLogger(__name__)
+            self.logger.info(f"Loaded {len(country_patterns)} country-specific patterns for: "
+                           f"{self.config.countries or ['IN (default)']}")
+        
         self.pseudonym_generator = PseudonymGenerator()
         self.date_shifter = DateShifter(
             shift_range_days=self.config.date_shift_range_days,
@@ -655,7 +728,8 @@ class DeidentificationEngine:
         self.stats = {
             "texts_processed": 0,
             "detections_by_type": defaultdict(int),
-            "total_detections": 0
+            "total_detections": 0,
+            "countries": self.config.countries or ["IN (default)"]
         }
         
         # Setup logging
@@ -854,10 +928,14 @@ def deidentify_dataset(
     
     logging.info(f"Processing {len(jsonl_files)} files...")
     
-    # Process each file
-    iterator = tqdm(jsonl_files, desc="De-identifying files") if TQDM_AVAILABLE else jsonl_files
+    # Statistics tracking
+    files_processed = 0
+    files_failed = 0
+    total_records = 0
     
-    for jsonl_file in iterator:
+    # Process each file with progress bar
+    for jsonl_file in tqdm(jsonl_files, desc="De-identifying files", unit="file",
+                           file=sys.stdout, dynamic_ncols=True, leave=True):
         try:
             # Compute relative path to maintain directory structure
             relative_path = jsonl_file.relative_to(input_path)
@@ -866,6 +944,9 @@ def deidentify_dataset(
             # Ensure output directory exists
             output_file.parent.mkdir(parents=True, exist_ok=True)
             
+            tqdm.write(f"Processing: {relative_path}")
+            
+            records_count = 0
             with open(jsonl_file, 'r', encoding='utf-8') as infile, \
                  open(output_file, 'w', encoding='utf-8') as outfile:
                 
@@ -874,23 +955,45 @@ def deidentify_dataset(
                         record = json.loads(line)
                         deidentified_record = engine.deidentify_record(record, text_fields)
                         outfile.write(json.dumps(deidentified_record, ensure_ascii=False) + '\n')
+                        records_count += 1
             
-            logging.info(f"Processed: {relative_path} -> {output_file.relative_to(output_path)}")
+            total_records += records_count
+            files_processed += 1
+            tqdm.write(f"  ✓ Created {output_file.relative_to(output_path)} with {records_count} records (de-identified)")
             
+        except FileNotFoundError:
+            files_failed += 1
+            tqdm.write(f"  ✗ File not found: {jsonl_file}")
+        except json.JSONDecodeError as e:
+            files_failed += 1
+            tqdm.write(f"  ✗ JSON error in {jsonl_file.name}: {str(e)}")
         except Exception as e:
-            logging.error(f"Error processing {jsonl_file}: {e}")
-            continue
+            files_failed += 1
+            tqdm.write(f"  ✗ Error processing {jsonl_file.name}: {str(e)}")
+    
+    # Print summary
+    print(f"\n{'='*70}")
+    print(f"De-identification Summary:")
+    print(f"  Files processed: {files_processed}/{len(jsonl_files)}")
+    if files_failed > 0:
+        print(f"  Files failed: {files_failed}")
+    print(f"  Total records de-identified: {total_records:,}")
+    print(f"{'='*70}\n")
     
     # Save mappings
     engine.save_mappings()
     
     # Get and log statistics
     stats = engine.get_statistics()
+    stats['files_processed'] = files_processed
+    stats['files_failed'] = files_failed
+    stats['total_records'] = total_records
     logging.info(f"De-identification complete. Statistics: {stats}")
     
     # Export audit log (without originals)
     audit_path = output_path / "_deidentification_audit.json"
     engine.mapping_store.export_for_audit(audit_path, include_originals=False)
+    print(f"✓ Mappings saved and audit log exported to: {audit_path}")
     
     return stats
 
@@ -972,13 +1075,25 @@ def main():
     """Command-line interface for de-identification."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="De-identify PHI/PII in text data")
-    parser.add_argument("--input-dir", required=True, help="Input directory with JSONL files")
-    parser.add_argument("--output-dir", required=True, help="Output directory for de-identified files")
+    parser = argparse.ArgumentParser(
+        description="De-identify PHI/PII in text data with country-specific regulations",
+        epilog="Example: python deidentify.py --input-dir data/ --output-dir results/ --countries US IN"
+    )
+    parser.add_argument("--input-dir", help="Input directory with JSONL files (default: auto-detect from config)")
+    parser.add_argument("--output-dir", help="Output directory for de-identified files (default: results/deidentified/)")
+    parser.add_argument("-c", "--countries", nargs="+", 
+                       help="Country codes (e.g., IN US ID BR GB CA AU KE NG GH UG) or ALL for all supported countries. "
+                            "Default: IN. Supported: US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG")
     parser.add_argument("--validate", action="store_true", help="Validate de-identified output")
     parser.add_argument("--text-fields", nargs="+", help="Specific fields to de-identify")
-    parser.add_argument("--no-encryption", action="store_true", help="Disable mapping encryption (enabled by default)")
-    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+    parser.add_argument("--no-encryption", action="store_true", 
+                       help="Disable mapping encryption (enabled by default)")
+    parser.add_argument("--no-country-patterns", action="store_true",
+                       help="Disable country-specific detection patterns")
+    parser.add_argument("--list-countries", action="store_true", 
+                       help="List all supported countries and exit")
+    parser.add_argument("--log-level", default="INFO", 
+                       choices=["DEBUG", "INFO", "WARNING", "ERROR"])
     
     args = parser.parse_args()
     
@@ -988,38 +1103,106 @@ def main():
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
+    # List countries if requested
+    if args.list_countries:
+        if COUNTRY_REGULATIONS_AVAILABLE:
+            from scripts.utils.country_regulations import get_all_supported_countries
+            print("\nSupported Countries and Regulations:")
+            print("=" * 70)
+            for code, name in get_all_supported_countries().items():
+                print(f"  {code}: {name}")
+            print("\nUsage Examples:")
+            print("  python -m scripts.utils.deidentify --countries US IN --input-dir <dir> --output-dir <dir>")
+            print("  python -m scripts.utils.deidentify --countries ALL --input-dir <dir> --output-dir <dir>")
+        else:
+            print("Country regulations module not available.")
+        return
+    
+    # Get default directories from config if not provided
+    input_dir = args.input_dir
+    output_dir = args.output_dir
+    
+    if not input_dir or not output_dir:
+        try:
+            import os
+            import config as project_config
+            if not input_dir:
+                # Auto-detect dataset directory from config
+                input_dir = os.path.join(project_config.RESULTS_DIR, "dataset", project_config.DATASET_NAME)
+                print(f"Using auto-detected input directory: {input_dir}")
+            if not output_dir:
+                # Use sensible default for output
+                output_dir = os.path.join(project_config.RESULTS_DIR, "deidentified", project_config.DATASET_NAME)
+                print(f"Using default output directory: {output_dir}")
+        except (ImportError, AttributeError) as e:
+            if not input_dir or not output_dir:
+                parser.error("--input-dir and --output-dir are required (config.py not available for auto-detection)")
+    
+    # Parse countries
+    countries = None
+    if args.countries:
+        if "ALL" in [c.upper() for c in args.countries]:
+            countries = ["ALL"]
+        else:
+            countries = [c.upper() for c in args.countries]
+    
     # Create config
     deid_config = DeidentificationConfig(
         enable_encryption=not args.no_encryption,
-        log_level=getattr(logging, args.log_level)
+        log_level=getattr(logging, args.log_level),
+        countries=countries,
+        enable_country_patterns=not args.no_country_patterns
     )
     
+    # Print configuration
+    print("\nDe-identification Configuration:")
+    print("=" * 70)
+    print(f"  Input Directory: {input_dir}")
+    print(f"  Output Directory: {output_dir}")
+    print(f"  Countries: {countries or ['IN (default)']}")
+    print(f"  Country-Specific Patterns: {'Enabled' if deid_config.enable_country_patterns else 'Disabled'}")
+    print(f"  Encryption: {'Enabled' if deid_config.enable_encryption else 'Disabled'}")
+    print(f"  Validation: {'Enabled' if args.validate else 'Disabled'}")
+    print("=" * 70)
+    
     # Run de-identification
-    print(f"De-identifying dataset: {args.input_dir} -> {args.output_dir}")
+    print(f"\nDe-identifying dataset...")
     stats = deidentify_dataset(
-        input_dir=args.input_dir,
-        output_dir=args.output_dir,
+        input_dir=input_dir,
+        output_dir=output_dir,
         text_fields=args.text_fields,
         config=deid_config
     )
     
     print(f"\nDe-identification Statistics:")
-    print(f"  Texts processed: {stats['texts_processed']}")
-    print(f"  Total detections: {stats['total_detections']}")
-    print(f"  Detections by type:")
-    for phi_type, count in stats['detections_by_type'].items():
+    print("=" * 70)
+    print(f"  Texts processed: {stats.get('texts_processed', 0)}")
+    print(f"  Total detections: {stats.get('total_detections', 0)}")
+    print(f"  Countries: {', '.join(stats.get('countries', ['N/A']))}")
+    print(f"\n  Detections by type:")
+    for phi_type, count in sorted(stats.get('detections_by_type', {}).items()):
         print(f"    {phi_type}: {count}")
     
     # Validate if requested
     if args.validate:
         print("\nValidating de-identified dataset...")
-        validation = validate_dataset(args.output_dir, text_fields=args.text_fields)
-        print(f"Validation: {validation['summary']}")
+        print("=" * 70)
+        validation = validate_dataset(output_dir, text_fields=args.text_fields)
+        print(f"  {validation['summary']}")
         
         if not validation['is_valid']:
-            print("\nPotential issues found:")
+            print("\n  ⚠ Potential issues found:")
             for issue in validation['potential_phi_found'][:10]:  # Show first 10
-                print(f"  {issue['file']}:{issue['line']} - {issue['field']}: {issue['issues']}")
+                print(f"    {issue['file']}:{issue['line']} - {issue['field']}: {issue['issues']}")
+            
+            if len(validation['potential_phi_found']) > 10:
+                print(f"    ... and {len(validation['potential_phi_found']) - 10} more issues")
+        else:
+            print("  ✓ No PHI/PII detected in de-identified data")
+    
+    print("\n✓ De-identification complete!")
+    print(f"  De-identified files: {output_dir}")
+    print(f"  Audit log: {output_dir}/_deidentification_audit.json")
 
 
 if __name__ == "__main__":

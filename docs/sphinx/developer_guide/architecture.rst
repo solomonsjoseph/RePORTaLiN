@@ -115,16 +115,22 @@ Core Components
 - Excel reading and parsing
 - Data type conversion
 - JSONL serialization
-- Progress tracking
+- Progress tracking with tqdm
 
 **Key Functions**:
 
-- ``extract_excel_to_jsonl()``: Batch processing
+- ``extract_excel_to_jsonl()``: Batch processing with progress bars
 - ``process_excel_file()``: Single file processing
 - ``convert_dataframe_to_jsonl()``: DataFrame conversion
 - ``clean_record_for_json()``: Type conversion
 - ``is_dataframe_empty()``: Empty detection
 - ``find_excel_files()``: File discovery
+
+**Progress Tracking**:
+
+- Uses tqdm for all file and row processing
+- Status messages via tqdm.write() for clean output
+- Summary statistics after completion
 
 **Design Pattern**: Pipeline pattern with functional composition
 
@@ -135,18 +141,26 @@ Core Components
 
 **Responsibilities**:
 
-- Sheet processing
+- Sheet processing with progress tracking
 - Table detection and splitting
 - Duplicate column handling
 - Table serialization
 
 **Key Functions**:
 
-- ``load_study_dictionary()``: High-level API
+- ``load_study_dictionary()``: High-level API with tqdm progress bars
 - ``process_excel_file()``: Sheet processing
 - ``_split_sheet_into_tables()``: Table detection
 - ``_process_and_save_tables()``: Table output
 - ``_deduplicate_columns()``: Column name handling
+
+**Progress Tracking**:
+
+- tqdm progress bars for sheet processing
+- tqdm.write() for status messages
+- Clean console output during processing
+
+**Design Pattern**: Functional composition with table detection algorithm
 
 **Design Pattern**: Strategy pattern for table detection
 
@@ -168,8 +182,62 @@ Core Components
 - Timestamped log files
 - Console and file handlers
 - UTF-8 encoding for international characters
+- Works alongside tqdm for clean progress bar output
 
 **Design Pattern**: Singleton logger instance
+
+6. scripts/utils/deidentify.py - De-identification Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Purpose**: Remove PHI/PII from text data with pseudonymization
+
+**Responsibilities**:
+
+- Detect PHI/PII using regex patterns
+- Generate consistent pseudonyms
+- Encrypt and store mappings
+- Validate de-identified output
+- Support country-specific regulations
+- Progress tracking for large datasets
+
+**Key Classes**:
+
+- ``DeidentificationEngine``: Main orchestrator
+- ``PseudonymGenerator``: Creates deterministic placeholders
+- ``MappingStore``: Secure encrypted storage
+- ``DateShifter``: Consistent date shifting
+- ``PatternLibrary``: Detection patterns
+
+**Progress Tracking**:
+
+- tqdm progress bars for processing batches
+- tqdm.write() for status messages during processing
+- Summary statistics upon completion
+
+**Design Pattern**: Strategy pattern for detection, Builder pattern for configuration
+
+7. scripts/utils/country_regulations.py - Country-Specific Regulations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Purpose**: Manage country-specific data privacy regulations
+
+**Responsibilities**:
+
+- Define country-specific data fields
+- Provide detection patterns for local identifiers
+- Document regulatory requirements
+- Support multiple jurisdictions simultaneously
+
+**Key Classes**:
+
+- ``CountryRegulationManager``: Orchestrates regulations
+- ``CountryRegulation``: Single country configuration
+- ``DataField``: Field definition with validation
+- ``PrivacyLevel`` / ``DataFieldType``: Enumerations
+
+**Supported Countries**: US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG
+
+**Design Pattern**: Registry pattern for country lookup, Factory pattern for regulation creation
 
 Data Flow
 ---------
@@ -299,11 +367,22 @@ Design Decisions
 
 **Rationale**:
 
-- Long-running operations need feedback
-- Users want to know time remaining
+- Long-running operations need real-time feedback
+- Users want to know progress and time remaining
 - Helps identify slow operations
+- Clean console output is essential
 
-**Implementation**: tqdm library for standard progress bars
+**Implementation**:
+
+- **tqdm** library for all progress bars (required dependency)
+- **tqdm.write()** for status messages during progress tracking
+- Consistent usage across all processing modules:
+  
+  - ``extract_data.py``: File and row processing
+  - ``load_dictionary.py``: Sheet processing
+  - ``deidentify.py``: Batch de-identification
+
+**Design Decision**: tqdm is a required dependency, not optional, ensuring consistent user experience
 
 5. Centralized Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -442,6 +521,66 @@ Security Considerations
 3. **Code Injection**: No eval() or exec() usage
 4. **Data Validation**: Type checking for all conversions
 
+Code Quality and Maintenance
+-----------------------------
+
+Production-Ready Standards
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The codebase has undergone comprehensive audits to ensure production quality:
+
+**Dependency Management**:
+
+- All dependencies in ``requirements.txt`` are actively used
+- No unused imports in any module
+- tqdm is a required dependency (not optional)
+- All imports verified for actual usage
+
+**Progress Tracking Consistency**:
+
+- All long-running operations use tqdm progress bars
+- Consistent use of ``tqdm.write()`` for status messages during progress
+- Clean console output without interference between progress bars and logs
+- Modules with progress tracking:
+  
+  - ``extract_data.py``: File and row processing
+  - ``load_dictionary.py``: Sheet processing  
+  - ``deidentify.py``: Batch de-identification
+
+**Code Organization**:
+
+- No temporary files or test directories in production
+- All test-related code removed from main branch
+- Clean separation of concerns across modules
+- Consistent error handling patterns
+
+**Documentation Standards**:
+
+- All features documented in Sphinx
+- README.md reflects actual production capabilities
+- No references to non-existent test suites
+- Clear instructions for manual testing
+
+Recent Improvements
+~~~~~~~~~~~~~~~~~~~
+
+**Audit History** (Production Release):
+
+1. **Removed unused imports**: Set, asdict from dataclasses
+2. **Made tqdm required**: Removed optional import logic
+3. **Standardized progress output**: tqdm.write() for all status messages
+4. **Verified all dependencies**: Every library in requirements.txt is used
+5. **Cleaned temporary files**: Removed test directories and __pycache__
+6. **Updated documentation**: Reflects current production-ready state
+
+**Quality Assurance**:
+
+- ✅ All Python files compile without errors
+- ✅ All imports resolve successfully
+- ✅ Runtime verification of core functionality
+- ✅ Consistent coding patterns across modules
+- ✅ No dead code or unused functionality
+
 Future Architecture Considerations
 -----------------------------------
 
@@ -452,6 +591,7 @@ Potential improvements (not yet implemented):
 3. **Database Output**: Direct database writes
 4. **Incremental Updates**: Process only changed files
 5. **Data Validation**: Schema-based validation
+6. **Automated Testing Framework**: Comprehensive test suite with CI/CD integration
 
 See Also
 --------

@@ -281,45 +281,52 @@ Use the centralized logging system:
 Testing Guidelines
 ------------------
 
-Writing Tests
-~~~~~~~~~~~~~
+.. note::
+   Automated unit tests are not currently implemented. Manual testing is required
+   for all new functionality. See :doc:`testing` for manual testing strategies.
 
-If tests are available, add tests for new functionality:
+Manual Testing
+~~~~~~~~~~~~~~
+
+Test new functionality manually:
 
 .. code-block:: python
 
-   # tests/test_my_feature.py
-   import pytest
+   # Test your function interactively
    from scripts.my_module import my_function
    
-   def test_my_function_basic():
-       """Test basic functionality."""
-       result = my_function("input")
-       assert result == "expected"
+   # Basic test
+   result = my_function("input")
+   print(f"Result: {result}")
+   assert result == "expected", "Test failed"
    
-   def test_my_function_edge_case():
-       """Test edge case."""
-       with pytest.raises(ValueError):
-           my_function("")
+   # Edge case test
+   try:
+       my_function("")
+   except ValueError:
+       print("ValueError raised as expected")
    
-   def test_my_function_with_options():
-       """Test with various options."""
-       result = my_function("input", option=True)
-       assert result is not None
+   # Test with options
+   result = my_function("input", option=True)
+   assert result is not None, "Result should not be None"
+   print("All manual tests passed!")
 
-Running Tests
-~~~~~~~~~~~~~
+Running the Pipeline
+~~~~~~~~~~~~~~~~~~~~
+
+Test integration by running the full pipeline:
 
 .. code-block:: bash
 
-   # Run all tests
-   make test
+   # Run complete pipeline
+   python main.py
    
-   # Run specific test file
-   python -m pytest tests/test_my_feature.py
+   # Run with de-identification
+   python main.py --enable-deidentification --countries US
    
-   # Run with coverage
-   python -m pytest --cov=scripts tests/
+   # Check output files
+   ls -la results/dataset/*/cleaned/
+   ls -la results/data_dictionary_mappings/
 
 Documentation
 -------------

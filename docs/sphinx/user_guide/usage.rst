@@ -69,443 +69,157 @@ Use separate project directories for parallel processing:
    cd /path/to/RePORTaLiN_project2
    python main.py
 
-Using as a Python Module
--------------------------
 
-Import and Use Functions
-~~~~~~~~~~~~~~~~~~~~~~~~~
+De-identification Workflows
+----------------------------
 
-You can use RePORTaLiN functions in your own Python scripts:
+Running De-identification
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
+Enable de-identification in the main pipeline:
 
-   from scripts.extract_data import extract_excel_to_jsonl
-   from scripts.load_dictionary import load_study_dictionary
-   import config
+.. code-block:: bash
 
-   # Load data dictionary
-   load_study_dictionary(
-       excel_file=config.DICTIONARY_EXCEL_FILE,
-       output_dir=config.DICTIONARY_JSON_OUTPUT_DIR
-   )
+   # Basic de-identification (uses default: India)
+   python main.py --enable-deidentification
 
-   # Extract specific files
-   extract_excel_to_jsonl(
-       input_dir=config.DATASET_DIR,
-       output_dir=config.CLEAN_DATASET_DIR
-   )
+   # Specify countries
+   python main.py --enable-deidentification --countries IN US ID
 
-Process Single File
-~~~~~~~~~~~~~~~~~~~
+   # Use all supported countries
+   python main.py --enable-deidentification --countries ALL
 
-.. code-block:: python
+   # Disable encryption (testing only - NOT recommended)
+   python main.py --enable-deidentification --no-encryption
 
-   from scripts.extract_data import process_excel_file
-   import config
+Country-Specific De-identification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   # Process one specific Excel file
-   input_file = config.DATASET_DIR / "10_TST.xlsx"
-   output_dir = config.CLEAN_DATASET_DIR
+The system supports 14 countries with specific privacy regulations:
 
-   result = process_excel_file(input_file, output_dir)
-   print(f"Processed {result['records']} records")
+.. code-block:: bash
 
-Custom Processing
-~~~~~~~~~~~~~~~~~
+   # India (default)
+   python main.py --enable-deidentification --countries IN
 
-.. code-block:: python
+   # Multiple countries (for international studies)
+   python main.py --enable-deidentification --countries IN US ID BR
 
-   import pandas as pd
-   from scripts.extract_data import convert_dataframe_to_jsonl
+   # All countries (detects identifiers from all 14 supported countries)
+   python main.py --enable-deidentification --countries ALL
 
-   # Custom data processing
-   df = pd.read_excel("my_data.xlsx")
-   
-   # Filter or transform data
-   df = df[df['age'] > 18]
-   
-   # Convert to JSONL
-   convert_dataframe_to_jsonl(
-       df=df,
-       output_file="filtered_data.jsonl",
-       source_file="my_data.xlsx"
-   )
+Supported countries: US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG
 
-Batch Processing
-----------------
+For detailed information, see :doc:`country_regulations`.
 
-Process Multiple Dictionary Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+De-identification Output Structure
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
-
-   from scripts.load_dictionary import load_study_dictionary
-   from pathlib import Path
-
-   dictionary_dir = Path("data/dictionaries")
-   output_base = Path("results/dictionaries")
-
-   for dict_file in dictionary_dir.glob("*.xlsx"):
-       output_dir = output_base / dict_file.stem
-       output_dir.mkdir(parents=True, exist_ok=True)
-       
-       load_study_dictionary(
-           excel_file=str(dict_file),
-           output_dir=str(output_dir)
-       )
-       print(f"Processed {dict_file.name}")
-
-Process Files Matching Pattern
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   from scripts.extract_data import find_excel_files, process_excel_file
-   from pathlib import Path
-
-   input_dir = Path("data/dataset/Indo-vap")
-   output_dir = Path("results/partial")
-
-   # Process only files matching pattern
-   for excel_file in input_dir.glob("1*_*.xlsx"):  # Files starting with "1"
-       process_excel_file(str(excel_file), str(output_dir))
-       print(f"Processed {excel_file.name}")
-
-Working with Output Files
---------------------------
-
-Understanding Original vs Cleaned Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Each extraction creates two subdirectories with the same files:
-
-- **original/** - All columns from Excel, including duplicates
-- **cleaned/** - Duplicate columns removed (e.g., SUBJID2, SUBJID3)
+The de-identified data maintains the same directory structure:
 
 .. code-block:: text
 
-   results/dataset/Indo-vap/
+   results/deidentified/Indo-vap/
    ├── original/
-   │   ├── 10_TST.jsonl          # Has SUBJID, SUBJID2, SUBJID3
+   │   ├── 10_TST.jsonl          # De-identified original files
    │   ├── 11_IGRA.jsonl
    │   └── ...
-   └── cleaned/
-       ├── 10_TST.jsonl          # Only SUBJID (duplicates removed)
-       ├── 11_IGRA.jsonl
-       └── ...
-
-**When to use each version:**
-
-- **original/** files: Use for data validation, debugging, or when you need all source columns
-- **cleaned/** files: Use for analysis, reporting, or database loading (recommended for most use cases)
-
-Reading Cleaned Files:
-
-.. code-block:: python
-
-   import pandas as pd
-
-   # Read cleaned version (recommended)
-   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
-   
-   # Verify no duplicate columns
-   print("Columns:", df.columns.tolist())
-   # Output: ['SUBJID', 'TST_RESULT', ...] (no SUBJID2, SUBJID3)
-
-Comparing Original vs Cleaned:
-
-.. code-block:: python
-
-   import pandas as pd
-
-   # Load both versions
-   df_original = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
-   df_cleaned = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
-   
-   # Compare columns
-   print(f"Original columns: {len(df_original.columns)}")
-   print(f"Cleaned columns: {len(df_cleaned.columns)}")
-   
-   # Find removed columns
-   removed = set(df_original.columns) - set(df_cleaned.columns)
-   print(f"Removed duplicate columns: {removed}")
-
-Reading JSONL Files
-~~~~~~~~~~~~~~~~~~~
-
-Using Pandas:
-
-.. code-block:: python
-
-   import pandas as pd
-
-   # Read JSONL file
-   df = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
-   
-   # View summary
-   print(df.shape)
-   print(df.columns)
-   print(df.head())
-
-Using Standard Library:
-
-.. code-block:: python
-
-   import json
-
-   records = []
-   with open('results/dataset/Indo-vap/original/10_TST.jsonl', 'r') as f:
-       for line in f:
-           records.append(json.loads(line))
-   
-   print(f"Loaded {len(records)} records")
-
-Combining Multiple JSONL Files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   import pandas as pd
-   from pathlib import Path
-
-   # Combine all original JSONL files
-   dfs = []
-   results_dir = Path("results/dataset/Indo-vap/original")
-   
-   for jsonl_file in results_dir.glob("*.jsonl"):
-       df = pd.read_json(jsonl_file, lines=True)
-       df['source_file'] = jsonl_file.stem
-       dfs.append(df)
-   
-   combined_df = pd.concat(dfs, ignore_index=True)
-   print(f"Combined {len(dfs)} files: {len(combined_df)} total records")
-
-Converting to Other Formats
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   import pandas as pd
-
-   # Read JSONL (use cleaned version for most analyses)
-   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
-
-   # Convert to CSV
-   df.to_csv('output.csv', index=False)
-
-   # Convert to Excel
-   df.to_excel('output.xlsx', index=False)
-
-   # Convert to Parquet
-   df.to_parquet('output.parquet')
-
-Logging and Monitoring
------------------------
-
-View Real-Time Logs
-~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # In one terminal, run the pipeline
-   python main.py
-
-   # In another terminal, watch the log
-   tail -f .logs/reportalin_*.log
-
-Parse Log Files
-~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   import re
-   from pathlib import Path
-
-   # Find latest log
-   log_dir = Path(".logs")
-   latest_log = max(log_dir.glob("*.log"), key=lambda p: p.stat().st_mtime)
-
-   # Extract error messages
-   with open(latest_log, 'r') as f:
-       for line in f:
-           if 'ERROR' in line or 'WARNING' in line:
-               print(line.strip())
-
-Custom Logging
-~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   from scripts.utils import logging_utils as log
-
-   # Use the custom logger
-   log.info("Processing started")
-   log.success("Operation completed successfully")
-   log.warning("Potential issue detected")
-   log.error("An error occurred")
-
-Performance Optimization
-------------------------
-
-Process Large Files
-~~~~~~~~~~~~~~~~~~~
-
-For very large Excel files, consider processing in chunks:
-
-.. code-block:: python
-
-   import pandas as pd
-   from scripts.extract_data import convert_dataframe_to_jsonl
-
-   # Read in chunks
-   chunk_size = 10000
-   chunks = pd.read_excel(
-       'large_file.xlsx',
-       chunksize=chunk_size
-   )
-
-   # Process each chunk
-   for i, chunk in enumerate(chunks):
-       output_file = f'output_chunk_{i}.jsonl'
-       convert_dataframe_to_jsonl(chunk, output_file, 'large_file.xlsx')
-
-Parallel Processing
-~~~~~~~~~~~~~~~~~~~
-
-Process multiple files in parallel:
-
-.. code-block:: python
-
-   from concurrent.futures import ThreadPoolExecutor
-   from scripts.extract_data import process_excel_file
-   from pathlib import Path
-
-   def process_file(file_path):
-       process_excel_file(file_path, output_dir)
-       return file_path.name
-
-   input_dir = Path("data/dataset/Indo-vap")
-   output_dir = Path("results/dataset/Indo-vap")
-   excel_files = list(input_dir.glob("*.xlsx"))
-
-   # Process 4 files at a time
-   with ThreadPoolExecutor(max_workers=4) as executor:
-       results = list(executor.map(process_file, excel_files))
-
-   print(f"Processed {len(results)} files")
-
-Error Handling
---------------
-
-Graceful Error Handling
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   from scripts.extract_data import process_excel_file
-   from scripts.utils import logging_utils as log
-
-   excel_files = find_excel_files(input_dir)
-   failed_files = []
-
-   for excel_file in excel_files:
-       try:
-           process_excel_file(excel_file, output_dir)
-           log.success(f"Processed {excel_file}")
-       except Exception as e:
-           log.error(f"Failed to process {excel_file}: {e}")
-           failed_files.append((excel_file, str(e)))
-
-   if failed_files:
-       print(f"\nFailed files ({len(failed_files)}):")
-       for file, error in failed_files:
-           print(f"  - {file}: {error}")
-
-Integration with Other Tools
------------------------------
-
-Use with Jupyter Notebooks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   # In Jupyter Notebook
-   import sys
-   sys.path.append('/path/to/RePORTaLiN')
-
-   from scripts.extract_data import extract_excel_to_jsonl
-   import config
-
-   # Run extraction
-   extract_excel_to_jsonl(config.DATASET_DIR, config.CLEAN_DATASET_DIR)
-
-Use with Data Analysis Tools
+   ├── cleaned/
+   │   ├── 10_TST.jsonl          # De-identified cleaned files
+   │   ├── 11_IGRA.jsonl
+   │   └── ...
+   └── _deidentification_audit.json  # Audit log
+
+   results/deidentified/mappings/
+   └── mappings.enc                   # Encrypted mapping table
+
+Standalone De-identification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can also run de-identification separately:
+
+.. code-block:: bash
+
+   # De-identify existing dataset
+   python -m scripts.utils.deidentify \
+       --input-dir results/dataset/Indo-vap \
+       --output-dir results/deidentified/Indo-vap \
+       --countries IN US
+
+   # List supported countries
+   python -m scripts.utils.deidentify --list-countries
+
+   # Validate de-identified output
+   python -m scripts.utils.deidentify \
+       --input-dir results/dataset/Indo-vap \
+       --output-dir results/deidentified/Indo-vap \
+       --validate
+
+Working with De-identified Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 .. code-block:: python
 
    import pandas as pd
-   import matplotlib.pyplot as plt
 
-   # Load extracted data (use cleaned for analysis)
-   df = pd.read_json('results/dataset/Indo-vap/cleaned/10_TST.jsonl', lines=True)
-
-   # Analyze
-   df['date'].value_counts().plot(kind='bar')
-   plt.title('Records by Date')
-   plt.show()
-
-Automation
-----------
-
-Scheduled Execution
-~~~~~~~~~~~~~~~~~~~
-
-Using cron (Linux/macOS):
-
-.. code-block:: bash
-
-   # Edit crontab
-   crontab -e
-
-   # Add line to run daily at 2 AM
-   0 2 * * * cd /path/to/RePORTaLiN && /path/to/venv/bin/python main.py
-
-Using Task Scheduler (Windows):
-
-.. code-block:: batch
-
-   # Create a batch file run_pipeline.bat
-   cd C:\path\to\RePORTaLiN
-   .venv\Scripts\python.exe main.py
-
-Then schedule it using Windows Task Scheduler.
-
-Script Wrapper
-~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   #!/bin/bash
-   # run_pipeline.sh
+   # Read de-identified file
+   df = pd.read_json('results/deidentified/Indo-vap/cleaned/10_TST.jsonl', lines=True)
    
-   cd /path/to/RePORTaLiN
-   source .venv/bin/activate
-   
-   # Run pipeline
-   python main.py
-   
-   # Archive results
-   timestamp=$(date +%Y%m%d_%H%M%S)
-   tar -czf "backup_${timestamp}.tar.gz" results/
-   
-   # Send notification
-   echo "Pipeline completed at $(date)" | mail -s "RePORTaLiN Complete" user@example.com
+   # PHI/PII has been replaced with pseudonyms
+   print(df.head())
+   # Shows: [PATIENT-X7Y2], [SSN-A4B8], [DATE-1], etc.
 
-See Also
---------
+For complete de-identification documentation, see :doc:`deidentification`.
 
-- :doc:`configuration`: Configuration options
-- :doc:`troubleshooting`: Problem solving
-- :doc:`../api/modules`: API reference
-- :doc:`../developer_guide/extending`: Extending the pipeline
+Understanding Progress Output
+------------------------------
+
+Progress Bars and Status Messages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RePORTaLiN provides real-time feedback during processing using progress bars:
+
+.. code-block:: text
+
+   Processing Files: 100%|████████████████| 43/43 [00:15<00:00,  2.87files/s]
+   ✓ Processing 10_TST.xlsx: 1,234 rows
+   ✓ Processing 11_IGRA.xlsx: 2,456 rows
+   ...
+   
+   Summary:
+   --------
+   Successfully processed: 43 files
+   Total records: 50,123
+   Time elapsed: 15.2 seconds
+
+**Key Features**:
+
+- **tqdm progress bars**: Show percentage, speed, and time remaining
+- **Clean output**: Status messages use ``tqdm.write()`` to avoid interfering with progress bars
+- **Real-time updates**: Instant feedback on current operation
+- **Summary statistics**: Final counts and timing information
+
+**Modules with Progress Tracking**:
+
+1. **Data Dictionary Loading** (``load_dictionary.py``):
+   
+   - Progress bar for processing sheets
+   - Status messages for each table extracted
+   - Summary of tables created
+
+2. **Data Extraction** (``extract_data.py``):
+   
+   - Progress bar for files being processed
+   - Per-file row counts
+   - Final summary with totals
+
+3. **De-identification** (``deidentify.py``):
+   
+   - Progress bar for batch processing
+   - Detection statistics per file
+   - Final summary with replacement counts
+
+**Note**: Progress bars require the ``tqdm`` library, which is installed automatically with ``pip install -r requirements.txt``.
+
+Troubleshooting Common Issues
+------------------------------

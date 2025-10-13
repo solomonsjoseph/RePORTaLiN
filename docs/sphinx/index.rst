@@ -72,6 +72,7 @@ Documentation Sections
    user_guide/configuration
    user_guide/usage
    user_guide/deidentification
+   user_guide/country_regulations
    user_guide/troubleshooting
 
 🔧 **For Developers** - Contribute to RePORTaLiN development

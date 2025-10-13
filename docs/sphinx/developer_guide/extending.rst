@@ -639,6 +639,236 @@ Example: YAML Configuration
      level: INFO
      file: .logs/reportalin.log
 
+Adding New Country Regulations
+-------------------------------
+
+RePORTaLiN supports country-specific data privacy regulations for de-identification. You can add support for new countries by extending the ``country_regulations`` module.
+
+Example: Adding a New Country
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Define the regulation function**:
+
+.. code-block:: python
+
+   # scripts/utils/country_regulations.py
+   
+   def get_new_country_regulation() -> CountryRegulation:
+       """New Country - Data Protection Act."""
+       return CountryRegulation(
+           country_code="XX",  # ISO 3166-1 alpha-2 code
+           country_name="New Country",
+           regulation_name="Data Protection Act",
+           regulation_acronym="DPA",
+           common_fields=get_common_fields(),
+           specific_fields=[
+               DataField(
+                   name="national_id",
+                   display_name="National ID Number",
+                   field_type=DataFieldType.IDENTIFIER,
+                   privacy_level=PrivacyLevel.CRITICAL,
+                   required=False,
+                   pattern=r'^\d{10}$',  # Regex pattern
+                   description="10-digit National ID",
+                   examples=["1234567890"],
+                   country_specific=True
+               ),
+               DataField(
+                   name="health_card",
+                   display_name="Health Insurance Card",
+                   field_type=DataFieldType.MEDICAL,
+                   privacy_level=PrivacyLevel.CRITICAL,
+                   required=False,
+                   pattern=r'^HC-\d{8}$',
+                   description="Health card number",
+                   examples=["HC-12345678"],
+                   country_specific=True
+               ),
+           ],
+           description="Brief description of the regulation",
+           requirements=[
+               "Key requirement 1",
+               "Key requirement 2",
+               "Data protection impact assessment required",
+               "Breach notification within X hours",
+           ]
+       )
+
+2. **Register the country in the registry**:
+
+.. code-block:: python
+
+   # In CountryRegulationManager class
+   _REGISTRY: Dict[str, callable] = {
+       "US": get_us_regulation,
+       "IN": get_india_regulation,
+       # ... existing countries ...
+       "XX": get_new_country_regulation,  # Add your country
+   }
+
+4. **Test the implementation**:
+   }
+
+4. **Update documentation**:
+
+Add the new country to:
+   - ``docs/sphinx/user_guide/country_regulations.rst``
+   - ``README.md``
+   - CLI help text in ``scripts/utils/deidentify.py``
+
+Field Types and Privacy Levels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When defining country-specific fields, use appropriate types:
+
+**DataFieldType Options**:
+   - ``PERSONAL_NAME``: First/last/middle names
+   - ``IDENTIFIER``: National IDs, SSN, etc.
+   - ``CONTACT``: Phone, email, address
+   - ``DEMOGRAPHIC``: Age, gender, ethnicity
+   - ``LOCATION``: City, state, postal code
+   - ``MEDICAL``: Health card, MRN, insurance
+   - ``FINANCIAL``: Tax IDs, bank accounts
+   - ``BIOMETRIC``: Fingerprints, facial data
+   - ``CUSTOM``: Other sensitive data
+
+**PrivacyLevel Options** (1-5):
+   - ``PUBLIC``: Publicly available information
+   - ``LOW``: Low sensitivity (e.g., gender)
+   - ``MEDIUM``: Medium sensitivity (e.g., city)
+   - ``HIGH``: High sensitivity PII (e.g., phone)
+   - ``CRITICAL``: Critical sensitive PII (e.g., SSN, health data)
+
+Regex Pattern Guidelines
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When defining detection patterns:
+
+1. **Be Specific**: Avoid overly broad patterns that might cause false positives.
+
+2. **Use Anchors**: Use ``^`` and ``$`` to match entire strings:
+
+   .. code-block:: python
+   
+      pattern=r'^\d{3}-\d{2}-\d{4}$'  # US SSN
+      pattern=r'^\d{12}$'              # Indian Aadhaar (without spaces)
+
+3. **Handle Variations**: Account for different formats:
+
+   .. code-block:: python
+   
+      # With or without separators
+      pattern=r'^\d{3}-\d{2}-\d{4}$|^\d{9}$'
+      
+      # With or without spaces
+      pattern=r'^\d{4}\s?\d{4}\s?\d{4}$'
+
+4. **Use Character Classes**: Use ``\d`` for digits, ``[A-Z]`` for uppercase letters:
+
+   .. code-block:: python
+   
+      pattern=r'^[A-Z]{2}\d{6}[A-D]$'  # UK National Insurance
+
+5. **Test Thoroughly**: Test patterns with real and synthetic data:
+
+   .. code-block:: python
+   
+      # Test the pattern
+      import re
+      pattern = re.compile(r'^\d{3}-\d{2}-\d{4}$')
+      assert pattern.match("123-45-6789")
+      assert not pattern.match("123456789")
+
+Testing Your Country Regulation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Unit Test**:
+
+.. code-block:: python
+
+   # test_country_regulations.py
+   
+   def test_new_country_regulation():
+       """Test new country regulation."""
+       manager = CountryRegulationManager(countries=["XX"])
+       
+       # Verify it loads
+       assert "XX" in manager.regulations
+       
+       # Verify fields
+       reg = manager.regulations["XX"]
+       assert len(reg.specific_fields) > 0
+       
+       # Test detection patterns
+       patterns = manager.get_detection_patterns()
+       assert "national_id" in patterns
+
+2. **Integration Test**:
+
+.. code-block:: python
+
+   def test_deidentification_with_new_country():
+       """Test de-identification with new country."""
+       config = DeidentificationConfig(
+           countries=["XX"],
+           enable_country_patterns=True,
+           enable_encryption=False
+       )
+       
+       engine = DeidentificationEngine(config=config)
+       
+       text = "Patient ID: 1234567890, Health Card: HC-12345678"
+       deidentified = engine.deidentify_text(text)
+       
+       # Verify identifiers are removed
+       assert "1234567890" not in deidentified
+       assert "HC-12345678" not in deidentified
+
+3. **Manual Testing**:
+
+.. code-block:: bash
+
+   # Test with command line
+   python3 -m scripts.utils.country_regulations --countries XX --show-fields
+   
+   # Test de-identification with sample text
+   python3 -c "from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig; \
+   config = DeidentificationConfig(countries=['XX']); \
+   engine = DeidentificationEngine(config=config); \
+   print(engine.deidentify_text('Patient John Doe, ID: 1234567890'))"
+
+Common Pitfalls
+~~~~~~~~~~~~~~~
+
+1. **Overlapping Patterns**: Ensure patterns don't conflict with other countries.
+
+2. **Locale-Specific Formats**: Account for different date/number formats.
+
+3. **Special Characters**: Properly escape regex special characters.
+
+4. **Performance**: Avoid extremely complex regex patterns that slow processing.
+
+5. **False Positives**: Test with diverse data to minimize false detections.
+
+Regulatory Compliance Considerations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When adding a new country:
+
+1. **Research the Regulation**: Thoroughly understand the legal requirements.
+
+2. **Consult Legal Experts**: Ensure your implementation meets legal standards.
+
+3. **Document Requirements**: List all key requirements in the regulation object.
+
+4. **Stay Updated**: Monitor for regulatory changes and updates.
+
+5. **Provide References**: Link to official regulatory documentation.
+
+.. warning::
+   Adding country-specific regulations does not guarantee legal compliance. 
+   Always consult with legal counsel familiar with the jurisdiction.
+
 Best Practices for Extensions
 ------------------------------
 

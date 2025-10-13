@@ -1,233 +1,300 @@
-# RePORTaLiN Documentation
+# RePORTaLiN Sphinx Documentation
 
-This directory contains the Sphinx documentation for RePORTaLiN.
+This directory contains the Sphinx documentation for the RePORTaLiN project.
 
-## Building the Documentation
+## Quick Start
 
-### Prerequisites
+### Building the Documentation
 
-Install documentation dependencies:
-
+1. **Install Sphinx and dependencies** (if not already installed):
 ```bash
-pip install -r requirements.txt
+pip install -r ../../requirements.txt
 ```
 
-### Build Options
-
-#### 🎯 User Mode (Default for End Users)
-Build documentation **without** developer guides and API reference:
-
+2. **Build HTML documentation**:
 ```bash
-cd docs/sphinx
-make user-mode
-```
-
-**Includes:**
-- ✅ User Guide (installation, quickstart, usage, troubleshooting)
-- ✅ Configuration guide
-- ✅ Changelog and license
-
-**Excludes:**
-- ❌ Developer Guide
-- ❌ API Reference
-- ❌ Technical architecture details
-
----
-
-#### 🔧 Developer Mode (Full Documentation)
-Build **complete** documentation including developer and API docs:
-
-```bash
-cd docs/sphinx
-make dev-mode
-```
-
-**Includes:**
-- ✅ Everything from User Mode
-- ✅ Developer Guide (architecture, contributing, testing)
-- ✅ API Reference (all modules documented)
-- ✅ Technical implementation details
-
----
-
-#### 🏗️ Standard HTML Build (Default: Developer Mode)
-```bash
-cd docs/sphinx
 make html
 ```
 
-This builds with `developer_mode = True` (full documentation).
-
-### View Documentation
-
+3. **View the documentation**:
 ```bash
+# macOS
 open _build/html/index.html
+
+# Linux
+xdg-open _build/html/index.html
+
+# Windows
+start _build/html/index.html
 ```
 
-### Clean Build
+## Available Documentation
 
+### User Guide (`user_guide/`)
+Documentation for end users of the RePORTaLiN system:
+
+- **usage.rst**: Getting started and basic usage
+- **deidentification.rst**: PHI/PII de-identification guide
+- **country_regulations.rst**: Country-specific privacy compliance
+
+### Developer Guide (`developer_guide/`)
+Documentation for developers and maintainers:
+
+- **architecture.rst**: System architecture and design
+- **extending.rst**: How to extend the system (add countries, features)
+- **testing.rst**: Testing strategies and best practices (if available)
+
+### API Reference (`api/`)
+Auto-generated API documentation from code docstrings.
+
+## Build Commands
+
+### HTML Output
 ```bash
-cd docs/sphinx
-make clean
+make html          # Build HTML documentation
+make clean         # Remove build artifacts
+make html-clean    # Clean and rebuild
 ```
 
----
+### Other Formats
+```bash
+make latexpdf      # Build PDF (requires LaTeX)
+make epub          # Build EPUB
+make man           # Build man pages
+make text          # Build plain text
+```
+
+### Development
+```bash
+make livehtml      # Auto-rebuild on changes (requires sphinx-autobuild)
+```
 
 ## Documentation Structure
 
 ```
 docs/sphinx/
-├── index.rst              # Main documentation page
-├── conf.py                # Sphinx configuration (developer_mode toggle)
-├── Makefile               # Build commands (user-mode, dev-mode)
-│
-├── user_guide/            # 👥 For end users
-│   ├── introduction.rst
-│   ├── installation.rst
-│   ├── quickstart.rst
-│   ├── configuration.rst
+├── README.md              # This file
+├── conf.py               # Sphinx configuration
+├── index.rst             # Documentation home page
+├── Makefile              # Build commands (Unix/macOS/Linux)
+├── make.bat              # Build commands (Windows)
+├── _build/               # Generated documentation (git-ignored)
+│   └── html/            # HTML output
+├── _static/              # Static files (CSS, images, etc.)
+├── _templates/           # Custom templates
+├── user_guide/          # User documentation
+│   ├── index.rst
 │   ├── usage.rst
-│   └── troubleshooting.rst
-│
-├── developer_guide/       # 🔧 For developers (excluded in user-mode)
+│   ├── deidentification.rst
+│   └── country_regulations.rst
+├── developer_guide/     # Developer documentation
+│   ├── index.rst
 │   ├── architecture.rst
-│   ├── contributing.rst
-│   ├── extending.rst
-│   └── testing.rst
-│
-├── api/                   # 📚 API Reference (excluded in user-mode)
-│   ├── modules.rst
-│   ├── config.rst
-│   ├── main.rst
-│   └── ...
-│
-├── changelog.rst          # Version history
-├── license.rst            # License information
-│
-└── _build/                # Generated HTML
-    └── html/              # Open index.html to view
+│   └── extending.rst
+└── api/                 # API reference
+    └── index.rst
 ```
 
----
+## Configuration
 
-## Switching Modes
+### conf.py Settings
 
-### Option 1: Use Make Targets (Recommended)
-```bash
-make user-mode    # User documentation only
-make dev-mode     # Full documentation
-```
+Key configuration in `conf.py`:
 
-### Option 2: Edit conf.py Manually
-Open `conf.py` and change:
 ```python
-# Set to False for user-only documentation
-# Set to True for full documentation
-developer_mode = True  # Change to False for user mode
+# Project information
+project = 'RePORTaLiN'
+copyright = '2025, RePORTaLiN Development Team'
+author = 'RePORTaLiN Development Team'
+
+# Extensions
+extensions = [
+    'sphinx.ext.autodoc',      # Auto-generate docs from docstrings
+    'sphinx.ext.napoleon',     # Google/NumPy style docstrings
+    'sphinx.ext.viewcode',     # Add source code links
+    'sphinx.ext.intersphinx',  # Link to other projects
+]
+
+# Theme
+html_theme = 'sphinx_rtd_theme'  # Read the Docs theme
 ```
 
-Then build:
+## Writing Documentation
+
+### reStructuredText (.rst) Basics
+
+**Headings**:
+```rst
+Section Title
+=============
+
+Subsection Title
+----------------
+
+Subsubsection Title
+~~~~~~~~~~~~~~~~~~~
+```
+
+**Code Blocks**:
+```rst
+.. code-block:: python
+
+   def example():
+       return "Hello"
+```
+
+**Lists**:
+```rst
+- Bullet item 1
+- Bullet item 2
+
+1. Numbered item 1
+2. Numbered item 2
+```
+
+**Links**:
+```rst
+`Link text <https://example.com>`_
+:doc:`Other document <user_guide/usage>`
+:ref:`Section label <section-name>`
+```
+
+**Admonitions**:
+```rst
+.. note::
+   This is a note.
+
+.. warning::
+   This is a warning.
+
+.. seealso::
+   See also this related topic.
+```
+
+## Automatic Documentation
+
+### From Python Docstrings
+
+Use the `automodule` directive to generate docs from code:
+
+```rst
+.. automodule:: scripts.utils.deidentify
+   :members:
+   :undoc-members:
+   :show-inheritance:
+```
+
+### Docstring Format
+
+Use Google-style or NumPy-style docstrings:
+
+```python
+def function_name(param1, param2):
+    """Short description.
+
+    Longer description with more details.
+
+    Args:
+        param1 (str): Description of param1
+        param2 (int): Description of param2
+
+    Returns:
+        bool: Description of return value
+
+    Raises:
+        ValueError: When invalid input
+
+    Example:
+        >>> function_name("test", 42)
+        True
+    """
+    pass
+```
+
+## Live Preview
+
+For real-time documentation preview during development:
+
+1. **Install sphinx-autobuild**:
+```bash
+pip install sphinx-autobuild
+```
+
+2. **Start live server**:
+```bash
+sphinx-autobuild . _build/html
+```
+
+3. **Open browser**: Navigate to `http://localhost:8000`
+
+The documentation will automatically rebuild when you save changes.
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue**: `make: command not found` (Windows)
+**Solution**: Use `make.bat` instead of `make`
+
+**Issue**: Theme not found
+**Solution**: Install theme: `pip install sphinx_rtd_theme`
+
+**Issue**: Extension errors
+**Solution**: Check `extensions` list in `conf.py` and install missing packages
+
+**Issue**: Build warnings
+**Solution**: Fix warnings by updating .rst files or docstrings
+
+### Clean Rebuild
+
+If you encounter build errors:
+
+```bash
+make clean
+make html
+```
+
+## Publishing
+
+### GitHub Pages
+
+To publish to GitHub Pages:
+
+1. Build documentation:
 ```bash
 make html
 ```
 
----
+2. Copy `_build/html/` to your GitHub Pages branch
 
-## Quick Commands
+3. Push to repository
 
-```bash
-# Build user documentation
-make user-mode
+### Read the Docs
 
-# Build developer documentation  
-make dev-mode
+To publish on Read the Docs:
 
-# Clean build files
-make clean
+1. Connect your GitHub repository to Read the Docs
+2. Configure the build in your Read the Docs dashboard
+3. Documentation builds automatically on push
 
-# View documentation
-open _build/html/index.html
+## Contributing
 
-# Rebuild from scratch (user mode)
-make clean && make user-mode
+When contributing documentation:
 
-# Rebuild from scratch (dev mode)
-make clean && make dev-mode
-```
+1. Follow existing structure and style
+2. Use reStructuredText formatting
+3. Include code examples
+4. Add cross-references where appropriate
+5. Test the build before submitting
 
----
+## Resources
 
-## What Users See vs What Developers See
-
-### 👥 User Mode Documentation
-- Installation guide
-- Quick start tutorial
-- Configuration options
-- Usage examples
-- Troubleshooting
-- **~10 pages**
-
-### 🔧 Developer Mode Documentation
-- Everything from User Mode
-- Architecture and design
-- Contributing guidelines
-- Testing procedures
-- API reference for all modules
-- **~27 pages**
+- **Sphinx Documentation**: https://www.sphinx-doc.org/
+- **reStructuredText Primer**: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+- **Read the Docs Theme**: https://sphinx-rtd-theme.readthedocs.io/
 
 ---
 
-## Tips
-
-1. **For Public Release**: Build with `make user-mode` to keep documentation simple
-2. **For Development**: Build with `make dev-mode` to see all details
-3. **Default**: `make html` uses developer mode (full documentation)
-4. **Clean Builds**: Run `make clean` before switching modes for best results
-│   │   ├── configuration.rst
-│   │   ├── usage.rst
-│   │   └── troubleshooting.rst
-│   ├── developer_guide/       # Developer documentation
-│   │   ├── architecture.rst
-│   │   ├── contributing.rst
-│   │   ├── testing.rst
-│   │   └── extending.rst
-│   ├── api/                   # API reference
-│   │   ├── modules.rst
-│   │   ├── main.rst
-│   │   ├── config.rst
-│   │   └── scripts.rst
-│   ├── changelog.rst          # Version history
-│   └── license.rst            # License information
-└── build/                     # Generated documentation (ignored by git)
-```
-
-## Viewing the Documentation
-
-After building:
-
-```bash
-# macOS
-open build/html/index.html
-
-# Linux
-xdg-open build/html/index.html
-
-# Windows
-start build/html/index.html
-```
-
-## Updating Documentation
-
-1. Edit .rst files in `source/` directory
-2. Add docstrings to Python code
-3. Rebuild documentation: `make html`
-4. Check for errors and warnings
-5. Review changes in browser
-
-## Documentation Style
-
-- Use reStructuredText (.rst) format
-- Include code examples
-- Add cross-references to related functions
-- Keep explanations clear and concise
-- Follow Google-style docstrings in code
+**Last Updated**: October 13, 2025  
+**Sphinx Version**: 7.0+  
+**Theme**: Read the Docs

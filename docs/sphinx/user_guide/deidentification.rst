@@ -1,7 +1,10 @@
 De-identification
 =================
 
-The de-identification module provides robust and secure functionality for removing Protected Health Information (PHI) and Personally Identifiable Information (PII) from text data through pseudonymization.
+The de-identification module provides robust and secure functionality for removing Protected Health Information (PHI) and Personally Identifiable Information (PII) from text data through pseudonymization, with support for country-specific privacy regulations.
+
+.. seealso::
+   For detailed information on country-specific regulations and identifiers, see :doc:`country_regulations`.
 
 Overview
 --------
@@ -9,6 +12,7 @@ Overview
 The de-identification module implements HIPAA Safe Harbor method compatible de-identification with:
 
 * **Comprehensive PHI/PII Detection**: 18+ identifier types
+* **Country-Specific Regulations**: Support for 14 countries (US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG)
 * **Pseudonymization**: Consistent, cryptographic placeholders
 * **Encrypted Storage**: Fernet encryption for mapping tables
 * **Date Shifting**: Preserves temporal relationships
