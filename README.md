@@ -268,7 +268,6 @@ Documentation for extending and maintaining the system:
 cd docs/sphinx
 make html      # Build HTML documentation
 make clean     # Clean build artifacts
-make latexpdf  # Build PDF documentation (requires LaTeX)
 ```
 
 ## Configuration

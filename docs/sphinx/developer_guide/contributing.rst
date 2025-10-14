@@ -552,7 +552,6 @@ The project uses **Sphinx** for documentation. All documentation is in reStructu
 
    make html          # Build HTML documentation
    make clean         # Remove build artifacts
-   make latexpdf      # Build PDF (requires LaTeX)
    make epub          # Build EPUB
    make text          # Build plain text
 

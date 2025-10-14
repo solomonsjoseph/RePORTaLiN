@@ -4,7 +4,7 @@
 # Detect Python command (python3 preferred, fallback to python)
 PYTHON := $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null)
 
-.PHONY: help install clean clean-all clean-logs clean-results run run-deidentify run-deidentify-plain docs docs-open test
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-deidentify run-deidentify-plain docs docs-open test
 
 help:
 	@echo "RePORTaLiN Project - Available Commands"
@@ -22,6 +22,7 @@ help:
 	@echo "  make clean         - Remove Python cache files"
 	@echo "  make clean-logs    - Remove log files"
 	@echo "  make clean-results - Remove generated results"
+	@echo "  make clean-docs    - Remove documentation build files"
 	@echo "  make clean-all     - Remove all generated files (cache + logs + results)"
 	@echo ""
 	@echo "Documentation:"
@@ -81,6 +82,11 @@ clean-results:
 	@printf "Press Enter to continue or Ctrl+C to cancel..." && read confirm
 	rm -rf results/
 	@echo "[OK] Results cleaned"
+
+clean-docs:
+	@echo "Cleaning documentation build files..."
+	rm -rf docs/sphinx/_build/
+	@echo "[OK] Documentation build files cleaned"
 
 clean-all: clean clean-logs
 	@echo "WARNING: This will delete cache, logs, and results!"

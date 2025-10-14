@@ -15,9 +15,10 @@ help:
 	@echo "Custom targets:"
 	@echo "  user-mode     Build documentation for end users only (no dev/API docs)"
 	@echo "  dev-mode      Build full documentation including developer and API reference"
+	@echo "  clean         Remove all build artifacts"
 	@echo ""
 
-.PHONY: help Makefile user-mode dev-mode
+.PHONY: help Makefile user-mode dev-mode clean
 
 # Build user-only documentation
 user-mode:
@@ -35,6 +36,12 @@ dev-mode:
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@rm -f conf.py.bak
 	@echo "Developer mode documentation built in $(BUILDDIR)/html/"
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning documentation build artifacts..."
+	@rm -rf "$(BUILDDIR)"
+	@echo "Documentation build cleaned."
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
