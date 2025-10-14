@@ -56,6 +56,9 @@ logging.py          387             97              75%
 - ``deidentify.py`` (1,129 lines) - HIPAA/GDPR compliance documentation
 - ``country_regulations.py`` (1,280 lines) - 14 country privacy regulations
 
+**Recent Enhancement (October 14, 2025):**
+✅ Added colored output support for logs and progress bars
+
 Documentation Sections
 ----------------------
 
@@ -71,6 +74,7 @@ Documentation Sections
    user_guide/quickstart
    user_guide/configuration
    user_guide/usage
+   user_guide/colored_output
    user_guide/deidentification
    user_guide/country_regulations
    user_guide/troubleshooting
@@ -86,6 +90,7 @@ Documentation Sections
    developer_guide/contributing
    developer_guide/testing
    developer_guide/extending
+   developer_guide/colored_output_implementation
    developer_guide/production_readiness
    developer_guide/future_enhancements
 

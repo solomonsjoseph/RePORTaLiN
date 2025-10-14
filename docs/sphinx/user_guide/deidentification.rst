@@ -157,6 +157,26 @@ while maintaining the same file structure in the output directory.
     │       └── mappings.enc     (encrypted mapping table)
     └── data_dictionary_mappings/
 
+.. important::
+   **Version Control Best Practices**
+   
+   The ``.gitignore`` file is pre-configured with security best practices:
+   
+   **Safe to Track in Git:**
+   
+   * ✅ De-identified datasets (``results/deidentified/Indo-vap/``)
+   * ✅ Data dictionary mappings (``results/data_dictionary_mappings/``)
+   * ✅ Source code and documentation
+   
+   **Never Commit to Git:**
+   
+   * ❌ Original datasets with PHI (``results/dataset/``)
+   * ❌ Deidentification mappings (``results/deidentified/mappings/``)
+   * ❌ Encryption keys (``*.key``, ``*.pem``, ``*.fernet``)
+   * ❌ Audit logs (``*_deidentification_audit.json``)
+   
+   Always review ``git status`` before committing to ensure no PHI/PII files are staged.
+
 Supported PHI/PII Types
 -----------------------
 
@@ -347,49 +367,60 @@ Date Shifting
 ~~~~~~~~~~~~~
 
 Date shifting preserves temporal relationships while obscuring actual dates.
-The date shifter automatically uses the correct date format based on the country code:
+The date shifter automatically uses intelligent multi-format parsing with country-specific defaults:
 
 .. code-block:: python
 
     from scripts.utils.deidentify import DateShifter
 
-    # For India (DD/MM/YYYY format)
+    # For India (DD/MM/YYYY format priority)
     shifter_india = DateShifter(
         shift_range_days=365,
         preserve_intervals=True,
         country_code="IN"
     )
 
-    # All dates shift by same offset
-    date1 = shifter_india.shift_date("04/09/2014")  # September 4, 2014
+    # All dates shift by same offset, format preserved
+    date1 = shifter_india.shift_date("04/09/2014")  # September 4, 2014 (DD/MM/YYYY)
     date2 = shifter_india.shift_date("09/09/2014")  # September 9, 2014
     # Output: 14/12/2013, 19/12/2013 (5 days interval preserved)
+    
+    # ISO 8601 format also supported
+    date3 = shifter_india.shift_date("2014-09-04")  # September 4, 2014
+    # Output: 2013-12-14 (format preserved)
 
-    # For United States (MM/DD/YYYY format)
+    # For United States (MM/DD/YYYY format priority)
     shifter_us = DateShifter(
         shift_range_days=365,
         preserve_intervals=True,
         country_code="US"
     )
 
-    date3 = shifter_us.shift_date("04/09/2014")  # April 9, 2014
-    # Output: Different interpretation, different shifted date
+    date4 = shifter_us.shift_date("04/09/2014")  # April 9, 2014 (MM/DD/YYYY)
+    # Output: Different interpretation due to country format
 
-**Supported Date Formats by Country:**
+**Supported Date Formats** (auto-detected):
 
-* **DD/MM/YYYY**: India (IN), UK (GB), Australia (AU), Indonesia (ID), 
+* **ISO 8601**: ``YYYY-MM-DD`` (e.g., 2014-09-04) - International standard, all countries
+* **Slash-separated**: ``DD/MM/YYYY`` or ``MM/DD/YYYY`` (e.g., 04/09/2014)
+* **Hyphen-separated**: ``DD-MM-YYYY`` or ``MM-DD-YYYY`` (e.g., 04-09-2014)
+* **Dot-separated**: ``DD.MM.YYYY`` (e.g., 04.09.2014) - European format
+
+**Primary Format by Country:**
+
+* **DD/MM/YYYY** (Day first): India (IN), UK (GB), Australia (AU), Indonesia (ID), 
   Brazil (BR), South Africa (ZA), EU countries, Kenya (KE), Nigeria (NG), 
   Ghana (GH), Uganda (UG)
-* **MM/DD/YYYY**: United States (US), Philippines (PH), Canada (CA)
-* **YYYY-MM-DD**: All countries (ISO 8601 standard, converted to pseudonyms)
-* **Month DD, YYYY**: All countries (e.g., "January 15, 2020")
+* **MM/DD/YYYY** (Month first): United States (US), Philippines (PH), Canada (CA)
 
 **Key Features:**
 
+* Intelligent multi-format detection (tries multiple formats automatically)
+* Original format preservation (shifted dates maintain the input format)
 * Consistent offset across all dates in a dataset
 * Temporal relationships preserved (intervals between dates maintained)
-* Country-specific date format interpretation
-* Automatic format detection based on primary country
+* Country-specific format priority
+* Fallback to [DATE-HASH] placeholder only if all formats fail
 
 Encrypted Mapping Storage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -705,27 +736,38 @@ Common Issues
 
 .. code-block:: text
 
-    # Some date formats may use fallback placeholders
-    # The module supports country-specific date formats:
-    #   - DD/MM/YYYY: India, UK, Australia, Indonesia, Brazil, South Africa, EU, Kenya, Nigeria, Ghana, Uganda
-    #   - MM/DD/YYYY: United States, Philippines, Canada
-    #   - YYYY-MM-DD: All countries (ISO 8601 standard)
-    #   - Month DD, YYYY: All countries
-    # Unsupported or ambiguous formats are replaced with [DATE-HASH] placeholders
+    # The module uses intelligent multi-format date parsing
+    # Supported formats (auto-detected, original format preserved):
+    #   - YYYY-MM-DD: ISO 8601 standard (e.g., 2014-09-04)
+    #   - DD/MM/YYYY or MM/DD/YYYY: Slash-separated (e.g., 04/09/2014)
+    #   - DD-MM-YYYY or MM-DD-YYYY: Hyphen-separated (e.g., 04-09-2014)
+    #   - DD.MM.YYYY: Dot-separated European format (e.g., 04.09.2014)
+    # 
+    # Format priority based on country:
+    #   - DD/MM/YYYY priority: India, UK, Australia, Indonesia, Brazil, South Africa, EU, Kenya, Nigeria, Ghana, Uganda
+    #   - MM/DD/YYYY priority: United States, Philippines, Canada
+    # 
+    # Only truly unsupported formats are replaced with [DATE-HASH] placeholders
 
-**Date format interpretation**
+**Date format interpretation and preservation**
 
-The date shifter automatically detects the correct format based on the country code:
+The date shifter automatically tries multiple formats and preserves the original format:
 
 .. code-block:: text
 
-    For India (IN):
-    - 04/09/2014 is interpreted as September 4, 2014 (DD/MM/YYYY)
-    - Shifted to: 14/12/2013 (DD/MM/YYYY)
+    For India (IN) with DD/MM/YYYY priority:
+    - Input: 04/09/2014 → Interpreted as September 4, 2014 (DD/MM/YYYY)
+    - Output: 14/12/2013 (format preserved: DD/MM/YYYY)
     
-    For United States (US):
-    - 04/09/2014 is interpreted as April 9, 2014 (MM/DD/YYYY) 
-    - Shifted to: 10/23/2013 (MM/DD/YYYY)
+    - Input: 2014-09-04 → Interpreted as September 4, 2014 (ISO 8601)
+    - Output: 2013-12-14 (format preserved: YYYY-MM-DD)
+    
+    For United States (US) with MM/DD/YYYY priority:
+    - Input: 04/09/2014 → Interpreted as April 9, 2014 (MM/DD/YYYY)
+    - Output: 10/23/2013 (format preserved: MM/DD/YYYY)
+    
+    - Input: 2014-04-09 → Interpreted as April 9, 2014 (ISO 8601)
+    - Output: 2013-10-23 (format preserved: YYYY-MM-DD)
     
     For all countries:
     - 2014-09-04 is interpreted as September 4, 2014 (YYYY-MM-DD)

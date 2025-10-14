@@ -1,12 +1,12 @@
 # Required Dependencies
 # Core data manipulation and Excel file reading
-pandas>=2.0.0
+pandas>=2.0.0,<2.3.0
 
 # Excel file format support (required by pandas for .xlsx files)
 openpyxl>=3.1.0
 
 # Numerical operations (used in scripts/extract_data.py)
-numpy>=1.24.0
+numpy>=1.24.0,<2.3.0
 
 # Progress bars for user feedback
 tqdm>=4.66.0

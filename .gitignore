@@ -72,7 +72,11 @@ secrets.*
 *_mappings.json
 *_mappings.json.enc
 *_deidentification_key.key
-results/deidentified/
+*_deidentification_audit.json
+results/deidentified/mappings/
+
+# Original dataset with PHI/PII
+results/dataset/
 
 # Data Science & ML artifacts
 *.pkl

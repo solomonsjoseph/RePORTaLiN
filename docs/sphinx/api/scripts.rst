@@ -77,7 +77,7 @@ Key classes:
 
 - :class:`DeidentificationEngine`: Main processing engine
 - :class:`PseudonymGenerator`: Cryptographic pseudonym generation
-- :class:`DateShifter`: Date shifting with interval preservation
+- :class:`DateShifter`: Multi-format date shifting with interval preservation and format preservation
 - :class:`MappingStore`: Encrypted mapping storage
 - :class:`PatternLibrary`: PHI/PII detection patterns
 

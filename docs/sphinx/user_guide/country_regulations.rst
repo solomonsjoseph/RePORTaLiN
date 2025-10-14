@@ -512,9 +512,13 @@ Understand breach notification timelines:
 Date Format Conventions
 -----------------------
 
-The de-identification system automatically uses the correct date format based on the country:
+The de-identification system uses intelligent multi-format date parsing with country-specific
+priority. The system automatically tries multiple formats and preserves the original format
+when shifting dates.
 
-**DD/MM/YYYY Format Countries:**
+**Primary Format by Country:**
+
+**DD/MM/YYYY Format Priority Countries** (Day/Month/Year):
    - India (IN)
    - Indonesia (ID)
    - Brazil (BR)
@@ -527,17 +531,28 @@ The de-identification system automatically uses the correct date format based on
    - Ghana (GH)
    - Uganda (UG)
 
-**MM/DD/YYYY Format Countries:**
+**MM/DD/YYYY Format Priority Countries** (Month/Day/Year):
    - United States (US)
    - Philippines (PH)
    - Canada (CA)
 
-**Universal Formats:**
-   - YYYY-MM-DD: ISO 8601 standard, used in all countries
-   - Month DD, YYYY: Text format (e.g., "January 15, 2020")
+**Auto-Detected Formats** (all countries):
+   - ``YYYY-MM-DD`` - ISO 8601 standard (e.g., 2014-09-04)
+   - ``DD/MM/YYYY`` or ``MM/DD/YYYY`` - Slash-separated (e.g., 04/09/2014)
+   - ``DD-MM-YYYY`` or ``MM-DD-YYYY`` - Hyphen-separated (e.g., 04-09-2014)
+   - ``DD.MM.YYYY`` - Dot-separated European format (e.g., 04.09.2014)
+
+**Format Preservation:**
+   When a date is successfully parsed, the shifted date is returned in the same format
+   as the input. For example:
+   
+   - Input: ``2014-09-04`` → Output: ``2013-12-14`` (ISO format preserved)
+   - Input: ``04/09/2014`` → Output: ``14/12/2013`` (slash format preserved)
+   - Input: ``04-09-2014`` → Output: ``14-12-2013`` (hyphen format preserved)
 
 .. important::
-   The date shifter automatically detects and applies the correct format based on 
+   The date shifter tries formats in priority order based on the country, then falls back
+   to common international formats. The original format is always preserved in the output. 
    the primary country code specified in the de-identification configuration.
    
    Example for India (DD/MM/YYYY):

@@ -16,7 +16,7 @@ from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging as log
 import config
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
     """
@@ -78,10 +78,18 @@ def main():
                        help="Disable encryption for de-identification mappings (testing only, not recommended).")
     parser.add_argument('-c', '--countries', nargs='+',
                        help="Country codes for de-identification (e.g., IN US ID BR) or ALL. Default: IN (India).")
+    parser.add_argument('--no-color', action='store_true',
+                       help="Disable colored output in logs and progress bars.")
     args = parser.parse_args()
 
-    log.setup_logger(name=config.LOG_NAME, log_level=config.LOG_LEVEL)
+    log.setup_logger(name=config.LOG_NAME, log_level=config.LOG_LEVEL, use_color=not args.no_color)
     log.info("Starting RePORTaLiN pipeline...")
+    
+    # Display startup banner with color (unless disabled)
+    if not args.no_color:
+        print("\n\033[1m\033[36m" + "=" * 70 + "\033[0m")
+        print("\033[1m\033[36mRePORTaLiN - Report India Clinical Study Data Pipeline\033[0m")
+        print("\033[1m\033[36m" + "=" * 70 + "\033[0m\n")
 
     if not args.skip_dictionary:
         run_step("Step 0: Loading Data Dictionary", 

@@ -617,7 +617,7 @@ Located in: ``scripts/utils/deidentify.py`` → ``PseudonymGenerator.generate()`
 Located in: ``scripts/utils/deidentify.py`` → ``DateShifter.shift_date()``
 
 **Purpose:** Shift all dates by consistent offset to preserve temporal relationships,
-with automatic format detection based on country-specific conventions
+with intelligent multi-format detection and country-specific priority
 
 **Algorithm:**
 
@@ -625,10 +625,9 @@ with automatic format detection based on country-specific conventions
 
    Input: date_string, country_code
    
-   1. Auto-detect date format based on country:
-      - DD/MM/YYYY: IN, ID, BR, ZA, EU, GB, AU, KE, NG, GH, UG
-      - MM/DD/YYYY: US, PH, CA
-      - YYYY-MM-DD: All countries (ISO 8601)
+   1. Determine format priority based on country:
+      - DD/MM/YYYY priority: IN, ID, BR, ZA, EU, GB, AU, KE, NG, GH, UG
+      - MM/DD/YYYY priority: US, PH, CA
    
    2. Check cache: If date_string already shifted:
       - Return cached shifted date
@@ -639,10 +638,22 @@ with automatic format detection based on country-specific conventions
       c. offset_days = (offset_int % (2 * range + 1)) - range
       d. Cache offset for all future shifts
    
-   4. Apply shift:
-      a. Parse date_string to datetime object using country-specific format
+   4. Try parsing with multiple formats (in priority order):
+      Country with DD/MM/YYYY priority:
+         a. Try DD/MM/YYYY
+         b. Try YYYY-MM-DD (ISO 8601)
+         c. Try DD-MM-YYYY
+         d. Try DD.MM.YYYY
+      
+      Country with MM/DD/YYYY priority:
+         a. Try MM/DD/YYYY
+         b. Try YYYY-MM-DD (ISO 8601)
+         c. Try MM-DD-YYYY
+   
+   5. Apply shift with successful format:
+      a. Parse date_string to datetime object
       b. shifted_date = original_date + timedelta(days=offset_days)
-      c. Format back to string in SAME format
+      c. Format back to string in SAME format as input
    
    5. Cache and return shifted date
 

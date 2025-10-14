@@ -137,19 +137,22 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
     
     log.info(f"Processing: '{excel_path}'")
     success = True
+    
+    # Enhanced progress bar with color
     for sheet_name in tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
-                           file=sys.stdout, dynamic_ncols=True, leave=True):
+                           file=sys.stdout, dynamic_ncols=True, leave=True,
+                           colour='cyan', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'):
         try:
-            tqdm.write(f"--- Sheet: '{sheet_name}' ---")
+            tqdm.write(f"\033[1m\033[36m--- Sheet: '{sheet_name}' ---\033[0m")
             parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
             all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
             if not all_tables:
-                tqdm.write(f"INFO: No tables found in '{sheet_name}'")
+                tqdm.write(f"\033[33mINFO:\033[0m No tables found in '{sheet_name}'")
             else:
-                tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
+                tqdm.write(f"\033[32mINFO:\033[0m Found {len(all_tables)} table(s) in '{sheet_name}'")
                 _process_and_save_tables(all_tables, sheet_name, output_dir)
         except Exception as e:
-            tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
+            tqdm.write(f"\033[31mERROR:\033[0m Error on sheet '{sheet_name}': {e}")
             log.error(f"Error processing sheet '{sheet_name}': {e}")
             success = False
     

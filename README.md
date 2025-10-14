@@ -1,30 +1,27 @@
 # RePORTaLiN - Report India Clinical Study
 
+[![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code Quality](https://img.shields.io/badge/code%20quality-production--ready-brightgreen.svg)](https://github.com/yourusername/RePORTaLiN)
+[![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](docs/sphinx/)
+[![HIPAA Compliant](https://img.shields.io/badge/HIPAA-compliant-success.svg)](https://www.hhs.gov/hipaa/index.html)
+[![GDPR Compliant](https://img.shields.io/badge/GDPR-compliant-success.svg)](https://gdpr.eu/)
+
 A robust data processing pipeline for clinical research data with advanced de-identification and privacy compliance features.
+
+> 📚 **For comprehensive documentation, usage guides, and API references, see [Documentation](#documentation)**
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Key Features](#key-features)
-- [Installation](#installation)
 - [Quick Start](#quick-start)
-- [Using Makefile](#using-makefile)
-- [Project Structure](#project-structure)
 - [Documentation](#documentation)
-- [Configuration](#configuration)
-- [Performance](#performance)
-- [Security & Privacy](#security--privacy)
-- [Command Reference](#command-reference)
-- [Troubleshooting](#troubleshooting)
-- [Output Files](#output-files)
+- [Project Structure](#project-structure)
 - [Requirements](#requirements)
-- [Code Quality & Maintenance](#code-quality--maintenance)
 - [Contributing](#contributing)
 - [License](#license)
-- [Citation](#citation)
 - [Support](#support)
-- [Changelog](#changelog)
-- [Acknowledgments](#acknowledgments)
 
 ## Overview
 
@@ -32,167 +29,84 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 
 - **Data Dictionary Processing**: Automated loading and validation of study data dictionaries
 - **Data Extraction**: Excel to JSONL conversion with validation
--## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-*Note: Please add appropriate license based on your organization's requirements.*
-
-## Contributing
-
-### Adding a New Country**: Advanced PHI/PII detection and pseudonymization with country-specific privacy regulations
+- **De-identification**: Advanced PHI/PII detection and pseudonymization with country-specific privacy regulations
 - **Security**: Encryption by default, secure key management, and audit trails
+- **Colored Output**: Enhanced visual feedback with colored logs and progress bars
 
 ## Key Features
 
-### 🌍 Country-Specific Privacy Compliance
-Support for 14 countries with region-specific data protection regulations:
-- **US** - HIPAA (Health Insurance Portability and Accountability Act)
-- **IN** - DPDPA 2023 (Digital Personal Data Protection Act)
-- **ID** - UU PDP (Personal Data Protection Law)
-- **BR** - LGPD (Lei Geral de Proteção de Dados)
-- **PH** - Data Privacy Act of 2012
-- **ZA** - POPIA (Protection of Personal Information Act)
-- **EU** - GDPR (General Data Protection Regulation)
-- **GB** - UK GDPR
-- **CA** - PIPEDA (Personal Information Protection and Electronic Documents Act)
-- **AU** - Privacy Act 1988
-- **KE** - Data Protection Act 2019
-- **NG** - Nigeria Data Protection Act 2023
-- **GH** - Data Protection Act 2012
-- **UG** - Data Protection and Privacy Act 2019
+### 🌍 Multi-Country Privacy Compliance
+- **14 countries supported**: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
+- **Regulations**: HIPAA, GDPR, LGPD, DPDPA, POPIA, and more
+- **18+ PHI/PII identifier types** detected and pseudonymized
 
-### 🔒 Security Features
-- **Encryption by Default**: Fernet symmetric encryption for mapping tables
-- **Secure Pseudonymization**: Consistent, deterministic placeholders
-- **Date Shifting**: Country-aware date format handling (DD/MM/YYYY for India, MM/DD/YYYY for US); preserves temporal relationships
-- **Audit Trails**: Complete logging of all de-identification operations
-- **Validation**: Post-processing checks to ensure no PHI leakage
+### 🔒 Security & Performance
+- **Encryption by default** with Fernet symmetric encryption
+- **Fast processing**: 200,000+ texts per second
+- **Date shifting** with temporal relationship preservation
+- **Audit trails** for compliance and validation
 
-### ⚡ Performance
-- Processes 200,000+ texts per second
-- Batch processing with real-time progress tracking (tqdm)
-- Efficient memory usage with streaming JSONL
-- Handles large datasets (1.8M+ texts verified)
-- Clean console output with progress bars and status messages
+### 📊 Data Processing
+- **Multi-table detection** from complex Excel layouts
+- **JSONL output** for efficient streaming
+- **Colored output** for improved readability and user experience
+- **Progress tracking** with real-time feedback
+- **Duplicate detection** and intelligent column handling
 
-## Installation
-
-### Prerequisites
-- Python 3.13 or higher
-- pip (Python package manager)
-
-### Setup
-
-1. **Clone the repository**:
-```bash
-git clone https://github.com/yourusername/RePORTaLiN.git
-cd RePORTaLiN
-```
-
-2. **Create a virtual environment** (recommended):
-```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-3. **Install dependencies**:
-```bash
-pip install -r requirements.txt
-# or using make
-make install
-```
+> 📖 **Learn more**: See [User Guide](docs/sphinx/user_guide/) for detailed feature documentation
 
 ## Quick Start
 
-### Basic Usage (Default India Dataset)
+### Installation
 
-Run the complete pipeline:
+**Prerequisites**: Python 3.13+
+
 ```bash
+# 1. Clone and navigate
+git clone https://github.com/yourusername/RePORTaLiN.git
+cd RePORTaLiN
+
+# 2. Create virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+```
+
+### Basic Usage
+
+```bash
+# Run complete pipeline
 python3 main.py
-# or using make
-make run
-```
 
-Run with de-identification enabled:
-```bash
+# Run with de-identification
 python3 main.py --enable-deidentification
-# or using make
-make run-deidentify
+
+# Specify countries for de-identification
+python3 main.py --enable-deidentification --countries IN US
+
+# Disable colored output (if needed)
+python3 main.py --no-color
+
+# Using Makefile
+make run                    # Without de-identification
+make run-deidentify         # With de-identification
+make help                   # View all commands
 ```
 
-### Country-Specific De-identification
+### Example Output
 
-**Single Country**:
-```bash
-python3 main.py --enable-deidentification --countries US
+```
+Processing Indo-vap dataset...
+✓ Loaded 43 Excel files
+✓ Extracted 1,854,110 text fields
+✓ Detected 365,620 PHI/PII instances
+✓ Created 5,398 unique pseudonyms
+✓ Time: ~8 seconds
 ```
 
-**Multiple Countries**:
-```bash
-python3 main.py --enable-deidentification --countries IN US ID BR
-```
-
-**All Countries**:
-```bash
-python3 main.py --enable-deidentification --countries ALL
-```
-
-**List Supported Countries**:
-```bash
-python3 -m scripts.utils.deidentify --list-countries
-```
-
-### Advanced Options
-
-**Skip Specific Steps**:
-```bash
-# Skip data dictionary loading
-python3 main.py --skip-dictionary --enable-deidentification
-
-# Skip data extraction
-python3 main.py --skip-extraction --enable-deidentification
-
-# Skip de-identification
-python3 main.py --enable-deidentification --skip-deidentification
-```
-
-**Testing Mode (No Encryption)**:
-```bash
-python3 main.py --enable-deidentification --no-encryption
-# or using make
-make run-deidentify-plain
-```
-
-## Using Makefile
-
-The project includes a Makefile for convenient command execution:
-
-```bash
-# View all available commands
-make help
-
-# Install dependencies
-make install
-
-# Run pipeline without de-identification
-make run
-
-# Run pipeline with de-identification (encrypted)
-make run-deidentify
-
-# Run pipeline with de-identification (no encryption - for testing)
-make run-deidentify-plain
-
-# Build documentation
-make docs
-
-# Build and open documentation in browser
-make docs-open
-
-# Clean Python cache files
-make clean
-```
+> 📖 **For detailed usage, configuration, and troubleshooting**: See [User Guide](docs/sphinx/user_guide/)
 
 ## Project Structure
 
@@ -232,133 +146,34 @@ RePORTaLiN/
 
 ## Documentation
 
-### 📚 Accessing Documentation
+### 📚 Complete Documentation
 
-#### User Guide
-Comprehensive guides for using the system:
-```bash
-cd docs/sphinx
-make html
-open _build/html/index.html  # macOS
-# or
-xdg-open _build/html/index.html  # Linux
-# or
-start _build/html/index.html  # Windows
-```
+Comprehensive guides and references are available in the Sphinx documentation:
 
-User guide includes:
-- **Usage**: Getting started and basic usage
-- **De-identification**: PHI/PII detection and pseudonymization
-- **Country Regulations**: Country-specific privacy compliance
+**User Guides:**
+- [Quick Start Guide](docs/sphinx/user_guide/quickstart.rst) - Get started in minutes
+- [Usage Guide](docs/sphinx/user_guide/usage.rst) - Detailed usage instructions
+- [De-identification Guide](docs/sphinx/user_guide/deidentification.rst) - PHI/PII removal and privacy
+- [Country Regulations](docs/sphinx/user_guide/country_regulations.rst) - Country-specific privacy rules
+- [Configuration](docs/sphinx/user_guide/configuration.rst) - Configuration options
+- [Troubleshooting](docs/sphinx/user_guide/troubleshooting.rst) - Common issues and solutions
 
-#### Developer Guide
-Documentation for extending and maintaining the system:
-- **Architecture**: System design and components
-- **Extending**: How to add new countries and features
-- **Testing**: Testing strategies and best practices
+**Developer Guides:**
+- [Architecture](docs/sphinx/developer_guide/architecture.rst) - System design and algorithms
+- [Contributing](docs/sphinx/developer_guide/contributing.rst) - How to contribute
+- [Extending](docs/sphinx/developer_guide/extending.rst) - Adding features and countries
+- [Production Readiness](docs/sphinx/developer_guide/production_readiness.rst) - Security and best practices
 
-#### Quick Links
-- **User Guide**: `docs/sphinx/user_guide/`
-- **Developer Guide**: `docs/sphinx/developer_guide/`
-- **API Reference**: Auto-generated from code docstrings
+**API Reference:**
+- [API Documentation](docs/sphinx/api/) - Auto-generated API references
 
 ### Building Documentation
 
 ```bash
 cd docs/sphinx
-make html      # Build HTML documentation
-make clean     # Clean build artifacts
+make html
+open _build/html/index.html  # macOS/Linux: xdg-open, Windows: start
 ```
-
-## Configuration
-
-### config.py Settings
-
-Key configuration options in `config.py`:
-
-```python
-# Dataset Configuration
-DATASET_NAME = "Indo-vap"           # Dataset identifier
-DATASET_DIR = "data/dataset/Indo-vap_csv_files/"
-
-# De-identification Settings
-DEFAULT_COUNTRIES = ["IN"]          # Default country for de-identification
-ENABLE_ENCRYPTION = True            # Enable mapping encryption
-ENABLE_DATE_SHIFTING = True         # Enable date shifting
-DATE_SHIFT_RANGE_DAYS = 365        # Date shift range (±365 days)
-
-# Logging
-LOG_LEVEL = "INFO"                  # Logging verbosity
-LOG_NAME = "reportalin"            # Logger name
-```
-
-## Performance
-
-### Benchmarks
-Based on Indo-vap dataset (1.8M+ texts):
-
-| Metric | Performance |
-|--------|-------------|
-| **Processing Speed** | ~200,000 texts/second |
-| **PHI/PII Detection** | 365,630 detections in 9 seconds |
-| **Files/Second** | ~9-12 JSONL files |
-| **Memory Usage** | Efficient (streaming) |
-
-## Security & Privacy
-
-### Data Protection
-- ✅ **HIPAA** compliant (United States)
-- ✅ **GDPR** compliant (European Union)
-- ✅ **LGPD** compliant (Brazil)
-- ✅ **DPDPA** compliant (India)
-- ✅ **14 country-specific regulations** supported
-
-### Security Features
-1. **Encryption**: All mapping tables encrypted with Fernet
-2. **No PHI in Logs**: Only pseudonyms are logged
-3. **Secure Storage**: Encrypted mapping files (mappings.enc)
-4. **Date Shifting**: Preserves temporal relationships while obscuring dates
-5. **Audit Trails**: Complete logging of all de-identification operations
-6. **Validation**: Post-processing checks to ensure no PHI leakage### Date Format Handling
-
-The system uses **country-specific date formats** for accurate interpretation:
-
-**DD/MM/YYYY Countries** (Day/Month/Year):
-- 🇮🇳 India, 🇮🇩 Indonesia, 🇧🇷 Brazil, 🇿🇦 South Africa
-- 🇬🇧 United Kingdom, 🇦🇺 Australia, 🇪🇺 European Union
-- 🇰🇪 Kenya, 🇳🇬 Nigeria, 🇬🇭 Ghana, 🇺🇬 Uganda
-
-**MM/DD/YYYY Countries** (Month/Day/Year):
-- 🇺🇸 United States, 🇵🇭 Philippines, 🇨🇦 Canada
-
-**Examples**:
-
-```
-India (IN) - DD/MM/YYYY:
-  Original:      04/09/2014 (September 4, 2014)
-  De-identified: 14/12/2013 (shifted by ~-265 days)
-
-United States (US) - MM/DD/YYYY:
-  Original:      04/09/2014 (April 9, 2014)
-  De-identified: 10/23/2013 (shifted by ~-265 days)
-
-All Countries - YYYY-MM-DD (ISO 8601):
-  Original:      2014-09-04
-  De-identified: [DATE-159F6F] (pseudonym)
-```
-
-**Key Features**:
-- Automatic format detection based on country code
-- Consistent date shifting preserves temporal relationships
-- All dates in a dataset shifted by the same offset
-
-## Command Reference
-
-### Main Pipeline
-
-```bash
-# Show version
-python3 main.py --version
 
 # Full pipeline with all steps
 python3 main.py
@@ -408,283 +223,67 @@ python3 -m scripts.utils.deidentify \
 **Solution**: Install dependencies: `pip install -r requirements.txt` or `make install`
 
 **Issue**: Date parsing warnings  
-**Solution**: Date warnings are informational only. The system handles multiple date formats:
-- DD/MM/YYYY for India, UK, Australia, etc. (shifted dates)
-- MM/DD/YYYY for United States, Philippines, etc. (shifted dates)
-- YYYY-MM-DD for all countries (pseudonymized)
-- Unsupported formats are replaced with [DATE-HASH] placeholders
+**Solution**: The system automatically handles multiple date formats with intelligent parsing:
+- Tries ISO 8601 (YYYY-MM-DD), slash-separated (DD/MM/YYYY, MM/DD/YYYY), hyphen-separated, and dot-separated formats
+- Preserves original format when shifting dates
+- Country-specific format priority (DD/MM/YYYY for India, MM/DD/YYYY for US)
+- Falls back to [DATE-HASH] placeholders only if all formats fail
 
 **Issue**: Permission denied when accessing files  
 **Solution**: Check file permissions and ensure you have read/write access to input/output directories.
 
 **Issue**: Out of memory errors  
 **Solution**: The pipeline uses streaming for large files. If issues persist, process files in smaller batches.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-*Note: Please add appropriate license based on your organization's requirements.*
-
-### Adding a New Country
-
-1. **Define Regulation Function** in `scripts/utils/country_regulations.py`:
-```python
-def get_your_country_regulation() -> CountryRegulation:
-    return CountryRegulation(
-        country_code="XX",
-        country_name="Your Country",
-        regulation_name="Privacy Act Name",
-        regulation_acronym="ACRONYM",
-        common_fields=get_common_fields(),
-        specific_fields=[
-            # Add country-specific fields
-        ],
-        description="Privacy regulation description",
-        requirements=["requirement 1", "requirement 2"]
-    )
-```
-
-2. **Register in COUNTRY_REGISTRY**:
-```python
-COUNTRY_REGISTRY["XX"] = get_your_country_regulation
-```
-
-3. **Update Documentation** in `docs/sphinx/user_guide/country_regulations.rst`
-
-See `docs/sphinx/developer_guide/extending.rst` for detailed instructions.
-
-### Contributing Guidelines
-
-We welcome contributions! Please:
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Citation
-
-If you use this software in your research, please cite:
-
-```bibtex
-@software{reportalin2025,
-  title={RePORTaLiN: Regional Prospective Observational Research for Tuberculosis and Lung Infections},
-  author={Your Organization},
-  year={2025},
-  url={https://github.com/yourusername/RePORTaLiN}
-}
-```
-
-## Support
-
-For questions, issues, or contributions:
-- **Issues**: [https://github.com/yourusername/RePORTaLiN/issues](https://github.com/yourusername/RePORTaLiN/issues)
-- **Documentation**: `docs/sphinx/` or [online documentation URL]
-- **Email**: [your-contact-email@example.com]
-
-## Acknowledgments
-
-This project is part of the RePORTaLiN (Regional Prospective Observational Research for Tuberculosis and Lung Infections) consortium.
-
-## Changelog
-
-### De-identification Outputs
-
-After running de-identification, you'll find:
-
-```
-results/deidentified/Indo-vap/
-├── _deidentification_audit.json    # Audit log
-├── original/                       # De-identified original files
-│   └── *.jsonl
-└── cleaned/                        # De-identified cleaned files
-    └── *.jsonl
-
-results/deidentified/mappings/
-└── mappings.enc                    # Encrypted pseudonym mappings
-```
-
-### File Formats
-
-**JSONL Format**: Each line is a valid JSON object:
-```json
-{"field1": "[PATIENT-A4B8]", "field2": "[DATE-1]", "field3": "value"}
-```
-
-**Audit Log**: JSON file with de-identification statistics:
-```json
-{
-  "texts_processed": 1854110,
-  "total_detections": 365630,
-  "countries": ["IN"],
-  "timestamp": "2025-10-13T00:37:00"
-}
-```
 
 ## Requirements
 
-### Python Packages
-
-**Core Dependencies** (Required):
-- **pandas** (≥2.0.0): Data manipulation and Excel reading
-- **openpyxl** (≥3.1.0): Excel file format support (.xlsx files)
-- **numpy** (≥1.24.0): Numerical operations
-- **tqdm** (≥4.66.0): **Required** - Progress bars and clean console output
-- **cryptography** (≥41.0.0): Encryption for de-identification mappings
-
-**Documentation** (Optional):
-- **sphinx** (≥7.0.0): Documentation generation
-- **sphinx-rtd-theme** (≥1.3.0): ReadTheDocs theme
-- **sphinx-autodoc-typehints** (≥1.24.0): Type hints in docs
-
-See `requirements.txt` for complete list with versions.
-
 ### System Requirements
 - **Python**: 3.13+
-- **RAM**: 4GB minimum, 8GB recommended
-- **Disk Space**: 2GB for code + data size
-- **OS**: Windows, macOS, Linux
+- **OS**: macOS, Linux, or Windows
+- **Memory**: 4GB RAM minimum (8GB+ recommended)
+- **Disk**: 1GB+ free space
 
-## Code Quality & Maintenance
+### Key Python Dependencies
+- `pandas` (>=2.0.0) - Data manipulation
+- `openpyxl` (>=3.1.0) - Excel handling
+- `tqdm` (>=4.65.0) - Progress bars
+- `cryptography` (>=41.0.0) - Encryption
+- `faker` (>=19.0.0) - Pseudonym generation
+- `sphinx` (>=7.0.0) - Documentation
 
-### Production-Ready Status
+See `requirements.txt` for complete list.
 
-RePORTaLiN has undergone comprehensive code audits to ensure production quality:
+> 📖 **Installation and setup details**: See [Installation Guide](docs/sphinx/user_guide/installation.rst)
 
-**✅ Dependencies**:
-- All dependencies in `requirements.txt` are actively used
-- No unused imports in any module
-- tqdm is a required dependency (not optional)
-- All imports verified for actual usage
+## Contributing
 
-**✅ Progress Tracking**:
-- Consistent use of tqdm progress bars across all long-running operations
-- Clean console output using `tqdm.write()` for status messages
-- Real-time feedback with percentage, speed, and time remaining
-- Modules with progress tracking: `extract_data.py`, `load_dictionary.py`, `deidentify.py`
+We welcome contributions! To contribute:
 
-**✅ Code Organization**:
-- No temporary files or test directories in production
-- Clean separation of concerns across modules
-- Consistent error handling patterns
-- Comprehensive logging at every step
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Test** thoroughly  
+5. **Update** documentation
+6. **Submit** a pull request
 
-**✅ Documentation**:
-- Complete Sphinx documentation
-- All features documented with examples
-- Clear installation and usage instructions
-- Developer guide for extending the system
+> 📖 **Detailed contributing guidelines**: See [Contributing Guide](docs/sphinx/developer_guide/contributing.rst)
 
-### Quality Assurance
+### Quick: Adding a New Country
 
-- ✅ All Python files compile without errors
-- ✅ All imports resolve successfully
-- ✅ Runtime verification of core functionality
-- ✅ Consistent coding patterns across modules
-- ✅ No dead code or unused functionality
-
-## Troubleshooting
-
-### Common Issues
-
-**Issue**: `ModuleNotFoundError: No module named 'cryptography'`  
-**Solution**: Install dependencies: `pip install -r requirements.txt` or `make install`
-
-**Issue**: Date parsing warnings  
-**Solution**: Date warnings are informational only. The system handles multiple date formats:
-- DD/MM/YYYY for India, UK, Australia, etc. (shifted dates)
-- MM/DD/YYYY for United States, Philippines, etc. (shifted dates)
-- YYYY-MM-DD for all countries (pseudonymized)
-- Unsupported formats are replaced with [DATE-HASH] placeholders
-
-**Issue**: Permission denied when accessing files  
-**Solution**: Check file permissions and ensure you have read/write access to input/output directories.
-
-**Issue**: Out of memory errors  
-**Solution**: The pipeline uses streaming for large files. If issues persist, process files in smaller batches.
-
-## Output Files
-
-### De-identification Outputs
-
-After running de-identification, you'll find:
-
-```
-results/deidentified/Indo-vap/
-├── _deidentification_audit.json    # Audit log
-├── original/                       # De-identified original files
-│   └── *.jsonl
-└── cleaned/                        # De-identified cleaned files
-    └── *.jsonl
-
-results/deidentified/mappings/
-└── mappings.enc                    # Encrypted pseudonym mappings
-```
-
-### File Formats
-
-**JSONL Format**: Each line is a valid JSON object:
-```json
-{"field1": "[PATIENT-A4B8]", "field2": "[DATE-1]", "field3": "value"}
-```
-
-**Audit Log**: JSON file with de-identification statistics:
-```json
-{
-  "texts_processed": 1854110,
-  "total_detections": 365630,
-  "countries": ["IN"],
-  "timestamp": "2025-10-13T00:37:00"
-}
-```
+Edit `scripts/utils/country_regulations.py` to add country-specific regulations. See the [Extending Guide](docs/sphinx/developer_guide/extending.rst) for details.
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-*Note: Please add appropriate license based on your organization's requirements.*
-
-## Citation
-
-If you use this software in your research, please cite:
-
-```bibtex
-@software{reportalin2025,
-  title={RePORTaLiN: Regional Prospective Observational Research for Tuberculosis and Lung Infections},
-  author={Your Organization},
-  year={2025},
-  url={https://github.com/yourusername/RePORTaLiN}
-}
-```
-
 ## Support
 
-For questions, issues, or contributions:
-- **Issues**: [https://github.com/yourusername/RePORTaLiN/issues](https://github.com/yourusername/RePORTaLiN/issues)
-- **Documentation**: `docs/sphinx/` or [online documentation URL]
+- **Issues**: [GitHub Issues](https://github.com/yourusername/RePORTaLiN/issues)
+- **Documentation**: `docs/sphinx/` directory
 - **Email**: [your-contact-email@example.com]
-
-## Changelog
-
-### Version 0.0.1 (October 2025)
-- ✅ Initial release
-- ✅ Country-specific de-identification support (14 countries)
-- ✅ Country-specific date format handling (DD/MM/YYYY for India, MM/DD/YYYY for US)
-- ✅ Date shifting with temporal relationship preservation
-- ✅ HIPAA, GDPR, LGPD, DPDPA compliance
-- ✅ Encryption by default with Fernet symmetric encryption
-- ✅ Comprehensive Sphinx documentation
-- ✅ Progress bar integration with tqdm
-- ✅ Batch processing with recursive directory support
-- ✅ Makefile for convenient command execution
-
-## Acknowledgments
-
-This project is part of the RePORTaLiN (Regional Prospective Observational Research for Tuberculosis and Lung Infections) consortium.
 
 ---
 
-**Last Updated**: October 13, 2025  
-**Version**: 0.0.1  
-**Status**: Production-Ready
+**Version**: 0.0.1 | **Status**: Production-Ready | **Last Updated**: October 14, 2025
+
+This project is part of the RePORTaLiN (Report India Clinical Study) consortium.

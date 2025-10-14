@@ -181,9 +181,9 @@ def get_common_fields() -> List[DataField]:
             field_type=DataFieldType.DEMOGRAPHIC,
             privacy_level=PrivacyLevel.CRITICAL,
             required=True,
-            pattern=r'^\d{4}-\d{2}-\d{2}$|^\d{2}/\d{2}/\d{4}$',
-            description="Patient's date of birth (YYYY-MM-DD or MM/DD/YYYY)",
-            examples=["1980-01-15", "01/15/1980"]
+            pattern=r'^\d{4}-\d{2}-\d{2}$|^\d{2}/\d{2}/\d{4}$|^\d{2}-\d{2}-\d{4}$|^\d{2}\.\d{2}\.\d{4}$',
+            description="Patient's date of birth (supports ISO 8601, slash/hyphen/dot-separated formats)",
+            examples=["1980-01-15", "01/15/1980", "15-01-1980", "15.01.1980"]
         ),
         DataField(
             name="phone_number",
@@ -298,7 +298,7 @@ def get_us_regulation() -> CountryRegulation:
             "HIPAA Breach Notification Rule: Notify affected individuals within 60 days",
             "HITECH Act: Strengthens HIPAA enforcement and penalties",
             "Ages over 89 must be aggregated",
-            "Dates must be shifted to year only or removed",
+            "Dates must be shifted by consistent offset (multi-format support: ISO 8601, slash/hyphen/dot-separated)",
             "Geographic subdivisions smaller than state must be removed (except first 3 digits of ZIP if > 20,000 people)",
             "Business Associate Agreements required for third-party processors"
         ]

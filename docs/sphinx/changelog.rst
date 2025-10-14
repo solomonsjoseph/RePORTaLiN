@@ -3,6 +3,51 @@ Changelog
 
 All notable changes to RePORTaLiN are documented here.
 
+Version 0.0.2 (2025-10-14) - Colored Output Enhancement
+--------------------------------------------------------
+
+**Enhancement**: Added colored console output for improved user experience
+
+Visual Improvements
+~~~~~~~~~~~~~~~~~~~
+
+✨ **Colored Logging**:
+  - Added ANSI color support for log messages
+  - Color-coded log levels: SUCCESS (green), ERROR (red), CRITICAL (bold red), INFO (cyan), WARNING (yellow), DEBUG (dim)
+  - Custom ``ColoredFormatter`` class for console output
+  - Plain text formatting preserved for log files
+  - Automatic color detection for terminal support
+
+✨ **Colored Progress Bars**:
+  - Green progress bars for data extraction operations
+  - Cyan progress bars for dictionary processing
+  - Enhanced bar format with elapsed/remaining time
+  - Colored status indicators (✓ ✗ ⊙ →) with matching colors
+
+✨ **Visual Enhancements**:
+  - Startup banner with colored title
+  - Colored summary output with visual symbols
+  - Platform support: macOS, Linux, Windows 10+
+  - Automatic fallback for non-supporting terminals
+
+**New Features**:
+  - ``--no-color`` command-line flag to disable colored output
+  - ``use_color`` parameter in ``setup_logger()`` function
+  - ``test_colored_logging.py`` script for demonstration
+  - Comprehensive documentation in ``colored_output.rst``
+
+**Platform Support**:
+  - ✅ macOS: Full support
+  - ✅ Linux: Full support
+  - ✅ Windows 10+: Full support (ANSI codes auto-enabled)
+  - ✅ Auto-detection for TTY vs non-TTY outputs
+
+**Documentation Updates**:
+  - Added ``colored_output.rst`` user guide
+  - Updated README.md with color feature
+  - Updated index.rst to include new documentation
+  - Added color code reference and troubleshooting guide
+
 Version 0.0.1 (2025-10-13) - Production Release
 ------------------------------------------------
 
@@ -168,7 +213,7 @@ and HIPAA-compliant de-identification capabilities.
 - Pattern-based detection of 18+ sensitive data types (names, SSN, MRN, dates, addresses, etc.)
 - Consistent pseudonymization with cryptographic hashing (SHA-256)
 - Encrypted mapping storage using Fernet (AES-128-CBC + HMAC-SHA256)
-- Date shifting with preserved temporal relationships
+- Multi-format date shifting (ISO 8601, slash/hyphen/dot-separated) with format preservation and temporal relationship preservation
 - Batch processing with progress tracking and validation
 - CLI interface for standalone operations
 - Complete audit logging
@@ -187,7 +232,7 @@ and HIPAA-compliant de-identification capabilities.
 - ``DeidentificationEngine``: Main engine for PHI/PII detection and replacement
 - ``PseudonymGenerator``: Generates consistent, unique placeholders
 - ``MappingStore``: Secure encrypted storage and retrieval of mappings
-- ``DateShifter``: Consistent date shifting while preserving intervals
+- ``DateShifter``: Multi-format date shifting with format preservation and interval preservation
 - ``PatternLibrary``: Comprehensive regex patterns for PHI detection
 
 **Documentation**:

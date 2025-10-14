@@ -217,7 +217,7 @@ The two-phase table splitting algorithm is well-designed:
 - Pattern-based PHI/PII detection (18+ types)
 - Cryptographic pseudonymization (SHA-256)
 - Encrypted mapping storage (Fernet/AES-128)
-- Date shifting with interval preservation
+- Multi-format date shifting with format preservation and interval preservation
 - Validation framework
 - CLI interface
 - Batch processing
@@ -226,7 +226,7 @@ The two-phase table splitting algorithm is well-designed:
 
 1. **PatternLibrary**: Regex patterns for detection
 2. **PseudonymGenerator**: Deterministic pseudonym creation
-3. **DateShifter**: Consistent date shifting
+3. **DateShifter**: Multi-format date shifting with format preservation
 4. **MappingStore**: Encrypted storage
 5. **DeidentificationEngine**: Main orchestration
 6. **Batch Functions**: Dataset processing
@@ -889,6 +889,52 @@ Security
 - ✅ Input validation
 - ✅ No SQL injection risks (no SQL)
 - ✅ No path traversal vulnerabilities
+
+Version Control & Data Tracking
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**What Should Be Tracked in Git:**
+
+- ✅ Source code (``*.py``)
+- ✅ Configuration files (``config.py``, ``requirements.txt``, ``Makefile``)
+- ✅ Documentation (``docs/``, ``README.md``)
+- ✅ Input data dictionary specifications (``data/data_dictionary_and_mapping_specifications/``)
+- ✅ Annotated PDFs (``data/Annotated_PDFs/``)
+- ✅ **De-identified datasets** (``results/deidentified/Indo-vap/``)
+- ✅ Data dictionary mappings (``results/data_dictionary_mappings/``)
+
+**What Should NOT Be Tracked (gitignored):**
+
+- ❌ Original datasets with PHI/PII (``results/dataset/``)
+- ❌ Deidentification mappings (``results/deidentified/mappings/``)
+- ❌ Deidentification audit logs (``*_deidentification_audit.json``)
+- ❌ Encryption keys (``*.key``, ``*.pem``, ``*.fernet``)
+- ❌ Mapping files (``*_mappings.json``, ``*_mappings.json.enc``)
+- ❌ Python cache (``__pycache__/``, ``*.pyc``)
+- ❌ Virtual environments (``.venv/``, ``venv/``)
+- ❌ IDE settings (``.vscode/``, ``.idea/``)
+- ❌ Log files (``.logs/``, ``*.log``)
+- ❌ OS files (``.DS_Store``, ``Thumbs.db``)
+
+**Rationale:**
+
+1. **De-identified data is safe to track**: After proper de-identification with pseudonymization 
+   and date shifting, the data contains no PHI/PII and can be safely version controlled.
+
+2. **Mapping files must be protected**: The mapping files that link pseudonyms back to original 
+   values contain sensitive information and must never be committed. These should be stored 
+   securely separate from the codebase.
+
+3. **Audit logs can expose patterns**: Even though audit logs don't contain original values, 
+   they may reveal patterns about the de-identification process that could potentially aid 
+   re-identification attempts.
+
+4. **Original datasets are protected health information**: Any data extracted from source Excel 
+   files before de-identification contains PHI and must not be version controlled.
+
+**Security Best Practice**: The ``.gitignore`` file is configured to prevent accidental commits 
+of sensitive data. Always review ``git status`` before committing to ensure no PHI/PII files 
+are staged.
 
 Documentation
 ~~~~~~~~~~~~~

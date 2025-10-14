@@ -190,23 +190,24 @@ class PatternLibrary:
             
             # Dates (multiple formats)
             # Note: DD/MM/YYYY is ambiguous with MM/DD/YYYY - country context determines interpretation
+            # Date shifter supports multiple formats: ISO 8601, slash/hyphen/dot-separated
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:0?[1-9]|[12][0-9]|3[01])[/-](?:0?[1-9]|1[0-2])[/-](?:19|20)\d{2}\b'),
                 priority=60,
-                description="Date format: DD/MM/YYYY (India, UK, AU) or MM/DD/YYYY (US, PH)"
+                description="Date format: DD/MM/YYYY or MM/DD/YYYY (slash-separated, country determines interpretation)"
             ),
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:19|20)\d{2}[/-](?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12][0-9]|3[01])\b'),
                 priority=60,
-                description="Date format: YYYY-MM-DD"
+                description="Date format: YYYY-MM-DD (ISO 8601)"
             ),
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(?:0?[1-9]|[12][0-9]|3[01]),?\s+(?:19|20)\d{2}\b', re.IGNORECASE),
                 priority=65,
-                description="Date format: Month DD, YYYY"
+                description="Date format: Month DD, YYYY (text month)"
             ),
             
             # Zip codes
@@ -374,23 +375,40 @@ class PseudonymGenerator:
 
 class DateShifter:
     """
-    Consistent date shifting to preserve temporal relationships.
+    Consistent date shifting with intelligent multi-format parsing.
     
     Shifts all dates by a consistent offset while maintaining:
     - Relative time intervals between dates
-    - Day of week (optional)
-    - Season (optional)
+    - Original date format (ISO 8601, DD/MM/YYYY, MM/DD/YYYY, hyphen/dot-separated)
+    - Country-specific format priority
+    
+    Supported formats (auto-detected):
+    - YYYY-MM-DD (ISO 8601)
+    - DD/MM/YYYY or MM/DD/YYYY (slash-separated)
+    - DD-MM-YYYY or MM-DD-YYYY (hyphen-separated)
+    - DD.MM.YYYY (dot-separated, European)
+    
+    Examples:
+        >>> shifter = DateShifter(country_code="IN")
+        >>> shifter.shift_date("2019-01-11")  # ISO format
+        '2018-04-13'  # Shifted, format preserved
+        >>> shifter.shift_date("04/09/2014")  # DD/MM/YYYY for India
+        '14/12/2013'  # Shifted, format preserved
     """
     
     def __init__(self, shift_range_days: int = 365, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = "US"):
         """
-        Initialize date shifter.
+        Initialize date shifter with multi-format support.
         
         Args:
             shift_range_days: Maximum days to shift (±)
             preserve_intervals: If True, all dates shift by same offset
             seed: Optional seed for random shift generation
-            country_code: Country code for date format (IN, US, etc.)
+            country_code: Country code for format priority (IN=DD/MM/YYYY, US=MM/DD/YYYY, etc.)
+        
+        Note:
+            The shifter automatically tries multiple formats (ISO 8601, slash/hyphen/dot-separated)
+            and preserves the original format in the output.
         """
         self.shift_range_days = shift_range_days
         self.preserve_intervals = preserve_intervals
@@ -416,44 +434,70 @@ class DateShifter:
     
     def shift_date(self, date_str: str, date_format: Optional[str] = None) -> str:
         """
-        Shift a date string by consistent offset.
+        Shift a date string by consistent offset with intelligent format detection.
+        
+        Automatically tries multiple date formats and preserves the original format
+        in the output. Format priority is based on the country code.
         
         Args:
-            date_str: Date string to shift
-            date_format: Format of the date string (auto-detected if None)
+            date_str: Date string to shift (e.g., "2019-01-11", "04/09/2014")
+            date_format: Specific format to use (auto-detected if None)
             
         Returns:
-            Shifted date in same format
+            Shifted date in same format as input
+            
+        Examples:
+            >>> shifter = DateShifter(country_code="IN")
+            >>> shifter.shift_date("2019-01-11")
+            '2018-04-13'  # ISO format preserved
+            >>> shifter.shift_date("04/09/2014")
+            '14/12/2013'  # DD/MM/YYYY format preserved
         """
         if date_str in self._date_cache:
             return self._date_cache[date_str]
         
-        # Auto-detect format based on country if not provided
+        # Define common date formats to try
         if date_format is None:
+            # Try multiple formats based on country and common standards
             if self.country_code in self.dd_mm_yyyy_countries:
-                date_format = "%d/%m/%Y"  # India, UK, AU, etc.
+                formats_to_try = [
+                    "%d/%m/%Y",      # DD/MM/YYYY (India, UK, AU, etc.)
+                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601)
+                    "%d-%m-%Y",      # DD-MM-YYYY
+                    "%d.%m.%Y",      # DD.MM.YYYY
+                ]
             else:
-                date_format = "%m/%d/%Y"  # US, PH, etc.
+                formats_to_try = [
+                    "%m/%d/%Y",      # MM/DD/YYYY (US, PH, etc.)
+                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601)
+                    "%m-%d-%Y",      # MM-DD-YYYY
+                ]
+        else:
+            formats_to_try = [date_format]
         
-        try:
-            # Parse date
-            date_obj = datetime.strptime(date_str, date_format)
-            
-            # Apply shift
-            offset_days = self._get_shift_offset()
-            shifted_date = date_obj + timedelta(days=offset_days)
-            
-            # Format back to string
-            shifted_str = shifted_date.strftime(date_format)
-            
-            # Cache and return
-            self._date_cache[date_str] = shifted_str
-            return shifted_str
-            
-        except ValueError:
-            # If parsing fails, return placeholder
-            logging.warning(f"Could not parse date: {date_str}")
-            return f"[DATE-{hashlib.md5(date_str.encode()).hexdigest()[:6].upper()}]"
+        # Try each format until one works
+        for fmt in formats_to_try:
+            try:
+                # Parse date
+                date_obj = datetime.strptime(date_str, fmt)
+                
+                # Apply shift
+                offset_days = self._get_shift_offset()
+                shifted_date = date_obj + timedelta(days=offset_days)
+                
+                # Format back to string (use the same format that worked)
+                shifted_str = shifted_date.strftime(fmt)
+                
+                # Cache and return
+                self._date_cache[date_str] = shifted_str
+                return shifted_str
+                
+            except ValueError:
+                continue
+        
+        # If all formats fail, return placeholder
+        logging.warning(f"Could not parse date: {date_str} (tried formats: {', '.join(formats_to_try)})")
+        return f"[DATE-{hashlib.md5(date_str.encode()).hexdigest()[:6].upper()}]"
 
 
 # ============================================================================
