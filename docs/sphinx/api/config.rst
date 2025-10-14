@@ -72,9 +72,11 @@ DATASET_NAME
 
 .. code-block:: python
 
-   DATASET_NAME = extract_dataset_name(DATASET_DIR)
+   DATASET_NAME = (DATASET_FOLDER_NAME.replace('_csv_files', '').replace('_files', '') 
+                   if DATASET_FOLDER_NAME else "RePORTaLiN_sample")
 
-Name of the current dataset (e.g., "Indo-vap").
+Name of the current dataset (e.g., "Indo-vap"), extracted by removing common suffixes
+from the dataset folder name.
 
 Output Paths
 ~~~~~~~~~~~~
@@ -146,6 +148,7 @@ get_dataset_folder
 ~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: config.get_dataset_folder
+   :no-index:
 
 Automatically detect the dataset folder from the file system.
 
@@ -157,22 +160,6 @@ Automatically detect the dataset folder from the file system.
    
    folder = get_dataset_folder()
    print(f"Detected dataset: {folder}")
-
-extract_dataset_name
-~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: config.extract_dataset_name
-
-Extract the clean dataset name from a directory path.
-
-**Example**:
-
-.. code-block:: python
-
-   from config import extract_dataset_name
-   
-   name = extract_dataset_name("data/dataset/Indo-vap_csv_files")
-   print(name)  # Output: Indo-vap
 
 Usage Examples
 --------------

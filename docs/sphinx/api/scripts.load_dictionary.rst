@@ -24,8 +24,13 @@ High-level API for loading a data dictionary Excel file.
 
 **Parameters**:
 
-- ``excel_file`` (str): Path to data dictionary Excel file
-- ``output_dir`` (str): Directory for output JSONL files
+- ``file_path`` (str, optional): Path to data dictionary Excel file (defaults to ``config.DICTIONARY_EXCEL_FILE``)
+- ``json_output_dir`` (str, optional): Directory for output JSONL files (defaults to ``config.DICTIONARY_JSON_OUTPUT_DIR``)
+- ``preserve_na`` (bool, optional): If True, preserve empty cells as None (default: True)
+
+**Returns**:
+
+- ``bool``: True if processing was successful, False otherwise
 
 **Example**:
 
@@ -33,9 +38,13 @@ High-level API for loading a data dictionary Excel file.
 
    from scripts.load_dictionary import load_study_dictionary
    
-   load_study_dictionary(
-       excel_file="data/data_dictionary.xlsx",
-       output_dir="results/data_dictionary_mappings"
+   # Use config defaults
+   success = load_study_dictionary()
+   
+   # Or specify custom paths
+   success = load_study_dictionary(
+       file_path="data/data_dictionary.xlsx",
+       json_output_dir="results/data_dictionary_mappings"
    )
 
 process_excel_file
@@ -47,8 +56,13 @@ Process all sheets in a data dictionary Excel file.
 
 **Parameters**:
 
-- ``excel_file`` (str): Path to Excel file
+- ``excel_path`` (str): Path to Excel file
 - ``output_dir`` (str): Directory for output files
+- ``preserve_na`` (bool, optional): If True, preserve empty cells as None (default: True)
+
+**Returns**:
+
+- ``bool``: True if processing was successful, False otherwise
 
 **Example**:
 
@@ -56,9 +70,9 @@ Process all sheets in a data dictionary Excel file.
 
    from scripts.load_dictionary import process_excel_file
    
-   process_excel_file(
-       "data/dictionary.xlsx",
-       "results/dictionary_output"
+   success = process_excel_file(
+       excel_path="data/dictionary.xlsx",
+       output_dir="results/dictionary_output"
    )
 
 Table Detection
@@ -133,7 +147,7 @@ Handle duplicate column names by adding numeric suffixes.
 
 1. Track column name occurrences
 2. First occurrence: Keep original name
-3. Subsequent occurrences: Add ``_2``, ``_3``, etc.
+3. Subsequent occurrences: Add ``_1``, ``_2``, ``_3``, etc.
 
 **Parameters**:
 
@@ -152,7 +166,7 @@ Handle duplicate column names by adding numeric suffixes.
    columns = ['id', 'name', 'id', 'value', 'name']
    result = _deduplicate_columns(columns)
    print(result)
-   # Output: ['id', 'name', 'id_2', 'value', 'name_2']
+   # Output: ['id', 'name', 'id_1', 'value', 'name_1']
 
 Processing Flow
 ---------------
@@ -161,9 +175,9 @@ The dictionary loading follows this flow:
 
 .. code-block:: text
 
-   1. load_study_dictionary(excel_file, output_dir)
+   1. load_study_dictionary(file_path, json_output_dir)
       │
-      └── process_excel_file(excel_file, output_dir)
+      └── process_excel_file(excel_path, output_dir)
           │
           ├── For each sheet in Excel file:
           │   │
@@ -261,10 +275,13 @@ Basic Usage
    from scripts.load_dictionary import load_study_dictionary
    import config
    
-   # Load data dictionary
-   load_study_dictionary(
-       excel_file=config.DICTIONARY_EXCEL_FILE,
-       output_dir=config.DICTIONARY_JSON_OUTPUT_DIR
+   # Use config defaults
+   success = load_study_dictionary()
+   
+   # Or specify custom paths
+   success = load_study_dictionary(
+       file_path=config.DICTIONARY_EXCEL_FILE,
+       json_output_dir=config.DICTIONARY_JSON_OUTPUT_DIR
    )
 
 Process Custom Dictionary
@@ -274,10 +291,15 @@ Process Custom Dictionary
 
    from scripts.load_dictionary import load_study_dictionary
    
-   load_study_dictionary(
-       excel_file="my_dictionary.xlsx",
-       output_dir="output/dictionary"
+   success = load_study_dictionary(
+       file_path="my_dictionary.xlsx",
+       json_output_dir="output/dictionary"
    )
+   
+   if success:
+       print("Dictionary processing completed successfully!")
+   else:
+       print("Dictionary processing failed!")
 
 Read Output Tables
 ~~~~~~~~~~~~~~~~~~

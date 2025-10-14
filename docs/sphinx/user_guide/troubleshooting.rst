@@ -223,7 +223,7 @@ Log Files Too Large
 
 .. code-block:: python
 
-   # In config.py or logging_utils.py
+   # In config.py or logging.py
    from logging.handlers import RotatingFileHandler
    
    handler = RotatingFileHandler(

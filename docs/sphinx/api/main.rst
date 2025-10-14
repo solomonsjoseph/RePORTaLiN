@@ -20,6 +20,7 @@ run_step
 ~~~~~~~~
 
 .. autofunction:: main.run_step
+   :no-index:
 
 Execute a pipeline step with comprehensive error handling and logging.
 
@@ -39,6 +40,7 @@ main
 ~~~~
 
 .. autofunction:: main.main
+   :no-index:
 
 Main entry point for the pipeline.
 
@@ -54,6 +56,22 @@ Main entry point for the pipeline.
    
    # Skip data extraction
    python main.py --skip-extraction
+   
+   # Enable de-identification with encryption (default)
+   python main.py --enable-deidentification
+   
+   # Enable de-identification without encryption (testing only)
+   python main.py --enable-deidentification --no-encryption
+   
+   # Skip de-identification step
+   python main.py --skip-deidentification
+   
+   # Specify country codes for de-identification
+   python main.py --enable-deidentification -c IN US BR
+   python main.py --enable-deidentification --countries ALL
+   
+   # Show version
+   python main.py --version
 
 **Programmatic usage**:
 
@@ -71,10 +89,22 @@ The main function executes these steps in order:
 1. **Step 0**: Load Data Dictionary
    
    Processes the Excel-based data dictionary using :func:`scripts.load_dictionary.load_study_dictionary`.
+   Can be skipped with ``--skip-dictionary``.
 
 2. **Step 1**: Extract Raw Data
    
    Extracts data from Excel files using :func:`scripts.extract_data.extract_excel_to_jsonl`.
+   Can be skipped with ``--skip-extraction``.
+
+3. **Step 2**: De-identify Data (Optional)
+   
+   De-identifies PHI/PII from extracted data using :func:`scripts.utils.deidentify.deidentify_dataset`.
+   Must be explicitly enabled with ``--enable-deidentification``.
+   
+   - Encryption enabled by default for security
+   - Can disable encryption with ``--no-encryption`` (testing only)
+   - Can specify country codes with ``-c`` or ``--countries``
+   - Can be skipped with ``--skip-deidentification``
 
 Error Handling
 --------------
@@ -108,5 +138,8 @@ See Also
 :mod:`scripts.load_dictionary`
    Dictionary loading functionality
 
-:mod:`scripts.utils.logging_utils`
+:mod:`scripts.utils.deidentify`
+   De-identification utilities
+
+:mod:`scripts.utils.logging`
    Logging utilities

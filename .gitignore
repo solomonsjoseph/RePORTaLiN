@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+*.pyd
 *$py.class
 *.so
 .Python
@@ -46,17 +47,49 @@ htmlcov/
 .coverage.*
 coverage.xml
 *.cover
-tests/
-examples/
 
 # Type checking
 .mypy_cache/
 .dmypy.json
 dmypy.json
 
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Documentation builds
+docs/sphinx/_build/
+
+# Security - Encryption keys and secrets
+*.key
+*.pem
+*.fernet
+.env
+.env.*
+secrets.*
+
+# De-identification outputs (contains PHI/PII mappings)
+*_mappings.json
+*_mappings.json.enc
+*_deidentification_key.key
+results/deidentified/
+
+# Data Science & ML artifacts
+*.pkl
+*.pickle
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.model
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
 # Project-specific
 data/data_dictionary_and_mapping_specifications/~$*.xlsx
-data/data_dictionary_and_mapping_specifications/json_output/tblSPECIMEN/tblSPECIMEN_Extraas_Ignore.jsonl
 
 # Results (uncomment if you don't want to track results)
 # results/

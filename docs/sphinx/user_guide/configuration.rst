@@ -61,12 +61,15 @@ Dataset Paths
 .. code-block:: python
 
    DATASET_BASE_DIR = os.path.join(DATA_DIR, "dataset")
-   DATASET_DIR = get_dataset_folder()  # Auto-detected
-   DATASET_NAME = extract_dataset_name(DATASET_DIR)
+   DATASET_FOLDER_NAME = get_dataset_folder()  # Auto-detected
+   DATASET_DIR = os.path.join(DATASET_BASE_DIR, DATASET_FOLDER_NAME or "RePORTaLiN_sample")
+   DATASET_NAME = (DATASET_FOLDER_NAME.replace('_csv_files', '').replace('_files', '') 
+                   if DATASET_FOLDER_NAME else "RePORTaLiN_sample")
 
 - **DATASET_BASE_DIR**: Parent directory for all datasets
-- **DATASET_DIR**: Path to current dataset (auto-detected)
-- **DATASET_NAME**: Name of current dataset (e.g., "Indo-vap")
+- **DATASET_FOLDER_NAME**: Name of detected folder (returned by ``get_dataset_folder()``)
+- **DATASET_DIR**: Full path to current dataset (auto-detected)
+- **DATASET_NAME**: Cleaned dataset name (e.g., "Indo-vap_csv_files" → "Indo-vap")
 
 Output Directories
 ~~~~~~~~~~~~~~~~~~

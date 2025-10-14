@@ -80,7 +80,7 @@ Common Functions
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    log.info("Information message")
    log.success("Success message")

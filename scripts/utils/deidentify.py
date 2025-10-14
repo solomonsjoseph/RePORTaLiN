@@ -3,82 +3,8 @@
 De-identification and Pseudonymization Module
 ==============================================
 
-This module provides robust and secure functionality for de-identifying extracted text
-by detecting and replacing Protected Health Information (PHI) and Personally Identifiable
-Information (PII) with consistent, meaningless placeholders.
-
-The de-identification process implements:
-    - **PHI/PII Detection**: Names, dates, addresses, phone numbers, emails, IDs, etc.
-    - **Pseudonymization**: Consistent one-to-one mapping of sensitive data to placeholders
-    - **Security**: Encrypted storage of mapping tables with key management
-    - **Compliance**: HIPAA Safe Harbor method compatible
-    - **Reversibility**: Optional re-identification with proper authorization
-    - **Auditability**: Complete logging of all de-identification operations
-
-Key Features:
-    - **Pattern-based Detection**: Regular expressions for structured data (SSN, phone, etc.)
-    - **Named Entity Recognition**: Support for NER models (optional)
-    - **Deterministic Pseudonyms**: Consistent placeholders across the entire corpus
-    - **Secure Key Management**: Cryptographic protection of mapping tables
-    - **Type-specific Placeholders**: Different formats for different data types
-    - **Date Shifting**: Consistent temporal relationships while obscuring actual dates
-    - **Validation**: Post-processing validation to ensure no PHI leakage
-
-Security Considerations:
-    - Mapping tables are encrypted using Fernet (symmetric encryption)
-    - Encryption keys are stored separately and should be protected
-    - Access to re-identification requires the encryption key
-    - All operations are logged for audit purposes
-
-Supported PHI/PII Types:
-    - Names (first, last, full)
-    - Medical Record Numbers (MRN)
-    - Social Security Numbers (SSN)
-    - Phone numbers (US and international formats)
-    - Email addresses
-    - Dates (DOB and other healthcare dates)
-    - Addresses (street, city, state, zip)
-    - Device identifiers
-    - URLs and IP addresses
-    - Account numbers
-    - License/certificate numbers
-
-Classes:
-    DeidentificationEngine: Main engine for PHI/PII detection and replacement
-    PseudonymGenerator: Generates consistent, unique placeholders
-    MappingStore: Secure storage and retrieval of pseudonym mappings
-    DateShifter: Consistent date shifting while preserving intervals
-
-Functions:
-    deidentify_text: De-identify a single text string
-    deidentify_dataset: Batch de-identification of JSONL files
-    validate_deidentification: Verify no PHI remains in de-identified text
-    export_mapping_table: Export mappings for audit (requires authorization)
-
-Example:
-    Basic usage::
-
-        from scripts.utils.deidentify import DeidentificationEngine
-        
-        engine = DeidentificationEngine()
-        original = "Patient John Doe, MRN: 123456, DOB: 01/15/1980"
-        deidentified = engine.deidentify_text(original)
-        # Output: "Patient [PATIENT-A4B8], MRN: [MRN-X7Y2], DOB: [DATE-1]"
-
-    Batch processing::
-
-        from scripts.utils.deidentify import deidentify_dataset
-        deidentify_dataset(input_dir="results/dataset/Indo-vap",
-                          output_dir="results/deidentified/Indo-vap")
-
-Author:
-    RePORTaLiN Development Team
-
-Version:
-    0.0.1
-
-Date:
-    October 2025
+Robust PHI/PII detection and replacement with encrypted mapping storage,
+country-specific compliance, and comprehensive validation.
 """
 
 import re
@@ -95,7 +21,7 @@ from enum import Enum
 from collections import defaultdict
 import base64
 
-# Optional imports for enhanced functionality
+# Optional imports
 try:
     from cryptography.fernet import Fernet
     CRYPTO_AVAILABLE = True
@@ -105,23 +31,18 @@ except ImportError:
 
 from tqdm import tqdm
 
-# Import country regulations module
 try:
-    from scripts.utils.country_regulations import (
-        CountryRegulationManager, DataField
-    )
+    from scripts.utils.country_regulations import CountryRegulationManager, DataField
     COUNTRY_REGULATIONS_AVAILABLE = True
 except ImportError:
     COUNTRY_REGULATIONS_AVAILABLE = False
     logging.warning("country_regulations module not available. Country-specific features disabled.")
-
-
 # ============================================================================
 # Enums and Constants
 # ============================================================================
 
 class PHIType(Enum):
-    """Enumeration of PHI/PII types for categorization and tracking."""
+    """PHI/PII type categorization."""
     NAME_FIRST = "FNAME"
     NAME_LAST = "LNAME"
     NAME_FULL = "PATIENT"
@@ -147,21 +68,20 @@ class PHIType(Enum):
 
 @dataclass
 class DetectionPattern:
-    """Configuration for a PHI/PII detection pattern."""
+    """PHI/PII detection pattern configuration."""
     phi_type: PHIType
     pattern: re.Pattern
-    priority: int = 50  # Higher priority patterns are applied first
+    priority: int = 50
     description: str = ""
     
     def __post_init__(self):
-        """Ensure pattern is compiled."""
         if isinstance(self.pattern, str):
             self.pattern = re.compile(self.pattern, re.IGNORECASE)
 
 
 @dataclass
 class DeidentificationConfig:
-    """Configuration for de-identification engine."""
+    """De-identification engine configuration."""
     # Pseudonym format templates
     pseudonym_templates: Dict[PHIType, str] = field(default_factory=lambda: {
         PHIType.NAME_FIRST: "FNAME-{id}",
@@ -269,11 +189,12 @@ class PatternLibrary:
             ),
             
             # Dates (multiple formats)
+            # Note: DD/MM/YYYY is ambiguous with MM/DD/YYYY - country context determines interpretation
             DetectionPattern(
                 phi_type=PHIType.DATE,
-                pattern=re.compile(r'\b(?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12][0-9]|3[01])[/-](?:19|20)\d{2}\b'),
+                pattern=re.compile(r'\b(?:0?[1-9]|[12][0-9]|3[01])[/-](?:0?[1-9]|1[0-2])[/-](?:19|20)\d{2}\b'),
                 priority=60,
-                description="Date format: MM/DD/YYYY"
+                description="Date format: DD/MM/YYYY (India, UK, AU) or MM/DD/YYYY (US, PH)"
             ),
             DetectionPattern(
                 phi_type=PHIType.DATE,
@@ -461,7 +382,7 @@ class DateShifter:
     - Season (optional)
     """
     
-    def __init__(self, shift_range_days: int = 365, preserve_intervals: bool = True, seed: Optional[str] = None):
+    def __init__(self, shift_range_days: int = 365, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = "US"):
         """
         Initialize date shifter.
         
@@ -469,12 +390,20 @@ class DateShifter:
             shift_range_days: Maximum days to shift (±)
             preserve_intervals: If True, all dates shift by same offset
             seed: Optional seed for random shift generation
+            country_code: Country code for date format (IN, US, etc.)
         """
         self.shift_range_days = shift_range_days
         self.preserve_intervals = preserve_intervals
         self.seed = seed or secrets.token_hex(16)
+        self.country_code = country_code.upper()
         self._shift_offset: Optional[int] = None
         self._date_cache: Dict[str, str] = {}
+        
+        # Country-specific date formats
+        # DD/MM/YYYY: India, UK, Australia, Indonesia, Brazil, South Africa, EU countries, Kenya, Nigeria, Ghana, Uganda
+        # MM/DD/YYYY: United States, Philippines, Canada (sometimes)
+        self.dd_mm_yyyy_countries = {"IN", "ID", "BR", "ZA", "EU", "GB", "AU", "KE", "NG", "GH", "UG"}
+        self.mm_dd_yyyy_countries = {"US", "PH", "CA"}
     
     def _get_shift_offset(self) -> int:
         """Get consistent shift offset based on seed."""
@@ -485,19 +414,26 @@ class DateShifter:
             self._shift_offset = (offset_int % (2 * self.shift_range_days + 1)) - self.shift_range_days
         return self._shift_offset
     
-    def shift_date(self, date_str: str, date_format: str = "%m/%d/%Y") -> str:
+    def shift_date(self, date_str: str, date_format: Optional[str] = None) -> str:
         """
         Shift a date string by consistent offset.
         
         Args:
             date_str: Date string to shift
-            date_format: Format of the date string
+            date_format: Format of the date string (auto-detected if None)
             
         Returns:
             Shifted date in same format
         """
         if date_str in self._date_cache:
             return self._date_cache[date_str]
+        
+        # Auto-detect format based on country if not provided
+        if date_format is None:
+            if self.country_code in self.dd_mm_yyyy_countries:
+                date_format = "%d/%m/%Y"  # India, UK, AU, etc.
+            else:
+                date_format = "%m/%d/%Y"  # US, PH, etc.
         
         try:
             # Parse date
@@ -687,6 +623,10 @@ class DeidentificationEngine:
         """
         self.config = config or DeidentificationConfig()
         
+        # Setup logging first
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(self.config.log_level)
+        
         # Initialize components
         self.patterns = PatternLibrary.get_default_patterns()
         
@@ -696,14 +636,20 @@ class DeidentificationEngine:
             self.patterns.extend(country_patterns)
             # Re-sort by priority
             self.patterns.sort(key=lambda p: p.priority, reverse=True)
-            self.logger = logging.getLogger(__name__)
             self.logger.info(f"Loaded {len(country_patterns)} country-specific patterns for: "
                            f"{self.config.countries or ['IN (default)']}")
         
         self.pseudonym_generator = PseudonymGenerator()
+        
+        # Get primary country for date format
+        primary_country = "IN"  # Default to India
+        if self.config.countries and len(self.config.countries) > 0:
+            primary_country = self.config.countries[0]
+        
         self.date_shifter = DateShifter(
             shift_range_days=self.config.date_shift_range_days,
-            preserve_intervals=self.config.preserve_date_intervals
+            preserve_intervals=self.config.preserve_date_intervals,
+            country_code=primary_country
         ) if self.config.enable_date_shifting else None
         
         # Initialize mapping store
@@ -731,10 +677,6 @@ class DeidentificationEngine:
             "total_detections": 0,
             "countries": self.config.countries or ["IN (default)"]
         }
-        
-        # Setup logging
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(self.config.log_level)
     
     def deidentify_text(self, text: str, custom_patterns: Optional[List[DetectionPattern]] = None) -> str:
         """

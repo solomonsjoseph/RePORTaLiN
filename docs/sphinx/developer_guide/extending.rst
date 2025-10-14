@@ -68,7 +68,7 @@ Example: Adding Data Validation
    
    from typing import List, Dict
    import pandas as pd
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    class DataValidator:
        """Validate data against rules."""
@@ -207,7 +207,7 @@ Example: Adding Email Notifications
 
 .. code-block:: python
 
-   # In logging_utils.py or main.py
+   # In logging.py or main.py
    from scripts.utils.notifications import EmailHandler
    
    # Add email handler for errors
@@ -233,7 +233,7 @@ Example: PostgreSQL Output
    import pandas as pd
    from sqlalchemy import create_engine
    from typing import Optional
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    class DatabaseExporter:
        """Export data to database."""
@@ -313,7 +313,7 @@ Example: Process Files in Parallel
    from typing import List, Callable
    from pathlib import Path
    from tqdm import tqdm
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    def process_files_parallel(
        files: List[Path],

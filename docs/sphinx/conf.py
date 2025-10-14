@@ -28,19 +28,12 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
-    'myst_parser',
 ]
 
 # Napoleon settings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
-
-# MyST parser settings
-myst_enable_extensions = [
-    'colon_fence',
-    'deflist',
-]
 
 # Developer mode - set to False for user-only documentation
 # Set to True to include developer documentation
@@ -56,8 +49,6 @@ if not developer_mode:
         'api/*',
     ])
 
-
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
@@ -69,7 +60,6 @@ html_theme_options = {
     'collapse_navigation': False,
     'sticky_navigation': True,
     'includehidden': True,
-    'display_version': True,
     'prev_next_buttons_location': 'bottom',
     'style_external_links': True,
 }

@@ -265,7 +265,7 @@ Priority-sorted patterns for:
 
 **Code Quality**: A+ (Excellent)
 
-6. scripts/utils/logging_utils.py - Centralized Logging
+6. scripts/utils/logging.py - Centralized Logging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Status**: ✅ Production Ready
@@ -510,7 +510,7 @@ Module Organization
     │   └── utils/           # Utilities
     │       ├── __init__.py
     │       ├── deidentify.py
-    │       └── logging_utils.py
+    │       └── logging.py
     └── docs/                # Documentation
         └── sphinx/
 
@@ -581,7 +581,7 @@ Standard library → Third-party → Local imports::
     from tqdm import tqdm
     
     import config
-    from scripts.utils import logging_utils as log
+    from scripts.utils import logging as log
 
 Documentation Review
 --------------------
@@ -636,7 +636,7 @@ Import Testing
 All modules import successfully::
 
     ✓ config imported successfully
-    ✓ logging_utils imported successfully
+    ✓ logging imported successfully
     ✓ extract_data imported successfully
     ✓ load_dictionary imported successfully
     ✓ deidentify imported successfully
@@ -785,7 +785,7 @@ Module Import Tests
 ::
 
     ✓ config imported successfully
-    ✓ logging_utils imported successfully
+    ✓ logging imported successfully
     ✓ extract_data imported successfully
     ✓ load_dictionary imported successfully
     ✓ deidentify imported successfully
@@ -831,7 +831,7 @@ File Inventory
 4. ``scripts/extract_data.py`` (405 lines)
 5. ``scripts/load_dictionary.py`` (448 lines)
 6. ``scripts/utils/__init__.py`` (8 lines)
-7. ``scripts/utils/logging_utils.py`` (387 lines)
+7. ``scripts/utils/logging.py`` (387 lines)
 8. ``scripts/utils/deidentify.py`` (1,012 lines)
 9. ``docs/sphinx/conf.py`` (Sphinx config)
 
@@ -956,7 +956,7 @@ Import Verification
 
     # Test Results (All Passed ✓)
     import config                                    # ✓
-    from scripts.utils import logging_utils          # ✓
+    from scripts.utils import logging          # ✓
     from scripts.extract_data import extract_excel_to_jsonl  # ✓
     from scripts.load_dictionary import load_study_dictionary  # ✓
     from scripts.utils.deidentify import DeidentificationEngine  # ✓

@@ -1,23 +1,36 @@
 Quick Start
 ===========
 
-This guide will walk you through your first data extraction with RePORTaLiN in just a few minutes.
+**For Users: Simplified Execution Guide**
 
-Running Your First Extraction
-------------------------------
+This guide provides clear, step-by-step instructions to get you started with RePORTaLiN
+in just a few minutes. No technical expertise required!
 
-The simplest way to run the pipeline:
+What Does RePORTaLiN Do?
+-------------------------
 
-.. code-block:: bash
+RePORTaLiN is a tool that:
 
-   python main.py
+1. 📊 **Converts** Excel files to a simpler JSON format (JSONL)
+2. 🔍 **Organizes** data dictionary information into structured tables
+3. 🔒 **Protects** sensitive patient information (optional de-identification)
+4. ✅ **Validates** data integrity and generates detailed logs
 
-That's it! This single command will:
+Think of it as an automated data processing assistant that handles tedious file conversions safely and efficiently.
 
-1. ✅ Load and process the data dictionary (14 sheets)
-2. ✅ Extract data from all Excel files in your dataset
-3. ✅ Generate JSONL output files in ``results/dataset/<dataset_name>/``
-4. ✅ Create timestamped logs in ``.logs/``
+Prerequisites
+-------------
+
+Before you begin, ensure you have:
+
+✅ **Python 3.13 or higher** installed  
+   Check version: ``python3 --version``
+
+✅ **Project files** downloaded or cloned to your computer
+
+✅ **Excel data files** in the ``data/dataset/`` folder
+
+✅ **5-10 minutes** of time for initial setup
 
 Expected Output
 ---------------
@@ -239,12 +252,287 @@ Common First-Run Issues
 
    pip install -r requirements.txt
 
+Step-by-Step Execution
+-----------------------
+
+**Step 1: Install Dependencies** (One-time setup)
+
+Open your terminal/command prompt and navigate to the RePORTaLiN project folder:
+
+.. code-block:: bash
+
+   cd /path/to/RePORTaLiN
+   
+Install required Python packages:
+
+.. code-block:: bash
+
+   pip install -r requirements.txt
+
+You should see packages being installed (pandas, openpyxl, tqdm, etc.). This takes 1-2 minutes.
+
+✅ **Expected Output:** "Successfully installed pandas-2.0.0 openpyxl-3.1.0..." (versions may vary)
+
+---
+
+**Step 2: Verify Your Data Files**
+
+Check that your Excel files are in the right location:
+
+.. code-block:: bash
+
+   ls data/dataset/
+
+✅ **Expected Output:** You should see a folder (e.g., ``Indo-vap_csv_files/``) containing .xlsx files
+
+If you don't see any folders, create one and place your Excel files there:
+
+.. code-block:: bash
+
+   mkdir -p data/dataset/my_dataset/
+   cp /path/to/your/excel/files/*.xlsx data/dataset/my_dataset/
+
+---
+
+**Step 3: Run the Basic Pipeline**
+
+Execute the main pipeline with this simple command:
+
+.. code-block:: bash
+
+   python3 main.py
+
+✅ **Expected Output:** You'll see two progress bars:
+
+.. code-block:: text
+
+   Processing sheets: 100%|██████████| 14/14 [00:01<00:00, 12.71sheet/s]
+   SUCCESS: Step 0: Loading Data Dictionary completed successfully.
+   
+   Found 43 Excel files to process...
+   Processing files: 100%|██████████| 43/43 [00:15<00:00, 2.87file/s]
+   SUCCESS: Step 1: Extracting Raw Data to JSONL completed successfully.
+   
+   RePORTaLiN pipeline finished.
+
+⏱️ **Time:** Usually 15-30 seconds depending on file size
+
+---
+
+**Step 4: Check Your Results**
+
+Navigate to the results folder:
+
+.. code-block:: bash
+
+   cd results/dataset/
+   ls
+
+✅ **Expected Output:** You'll see a folder with your dataset name (e.g., ``Indo-vap/``)
+
+Look inside:
+
+.. code-block:: bash
+
+   ls results/dataset/Indo-vap/
+
+✅ **Expected Output:**
+
+.. code-block:: text
+
+   original/    (Contains .jsonl files with all original columns)
+   cleaned/     (Contains .jsonl files with duplicate columns removed)
+
+Each folder contains the same files but with different processing levels:
+- **original/** = Exact Excel data, just converted to JSONL
+- **cleaned/** = Duplicate columns (like SUBJID2, SUBJID3) removed for cleaner data
+
+---
+
+**Step 5: View Your Converted Data** (Optional)
+
+Open any .jsonl file to see the converted data:
+
+.. code-block:: bash
+
+   head -n 5 results/dataset/Indo-vap/original/10_TST.jsonl
+
+✅ **Expected Output:** You'll see JSON-formatted data, one record per line:
+
+.. code-block:: text
+
+   {"SUBJID": "INV001", "VISIT": 1, "TST_RESULT": "Positive", "source_file": "10_TST.xlsx"}
+   {"SUBJID": "INV002", "VISIT": 1, "TST_RESULT": "Negative", "source_file": "10_TST.xlsx"}
+   ...
+
+🎉 **Congratulations!** Your data has been successfully converted!
+
+Advanced Usage: De-identification
+----------------------------------
+
+If you need to remove sensitive patient information (PHI/PII), use the de-identification feature:
+
+**Step 1: Run with De-identification Enabled**
+
+.. code-block:: bash
+
+   python3 main.py --enable-deidentification
+
+✅ **Expected Output:** Additional processing step for de-identification:
+
+.. code-block:: text
+
+   De-identifying dataset: results/dataset/Indo-vap -> results/deidentified/Indo-vap
+   Processing both 'original' and 'cleaned' subdirectories...
+   Countries: IN (default)
+   De-identifying files: 100%|██████████| 43/43 [00:25<00:00, 1.72file/s]
+   
+   De-identification complete:
+     Texts processed: 15,234
+     Total detections: 1,250
+     Countries: IN (default)
+     Unique mappings: 485
+
+⏱️ **Time:** Additional 20-40 seconds for de-identification
+
+---
+
+**Step 2: Specify Countries** (For multi-country studies)
+
+.. code-block:: bash
+
+   python3 main.py --enable-deidentification --countries IN US ID BR
+
+This applies privacy regulations for India, United States, Indonesia, and Brazil.
+
+✅ **Supported Countries:** US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
+
+---
+
+**Step 3: View De-identified Results**
+
+.. code-block:: bash
+
+   head -n 3 results/deidentified/Indo-vap/original/10_TST.jsonl
+
+✅ **Expected Output:** Sensitive data replaced with placeholders:
+
+.. code-block:: text
+
+   {"SUBJID": "[MRN-X7Y2A9]", "PATIENT_NAME": "[PATIENT-A4B8C3]", "DOB": "[DATE-1]", ...}
+   {"SUBJID": "[MRN-K2M5P1]", "PATIENT_NAME": "[PATIENT-D9F2G7]", "DOB": "[DATE-2]", ...}
+
+**Note:** Original → Pseudonym mappings are encrypted and stored securely in:
+``results/deidentified/mappings/mappings.enc``
+
+Troubleshooting
+---------------
+
+**Problem:** "No Excel files found"
+
+**Solution:** Check that your Excel files (.xlsx) are in ``data/dataset/<folder_name>/``
+
+.. code-block:: bash
+
+   ls data/dataset/*/
+
+---
+
+**Problem:** "ModuleNotFoundError: No module named 'pandas'"
+
+**Solution:** Install dependencies:
+
+.. code-block:: bash
+
+   pip install -r requirements.txt
+
+---
+
+**Problem:** "Permission denied" when accessing files
+
+**Solution:** Run with appropriate permissions:
+
+.. code-block:: bash
+
+   # On macOS/Linux
+   chmod +x main.py
+   python3 main.py
+   
+   # On Windows (run as Administrator)
+   python main.py
+
+---
+
+**Problem:** Files are being skipped
+
+**Solution:** This is normal! The pipeline skips files that were already processed successfully.
+To reprocess, delete the output folder:
+
+.. code-block:: bash
+
+   rm -rf results/dataset/my_dataset/
+   python3 main.py
+
+---
+
+**Problem:** "Validation found potential PHI" warning after de-identification
+
+**Solution:** This is a cautious warning. Review the log file for details:
+
+.. code-block:: bash
+
+   cat .logs/reportalin_*.log | grep "potential PHI"
+
+If it's a false positive (like "[MRN-ABC123]" being detected), you can safely proceed.
+
+Common Use Cases
+----------------
+
+**Use Case 1: Process only data dictionary, skip extraction**
+
+.. code-block:: bash
+
+   python3 main.py --skip-extraction
+
+---
+
+**Use Case 2: Process only data extraction, skip dictionary**
+
+.. code-block:: bash
+
+   python3 main.py --skip-dictionary
+
+---
+
+**Use Case 3: Reprocess everything from scratch**
+
+.. code-block:: bash
+
+   rm -rf results/
+   python3 main.py
+
+---
+
+**Use Case 4: De-identify for multiple countries without encryption** (testing only)
+
+.. code-block:: bash
+
+   python3 main.py --enable-deidentification --countries ALL --no-encryption
+
+**⚠️ Warning:** ``--no-encryption`` should only be used for testing! Always use encryption in production.
+
+---
+
 Next Steps
 ----------
 
-Now that you've run your first extraction:
+✅ **You're done!** Your data has been successfully processed.
 
-- :doc:`configuration`: Learn how to customize the pipeline
-- :doc:`usage`: Explore advanced usage patterns
-- :doc:`troubleshooting`: Solutions to common problems
-- :doc:`../api/modules`: Dive into the API documentation
+**What's next?**
+
+1. 📊 **Analyze your data:** Use the .jsonl files with pandas, jq, or any JSON tool
+2. 📖 **Read the full documentation:** Learn about advanced configuration options
+3. 🔒 **Review de-identification:** Check the audit log at ``results/deidentified/_deidentification_audit.json``
+4. 📝 **Check logs:** Detailed operation logs are in ``.logs/reportalin_<timestamp>.log``
+
+**Need help?** See the :doc:`troubleshooting` guide or review the logs for detailed error messages.

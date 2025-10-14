@@ -1,8 +1,8 @@
 .. _country_regulations:
 
-=======================================
+=========================================
 Country-Specific Data Privacy Regulations
-=======================================
+=========================================
 
 Overview
 ========
@@ -509,6 +509,45 @@ Understand breach notification timelines:
 - **60 days**: HIPAA (US)
 - **Varies**: Other jurisdictions - consult local regulations
 
+Date Format Conventions
+-----------------------
+
+The de-identification system automatically uses the correct date format based on the country:
+
+**DD/MM/YYYY Format Countries:**
+   - India (IN)
+   - Indonesia (ID)
+   - Brazil (BR)
+   - South Africa (ZA)
+   - European Union (EU)
+   - United Kingdom (GB)
+   - Australia (AU)
+   - Kenya (KE)
+   - Nigeria (NG)
+   - Ghana (GH)
+   - Uganda (UG)
+
+**MM/DD/YYYY Format Countries:**
+   - United States (US)
+   - Philippines (PH)
+   - Canada (CA)
+
+**Universal Formats:**
+   - YYYY-MM-DD: ISO 8601 standard, used in all countries
+   - Month DD, YYYY: Text format (e.g., "January 15, 2020")
+
+.. important::
+   The date shifter automatically detects and applies the correct format based on 
+   the primary country code specified in the de-identification configuration.
+   
+   Example for India (DD/MM/YYYY):
+   - Input: ``04/09/2014`` is interpreted as September 4, 2014
+   - Output: ``14/12/2013`` (shifted by ~265 days)
+   
+   Example for United States (MM/DD/YYYY):
+   - Input: ``04/09/2014`` is interpreted as April 9, 2014
+   - Output: ``07/17/2013`` (shifted by ~265 days)
+
 Additional Resources
 ====================
 
@@ -536,9 +575,9 @@ Official Regulatory Bodies
 Documentation
 -------------
 
-- :ref:`deidentification` - General de-identification guide
-- :ref:`quickstart` - Getting started with RePORTaLiN
-- :ref:`configuration` - Configuration options
+- :doc:`deidentification` - General de-identification guide
+- :doc:`quickstart` - Getting started with RePORTaLiN
+- :doc:`configuration` - Configuration options
 
 API Reference
 -------------

@@ -346,23 +346,50 @@ Advanced Features
 Date Shifting
 ~~~~~~~~~~~~~
 
-Date shifting preserves temporal relationships while obscuring actual dates:
+Date shifting preserves temporal relationships while obscuring actual dates.
+The date shifter automatically uses the correct date format based on the country code:
 
 .. code-block:: python
 
     from scripts.utils.deidentify import DateShifter
 
-    shifter = DateShifter(
+    # For India (DD/MM/YYYY format)
+    shifter_india = DateShifter(
         shift_range_days=365,
         preserve_intervals=True,
-        seed="consistent-seed"
+        country_code="IN"
     )
 
     # All dates shift by same offset
-    date1 = shifter.shift_date("01/15/1980")
-    date2 = shifter.shift_date("01/20/1980")  # 5 days after date1
+    date1 = shifter_india.shift_date("04/09/2014")  # September 4, 2014
+    date2 = shifter_india.shift_date("09/09/2014")  # September 9, 2014
+    # Output: 14/12/2013, 19/12/2013 (5 days interval preserved)
 
-    # Interval preserved: date2 - date1 = 5 days
+    # For United States (MM/DD/YYYY format)
+    shifter_us = DateShifter(
+        shift_range_days=365,
+        preserve_intervals=True,
+        country_code="US"
+    )
+
+    date3 = shifter_us.shift_date("04/09/2014")  # April 9, 2014
+    # Output: Different interpretation, different shifted date
+
+**Supported Date Formats by Country:**
+
+* **DD/MM/YYYY**: India (IN), UK (GB), Australia (AU), Indonesia (ID), 
+  Brazil (BR), South Africa (ZA), EU countries, Kenya (KE), Nigeria (NG), 
+  Ghana (GH), Uganda (UG)
+* **MM/DD/YYYY**: United States (US), Philippines (PH), Canada (CA)
+* **YYYY-MM-DD**: All countries (ISO 8601 standard, converted to pseudonyms)
+* **Month DD, YYYY**: All countries (e.g., "January 15, 2020")
+
+**Key Features:**
+
+* Consistent offset across all dates in a dataset
+* Temporal relationships preserved (intervals between dates maintained)
+* Country-specific date format interpretation
+* Automatic format detection based on primary country
 
 Encrypted Mapping Storage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -678,9 +705,31 @@ Common Issues
 
 .. code-block:: text
 
-    # These are normal - dates in YYYY-MM-DD format use fallback placeholders
-    # The module supports MM/DD/YYYY, Month DD YYYY, and other formats
-    # Unsupported formats are replaced with [DATE-HASH] placeholders
+    # Some date formats may use fallback placeholders
+    # The module supports country-specific date formats:
+    #   - DD/MM/YYYY: India, UK, Australia, Indonesia, Brazil, South Africa, EU, Kenya, Nigeria, Ghana, Uganda
+    #   - MM/DD/YYYY: United States, Philippines, Canada
+    #   - YYYY-MM-DD: All countries (ISO 8601 standard)
+    #   - Month DD, YYYY: All countries
+    # Unsupported or ambiguous formats are replaced with [DATE-HASH] placeholders
+
+**Date format interpretation**
+
+The date shifter automatically detects the correct format based on the country code:
+
+.. code-block:: text
+
+    For India (IN):
+    - 04/09/2014 is interpreted as September 4, 2014 (DD/MM/YYYY)
+    - Shifted to: 14/12/2013 (DD/MM/YYYY)
+    
+    For United States (US):
+    - 04/09/2014 is interpreted as April 9, 2014 (MM/DD/YYYY) 
+    - Shifted to: 10/23/2013 (MM/DD/YYYY)
+    
+    For all countries:
+    - 2014-09-04 is interpreted as September 4, 2014 (YYYY-MM-DD)
+    - Replaced with: [DATE-HASH] pseudonym
 
 API Reference
 -------------

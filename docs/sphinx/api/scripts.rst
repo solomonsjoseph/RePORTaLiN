@@ -19,7 +19,9 @@ Submodules
 
    scripts.extract_data
    scripts.load_dictionary
-   scripts.utils
+   scripts.utils.logging
+   scripts.utils.deidentify
+   scripts.utils.country_regulations
 
 Module Summary
 --------------
@@ -86,12 +88,12 @@ Key functions:
 
 See: :doc:`scripts.utils.deidentify`
 
-Logging (``scripts.utils.logging_utils``)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Logging (``scripts.utils.logging``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: scripts.utils.logging_utils
+.. currentmodule:: scripts.utils.logging
 
-Utility modules including centralized logging.
+Centralized logging module with custom SUCCESS level.
 
 Key features:
 
@@ -100,7 +102,24 @@ Key features:
 - Dual output (console + file)
 - Structured logging
 
-See: :doc:`scripts.utils`
+See: :doc:`scripts.utils.logging`
+
+Country Regulations (``scripts.utils.country_regulations``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. currentmodule:: scripts.utils.country_regulations
+
+Country-specific data privacy regulations module for compliance.
+
+Key features:
+
+- Multi-country support (14 countries)
+- Privacy frameworks (PUBLIC to CRITICAL levels)
+- Identifier detection and validation
+- Regulatory requirements management
+- Configuration export/import
+
+See: :doc:`scripts.utils.country_regulations`
 
 Quick Examples
 --------------
@@ -186,13 +205,31 @@ Custom Logging
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    # Use custom logger
    log.info("Processing started")
    log.success("Operation completed successfully")
    log.warning("Potential issue detected")
    log.error("An error occurred", exc_info=True)
+
+Country-Specific De-identification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from scripts.utils.country_regulations import CountryRegulationManager
+   
+   # Initialize for India
+   manager = CountryRegulationManager()
+   manager.set_country("IN")
+   
+   # Get identifiers
+   identifiers = manager.get_identifiers()
+   print(f"Found {len(identifiers)} identifiers for India")
+   
+   # Validate Aadhaar number
+   is_valid = manager.validate_identifier("AADHAAR", "1234 5678 9012")
 
 Module Dependencies
 -------------------
@@ -201,16 +238,18 @@ Module Dependencies
 
    scripts/
    ├── extract_data.py
-   │   └── uses: logging_utils, config
+   │   └── uses: logging, config
    │
    ├── load_dictionary.py
-   │   └── uses: logging_utils, config
+   │   └── uses: logging, config
    │
    └── utils/
-       ├── logging_utils.py
+       ├── logging.py
        │   └── uses: config
-       └── deidentify.py
-           └── uses: config, cryptography (optional)
+       ├── deidentify.py
+       │   └── uses: config, country_regulations, cryptography (optional)
+       └── country_regulations.py
+           └── uses: re, json, dataclasses
 
 See Also
 --------

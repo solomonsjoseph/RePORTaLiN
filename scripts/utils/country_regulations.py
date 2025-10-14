@@ -3,60 +3,10 @@
 Country-Specific Data Privacy Regulations Module
 =================================================
 
-This module provides country-specific configurations for handling patient data
-de-identification according to different privacy regulations across countries.
+Country-specific configurations for patient data de-identification
+according to different privacy regulations (HIPAA, GDPR, DPDPA, etc.).
 
-Supported Countries and Regulations:
-    - **US**: HIPAA (Health Insurance Portability and Accountability Act)
-    - **IN**: India - Digital Personal Data Protection Act (DPDPA) 2023
-    - **ID**: Indonesia - Personal Data Protection Law (UU PDP)
-    - **BR**: Brazil - LGPD (Lei Geral de Proteção de Dados)
-    - **PH**: Philippines - Data Privacy Act of 2012
-    - **ZA**: South Africa - POPIA (Protection of Personal Information Act)
-    - **EU**: European Union - GDPR (General Data Protection Regulation)
-    - **GB**: United Kingdom - UK GDPR
-    - **CA**: Canada - PIPEDA (Personal Information Protection and Electronic Documents Act)
-    - **AU**: Australia - Privacy Act 1988
-
-Each country configuration defines:
-    - Common data fields (first name, last name, etc.)
-    - Country-specific data fields (e.g., Aadhaar for India, CPF for Brazil)
-    - Privacy regulation requirements
-    - Specific PHI/PII detection patterns
-    - Data retention policies
-    - De-identification strategies
-
-Classes:
-    CountryRegulation: Configuration for a specific country's regulations
-    CountryRegulationManager: Manages and applies country-specific rules
-    DataField: Defines a data field with validation and detection patterns
-
-Functions:
-    get_regulation_for_country: Get regulation configuration for a country code
-    get_all_supported_countries: List all supported country codes
-    merge_regulations: Combine regulations from multiple countries
-
-Example:
-    Basic usage::
-
-        from scripts.utils.country_regulations import CountryRegulationManager
-        
-        manager = CountryRegulationManager(countries=['US', 'IN'])
-        patterns = manager.get_combined_patterns()
-        fields = manager.get_all_data_fields()
-
-    Command-line usage::
-
-        python deidentify.py --countries US IN --input-dir data/ --output-dir results/
-
-Author:
-    RePORTaLiN Development Team
-
-Version:
-    0.0.1
-
-Date:
-    October 2025
+Supports: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
 """
 
 import re
@@ -67,13 +17,12 @@ from enum import Enum
 from pathlib import Path
 import json
 
-
 # ============================================================================
 # Enums and Base Classes
 # ============================================================================
 
 class DataFieldType(Enum):
-    """Types of data fields for categorization."""
+    """Data field type categorization."""
     PERSONAL_NAME = "personal_name"
     IDENTIFIER = "identifier"
     CONTACT = "contact"
@@ -87,29 +36,16 @@ class DataFieldType(Enum):
 
 class PrivacyLevel(Enum):
     """Privacy sensitivity levels."""
-    PUBLIC = 1          # Public information
-    LOW = 2             # Low sensitivity
-    MEDIUM = 3          # Medium sensitivity
-    HIGH = 4            # High sensitivity (PII)
-    CRITICAL = 5        # Critical sensitivity (sensitive PII)
+    PUBLIC = 1
+    LOW = 2
+    MEDIUM = 3
+    HIGH = 4
+    CRITICAL = 5
 
 
 @dataclass
 class DataField:
-    """
-    Definition of a data field with privacy characteristics.
-    
-    Attributes:
-        name: Field name (e.g., "first_name", "aadhaar_number")
-        display_name: Human-readable name
-        field_type: Type of data field
-        privacy_level: Sensitivity level
-        required: Whether this field is required
-        pattern: Regex pattern for detection/validation
-        description: Description of the field
-        examples: Example values
-        country_specific: Whether this is country-specific
-    """
+    """Data field definition with privacy characteristics."""
     name: str
     display_name: str
     field_type: DataFieldType
@@ -119,6 +55,7 @@ class DataField:
     description: str = ""
     examples: List[str] = field(default_factory=list)
     country_specific: bool = False
+    compiled_pattern: Optional[re.Pattern] = field(default=None, init=False, repr=False)
     
     def __post_init__(self):
         """Compile regex pattern if provided."""
@@ -128,35 +65,15 @@ class DataField:
             self.compiled_pattern = None
     
     def validate(self, value: str) -> bool:
-        """
-        Validate a value against this field's pattern.
-        
-        Args:
-            value: Value to validate
-            
-        Returns:
-            True if valid, False otherwise
-        """
+        """Validate value against field's pattern."""
         if not self.compiled_pattern:
-            return True  # No pattern means no validation
+            return True
         return bool(self.compiled_pattern.match(value))
 
 
 @dataclass
 class CountryRegulation:
-    """
-    Configuration for a country's data privacy regulations.
-    
-    Attributes:
-        country_code: ISO 3166-1 alpha-2 country code
-        country_name: Full country name
-        regulation_name: Name of the primary regulation
-        regulation_acronym: Acronym (e.g., HIPAA, GDPR)
-        common_fields: Common data fields (name, phone, etc.)
-        specific_fields: Country-specific data fields
-        description: Description of the regulation
-        requirements: Special requirements or notes
-    """
+    """Country data privacy regulation configuration."""
     country_code: str
     country_name: str
     regulation_name: str
@@ -1036,7 +953,7 @@ class CountryRegulationManager:
     - Exporting configurations
     """
     
-    # Registry of all supported countries
+    # Registry of all supported countries (private to prevent external modification)
     _REGISTRY: Dict[str, callable] = {
         "US": get_us_regulation,
         "IN": get_india_regulation,

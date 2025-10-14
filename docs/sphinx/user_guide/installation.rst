@@ -103,7 +103,6 @@ This will install:
 - **sphinx** (≥7.0.0): Documentation generation
 - **sphinx-rtd-theme** (≥1.3.0): ReadTheDocs theme
 - **sphinx-autodoc-typehints** (≥1.24.0): Type hints in docs
-- **myst-parser** (≥2.0.0): Markdown support in Sphinx
 
 Verifying Installation
 ----------------------
@@ -152,7 +151,7 @@ After installation, your project structure should look like:
    │   ├── load_dictionary.py # Dictionary processor
    │   └── utils/
    │       ├── deidentify.py # De-identification module
-   │       └── logging_utils.py # Centralized logging
+   │       └── logging.py # Centralized logging
    ├── data/                  # Your data files go here
    │   ├── dataset/
    │   │   └── <dataset_name>/  # Excel files (e.g., Indo-vap_csv_files/)

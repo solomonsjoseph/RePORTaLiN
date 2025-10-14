@@ -1,7 +1,7 @@
-scripts.utils subpackage
-========================
+scripts.utils.logging module
+=============================
 
-.. automodule:: scripts.utils
+.. automodule:: scripts.utils.logging
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,21 +9,9 @@ scripts.utils subpackage
 Overview
 --------
 
-The ``utils`` subpackage provides utility functions used throughout RePORTaLiN,
-with a focus on centralized logging infrastructure.
-
-Modules
--------
-
-logging_utils
-~~~~~~~~~~~~~
-
-.. automodule:: scripts.utils.logging_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Centralized logging system with custom SUCCESS level.
+The ``scripts.utils.logging`` module provides centralized logging infrastructure
+for RePORTaLiN with custom SUCCESS level, dual output (file + console), and
+intelligent filtering.
 
 Custom Log Levels
 -----------------
@@ -31,14 +19,16 @@ Custom Log Levels
 SUCCESS Level
 ~~~~~~~~~~~~~
 
-The logging system adds a custom SUCCESS level:
+The logging system adds a custom SUCCESS level (value: 25) between INFO and WARNING:
 
 .. code-block:: python
 
-   # SUCCESS level is between INFO and WARNING
+   # Standard levels
    logging.INFO = 20
-   logging.SUCCESS = 25  # Custom
    logging.WARNING = 30
+   
+   # Custom level added by scripts.utils.logging
+   scripts.utils.logging.SUCCESS = 25
 
 This level is used to highlight successful completion of major operations.
 
@@ -46,7 +36,7 @@ This level is used to highlight successful completion of major operations.
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    log.info("Starting processing...")
    log.success("Processing completed successfully!")
@@ -192,16 +182,17 @@ The logging system uses two handlers:
 Console Handler
 ~~~~~~~~~~~~~~~
 
-- **Output**: stderr
-- **Format**: Simple message format
-- **Colors**: May use colors if terminal supports
+- **Output**: stdout
+- **Format**: Simple message format (``LEVEL: message``)
+- **Filter**: Shows only SUCCESS, ERROR, and CRITICAL messages (suppresses DEBUG, INFO, WARNING)
 
 File Handler
 ~~~~~~~~~~~~
 
 - **Output**: Timestamped file in ``.logs/``
-- **Format**: Full format with timestamp and level
+- **Format**: Full format with timestamp, name, level, and message
 - **Encoding**: UTF-8 for international characters
+- **Level**: All messages (DEBUG and above)
 
 Usage Examples
 --------------
@@ -211,7 +202,7 @@ Basic Logging
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    def process_data():
        log.info("Starting data processing")
@@ -231,7 +222,7 @@ Structured Logging
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    log.info(f"Processing {file_count} files")
    
@@ -250,7 +241,7 @@ Conditional Logging
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    import logging
    
    # Only log if DEBUG level
@@ -262,7 +253,7 @@ Context Logging
 
 .. code-block:: python
 
-   from scripts.utils import logging_utils as log
+   from scripts.utils import logging as log
    
    def process_with_context(file):
        log.info(f"--- Processing {file} ---")
