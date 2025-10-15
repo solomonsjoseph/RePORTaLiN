@@ -7,6 +7,28 @@ Country-specific configurations for patient data de-identification
 according to different privacy regulations (HIPAA, GDPR, DPDPA, etc.).
 
 Supports: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
+
+Example:
+    Basic usage::
+
+        from scripts.utils.country_regulations import CountryRegulationManager
+
+        # Load regulations for specific countries
+        manager = CountryRegulationManager(['US', 'IN'])
+        
+        # Get all data fields
+        fields = manager.get_all_data_fields()
+        
+        # Get detection patterns
+        patterns = manager.get_detection_patterns()
+        
+        # Export configuration
+        manager.export_configuration('regulations.json')
+
+    Load all countries::
+
+        manager = CountryRegulationManager('ALL')
+        supported = manager.get_supported_countries()
 """
 
 import re
@@ -16,6 +38,19 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 import json
+
+__all__ = [
+    # Enums
+    'DataFieldType',
+    'PrivacyLevel',
+    # Data Classes
+    'DataField',
+    'CountryRegulation',
+    # Main Manager Class
+    'CountryRegulationManager',
+    # Helper Function
+    'get_common_fields',
+]
 
 # ============================================================================
 # Enums and Base Classes
@@ -58,9 +93,12 @@ class DataField:
     compiled_pattern: Optional[re.Pattern] = field(default=None, init=False, repr=False)
     
     def __post_init__(self):
-        """Compile regex pattern if provided."""
+        """Compile regex pattern with error handling."""
         if self.pattern and isinstance(self.pattern, str):
-            self.compiled_pattern = re.compile(self.pattern, re.IGNORECASE)
+            try:
+                self.compiled_pattern = re.compile(self.pattern, re.IGNORECASE)
+            except re.error as e:
+                raise ValueError(f"Invalid regex pattern '{self.pattern}': {e}")
         else:
             self.compiled_pattern = None
     
@@ -1100,41 +1138,48 @@ class CountryRegulationManager:
         
         return patterns
     
-    def export_configuration(self, output_path: Union[str, Path]):
+    def export_configuration(self, output_path: Union[str, Path]) -> None:
         """
         Export current configuration to JSON file.
         
         Args:
             output_path: Path to output file
+            
+        Raises:
+            IOError: If file cannot be written
         """
-        config = {
-            "countries": self.country_codes,
-            "regulations": {
-                code: reg.to_dict()
-                for code, reg in self.regulations.items()
-            },
-            "all_fields": [
-                {
-                    "name": f.name,
-                    "display_name": f.display_name,
-                    "field_type": f.field_type.value,
-                    "privacy_level": f.privacy_level.value,
-                    "required": f.required,
-                    "pattern": f.pattern,
-                    "description": f.description,
-                    "country_specific": f.country_specific
-                }
-                for f in self.get_all_data_fields()
-            ]
-        }
-        
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
-        
-        self.logger.info(f"Exported configuration to {output_path}")
+        try:
+            config = {
+                "countries": self.country_codes,
+                "regulations": {
+                    code: reg.to_dict()
+                    for code, reg in self.regulations.items()
+                },
+                "all_fields": [
+                    {
+                        "name": f.name,
+                        "display_name": f.display_name,
+                        "field_type": f.field_type.value,
+                        "privacy_level": f.privacy_level.value,
+                        "required": f.required,
+                        "pattern": f.pattern,
+                        "description": f.description,
+                        "country_specific": f.country_specific
+                    }
+                    for f in self.get_all_data_fields()
+                ]
+            }
+            
+            output_path = Path(output_path)
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(config, f, indent=2, ensure_ascii=False)
+            
+            self.logger.info(f"Exported configuration to {output_path}")
+            
+        except (IOError, OSError) as e:
+            raise IOError(f"Failed to export configuration to {output_path}: {e}") from e
     
     def get_requirements_summary(self) -> Dict[str, List[str]]:
         """

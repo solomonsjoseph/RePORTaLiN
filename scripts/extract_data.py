@@ -5,6 +5,41 @@ Data Extraction Module
 
 Extracts raw data from Excel files and converts to JSONL format with
 type conversion, progress tracking, and error recovery.
+
+This module provides robust Excel-to-JSONL conversion with duplicate column
+handling, data validation, and comprehensive error recovery.
+
+Example:
+    Basic usage::
+
+        from scripts.extract_data import extract_excel_to_jsonl
+        
+        # Extract all Excel files from dataset directory
+        result = extract_excel_to_jsonl()
+        print(f"Processed {result['files_created']} files")
+        print(f"Total records: {result['total_records']}")
+
+    Programmatic usage::
+
+        from scripts.extract_data import process_excel_file, find_excel_files
+        from pathlib import Path
+        
+        # Find Excel files
+        excel_files = find_excel_files("data/dataset/Indo-vap")
+        
+        # Process individual file
+        for file in excel_files:
+            success, count, error = process_excel_file(file, "results/dataset")
+            if success:
+                print(f"{file.name}: {count} records")
+
+Key Features:
+    - Dual output: Creates both original and cleaned JSONL versions
+    - Duplicate column removal: Intelligently removes SUBJID2, SUBJID3, etc.
+    - Type conversion: Handles pandas/numpy types, dates, NaN values
+    - Integrity checks: Validates output files before skipping
+    - Error recovery: Continues processing even if individual files fail
+    - Progress tracking: Real-time colored progress bars
 """
 import os
 import sys
@@ -18,6 +53,18 @@ from typing import List, Tuple, Optional, Dict, Any
 from tqdm import tqdm
 from scripts.utils import logging as log
 import config
+
+__all__ = [
+    # Main Functions
+    'extract_excel_to_jsonl',
+    # File Processing
+    'process_excel_file',
+    'find_excel_files',
+    # Data Conversion
+    'convert_dataframe_to_jsonl',
+    'clean_record_for_json',
+    'clean_duplicate_columns',
+]
 
 def clean_record_for_json(record: dict) -> dict:
     """Convert pandas record to JSON-serializable types."""
@@ -175,6 +222,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
                 "total_records": 0, "errors": []}
     
     log.info(f"Found {len(excel_files)} Excel files to process")
+    log.debug(f"Excel files: {[f.name for f in excel_files[:10]]}{'...' if len(excel_files) > 10 else ''}")
     print(f"Found {len(excel_files)} Excel files to process...")
     total_records, files_created, files_skipped, errors = 0, 0, 0, []
     

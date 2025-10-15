@@ -3,6 +3,264 @@ Extending RePORTaLiN
 
 This guide explains how to extend and customize RePORTaLiN for your specific needs.
 
+.. versionchanged:: 0.0.3
+   Added configuration module utilities (``ensure_directories()``, ``validate_config()``).
+   See `Working with Configuration Module`_ for new features.
+
+.. versionchanged:: 0.0.4
+   Logging module enhanced with better type hints, optimized performance, and explicit public API.
+
+.. versionchanged:: 0.0.7
+   Data extraction module enhanced with explicit public API (6 exports), comprehensive usage examples,
+   and verified type safety. See `Working with Data Extraction Module`_ for public API details.
+
+.. versionchanged:: 0.0.8
+   Data dictionary module enhanced with explicit public API (2 exports), comprehensive usage examples,
+   and algorithm documentation. See `Working with Data Dictionary Module`_ for public API details.
+
+Working with Data Dictionary Module
+------------------------------------
+
+.. versionadded:: 0.0.8
+
+The ``scripts/load_dictionary.py`` module provides a well-defined public API for processing data dictionary Excel files.
+
+Using the Public API
+~~~~~~~~~~~~~~~~~~~~
+
+The module exports 2 functions via ``__all__``:
+
+1. **load_study_dictionary** - High-level function using config defaults
+2. **process_excel_file** - Low-level function for custom workflows
+
+**Best Practice: Use the public API**
+
+.. code-block:: python
+
+   # Recommended: Use public API
+   from scripts.load_dictionary import (
+       load_study_dictionary,
+       process_excel_file
+   )
+   
+   # High-level usage with config defaults
+   success = load_study_dictionary()
+   
+   # Custom file processing
+   success = process_excel_file(
+       excel_path="data/custom_dictionary.xlsx",
+       output_dir="results/custom_output",
+       preserve_na=True
+   )
+
+**Extending with Custom Processing**
+
+.. code-block:: python
+
+   from scripts.load_dictionary import process_excel_file
+   import pandas as pd
+   
+   def custom_dictionary_processor(
+       excel_path: str,
+       output_dir: str,
+       custom_validation: callable = None
+   ) -> bool:
+       """Process dictionary with custom validation."""
+       
+       # Process with standard function
+       success = process_excel_file(excel_path, output_dir)
+       
+       if success and custom_validation:
+           # Apply custom post-processing
+           custom_validation(output_dir)
+       
+       return success
+   
+   # Use custom processor
+   def validate_output(output_dir: str):
+       """Custom validation logic."""
+       print(f"Validating output in {output_dir}")
+       # Add your validation logic here
+   
+   custom_dictionary_processor(
+       "data/dictionary.xlsx",
+       "results/output",
+       validate_output
+   )
+
+**Understanding Multi-Table Detection**
+
+The module's table detection algorithm:
+
+1. Identifies horizontal strips (separated by empty rows)
+2. Within each strip, identifies vertical sections (separated by empty columns)
+3. Extracts each non-empty section as a separate table
+4. Deduplicates column names by appending numeric suffixes
+5. Checks for "ignore below" markers and segregates subsequent tables
+6. Adds metadata fields (``__sheet__``, ``__table__``)
+7. Saves to JSONL with proper directory structure
+
+**Type Safety Benefits**
+
+The module has 100% type hint coverage:
+
+- All functions have parameter and return type annotations
+- IDEs provide better autocomplete and error detection
+- Static analysis tools (mypy, pyright) can verify correctness
+- Documentation is clear about expected inputs/outputs
+
+See :doc:`../api/scripts.load_dictionary` for complete API reference.
+
+Working with Data Extraction Module
+------------------------------------
+
+.. versionadded:: 0.0.7
+
+The ``scripts/extract_data.py`` module provides a well-defined public API for Excel to JSONL conversion.
+
+Using the Public API
+~~~~~~~~~~~~~~~~~~~~
+
+The module exports 6 functions via ``__all__``:
+
+1. **extract_excel_to_jsonl** - Batch process all Excel files
+2. **process_excel_file** - Process a single Excel file
+3. **find_excel_files** - Find Excel files in a directory
+4. **convert_dataframe_to_jsonl** - Convert DataFrame to JSONL
+5. **clean_record_for_json** - Clean record for JSON serialization
+6. **clean_duplicate_columns** - Remove duplicate columns
+
+**Best Practice: Use the public API**
+
+.. code-block:: python
+
+   # Recommended: Use public API
+   from scripts.extract_data import (
+       extract_excel_to_jsonl,
+       process_excel_file,
+       find_excel_files
+   )
+   
+   # Batch processing
+   extract_excel_to_jsonl(
+       input_dir="data/dataset/Indo-vap",
+       output_dir="results/dataset/Indo-vap"
+   )
+   
+   # Single file processing
+   result = process_excel_file(
+       "data/file.xlsx",
+       "results/output"
+   )
+   print(f"Processed {result['records']} records")
+
+**Extending with Custom Conversions**
+
+.. code-block:: python
+
+   import pandas as pd
+   from scripts.extract_data import (
+       clean_record_for_json,
+       convert_dataframe_to_jsonl
+   )
+   
+   def custom_dataframe_processor(df: pd.DataFrame) -> pd.DataFrame:
+       """Apply custom transformations before conversion."""
+       # Custom logic here
+       df = df.dropna(subset=['required_column'])
+       df['new_column'] = df['old_column'] * 2
+       return df
+   
+   # Use with standard conversion
+   df = pd.read_excel("input.xlsx")
+   df = custom_dataframe_processor(df)
+   convert_dataframe_to_jsonl(df, "output.jsonl", "input.xlsx")
+
+**Type Safety Benefits**
+
+The module has 100% type hint coverage:
+
+- All functions have parameter and return type annotations
+- IDEs provide better autocomplete and error detection
+- Static analysis tools (mypy, pyright) can verify correctness
+- Documentation is clear about expected inputs/outputs
+
+See :doc:`../api/scripts.extract_data` for complete API reference.
+
+Working with Configuration Module
+----------------------------------
+
+.. versionadded:: 0.0.3
+
+The enhanced ``config.py`` module provides utilities for robust configuration management.
+
+Using Configuration Utilities
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Best Practice: Validate at startup**
+
+.. code-block:: python
+
+   # main.py or your script
+   
+   from config import validate_config, ensure_directories
+   import logging
+   
+   def main():
+       # Validate configuration first
+       warnings = validate_config()
+       if warnings:
+           logging.warning("Configuration issues detected:")
+           for warning in warnings:
+               logging.warning(f"  {warning}")
+       
+       # Ensure directories exist
+       ensure_directories()
+       
+       # Continue with your pipeline...
+
+**Adding Custom Configuration Validation**
+
+.. code-block:: python
+
+   # custom_validator.py
+   
+   from typing import List
+   from config import validate_config
+   import os
+   
+   def validate_custom_config() -> List[str]:
+       """Extend configuration validation with custom checks."""
+       warnings = validate_config()  # Get base warnings
+       
+       # Add custom checks
+       custom_paths = [
+           "/path/to/custom/resource",
+           "/path/to/another/file"
+       ]
+       
+       for path in custom_paths:
+           if not os.path.exists(path):
+               warnings.append(f"Custom resource not found: {path}")
+       
+       return warnings
+
+**Using Constants in Extensions**
+
+.. code-block:: python
+
+   from config import DEFAULT_DATASET_NAME, DATASET_SUFFIXES
+   
+   def process_dataset(folder_name: str = None):
+       """Process a dataset with fallback to default."""
+       name = folder_name or DEFAULT_DATASET_NAME
+       print(f"Processing dataset: {name}")
+       
+   # Check if folder has recognized suffix
+   def has_dataset_suffix(folder_name: str) -> bool:
+       """Check if folder name has a dataset suffix."""
+       return any(folder_name.endswith(suffix) for suffix in DATASET_SUFFIXES)
+
 Adding New Output Formats
 --------------------------
 
@@ -147,6 +405,90 @@ Example: Adding Data Validation
 
 Adding Custom Logging
 ----------------------
+
+.. versionchanged:: 0.0.4
+   Logging module enhanced with better type hints, optimized performance, and explicit public API.
+
+Understanding the Logging Module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``scripts.utils.logging`` module provides a robust logging infrastructure with:
+
+- **Thread-safe**: No shared mutable state
+- **Optimized**: No unnecessary record copying
+- **Type-safe**: Comprehensive type hints throughout
+- **Well-defined API**: Explicit ``__all__`` declaration
+
+**Public API** (v0.0.4):
+
+.. code-block:: python
+
+   from scripts.utils.logging import (
+       # Setup functions (3)
+       setup_logger,      # Initialize logging system
+       get_logger,        # Get logger instance
+       get_log_file_path, # Get current log file path
+       
+       # Logging functions (6)
+       debug,             # Log debug messages
+       info,              # Log info messages
+       warning,           # Log warnings
+       error,             # Log errors
+       critical,          # Log critical errors
+       success,           # Log success messages (custom level)
+       
+       # Constants (2)
+       SUCCESS,           # SUCCESS level constant (25)
+       Colors,            # ANSI color codes
+   )
+
+Best Practices for Extensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **Use the public API only**:
+
+   .. code-block:: python
+
+      # Good: Use public API
+      from scripts.utils.logging import info, success, error
+      
+      info("Processing data")
+      success("Processing complete")
+      
+      # Avoid: Don't access private internals
+      from scripts.utils.logging import _logger  # Don't do this
+
+2. **Don't mutate log records**:
+
+   .. code-block:: python
+
+      # Good: Create custom formatter without mutation
+      class MyFormatter(logging.Formatter):
+          def format(self, record: logging.LogRecord) -> str:
+              # Don't modify record; work with formatted string
+              formatted = super().format(record)
+              return f"[CUSTOM] {formatted}"
+      
+      # Bad: Mutating record (not thread-safe)
+      class BadFormatter(logging.Formatter):
+          def format(self, record: logging.LogRecord) -> str:
+              record.msg = f"[CUSTOM] {record.msg}"  # Don't mutate!
+              return super().format(record)
+
+3. **Use proper exception handling**:
+
+   .. code-block:: python
+
+      from scripts.utils.logging import error, info
+      
+      try:
+          risky_operation()
+          info("Operation completed")
+      except ValueError as e:
+          error(f"Invalid value: {e}", exc_info=True)
+      except Exception as e:
+          error(f"Unexpected error: {e}", exc_info=True)
+          raise
 
 Example: Adding Email Notifications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

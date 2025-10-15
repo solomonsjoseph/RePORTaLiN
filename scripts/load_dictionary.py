@@ -4,7 +4,103 @@ Data Dictionary Loader Module
 
 Processes data dictionary Excel files, intelligently splitting sheets into multiple 
 tables based on structural boundaries and saving in JSONL format.
+
+This module provides intelligent table detection and extraction from complex Excel
+layouts, automatically handling multi-table sheets, "ignore below" markers, and
+duplicate column naming.
+
+Public API
+----------
+The module exports 2 main functions via ``__all__``:
+
+- ``load_study_dictionary``: High-level function to process dictionary files
+- ``process_excel_file``: Low-level function for custom processing workflows
+
+Key Features
+------------
+- **Multi-table Detection**: Automatically splits sheets with multiple tables
+- **Boundary Detection**: Uses empty rows/columns to identify table boundaries
+- **"Ignore Below" Support**: Handles special markers to segregate extra tables
+- **Duplicate Column Handling**: Automatically deduplicates column names
+- **Progress Tracking**: Real-time progress bars with colored output
+- **Metadata Injection**: Adds ``__sheet__`` and ``__table__`` fields
+
+Usage Examples
+--------------
+
+Basic Usage (Recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Process data dictionary with default configuration::
+
+    from scripts.load_dictionary import load_study_dictionary
+    
+    # Uses config.DICTIONARY_EXCEL_FILE and config.DICTIONARY_JSON_OUTPUT_DIR
+    success = load_study_dictionary()
+    if success:
+        print("Dictionary processed successfully!")
+
+Custom File Processing
+~~~~~~~~~~~~~~~~~~~~~~
+
+Process a custom Excel file with specific output directory::
+
+    from scripts.load_dictionary import process_excel_file
+    
+    success = process_excel_file(
+        excel_path="data/custom_dictionary.xlsx",
+        output_dir="results/custom_output",
+        preserve_na=True  # Preserve empty cells as None
+    )
+    
+    if success:
+        print("Custom file processed!")
+
+Advanced Configuration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Process with custom NA handling::
+
+    from scripts.load_dictionary import load_study_dictionary
+    
+    # Don't preserve NA values (use pandas defaults)
+    success = load_study_dictionary(
+        file_path="data/my_dictionary.xlsx",
+        json_output_dir="results/my_output",
+        preserve_na=False
+    )
+
+Table Detection Algorithm
+-------------------------
+The module uses a sophisticated algorithm to detect tables:
+
+1. Identify horizontal strips (separated by empty rows)
+2. Within each strip, identify vertical sections (separated by empty columns)
+3. Extract each non-empty section as a separate table
+4. Deduplicate column names by appending numeric suffixes
+5. Check for "ignore below" markers and segregate subsequent tables
+6. Add metadata fields and save to JSONL
+
+Output Structure
+----------------
+For a sheet with multiple tables, creates this structure::
+
+    output_dir/
+    └── SheetName/
+        ├── SheetName_table_1.jsonl  # First table
+        ├── SheetName_table_2.jsonl  # Second table
+        └── extraas/                 # Tables after "ignore below"
+            ├── extraas_table_3.jsonl
+            └── extraas_table_4.jsonl
+
+See Also
+--------
+- :func:`scripts.extract_data.extract_excel_to_jsonl` - For dataset extraction
+- :mod:`config` - Configuration settings
 """
+
+__all__ = ['load_study_dictionary', 'process_excel_file']
+
 import pandas as pd
 import os
 import sys
@@ -74,6 +170,7 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
     folder_name = "".join(c for c in sheet_name if c.isalnum() or c in "._- ").strip()
     sheet_dir = os.path.join(output_dir, folder_name)
     os.makedirs(sheet_dir, exist_ok=True)
+    log.debug(f"Processing {len(all_tables)} tables from sheet '{sheet_name}'")
     ignore_mode = False
     
     for i, table_df in enumerate(all_tables):
@@ -131,6 +228,7 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
     
     try:
         xls = pd.ExcelFile(excel_path)
+        log.debug(f"Excel file loaded successfully. Found {len(xls.sheet_names)} sheets: {xls.sheet_names}")
     except Exception as e:
         log.error(f"Failed to read Excel: {e}")
         return False

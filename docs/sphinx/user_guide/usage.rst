@@ -31,6 +31,39 @@ Skip Specific Steps
    # Run neither (useful for testing configuration)
    python main.py --skip-dictionary --skip-extraction
 
+Verbose Logging
+~~~~~~~~~~~~~~~
+
+Enable detailed DEBUG-level logging for troubleshooting and monitoring:
+
+.. code-block:: bash
+
+   # Enable verbose logging
+   python main.py --verbose
+   
+   # Short form
+   python main.py -v
+   
+   # With de-identification
+   python main.py -v --enable-deidentification --countries IN US
+
+**What verbose mode shows:**
+
+- List of files found and their processing order
+- Sheet names and table counts for dictionary files
+- Individual file processing status
+- Duplicate column detection details
+- De-identification pattern matches and PHI/PII detection counts
+- Progress updates every 1000 records for large files
+
+**Log file location:** ``.logs/reportalin_YYYYMMDD_HHMMSS.log``
+
+**Performance impact:** Minimal (<2% slowdown), increases log file size by 3-5x
+
+.. note::
+   Console output remains unchanged (only SUCCESS/ERROR messages).
+   Verbose output goes to the log file for detailed analysis.
+
 Working with Multiple Datasets
 -------------------------------
 

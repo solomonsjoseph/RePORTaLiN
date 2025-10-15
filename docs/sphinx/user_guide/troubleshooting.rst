@@ -76,6 +76,49 @@ Permission Errors
 Data Processing Issues
 ----------------------
 
+Debugging with Verbose Logging
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Problem**: Need to understand what the pipeline is doing or troubleshoot issues
+
+**Solution**: Enable verbose (DEBUG) logging
+
+.. code-block:: bash
+
+   # Enable verbose logging
+   python main.py -v
+   
+   # View log file in real-time
+   tail -f .logs/reportalin_*.log
+   
+   # Filter for specific issues
+   python main.py -v 2>&1 | grep -E "ERROR|WARNING|DEBUG.*Processing"
+
+**What you'll see in verbose mode:**
+
+1. **File Discovery**
+   
+   .. code-block:: text
+   
+      DEBUG - Excel files: ['10_TST.xlsx', '11_IGRA.xlsx', '12A_FUA.xlsx', ...]
+      DEBUG - Processing 10_TST.xlsx
+
+2. **Table Detection**
+   
+   .. code-block:: text
+   
+      DEBUG - Excel file loaded successfully. Found 17 sheets: ['Codelists', 'Notes', ...]
+      DEBUG - Processing 3 tables from sheet 'Codelists'
+
+3. **De-identification Details**
+   
+   .. code-block:: text
+   
+      DEBUG - Initialized DeidentificationEngine with config: countries=['IN'], encryption=True
+      DEBUG - Files to process: ['1A_ICScreening.jsonl', '1B_HCScreening.jsonl', ...]
+      DEBUG - Processed 1000 records from 1A_ICScreening.jsonl
+      DEBUG - Detected 42 PHI/PII items: ['person_name', 'phone', 'email', ...]
+
 No Excel Files Found
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -189,6 +232,9 @@ RePORTaLiN automatically handles this conversion.
 Logging Issues
 --------------
 
+.. versionchanged:: 0.0.4
+   Logging module enhanced for better reliability and performance.
+
 No Log Files Created
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -214,6 +260,9 @@ No Log Files Created
    # Run with verbose output
    python main.py 2>&1 | tee output.log
 
+**Technical Note** (v0.0.4): The logging system is thread-safe and optimized for performance.
+If logs are missing, check for early import errors or permission issues.
+
 Log Files Too Large
 ~~~~~~~~~~~~~~~~~~~
 
@@ -232,8 +281,49 @@ Log Files Too Large
        backupCount=5
    )
 
+Console Output Issues
+~~~~~~~~~~~~~~~~~~~~~
+
+**Problem**: Console shows too much or too little output
+
+**Solution**: The console handler is filtered to show only SUCCESS, ERROR, and CRITICAL messages by default.
+
+.. code-block:: python
+
+   # To see all messages (including INFO and DEBUG), check the log files
+   cat .logs/reportalin_*.log
+   
+   # Or modify the console filter in scripts/utils/logging.py
+
+**Technical Note** (v0.0.4): Console output uses colored formatting for better readability.
+If colors don't display correctly, check your terminal's ANSI support.
+
 Configuration Issues
 --------------------
+
+Quick Configuration Check (v0.0.3+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.0.3
+
+**Use the built-in validation utility:**
+
+.. code-block:: python
+
+   from config import validate_config
+   
+   warnings = validate_config()
+   if warnings:
+       print("Configuration issues found:")
+       for warning in warnings:
+           print(f"  ⚠️  {warning}")
+   else:
+       print("✓ Configuration is valid!")
+
+This automatically checks for:
+  - Missing data directory
+  - Missing dataset directory
+  - Missing data dictionary file
 
 Dataset Not Auto-Detected
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -246,26 +336,42 @@ Dataset Not Auto-Detected
 
    python -c "import config; print(config.DATASET_NAME)"
 
-**Solution 1**: Ensure folder exists in correct location
+**Solution 1**: Use validation utility (v0.0.3+)
+
+.. code-block:: python
+
+   from config import validate_config, ensure_directories
+   
+   # Check for issues
+   warnings = validate_config()
+   for warning in warnings:
+       print(warning)
+   
+   # Ensure directories exist
+   ensure_directories()
+
+**Solution 2**: Ensure folder exists in correct location
 
 .. code-block:: bash
 
    mkdir -p data/dataset/my_dataset
    cp *.xlsx data/dataset/my_dataset/
 
-**Solution 2**: Check for hidden folders
+**Solution 3**: Check for hidden folders
 
 .. code-block:: bash
 
    ls -la data/dataset/
    # Should show folders (not starting with '.')
 
-**Solution 3**: Manually specify in config.py
+**Solution 4**: Manually specify in config.py
 
 .. code-block:: python
 
    # config.py
-   DATASET_NAME = "my_dataset"
+   from config import DEFAULT_DATASET_NAME
+   
+   DATASET_NAME = "my_dataset"  # Or use DEFAULT_DATASET_NAME
    DATASET_DIR = os.path.join(DATA_DIR, "dataset", DATASET_NAME)
 
 Wrong Output Directory

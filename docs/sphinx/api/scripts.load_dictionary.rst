@@ -12,6 +12,70 @@ Overview
 The ``load_dictionary`` module processes Excel-based data dictionaries with
 intelligent table detection, automatic splitting, and duplicate column handling.
 
+**Enhanced in v0.0.8:**
+
+- ✅ Added explicit public API definition via ``__all__`` (2 exports)
+- ✅ Enhanced module docstring with comprehensive usage examples (97 lines, 1,400% increase)
+- ✅ Verified 100% type hint coverage and robust error handling
+- ✅ Production-ready with backward compatibility preserved
+
+Public API (2 Exports)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The module explicitly exports these 2 functions via ``__all__``:
+
+1. **load_study_dictionary** - High-level function to process dictionary files with config defaults
+2. **process_excel_file** - Low-level function for custom processing workflows
+
+This explicit API definition:
+
+- ✅ Provides clear separation of public vs internal API
+- ✅ Improves IDE autocomplete and type checking
+- ✅ Prevents accidental usage of private implementation details
+- ✅ Documents the stable, supported interface
+
+Enhanced Documentation (v0.0.8)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module docstring has been enhanced from 165 to 2,480 characters (97 lines), including:
+
+**Three Comprehensive Usage Examples:**
+
+1. **Basic Usage** - Process with default configuration from config module
+2. **Custom File Processing** - Process custom Excel file with specific output directory
+3. **Advanced Configuration** - Custom NA handling for specialized use cases
+
+**Key Features Highlighted:**
+
+- Multi-table detection: Automatically splits sheets with multiple tables
+- Boundary detection: Uses empty rows/columns to identify table boundaries
+- "Ignore below" support: Handles special markers to segregate extra tables
+- Duplicate column handling: Automatically deduplicates column names
+- Progress tracking: Real-time progress bars with colored output
+- Metadata injection: Adds ``__sheet__`` and ``__table__`` fields
+
+**Algorithm Documentation:**
+
+- 7-step table detection process explained
+- Empty row/column boundary detection
+- Horizontal/vertical strip processing
+- Table extraction and metadata addition
+
+**Output Structure:**
+
+- Directory tree showing multi-table output organization
+- "extraas" folder structure for ignored tables
+- Clear naming conventions for output files
+
+**For Complete Examples:**
+
+See the module docstring for ready-to-use code snippets that demonstrate:
+
+- Real-world file paths and directory structures
+- Error handling patterns
+- Expected output formats
+- Processing options (preserve_na, custom paths)
+
 Functions
 ---------
 

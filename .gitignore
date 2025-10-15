@@ -1,4 +1,27 @@
-# Python
+# ============================================================================
+# RePORTaLiN .gitignore
+# ============================================================================
+# Enhanced for clinical data processing with PHI/PII protection
+#
+# Organization:
+# 1. Python & Build Artifacts
+# 2. Virtual Environments
+# 3. IDEs & Editors
+# 4. Logs & Temporary Files
+# 5. Operating Systems
+# 6. Testing & Coverage
+# 7. Type Checking
+# 8. Jupyter Notebooks
+# 9. Documentation
+# 10. Security & Secrets (CRITICAL)
+# 11. De-identification & PHI/PII (CRITICAL)
+# 12. Data Science & ML
+# 13. Databases
+# 14. Project-Specific
+
+# ============================================================================
+# 1. Python & Build Artifacts
+# ============================================================================
 __pycache__/
 *.py[cod]
 *.pyd
@@ -6,94 +29,217 @@ __pycache__/
 *.so
 .Python
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
+# ============================================================================
+# 2. Virtual Environments
+# ============================================================================
 .venv/
 venv/
 env/
 ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# ============================================================================
+# 3. IDEs & Editors
+# ============================================================================
+# VS Code
 .vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
 .idea/
+*.iml
+*.iws
+
+# Vim / Emacs
 *.swp
 *.swo
 *~
+\#*\#
+.\#*
 
-# Logs
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# 4. Logs & Temporary Files
+# ============================================================================
 .logs/
 *.log
-
-# Temporary files
+*.log.*
+logs/
 temp/
+tmp/
 .backup/
+*.tmp
+*.temp
 
-# OS
+# ============================================================================
+# 5. Operating Systems
+# ============================================================================
+# macOS
 .DS_Store
 .DS_Store?
 ._*
+.AppleDouble
+.LSOverride
 .Spotlight-V100
 .Trashes
-Thumbs.db
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.fseventsd
 
-# Testing
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# 6. Testing & Coverage
+# ============================================================================
 .pytest_cache/
+.tox/
+.nox/
 htmlcov/
 .coverage
 .coverage.*
 coverage.xml
 *.cover
+*.py,cover
+.hypothesis/
+.cache
+nosetests.xml
 
-# Type checking
+# ============================================================================
+# 7. Type Checking
+# ============================================================================
 .mypy_cache/
 .dmypy.json
 dmypy.json
+.pyre/
+.pytype/
 
-# Jupyter Notebooks
+# ============================================================================
+# 8. Jupyter Notebooks
+# ============================================================================
 .ipynb_checkpoints/
 *.ipynb_checkpoints
+*-checkpoint.ipynb
 
-# Documentation builds
+# ============================================================================
+# 9. Documentation
+# ============================================================================
 docs/sphinx/_build/
+docs/sphinx/_static/
+docs/sphinx/_templates/
+docs/_build/
+site/
 
-# Security - Encryption keys and secrets
+# ============================================================================
+# 10. Security & Secrets (CRITICAL - DO NOT COMMIT)
+# ============================================================================
+# Encryption keys
 *.key
 *.pem
+*.p12
+*.pfx
 *.fernet
+*.secret
+
+# Environment variables & secrets
 .env
 .env.*
+!.env.example
 secrets.*
+*.credentials
+credentials.json
 
-# De-identification outputs (contains PHI/PII mappings)
+# SSL/TLS certificates
+*.crt
+*.cer
+*.der
+
+# ============================================================================
+# 11. De-identification & PHI/PII (CRITICAL - DO NOT COMMIT)
+# ============================================================================
+# Mapping files (contain PHI/PII → pseudonym relationships)
 *_mappings.json
 *_mappings.json.enc
 *_deidentification_key.key
 *_deidentification_audit.json
 results/deidentified/mappings/
 
-# Original dataset with PHI/PII
+# Original dataset directories (may contain PHI/PII)
 results/dataset/
 
-# Data Science & ML artifacts
+# Any files marked as containing PHI/PII
+*_phi.json
+*_pii.json
+*_sensitive.*
+
+# ============================================================================
+# 12. Data Science & ML Artifacts
+# ============================================================================
 *.pkl
 *.pickle
+*.joblib
 *.h5
 *.hdf5
 *.ckpt
 *.pth
+*.pt
 *.model
+*.weights
+models/
+checkpoints/
 
-# Database files
+# ============================================================================
+# 13. Databases
+# ============================================================================
 *.db
 *.sqlite
 *.sqlite3
+*.db-journal
 
-# Project-specific
+# ============================================================================
+# 14. Project-Specific
+# ============================================================================
+# Excel temporary files
 data/data_dictionary_and_mapping_specifications/~$*.xlsx
+~$*.xlsx
 
-# Results (uncomment if you don't want to track results)
+# Results directory (uncomment to exclude all results)
 # results/
+
+# Large data files (uncomment if needed)
+# data/dataset/
+# data/Annotated_PDFs/

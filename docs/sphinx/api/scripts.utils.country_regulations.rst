@@ -6,10 +6,27 @@ scripts.utils.country\_regulations module
    :undoc-members:
    :show-inheritance:
 
+.. versionchanged:: 0.0.5
+   Added explicit public API definition via ``__all__`` (6 exports) and enhanced module
+   docstring with usage examples.
+
 Overview
 --------
 
 The ``country_regulations`` module provides comprehensive country-specific data privacy regulations for patient data de-identification. It supports 14 countries across North America, Europe, Asia-Pacific, and Africa, ensuring compliance with local privacy laws.
+
+**Public API** (v0.0.5):
+
+.. code-block:: python
+
+   __all__ = [
+       'DataFieldType',       # Enum for field types
+       'PrivacyLevel',        # Enum for privacy levels
+       'DataField',           # Dataclass for field definitions
+       'CountryRegulation',   # Dataclass for regulations
+       'CountryRegulationManager',  # Main manager class
+       'get_common_fields',   # Helper function
+   ]
 
 .. note::
    When initializing ``CountryRegulationManager`` without specifying a country, it defaults to **India (IN)** to align with the RePORTaLiN project's primary focus on tuberculosis research in India.

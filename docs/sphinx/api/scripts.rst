@@ -11,6 +11,59 @@ Overview
 
 The ``scripts`` package contains the core processing modules for RePORTaLiN.
 
+**Enhanced in v0.0.9:**
+
+- ✅ Enhanced package-level documentation with comprehensive usage examples
+- ✅ Clear public API definition (2 high-level functions)
+- ✅ Integration examples for complete data processing pipeline
+- ✅ De-identification workflow documentation
+- ✅ Module structure and cross-references
+
+Package-Level Public API
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The package exports 2 high-level functions for the main processing pipeline:
+
+1. **load_study_dictionary** - Process data dictionary Excel files
+2. **extract_excel_to_jsonl** - Extract dataset Excel files to JSONL
+
+**Quick Start:**
+
+.. code-block:: python
+
+   from scripts import load_study_dictionary, extract_excel_to_jsonl
+   
+   # Step 1: Load data dictionary
+   dict_success = load_study_dictionary()
+   
+   # Step 2: Extract dataset
+   extract_success = extract_excel_to_jsonl(
+       input_dir="data/dataset/Indo-vap",
+       output_dir="results/dataset/Indo-vap"
+   )
+
+For specialized functionality, import directly from submodules:
+
+- ``scripts.load_dictionary`` - 2 public functions
+- ``scripts.extract_data`` - 6 public functions  
+- ``scripts.utils.deidentify`` - 10 public functions
+- ``scripts.utils.country_regulations`` - 6 public functions
+- ``scripts.utils.logging`` - 12 public functions
+
+Module Organization
+~~~~~~~~~~~~~~~~~~~
+
+::
+
+   scripts/
+   ├── __init__.py              # Package API (2 exports)
+   ├── load_dictionary.py       # Data dictionary (2 exports)
+   ├── extract_data.py          # Data extraction (6 exports)
+   └── utils/
+       ├── deidentify.py        # De-identification (10 exports)
+       ├── country_regulations.py  # Privacy rules (6 exports)
+       └── logging.py           # Logging (12 exports)
+
 Submodules
 ----------
 

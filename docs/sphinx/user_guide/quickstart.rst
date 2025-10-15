@@ -32,6 +32,24 @@ Before you begin, ensure you have:
 
 ✅ **5-10 minutes** of time for initial setup
 
+Verify Configuration (Optional, v0.0.3+)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before running the pipeline, validate your setup:
+
+.. code-block:: python
+
+   from config import validate_config
+   
+   warnings = validate_config()
+   if warnings:
+       for warning in warnings:
+           print(warning)
+   else:
+       print("Configuration is valid")
+
+See :doc:`configuration` for details.
+
 Expected Output
 ---------------
 

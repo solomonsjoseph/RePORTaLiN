@@ -1,5 +1,14 @@
 # Makefile for RePORTaLiN Project
-# Simplified for production use
+# =================================
+# Enhanced for cross-platform compatibility and production use
+#
+# Features:
+# - Auto-detection of Python (python3/python)
+# - Virtual environment support and auto-detection
+# - Cross-platform browser detection
+# - Colored output for better readability
+# - Comprehensive cleaning and testing commands
+# - Documentation building and serving
 
 # Color output for better readability
 RED := \033[0;31m
@@ -28,7 +37,19 @@ else
 	PIP_CMD := $(PYTHON) -m pip
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-deidentify run-deidentify-plain docs docs-open test venv check-python lint format status
+# Detect OS for platform-specific commands
+UNAME_S := $(shell uname -s)
+
+# Detect browser command (for opening docs)
+ifeq ($(UNAME_S),Darwin)
+	BROWSER := open
+else ifeq ($(UNAME_S),Linux)
+	BROWSER := xdg-open
+else
+	BROWSER := echo "Please manually open:"
+endif
+
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch test venv check-python version lint format status
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -39,6 +60,7 @@ help:
 	@echo "  make venv                     - Create virtual environment"
 	@echo "  make install                  - Install all dependencies (auto-detects venv)"
 	@echo "  make check-python             - Check Python and environment status"
+	@echo "  make version                  - Show project version information"
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
 	@echo "  make run                      - Run pipeline (no de-identification)"
@@ -51,9 +73,14 @@ help:
 	@echo "  make format                   - Format code (if black installed)"
 	@echo "  make status                   - Show project status summary"
 	@echo ""
+	@echo "$(YELLOW)Debug (For Developers Only):$(NC)"
+	@echo "  make run-verbose              - Run pipeline with verbose (DEBUG) logging"
+	@echo "  make run-deidentify-verbose   - Run WITH de-identification + verbose logging"
+	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
 	@echo "  make docs                     - Build Sphinx HTML documentation"
 	@echo "  make docs-open                - Build docs and open in browser"
+	@echo "  make docs-watch               - Auto-rebuild docs on file changes (requires sphinx-autobuild)"
 	@echo ""
 	@echo "$(GREEN)Cleaning:$(NC)"
 	@echo "  make clean                    - Remove Python cache files"
@@ -96,17 +123,50 @@ install:
 	@$(PIP_CMD) install -r requirements.txt
 	@echo "$(GREEN)✓ Dependencies installed$(NC)"
 
+version:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)       RePORTaLiN Version Information          $(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo "$(GREEN)Project Version:$(NC)"
+	@$(PYTHON_CMD) main.py --version
+	@echo ""
+	@echo "$(GREEN)Python Environment:$(NC)"
+	@echo "  Python: $$($(PYTHON_CMD) --version)"
+	@echo "  Path:   $(PYTHON_CMD)"
+	@echo ""
+	@echo "$(GREEN)Key Dependencies:$(NC)"
+	@$(PYTHON_CMD) -c "import pandas; print('  pandas:     ', pandas.__version__)" 2>/dev/null || echo "  pandas:      Not installed"
+	@$(PYTHON_CMD) -c "import openpyxl; print('  openpyxl:   ', openpyxl.__version__)" 2>/dev/null || echo "  openpyxl:    Not installed"
+	@$(PYTHON_CMD) -c "import tqdm; print('  tqdm:       ', tqdm.__version__)" 2>/dev/null || echo "  tqdm:        Not installed"
+	@$(PYTHON_CMD) -c "import cryptography; print('  cryptography:', cryptography.__version__)" 2>/dev/null || echo "  cryptography: Not installed"
+	@echo ""
+
 # Running commands
 run:
 	@echo "$(BLUE)Running RePORTaLiN pipeline (without de-identification)...$(NC)"
 	@$(PYTHON_CMD) main.py
 	@echo "$(GREEN)✓ Pipeline completed$(NC)"
 
+run-verbose:
+	@echo "$(BLUE)Running RePORTaLiN pipeline with VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(PYTHON_CMD) main.py --verbose
+	@echo "$(GREEN)✓ Pipeline completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
+
 run-deidentify:
 	@echo "$(BLUE)Running RePORTaLiN pipeline WITH de-identification (encrypted)...$(NC)"
 	@echo "$(YELLOW)Note: Encryption is enabled by default for security$(NC)"
 	@$(PYTHON_CMD) main.py --enable-deidentification
 	@echo "$(GREEN)✓ Pipeline completed$(NC)"
+
+run-deidentify-verbose:
+	@echo "$(BLUE)Running RePORTaLiN pipeline WITH de-identification + VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Note: Encryption enabled + Detailed DEBUG output to log file$(NC)"
+	@$(PYTHON_CMD) main.py --enable-deidentification --verbose
+	@echo "$(GREEN)✓ Pipeline completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
 
 run-deidentify-plain:
 	@echo "$(RED)═══════════════════════════════════════════════$(NC)"
@@ -223,6 +283,19 @@ docs:
 
 docs-open: docs
 	@echo "$(BLUE)Opening documentation in browser...$(NC)"
-	@open docs/sphinx/_build/html/index.html 2>/dev/null || \
-		xdg-open docs/sphinx/_build/html/index.html 2>/dev/null || \
+	@$(BROWSER) docs/sphinx/_build/html/index.html 2>/dev/null || \
 		echo "$(YELLOW)Please manually open: docs/sphinx/_build/html/index.html$(NC)"
+
+docs-watch:
+	@echo "$(BLUE)Starting Sphinx auto-rebuild server...$(NC)"
+	@echo "$(YELLOW)Documentation will auto-rebuild on file changes$(NC)"
+	@echo "$(YELLOW)Server will be available at http://127.0.0.1:8000$(NC)"
+	@echo ""
+	@if $(PYTHON_CMD) -c "import sphinx_autobuild" 2>/dev/null; then \
+		cd docs/sphinx && ../../$(PYTHON_CMD) -m sphinx_autobuild -b html . _build/html --host 127.0.0.1 --port 8000; \
+	else \
+		echo "$(RED)✗ sphinx-autobuild not installed$(NC)"; \
+		echo "$(YELLOW)Install with: pip install sphinx-autobuild$(NC)"; \
+		echo "$(YELLOW)Or run: make install (if already in requirements.txt)$(NC)"; \
+		exit 1; \
+	fi

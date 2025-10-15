@@ -6,12 +6,144 @@ scripts.utils.logging module
    :undoc-members:
    :show-inheritance:
 
+.. versionchanged:: 0.0.4
+   Enhanced code quality: removed unused imports, improved type hints, optimized performance,
+   and added explicit public API definition via ``__all__``.
+
 Overview
 --------
 
 The ``scripts.utils.logging`` module provides centralized logging infrastructure
 for RePORTaLiN with custom SUCCESS level, dual output (file + console), and
 intelligent filtering.
+
+**Key Features**:
+
+- Custom SUCCESS log level (25) between INFO and WARNING
+- Dual output: console (filtered) + file (complete)
+- Colored console output for better readability
+- Thread-safe and optimized (no record mutation)
+- Explicit public API via ``__all__``
+
+Public API
+----------
+
+The module exports the following public interface via ``__all__`` (12 exports total):
+
+**Setup Functions** (3):
+
+.. code-block:: python
+
+   setup_logger(log_name, log_level)  # Initialize logging system
+   get_logger()                        # Get the logger instance
+   get_log_file_path()                # Get path to current log file
+
+**Logging Functions** (6):
+
+.. code-block:: python
+
+   debug(message, *args, **kwargs)    # Debug-level messages
+   info(message, *args, **kwargs)     # Informational messages
+   warning(message, *args, **kwargs)  # Warning messages
+   error(message, *args, **kwargs)    # Error messages
+   critical(message, *args, **kwargs) # Critical error messages
+   success(message, *args, **kwargs)  # Success messages (custom level)
+
+**Constants** (2):
+
+.. code-block:: python
+
+   SUCCESS  # Custom log level constant (25)
+   Colors   # ANSI color codes class
+
+**Usage Example**:
+
+.. code-block:: python
+
+   from scripts.utils.logging import setup_logger, info, success, error
+   
+   # Setup (usually done in main.py)
+   setup_logger('myapp', logging.INFO)
+   
+   # Use logging functions
+   info("Processing started")
+   success("Operation completed")
+   error("An error occurred")
+
+Use these functions and constants when importing from the module.
+
+Setup Functions
+---------------
+
+setup_logger
+~~~~~~~~~~~~
+
+.. code-block:: python
+
+   setup_logger(log_name: str, log_level: int) -> logging.Logger
+
+Initialize the logging system with custom configuration.
+
+**Parameters**:
+  - ``log_name`` (str): Name for the logger (e.g., 'reportalin')
+  - ``log_level`` (int): Minimum logging level (e.g., ``logging.INFO``, ``logging.DEBUG``)
+
+**Returns**:
+  - ``logging.Logger``: Configured logger instance
+
+**Example**:
+
+.. code-block:: python
+
+   import logging
+   from scripts.utils.logging import setup_logger
+   
+   # Setup with INFO level
+   logger = setup_logger('myapp', logging.INFO)
+
+get_logger
+~~~~~~~~~~
+
+.. code-block:: python
+
+   get_logger() -> Optional[logging.Logger]
+
+Get the current logger instance.
+
+**Returns**:
+  - ``logging.Logger``: The logger instance, or ``None`` if not initialized
+
+**Example**:
+
+.. code-block:: python
+
+   from scripts.utils.logging import get_logger
+   
+   logger = get_logger()
+   if logger:
+       logger.info("Direct logger access")
+
+get_log_file_path
+~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   get_log_file_path() -> Optional[str]
+
+Get the path to the current log file.
+
+**Returns**:
+  - ``str``: Path to log file, or ``None`` if logging not initialized
+
+**Example**:
+
+.. code-block:: python
+
+   from scripts.utils.logging import get_log_file_path
+   
+   log_path = get_log_file_path()
+   if log_path:
+       print(f"Logs written to: {log_path}")
 
 Custom Log Levels
 -----------------
@@ -183,8 +315,15 @@ Console Handler
 ~~~~~~~~~~~~~~~
 
 - **Output**: stdout
-- **Format**: Simple message format (``LEVEL: message``)
+- **Format**: Colored format with level and message (``LEVEL: message``)
 - **Filter**: Shows only SUCCESS, ERROR, and CRITICAL messages (suppresses DEBUG, INFO, WARNING)
+- **Colors**: Color-coded by level (GREEN for SUCCESS, RED for ERROR/CRITICAL)
+- **Performance**: Optimized - no record mutation, direct formatting
+
+**Technical Details** (v0.0.4):
+  - ``ColoredFormatter`` does not mutate log records (thread-safe)
+  - No unnecessary copying of records (performance optimized)
+  - Uses ANSI escape codes for terminal colors
 
 File Handler
 ~~~~~~~~~~~~

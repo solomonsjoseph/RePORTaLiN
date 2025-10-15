@@ -1,12 +1,174 @@
-# main.py
+#!/usr/bin/env python3
 """
 RePORTaLiN Main Pipeline
 ========================
 
-Central entry point for the data processing pipeline, orchestrating data dictionary loading,
-Excel to JSONL extraction, and PHI/PII de-identification with comprehensive error handling.
+Central entry point for the clinical data processing pipeline, orchestrating:
+- Data dictionary loading and validation
+- Excel to JSONL extraction with type conversion
+- PHI/PII de-identification with country-specific compliance
+
+This module provides a complete end-to-end pipeline with comprehensive error handling,
+progress tracking, colored output, and flexible configuration via command-line arguments.
+
+Public API
+----------
+Exports 2 main functions via ``__all__``:
+
+- ``main``: Main pipeline orchestrator
+- ``run_step``: Pipeline step executor with error handling
+
+Key Features
+------------
+- **Multi-Step Pipeline**: Dictionary → Extraction → De-identification
+- **Flexible Execution**: Skip individual steps or run complete pipeline
+- **Country Compliance**: Support for 14 countries (US, IN, ID, BR, etc.)
+- **Colored Output**: Enhanced visual feedback (can be disabled)
+- **Error Recovery**: Comprehensive error handling with detailed logging
+- **Version Tracking**: Built-in version management
+
+Pipeline Steps
+--------------
+
+**Step 0: Data Dictionary Loading (Optional)**
+- Processes Excel data dictionary files
+- Splits multi-table sheets automatically
+- Outputs JSONL format with metadata
+
+**Step 1: Data Extraction (Default)**
+- Converts Excel files to JSONL format
+- Dual output: original and cleaned versions
+- Type conversion and validation
+- Progress tracking with colored bars
+
+**Step 2: De-identification (Opt-in)**
+- PHI/PII detection and pseudonymization
+- Country-specific regulations (HIPAA, GDPR, DPDPA, etc.)
+- Encrypted mapping storage
+- Date shifting with interval preservation
+
+Usage Examples
+--------------
+
+Basic Usage (Complete Pipeline)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Run all steps with default configuration::
+
+    python3 main.py
+
+This executes:
+1. Data dictionary loading
+2. Data extraction
+3. De-identification disabled (opt-in)
+
+Custom Pipeline Execution
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Skip specific steps::
+
+    # Skip dictionary, run extraction only
+    python3 main.py --skip-dictionary
+    
+    # Skip both dictionary and extraction
+    python3 main.py --skip-dictionary --skip-extraction
+    
+    # Run extraction with de-identification
+    python3 main.py --enable-deidentification
+
+De-identification Workflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Enable de-identification with specific countries::
+
+    # India only (default)
+    python3 main.py --enable-deidentification
+    
+    # Multiple countries
+    python3 main.py --enable-deidentification --countries IN US
+    
+    # All supported countries
+    python3 main.py --enable-deidentification --countries ALL
+    
+    # Without encryption (testing only)
+    python3 main.py --enable-deidentification --no-encryption
+
+Advanced Configuration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Combine multiple options::
+
+    # Complete pipeline with de-identification, no colors
+    python3 main.py --enable-deidentification --countries IN US ID --no-color
+    
+    # Extraction + de-identification only (skip dictionary)
+    python3 main.py --skip-dictionary --enable-deidentification --countries ALL
+
+Output Structure
+----------------
+
+The pipeline creates this directory structure::
+
+    results/
+    ├── data_dictionary_mappings/
+    │   └── [sheet_name]/
+    │       └── [sheet_name]_table.jsonl
+    ├── dataset/
+    │   └── [dataset_name]/
+    │       ├── original/
+    │       │   └── [file]_original.jsonl
+    │       └── cleaned/
+    │           └── [file]_cleaned.jsonl
+    └── deidentified/
+        └── [dataset_name]/
+            ├── original/
+            │   └── [file]_original.jsonl (de-identified)
+            └── cleaned/
+                └── [file]_cleaned.jsonl (de-identified)
+
+Command-Line Arguments
+----------------------
+
+**Pipeline Control:**
+- ``--skip-dictionary``: Skip data dictionary loading (Step 0)
+- ``--skip-extraction``: Skip data extraction (Step 1)
+- ``--enable-deidentification``: Enable de-identification (Step 2, opt-in)
+- ``--skip-deidentification``: Skip de-identification even if enabled
+
+**De-identification Options:**
+- ``-c, --countries CODES``: Country codes (e.g., IN US ID BR) or ALL
+- ``--no-encryption``: Disable encrypted mappings (testing only)
+
+**Output Options:**
+- ``--no-color``: Disable colored output in logs and progress bars
+
+**Information:**
+- ``--version``: Show program version and exit
+- ``--help``: Show help message with all options
+
+Error Handling
+--------------
+
+The pipeline uses comprehensive error handling:
+
+1. **Step-level Errors**: Each step is wrapped in try/except
+2. **Validation Errors**: Invalid results cause immediate exit
+3. **Logging**: All errors logged with full stack traces
+4. **Exit Codes**: Non-zero exit on any failure
+
+Return Codes:
+- 0: Success
+- 1: Pipeline failure (any step)
+
+See Also
+--------
+- :mod:`scripts.load_dictionary` - Data dictionary processing
+- :mod:`scripts.extract_data` - Data extraction
+- :mod:`scripts.utils.deidentify` - De-identification
+- :mod:`config` - Configuration settings
 """
 import argparse
+import logging
 import sys
 from typing import Callable, Any
 from pathlib import Path
@@ -16,7 +178,8 @@ from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging as log
 import config
 
-__version__ = "0.0.2"
+__all__ = ['main', 'run_step']
+__version__ = "0.0.12"
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
     """
@@ -47,7 +210,7 @@ def run_step(step_name: str, func: Callable[[], Any]) -> Any:
         log.error(f"Error in {step_name}: {e}", exc_info=True)
         sys.exit(1)
 
-def main():
+def main() -> None:
     """
     Main pipeline orchestrating dictionary loading, data extraction, and de-identification.
     
@@ -58,6 +221,8 @@ def main():
         --skip-deidentification: Skip de-identification even if enabled
         --no-encryption: Disable encryption for de-identification mappings
         -c, --countries: Country codes (e.g., IN US ID BR) or ALL
+        -v, --verbose: Enable verbose (DEBUG level) logging
+        --no-color: Disable colored output
     """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
@@ -80,9 +245,13 @@ def main():
                        help="Country codes for de-identification (e.g., IN US ID BR) or ALL. Default: IN (India).")
     parser.add_argument('--no-color', action='store_true',
                        help="Disable colored output in logs and progress bars.")
+    parser.add_argument('-v', '--verbose', action='store_true',
+                       help="Enable verbose (DEBUG level) logging for detailed processing information.")
     args = parser.parse_args()
 
-    log.setup_logger(name=config.LOG_NAME, log_level=config.LOG_LEVEL, use_color=not args.no_color)
+    # Set log level based on verbose flag
+    log_level = logging.DEBUG if args.verbose else config.LOG_LEVEL
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level, use_color=not args.no_color)
     log.info("Starting RePORTaLiN pipeline...")
     
     # Display startup banner with color (unless disabled)

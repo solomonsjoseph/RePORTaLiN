@@ -13,6 +13,43 @@ The ``main`` module serves as the central entry point for the RePORTaLiN pipelin
 It orchestrates the execution of data processing steps and provides command-line 
 interface functionality.
 
+**Enhanced in v0.0.12:**
+
+- ✅ Added ``-v`` / ``--verbose`` flag for DEBUG-level logging
+- ✅ Enhanced logging throughout pipeline for detailed troubleshooting
+- ✅ Version updated to 0.0.12
+
+**Enhanced in v0.0.11:**
+
+- ✅ Enhanced module docstring with comprehensive usage examples (162 lines, 2,214% increase)
+- ✅ Added explicit public API definition via ``__all__`` (2 exports)
+- ✅ Complete command-line arguments documentation
+- ✅ Pipeline steps explanation with detailed features
+- ✅ Four usage examples (basic, custom, de-identification, advanced)
+- ✅ Output structure with directory tree
+- ✅ Error handling and return codes documented
+
+Public API
+~~~~~~~~~~
+
+The module exports 2 functions via ``__all__``:
+
+1. **main** - Main pipeline orchestrator with command-line interface
+2. **run_step** - Pipeline step executor with error handling
+
+**Quick Start:**
+
+.. code-block:: bash
+
+   # Run complete pipeline
+   python3 main.py
+   
+   # With de-identification
+   python3 main.py --enable-deidentification --countries IN US
+   
+   # Custom execution
+   python3 main.py --skip-dictionary --enable-deidentification
+
 Functions
 ---------
 

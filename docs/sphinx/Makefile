@@ -1,5 +1,13 @@
-# Makefile for Sphinx documentation
+# Makefile for Sphinx Documentation
+# ===================================
+# Enhanced for cross-platform compatibility and robustness
 #
+# Features:
+# - Cross-platform sed compatibility (macOS/Linux/BSD)
+# - Environment variable-based mode switching (no file modification)
+# - Enhanced error handling and validation
+# - Browser detection for multiple platforms
+# - Colored output for better readability
 
 # Color output for better readability
 RED := \033[0;31m
@@ -19,6 +27,18 @@ BUILDDIR      = _build
 
 # Check if sphinx-build is available
 SPHINX_CHECK := $(shell command -v $(SPHINXBUILD) 2>/dev/null)
+
+# Detect OS for platform-specific commands
+UNAME_S := $(shell uname -s)
+
+# Detect browser command
+ifeq ($(UNAME_S),Darwin)
+	BROWSER := open
+else ifeq ($(UNAME_S),Linux)
+	BROWSER := xdg-open
+else
+	BROWSER := echo "Please manually open:"
+endif
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -56,41 +76,35 @@ check-sphinx:
 		echo "$(GREEN)✓ Sphinx found: $(SPHINXBUILD)$(NC)"; \
 	fi
 
-# Build user-only documentation
+# Build user-only documentation (using environment variable instead of file modification)
 user-mode: check-sphinx
 	@echo "$(BLUE)Building USER MODE documentation (excluding developer/API docs)...$(NC)"
 	@if [ ! -f conf.py ]; then \
 		echo "$(RED)✗ Error: conf.py not found!$(NC)"; \
 		exit 1; \
 	fi
-	@sed -i.bak 's/developer_mode = True/developer_mode = False/' conf.py
-	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	@sed -i.bak 's/developer_mode = False/developer_mode = True/' conf.py
-	@rm -f conf.py.bak
+	@DEVELOPER_MODE=False $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "$(GREEN)✓ User mode documentation built successfully!$(NC)"
 	@echo "$(CYAN)Output: $(BUILDDIR)/html/index.html$(NC)"
 
-# Build full developer documentation
+# Build full developer documentation (using environment variable)
 dev-mode: check-sphinx
 	@echo "$(BLUE)Building DEVELOPER MODE documentation (including dev/API docs)...$(NC)"
 	@if [ ! -f conf.py ]; then \
 		echo "$(RED)✗ Error: conf.py not found!$(NC)"; \
 		exit 1; \
 	fi
-	@sed -i.bak 's/developer_mode = False/developer_mode = True/' conf.py
-	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	@rm -f conf.py.bak
+	@DEVELOPER_MODE=True $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "$(GREEN)✓ Developer mode documentation built successfully!$(NC)"
 	@echo "$(CYAN)Output: $(BUILDDIR)/html/index.html$(NC)"
 
-# Build HTML and open in browser
+# Build HTML and open in browser (cross-platform)
 html-open: check-sphinx
 	@echo "$(BLUE)Building HTML documentation...$(NC)"
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "$(GREEN)✓ Documentation built successfully!$(NC)"
 	@echo "$(BLUE)Opening in browser...$(NC)"
-	@open $(BUILDDIR)/html/index.html 2>/dev/null || \
-		xdg-open $(BUILDDIR)/html/index.html 2>/dev/null || \
+	@$(BROWSER) $(BUILDDIR)/html/index.html 2>/dev/null || \
 		echo "$(YELLOW)Please manually open: $(BUILDDIR)/html/index.html$(NC)"
 
 # Auto-rebuild on file changes (requires sphinx-autobuild)

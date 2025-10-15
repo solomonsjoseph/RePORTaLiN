@@ -3,6 +3,10 @@ De-identification
 
 The de-identification module provides robust and secure functionality for removing Protected Health Information (PHI) and Personally Identifiable Information (PII) from text data through pseudonymization, with support for country-specific privacy regulations.
 
+.. versionchanged:: 0.0.6
+   Enhanced module with explicit public API definition (10 exports), comprehensive usage examples 
+   in docstring (48 lines), and complete return type annotations for improved type safety.
+
 .. seealso::
    For detailed information on country-specific regulations and identifiers, see :doc:`country_regulations`.
 
@@ -11,14 +15,33 @@ Overview
 
 The de-identification module implements HIPAA Safe Harbor method compatible de-identification with:
 
-* **Comprehensive PHI/PII Detection**: 18+ identifier types
+* **Comprehensive PHI/PII Detection**: 20+ identifier types with pattern-based detection
 * **Country-Specific Regulations**: Support for 14 countries (US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG)
-* **Pseudonymization**: Consistent, cryptographic placeholders
-* **Encrypted Storage**: Fernet encryption for mapping tables
-* **Date Shifting**: Preserves temporal relationships
-* **Validation**: Ensures no PHI leakage
-* **Security**: Built with encryption and access control
-* **Directory Structure Preservation**: Maintains original file organization
+* **Pseudonymization**: Consistent, cryptographic placeholders with deterministic mapping
+* **Encrypted Storage**: Fernet encryption for mapping tables with secure key management
+* **Date Shifting**: Preserves temporal relationships while shifting dates by consistent offset
+* **Validation**: Comprehensive validation to ensure no PHI leakage in de-identified output
+* **Security**: Built-in encryption, access control, and audit trail capabilities
+* **Directory Structure Preservation**: Maintains original file organization during batch processing
+
+What's New in v0.0.6
+~~~~~~~~~~~~~~~~~~~~~
+
+**Enhanced API Definition**:
+  - Explicit ``__all__`` exports for clear public API surface
+  - 10 public exports: 1 Enum, 2 Data Classes, 5 Core Classes, 2 Top-level Functions
+  - Better IDE support and import clarity
+
+**Improved Type Safety**:
+  - Complete return type annotations across all functions
+  - Enhanced type hints for better code completion
+  - Reduces runtime errors with static type checking
+
+**Comprehensive Documentation**:
+  - Module docstring expanded to 48 lines with usage examples
+  - Real-world usage patterns demonstrated
+  - Quick-start examples for common scenarios
+  - Clear security and compliance feature documentation
 
 Workflow
 --------
@@ -51,6 +74,109 @@ Both subdirectories are processed while maintaining structure:
 
 Quick Start
 -----------
+
+Public API (v0.0.6)
+~~~~~~~~~~~~~~~~~~~
+
+The de-identification module explicitly defines its public API through ``__all__``:
+
+.. code-block:: python
+
+    from scripts.utils.deidentify import (
+        # Enums
+        PHIType,                    # PHI/PII type categorization
+        
+        # Data Classes
+        DetectionPattern,           # Pattern configuration
+        DeidentificationConfig,     # Engine configuration
+        
+        # Core Classes
+        PatternLibrary,             # Detection pattern library
+        PseudonymGenerator,         # Pseudonym generation
+        DateShifter,                # Date shifting
+        MappingStore,               # Secure mapping storage
+        DeidentificationEngine,     # Main engine
+        
+        # Top-level Functions
+        deidentify_dataset,         # Batch processing
+        validate_dataset,           # Validation
+    )
+
+**What to Import**:
+
+- **For Basic Use**: Import ``DeidentificationEngine`` and optionally ``DeidentificationConfig``
+- **For Batch Processing**: Import ``deidentify_dataset`` and ``validate_dataset``
+- **For Advanced Use**: Import specific classes like ``DateShifter``, ``MappingStore``, etc.
+- **For Custom Patterns**: Import ``PHIType`` and ``DetectionPattern``
+
+**Example - Basic Usage**:
+
+.. code-block:: python
+
+    from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig
+    
+    # Configure with custom settings
+    config = DeidentificationConfig(
+        enable_date_shifting=True,
+        enable_encryption=True,
+        countries=['US', 'IN']
+    )
+    
+    # Create engine
+    engine = DeidentificationEngine(config=config)
+    
+    # De-identify text
+    text = "Patient John Doe, MRN: AB123456, DOB: 01/15/1980"
+    deidentified = engine.deidentify_text(text)
+    print(deidentified)
+    # Output: "Patient [PATIENT-A4B8], MRN: [MRN-X7Y2], DOB: [DATE-1980-01-15]"
+
+**Example - Batch Processing**:
+
+.. code-block:: python
+
+    from scripts.utils.deidentify import deidentify_dataset, validate_dataset
+    
+    # Process entire dataset
+    stats = deidentify_dataset(
+        input_dir="data/patient_records",
+        output_dir="data/deidentified",
+        config=config
+    )
+    
+    # Validate results
+    validation = validate_dataset(
+        dataset_dir="data/deidentified"
+    )
+    
+    if validation['is_valid']:
+        print("✓ No PHI detected in output")
+    else:
+        print(f"⚠ Found {len(validation['potential_phi_found'])} issues")
+
+**Example - Custom Patterns**:
+
+.. code-block:: python
+
+    from scripts.utils.deidentify import (
+        DeidentificationEngine,
+        PHIType,
+        DetectionPattern
+    )
+    import re
+    
+    # Define custom pattern for employee IDs
+    custom_pattern = DetectionPattern(
+        phi_type=PHIType.CUSTOM,
+        pattern=re.compile(r'EMP-\d{6}'),
+        priority=85,
+        description="Employee ID format: EMP-XXXXXX"
+    )
+    
+    # Use with engine
+    engine = DeidentificationEngine()
+    text = "Employee EMP-123456 accessed record"
+    deidentified = engine.deidentify_text(text, custom_patterns=[custom_pattern])
 
 Basic Usage
 ~~~~~~~~~~~
@@ -793,10 +919,68 @@ Key Functions
 * :func:`scripts.utils.deidentify.deidentify_dataset` - Batch processing
 * :func:`scripts.utils.deidentify.validate_dataset` - Dataset validation
 
+Migration Guide (v0.0.6)
+------------------------
+
+If you're upgrading from a previous version, here's what's new and what you might need to update:
+
+**Breaking Changes**: None - v0.0.6 is fully backward compatible
+
+**New Features** (Optional to adopt):
+
+1. **Use Explicit Imports** (Recommended):
+
+   .. code-block:: python
+   
+      # Old way (still works)
+      from scripts.utils import deidentify
+      engine = deidentify.DeidentificationEngine()
+      
+      # New way (recommended for clarity)
+      from scripts.utils.deidentify import DeidentificationEngine
+      engine = DeidentificationEngine()
+
+2. **Type Checking Benefits**:
+   
+   If you use type checkers (mypy, pyright), you'll now get better type inference:
+   
+   .. code-block:: python
+   
+      # Type checkers now understand return types
+      result: None = engine.save_mappings()  # Correctly inferred as None
+
+3. **API Discovery**:
+   
+   You can now see exactly what's public:
+   
+   .. code-block:: python
+   
+      from scripts.utils import deidentify
+      print(deidentify.__all__)
+      # ['PHIType', 'DetectionPattern', 'DeidentificationConfig', ...]
+
+**No Changes Required**: All existing code continues to work without modification.
+
 See Also
 --------
 
+**Related User Guides**:
+
 * :doc:`quickstart` - Getting started with RePORTaLiN
-* :doc:`usage` - General usage guide
-* :doc:`configuration` - Configuration options
-* :doc:`../api/scripts.utils.deidentify` - API reference
+* :doc:`usage` - General usage guide and examples
+* :doc:`configuration` - De-identification configuration options
+* :doc:`country_regulations` - Country-specific privacy compliance
+* :doc:`troubleshooting` - Common issues and solutions
+
+**API & Technical References**:
+
+* :doc:`../api/scripts.utils.deidentify` - Complete API reference
+* :doc:`../developer_guide/contributing` - Best practices for error handling and API design
+* :doc:`../developer_guide/extending` - Extending de-identification features
+* :doc:`../changelog` - Version 0.0.6 changelog
+
+**External Resources**:
+
+* `HIPAA Safe Harbor Method <https://www.hhs.gov/hipaa/for-professionals/privacy/special-topics/de-identification/index.html>`_ - Official HIPAA de-identification guidance
+* `GDPR Article 4(5) <https://gdpr.eu/article-4-definitions/>`_ - GDPR pseudonymization definition
+* `DPDPA 2023 (India) <https://www.meity.gov.in/writereaddata/files/Digital%20Personal%20Data%20Protection%20Act%202023.pdf>`_ - Indian data protection regulations

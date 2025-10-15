@@ -5,6 +5,47 @@ De-identification and Pseudonymization Module
 
 Robust PHI/PII detection and replacement with encrypted mapping storage,
 country-specific compliance, and comprehensive validation.
+
+This module provides HIPAA/GDPR-compliant de-identification for medical datasets,
+supporting 14 countries with country-specific regulations, encrypted mapping storage,
+and comprehensive validation.
+
+Example:
+    Basic de-identification::
+
+        from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
+
+        # Configure de-identification
+        config = DeidentificationConfig(
+            enable_date_shifting=True,
+            enable_encryption=True,
+            countries=['US', 'IN']
+        )
+        
+        # De-identify dataset
+        deidentify_dataset(
+            input_path='data/patient_data.jsonl',
+            output_path='data/deidentified_data.jsonl',
+            mapping_path='mappings/phi_mappings.enc.json',
+            config=config
+        )
+
+    Using the engine directly::
+
+        from scripts.utils.deidentify import DeidentificationEngine
+
+        engine = DeidentificationEngine(config)
+        deidentified_text = engine.deidentify_text("Patient John Doe, MRN: AB123456")
+        # Returns: "Patient PATIENT-001, MRN: MRN-001"
+
+    Validation::
+
+        from scripts.utils.deidentify import validate_dataset
+
+        is_clean = validate_dataset(
+            file_path='data/deidentified_data.jsonl',
+            config=config
+        )
 """
 
 import re
@@ -20,6 +61,23 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 import base64
+
+__all__ = [
+    # Enums
+    'PHIType',
+    # Data Classes
+    'DetectionPattern',
+    'DeidentificationConfig',
+    # Core Classes
+    'PatternLibrary',
+    'PseudonymGenerator',
+    'DateShifter',
+    'MappingStore',
+    'DeidentificationEngine',
+    # Top-level Functions
+    'deidentify_dataset',
+    'validate_dataset',
+]
 
 # Optional imports
 try:
@@ -539,7 +597,7 @@ class MappingStore:
         self.mappings: Dict[str, Dict[str, Any]] = {}
         self._load_mappings()
     
-    def _load_mappings(self):
+    def _load_mappings(self) -> None:
         """Load mappings from storage file."""
         if not self.storage_path.exists():
             return
@@ -560,7 +618,7 @@ class MappingStore:
             logging.error(f"Failed to load mappings: {e}")
             self.mappings = {}
     
-    def save_mappings(self):
+    def save_mappings(self) -> None:
         """Save mappings to storage file."""
         try:
             # Ensure directory exists
@@ -583,7 +641,7 @@ class MappingStore:
             logging.error(f"Failed to save mappings: {e}")
             raise
     
-    def add_mapping(self, original: str, pseudonym: str, phi_type: PHIType, metadata: Optional[Dict] = None):
+    def add_mapping(self, original: str, pseudonym: str, phi_type: PHIType, metadata: Optional[Dict] = None) -> None:
         """
         Add a mapping entry.
         
@@ -617,7 +675,7 @@ class MappingStore:
         mapping = self.mappings.get(mapping_key)
         return mapping["pseudonym"] if mapping else None
     
-    def export_for_audit(self, output_path: Path, include_originals: bool = False):
+    def export_for_audit(self, output_path: Path, include_originals: bool = False) -> None:
         """
         Export mappings for audit purposes.
         
@@ -818,7 +876,7 @@ class DeidentificationEngine:
         
         return deidentified
     
-    def save_mappings(self):
+    def save_mappings(self) -> None:
         """Save all mappings to secure storage."""
         self.mapping_store.save_mappings()
     
@@ -901,18 +959,23 @@ def deidentify_dataset(
     
     # Initialize engine
     engine = DeidentificationEngine(config=config)
+    logging.debug(f"Initialized DeidentificationEngine with config: countries={config.countries}, "
+                  f"encryption={config.enable_encryption}, log_detections={config.log_detections}")
     
     # Find all JSONL files (including in subdirectories if enabled)
     if process_subdirs:
         jsonl_files = list(input_path.rglob(file_pattern))
+        logging.debug(f"Recursively searching for '{file_pattern}' in {input_path}")
     else:
         jsonl_files = list(input_path.glob(file_pattern))
+        logging.debug(f"Searching for '{file_pattern}' in {input_path} (no subdirs)")
     
     if not jsonl_files:
         logging.warning(f"No files matching '{file_pattern}' found in {input_dir}")
         return {"error": "No files found"}
     
     logging.info(f"Processing {len(jsonl_files)} files...")
+    logging.debug(f"Files to process: {[f.name for f in jsonl_files[:10]]}{'...' if len(jsonl_files) > 10 else ''}")
     
     # Statistics tracking
     files_processed = 0
@@ -930,21 +993,27 @@ def deidentify_dataset(
             # Ensure output directory exists
             output_file.parent.mkdir(parents=True, exist_ok=True)
             
+            logging.debug(f"Processing file: {jsonl_file} -> {output_file}")
             tqdm.write(f"Processing: {relative_path}")
             
             records_count = 0
             with open(jsonl_file, 'r', encoding='utf-8') as infile, \
                  open(output_file, 'w', encoding='utf-8') as outfile:
                 
-                for line in infile:
+                for line_num, line in enumerate(infile, 1):
                     if line.strip():
                         record = json.loads(line)
                         deidentified_record = engine.deidentify_record(record, text_fields)
                         outfile.write(json.dumps(deidentified_record, ensure_ascii=False) + '\n')
                         records_count += 1
+                        
+                        # Log progress for large files
+                        if records_count % 1000 == 0:
+                            logging.debug(f"  Processed {records_count} records from {jsonl_file.name}")
             
             total_records += records_count
             files_processed += 1
+            logging.debug(f"Completed {jsonl_file.name}: {records_count} records de-identified")
             tqdm.write(f"  ✓ Created {output_file.relative_to(output_path)} with {records_count} records (de-identified)")
             
         except FileNotFoundError:
@@ -1057,7 +1126,7 @@ def validate_dataset(
 # CLI Interface
 # ============================================================================
 
-def main():
+def main() -> None:
     """Command-line interface for de-identification."""
     import argparse
     

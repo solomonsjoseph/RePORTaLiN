@@ -4,11 +4,25 @@ Configuration
 RePORTaLiN uses a centralized configuration system through the ``config.py`` module. 
 This guide explains all configuration options and how to customize them.
 
+.. versionchanged:: 0.0.3
+   Added new utility functions (``ensure_directories()``, ``validate_config()``), 
+   improved error handling, and fixed suffix removal bugs.
+
 Configuration File
 ------------------
 
 The main configuration file is ``config.py`` in the project root. It defines all paths, 
 settings, and parameters used throughout the pipeline.
+
+What's New in v0.0.3
+~~~~~~~~~~~~~~~~~~~~~
+
+✨ **New Features**:
+   - ``ensure_directories()`` - Automatically creates all required directories
+   - ``validate_config()`` - Validates configuration and returns warnings
+   - Enhanced error handling for missing files and directories
+   - Better suffix normalization (handles overlapping suffixes correctly)
+   - REPL/Jupyter notebook compatibility
 
 Dynamic Dataset Detection
 -------------------------
@@ -29,6 +43,9 @@ This means you can work with any dataset without modifying code:
        ├── file1.xlsx
        └── file2.xlsx
 
+.. versionchanged:: 0.0.3
+   Improved detection algorithm with better error handling and edge case coverage.
+
 Configuration Variables
 -----------------------
 
@@ -37,11 +54,14 @@ Project Root
 
 .. code-block:: python
 
-   ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+   ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 
 - **Purpose**: Absolute path to project root directory
 - **Usage**: All other paths are relative to this
 - **Modification**: Not recommended (auto-detected)
+
+.. versionchanged:: 0.0.3
+   Added fallback to ``os.getcwd()`` for REPL/notebook compatibility.
 
 Data Directories
 ~~~~~~~~~~~~~~~~
@@ -62,14 +82,17 @@ Dataset Paths
 
    DATASET_BASE_DIR = os.path.join(DATA_DIR, "dataset")
    DATASET_FOLDER_NAME = get_dataset_folder()  # Auto-detected
-   DATASET_DIR = os.path.join(DATASET_BASE_DIR, DATASET_FOLDER_NAME or "RePORTaLiN_sample")
-   DATASET_NAME = (DATASET_FOLDER_NAME.replace('_csv_files', '').replace('_files', '') 
-                   if DATASET_FOLDER_NAME else "RePORTaLiN_sample")
+   DATASET_DIR = os.path.join(DATASET_BASE_DIR, DATASET_FOLDER_NAME or DEFAULT_DATASET_NAME)
+   DATASET_NAME = normalize_dataset_name(DATASET_FOLDER_NAME)
 
 - **DATASET_BASE_DIR**: Parent directory for all datasets
 - **DATASET_FOLDER_NAME**: Name of detected folder (returned by ``get_dataset_folder()``)
 - **DATASET_DIR**: Full path to current dataset (auto-detected)
 - **DATASET_NAME**: Cleaned dataset name (e.g., "Indo-vap_csv_files" → "Indo-vap")
+
+.. versionchanged:: 0.0.3
+   Now uses ``normalize_dataset_name()`` function with improved suffix handling.
+   Uses ``DEFAULT_DATASET_NAME`` constant instead of hardcoded string.
 
 Output Directories
 ~~~~~~~~~~~~~~~~~~
@@ -113,6 +136,176 @@ Available log levels:
 - ``logging.INFO``: General informational messages (default)
 - ``logging.WARNING``: Warning messages
 - ``logging.ERROR``: Error messages only
+
+De-identification Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: 0.0.6
+   De-identification configuration is now documented with comprehensive examples.
+
+De-identification is configured through ``DeidentificationConfig`` dataclass:
+
+.. code-block:: python
+
+   from scripts.utils.deidentify import DeidentificationConfig
+   
+   config = DeidentificationConfig(
+       # Pseudonym templates
+       pseudonym_templates={
+           PHIType.NAME_FULL: "PATIENT-{id}",
+           PHIType.MRN: "MRN-{id}",
+           # ... other templates
+       },
+       
+       # Date shifting
+       enable_date_shifting=True,
+       date_shift_range_days=365,
+       preserve_date_intervals=True,
+       
+       # Security
+       enable_encryption=True,
+       encryption_key=None,  # Auto-generated if None
+       
+       # Validation
+       enable_validation=True,
+       strict_mode=True,
+       
+       # Logging
+       log_detections=True,
+       log_level=logging.INFO,
+       
+       # Country-specific regulations
+       countries=['IN', 'US'],  # None for default (IN)
+       enable_country_patterns=True
+   )
+
+**Key Parameters**:
+
+- **pseudonym_templates**: Custom format for pseudonyms (e.g., "PATIENT-{id}")
+- **enable_date_shifting**: Shift dates by consistent offset
+- **date_shift_range_days**: Maximum shift range (±365 days default)
+- **preserve_date_intervals**: Keep time intervals consistent
+- **enable_encryption**: Encrypt mapping files with Fernet
+- **encryption_key**: Custom encryption key (auto-generated if None)
+- **enable_validation**: Validate de-identified output
+- **strict_mode**: Fail on validation errors
+- **log_detections**: Log detected PHI/PII items
+- **countries**: List of country codes for country-specific patterns
+- **enable_country_patterns**: Use country-specific detection patterns
+
+**Example Configurations**:
+
+Basic de-identification (India-specific):
+
+.. code-block:: python
+
+   config = DeidentificationConfig()  # Uses defaults
+
+Multi-country de-identification:
+
+.. code-block:: python
+
+   config = DeidentificationConfig(
+       countries=['US', 'IN', 'BR', 'ID'],
+       enable_encryption=True
+   )
+
+Testing/development (no encryption):
+
+.. code-block:: python
+
+   config = DeidentificationConfig(
+       enable_encryption=False,
+       log_level=logging.DEBUG
+   )
+
+See :doc:`deidentification` for complete de-identification guide.
+
+Utility Functions (v0.0.3+)
+---------------------------
+
+.. versionadded:: 0.0.3
+
+The configuration module now provides utility functions for common tasks.
+
+ensure_directories()
+~~~~~~~~~~~~~~~~~~~~
+
+Automatically creates all required directories if they don't exist.
+
+.. code-block:: python
+
+   from config import ensure_directories
+   
+   # Create all necessary directories
+   ensure_directories()
+
+**What it creates**:
+   - ``RESULTS_DIR``
+   - ``CLEAN_DATASET_DIR``
+   - ``DICTIONARY_JSON_OUTPUT_DIR``
+
+**When to use**: 
+   - At the start of your pipeline
+   - Before writing any output files
+   - When setting up a new environment
+
+validate_config()
+~~~~~~~~~~~~~~~~~
+
+Validates the configuration and returns a list of warnings.
+
+.. code-block:: python
+
+   from config import validate_config
+   
+   warnings = validate_config()
+   if warnings:
+       print("Configuration warnings:")
+       for warning in warnings:
+           print(f"  - {warning}")
+   else:
+       print("Configuration is valid!")
+
+**What it checks**:
+   - ``DATA_DIR`` exists
+   - ``DATASET_DIR`` exists
+   - ``DICTIONARY_EXCEL_FILE`` exists
+
+**Returns**: 
+   - Empty list if all valid
+   - List of warning strings if issues found
+
+**When to use**: 
+   - Before starting the pipeline
+   - For debugging configuration issues
+   - In automated testing
+
+normalize_dataset_name()
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Normalize a dataset folder name by removing common suffixes.
+
+.. code-block:: python
+
+   from config import normalize_dataset_name
+   
+   name = normalize_dataset_name("Indo-vap_csv_files")
+   print(name)  # Output: "Indo-vap"
+
+**Parameters**:
+   - ``folder_name`` (Optional[str]): Dataset folder name
+
+**Returns**: 
+   - Normalized name, or ``DEFAULT_DATASET_NAME`` if None
+
+**Examples**:
+
+.. code-block:: python
+
+   normalize_dataset_name("study_csv_files")  # → "study"
+   normalize_dataset_name("test_files")       # → "test"
+   normalize_dataset_name(None)               # → "RePORTaLiN_sample"
 
 Customizing Configuration
 --------------------------
@@ -306,6 +499,9 @@ Problem: "Module not found: config"
 See Also
 --------
 
+- :doc:`quickstart`: Quick start guide with validation examples
 - :doc:`usage`: How to use configuration in practice
-- :mod:`config`: API documentation for configuration module
-- :doc:`troubleshooting`: More troubleshooting tips
+- :doc:`troubleshooting`: Configuration troubleshooting with ``validate_config()``
+- :doc:`../api/config`: Complete API documentation for configuration module
+- :doc:`../developer_guide/extending`: Extending configuration for custom needs
+- :doc:`../changelog`: Version 0.0.3 configuration enhancements

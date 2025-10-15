@@ -1,20 +1,81 @@
-# Required Dependencies
-# Core data manipulation and Excel file reading
+# ============================================================================
+# RePORTaLiN - Python Dependencies
+# ============================================================================
+# Version: 0.0.12
+# Python: 3.13+
+# Last Updated: October 15, 2025
+#
+# Installation:
+#   pip install -r requirements.txt
+#
+# For development dependencies, see the [development] section below
+
+# ============================================================================
+# Core Dependencies (Required for all functionality)
+# ============================================================================
+
+# Data Manipulation & Processing
+# --------------------------------
+# pandas: Core data manipulation library for handling Excel and JSONL files
 pandas>=2.0.0,<2.3.0
 
-# Excel file format support (required by pandas for .xlsx files)
-openpyxl>=3.1.0
+# openpyxl: Excel file format support (required by pandas for .xlsx files)
+openpyxl>=3.1.0,<4.0.0
 
-# Numerical operations (used in scripts/extract_data.py)
+# numpy: Numerical operations and array handling (used in extract_data.py)
 numpy>=1.24.0,<2.3.0
 
-# Progress bars for user feedback
-tqdm>=4.66.0
+# User Interface & Feedback
+# --------------------------
+# tqdm: Progress bars for visual feedback during long operations
+tqdm>=4.66.0,<5.0.0
 
-# De-identification and Security
-cryptography>=41.0.0
+# Security & De-identification
+# -----------------------------
+# cryptography: Encryption for de-identification mappings and secure storage
+cryptography>=41.0.0,<43.0.0
 
 # Documentation Generation
-sphinx>=7.0.0
-sphinx-rtd-theme>=1.3.0
-sphinx-autodoc-typehints>=1.24.0
+# -------------------------
+# sphinx: Main documentation generator
+sphinx>=7.0.0,<8.0.0
+
+# sphinx-rtd-theme: Read the Docs theme for beautiful documentation
+sphinx-rtd-theme>=1.3.0,<3.0.0
+
+# sphinx-autodoc-typehints: Automatic type hint rendering in documentation
+sphinx-autodoc-typehints>=1.24.0,<3.0.0
+
+# ============================================================================
+# Optional Dependencies
+# ============================================================================
+# Uncomment the following if you need additional functionality:
+
+# Code Quality & Testing (Development)
+# -------------------------------------
+# pytest>=7.4.0              # Testing framework
+# pytest-cov>=4.1.0          # Coverage reporting
+# black>=23.0.0              # Code formatting
+# ruff>=0.1.0                # Fast Python linter
+# mypy>=1.5.0                # Static type checking
+
+# Auto-rebuild Documentation (Development)
+# -----------------------------------------
+sphinx-autobuild>=2021.3.14  # Auto-rebuild docs on file changes (watch mode)
+
+# Enhanced Progress Bars
+# -----------------------
+# rich>=13.0.0               # Rich terminal output with better progress bars
+
+# Performance Profiling
+# ----------------------
+# memory-profiler>=0.61.0    # Memory usage profiling
+# line-profiler>=4.1.0       # Line-by-line profiling
+
+# ============================================================================
+# Version Notes
+# ============================================================================
+# pandas <2.3.0: Pinned to ensure compatibility with openpyxl
+# numpy <2.3.0: Pinned to ensure compatibility with pandas
+# cryptography >=41.0.0: Required for Fernet encryption security fixes
+# sphinx >=7.0.0: Required for Python 3.13+ support
