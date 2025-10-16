@@ -74,7 +74,7 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 
 ```bash
 # 1. Clone and navigate
-git clone https://github.com/yourusername/RePORTaLiN.git
+git clone https://github.com/solomonsjoseph/RePORTaLiN.git
 cd RePORTaLiN
 
 # 2. Create virtual environment (recommended)
@@ -314,9 +314,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/RePORTaLiN/issues)
+- **Issues**: [GitHub Issues](https://github.com/solomonsjoseph/RePORTaLiN/issues)
 - **Documentation**: `docs/sphinx/` directory
-- **Email**: [your-contact-email@example.com]
+- **Email**: [solomon.joseph@rutgers.edu]
 
 ---
 
