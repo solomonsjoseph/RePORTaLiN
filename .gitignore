@@ -243,3 +243,6 @@ data/data_dictionary_and_mapping_specifications/~$*.xlsx
 # Large data files (uncomment if needed)
 # data/dataset/
 # data/Annotated_PDFs/
+
+# Others
+.vision/
