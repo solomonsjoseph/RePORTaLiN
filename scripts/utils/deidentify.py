@@ -6,9 +6,13 @@ De-identification and Pseudonymization Module
 Robust PHI/PII detection and replacement with encrypted mapping storage,
 country-specific compliance, and comprehensive validation.
 
-This module provides HIPAA/GDPR-compliant de-identification for medical datasets,
-supporting 14 countries with country-specific regulations, encrypted mapping storage,
-and comprehensive validation.
+This module provides de-identification features designed to support HIPAA/GDPR compliance
+for medical datasets, supporting 14 countries with country-specific regulations, encrypted
+mapping storage, and comprehensive validation.
+
+**Note**: This module provides tools to assist with compliance but does not guarantee
+regulatory compliance. Users are responsible for validating that the de-identification
+meets their specific regulatory requirements.
 
 Example:
     Basic de-identification::

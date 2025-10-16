@@ -109,17 +109,17 @@ logging.py          387             97              75%
   * Explicit public API definition via ``__all__`` (2 exports)
   * Enhanced module docstring with comprehensive usage examples (97 lines, 1,400% increase)
   * Algorithm documentation (7-step table detection process)
-  * Verified 100% type hint coverage and robust error handling
+  * Return type hints on all functions and robust error handling verified
   * Backward compatible with zero breaking changes
-  * Production-ready with code density 44.4%
+  * Code quality verified with code density 44.4%
 
 - **v0.0.7**: Enhanced ``scripts/extract_data.py`` with:
   
   * Explicit public API definition via ``__all__`` (6 exports)
   * Enhanced module docstring with comprehensive usage examples (40 lines, 790% increase)
-  * Verified 100% type hint coverage and robust error handling
+  * Complete type hint coverage verified and robust error handling
   * Backward compatible with zero breaking changes
-  * Production-ready with code density 64.2%
+  * Code quality verified with code density 64.2%
 
 - **v0.0.6**: Enhanced ``scripts/utils/deidentify.py`` with:
   
@@ -127,7 +127,7 @@ logging.py          387             97              75%
   * Enhanced module docstring with comprehensive usage examples (48 lines)
   * Complete return type annotations for improved type safety
   * Backward compatible with zero breaking changes
-  * Production-ready with robust error handling
+  * Code quality verified with robust error handling
 
 - **v0.0.5**: Enhanced ``scripts/utils/country_regulations.py`` with explicit public API (6 exports) and comprehensive usage examples in docstring
 - **v0.0.4**: Enhanced ``scripts/utils/logging.py`` module with improved type hints, optimized performance (no record mutation), and explicit public API (12 exports)
@@ -165,9 +165,9 @@ Documentation Sections
 
    developer_guide/architecture
    developer_guide/contributing
-   developer_guide/testing
    developer_guide/extending
    developer_guide/colored_output_implementation
+   developer_guide/code_integrity_audit
    developer_guide/production_readiness
    developer_guide/future_enhancements
 
@@ -199,10 +199,11 @@ Documentation Sections
    
    This documentation can be built in two modes:
    
-   - **User Mode** (``make html-user``): Shows only user-facing documentation
-   - **Developer Mode** (``make html-dev``): Includes developer guides and API documentation
+   - **User Mode** (``make user-mode``): Shows only user-facing documentation
+   - **Developer Mode** (``make dev-mode``): Includes developer guides and API documentation
    
-   To switch modes, edit ``conf.py`` and set ``developer_mode = True`` or ``False``.
+   Alternatively, set the ``DEVELOPER_MODE`` environment variable (``True``/``False``) 
+   or edit ``conf.py`` and set ``developer_mode = True`` or ``False``.
 
 Indices and Tables
 ==================

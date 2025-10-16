@@ -325,6 +325,6 @@ Potential future additions:
 See Also
 --------
 
-- :doc:`../user_guide/usage` - Usage guide
-- :doc:`../user_guide/configuration` - Configuration options
-- :doc:`architecture` - System architecture
+- :doc:`usage` - Usage guide
+- :doc:`configuration` - Configuration options
+- :doc:`../developer_guide/architecture` - System architecture

@@ -2,10 +2,10 @@
 
 [![Python 3.13+](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code Quality](https://img.shields.io/badge/code%20quality-production--ready-brightgreen.svg)](https://github.com/yourusername/RePORTaLiN)
+[![Status](https://img.shields.io/badge/status-beta-blue.svg)](https://github.com/yourusername/RePORTaLiN)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue.svg)](docs/sphinx/)
-[![HIPAA Compliant](https://img.shields.io/badge/HIPAA-compliant-success.svg)](https://www.hhs.gov/hipaa/index.html)
-[![GDPR Compliant](https://img.shields.io/badge/GDPR-compliant-success.svg)](https://gdpr.eu/)
+[![Privacy-Aware](https://img.shields.io/badge/Privacy-Aware-blue.svg)](https://www.hhs.gov/hipaa/index.html)
+[![Multi-Regulation Support](https://img.shields.io/badge/Regulations-14%20Countries-green.svg)](https://gdpr.eu/)
 
 A robust data processing pipeline for clinical research data with advanced de-identification and privacy compliance features.
 
@@ -40,11 +40,11 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 ### 🌍 Multi-Country Privacy Compliance
 - **14 countries supported**: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
 - **Regulations**: HIPAA, GDPR, LGPD, DPDPA, POPIA, and more
-- **18+ PHI/PII identifier types** detected and pseudonymized
+- **21 PHI/PII identifier types** detected and pseudonymized
 
 ### 🔒 Security & Performance
 - **Encryption by default** with Fernet symmetric encryption
-- **Fast processing**: 200,000+ texts per second
+- **Fast processing**: Optimized for high throughput (benchmarks pending)
 - **Date shifting** with temporal relationship preservation
 - **Audit trails** for compliance and validation
 
@@ -60,7 +60,7 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **Enhanced error handling** - Graceful handling of missing directories and files
 - **Auto-detection** - Automatic dataset folder discovery with validation
 - **Configuration validation** - Built-in validation with clear warning messages
-- **Type-safe** - Complete type hints for better IDE support (100% coverage)
+- **Type-safe** - Comprehensive type hints throughout codebase for better IDE support
 - **Cross-platform** - Works on macOS, Linux, and Windows
 - **REPL compatible** - Works in interactive environments and notebooks
 
@@ -320,7 +320,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Version**: 0.0.12 | **Status**: Production-Ready | **Last Updated**: October 15, 2025
+**Version**: 0.0.12 | **Status**: Beta (Active Development) | **Last Updated**: October 15, 2025
 
 **Latest Updates (v0.0.12 - October 15, 2025)**:
 
@@ -332,7 +332,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Version Synchronized**: v0.0.12 across all modules
 - **Error Handling**: Documented return codes and error recovery
 - **Backward Compatibility**: Zero breaking changes, all existing usage preserved
-- **Production Ready**: Complete documentation for pipeline orchestration
+- **Comprehensive Documentation**: Complete documentation for pipeline orchestration
 - See [Changelog](docs/sphinx/changelog.rst) for complete version history
 
 **Previous Updates**:

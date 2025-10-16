@@ -15,7 +15,7 @@ Exports 9 logging functions via ``__all__`` for convenient access:
 - ``debug``, ``info``, ``warning``, ``error``, ``critical``, ``success``
 
 **Specialized functionality (import from submodules):**
-- ``scripts.utils.logging`` - Enhanced logging (12 exports)
+- ``scripts.utils.logging`` - Enhanced logging (11 exports)
 - ``scripts.utils.deidentify`` - De-identification engine (10 exports)
 - ``scripts.utils.country_regulations`` - Privacy regulations (6 exports)
 

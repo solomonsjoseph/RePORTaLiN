@@ -8,6 +8,12 @@ according to different privacy regulations (HIPAA, GDPR, DPDPA, etc.).
 
 Supports: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
 
+.. warning::
+   This module provides reference data and validation patterns based on publicly
+   available privacy regulation information. It is intended as a development aid
+   and does not guarantee regulatory compliance. Organizations must conduct their
+   own legal review and compliance verification with qualified legal counsel.
+
 Example:
     Basic usage::
 

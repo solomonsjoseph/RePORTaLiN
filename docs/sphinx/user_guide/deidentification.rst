@@ -15,7 +15,7 @@ Overview
 
 The de-identification module implements HIPAA Safe Harbor method compatible de-identification with:
 
-* **Comprehensive PHI/PII Detection**: 20+ identifier types with pattern-based detection
+* **Comprehensive PHI/PII Detection**: 21 identifier types with pattern-based detection
 * **Country-Specific Regulations**: Support for 14 countries (US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG)
 * **Pseudonymization**: Consistent, cryptographic placeholders with deterministic mapping
 * **Encrypted Storage**: Fernet encryption for mapping tables with secure key management
@@ -306,7 +306,7 @@ while maintaining the same file structure in the output directory.
 Supported PHI/PII Types
 -----------------------
 
-The module detects and de-identifies the following 18+ HIPAA identifier types:
+The module detects and de-identifies the following 21 HIPAA identifier types:
 
 Names
 ~~~~~

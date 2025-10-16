@@ -102,12 +102,12 @@ The module's table detection algorithm:
 
 **Type Safety Benefits**
 
-The module has 100% type hint coverage:
+The module has return type hints on all functions:
 
-- All functions have parameter and return type annotations
+- All functions have return type annotations
 - IDEs provide better autocomplete and error detection
-- Static analysis tools (mypy, pyright) can verify correctness
-- Documentation is clear about expected inputs/outputs
+- Static analysis tools can verify return types
+- Documentation is clear about expected outputs
 
 See :doc:`../api/scripts.load_dictionary` for complete API reference.
 
@@ -178,7 +178,7 @@ The module exports 6 functions via ``__all__``:
 
 **Type Safety Benefits**
 
-The module has 100% type hint coverage:
+The module has complete type hint coverage:
 
 - All functions have parameter and return type annotations
 - IDEs provide better autocomplete and error detection
@@ -1247,5 +1247,4 @@ See Also
 
 - :doc:`architecture`: System architecture
 - :doc:`contributing`: Contributing guidelines
-- :doc:`testing`: Testing guide
 - :doc:`../api/modules`: API reference

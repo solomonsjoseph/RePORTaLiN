@@ -39,13 +39,10 @@ Process both data dictionary and dataset with default configuration::
     # Step 1: Load data dictionary
     dict_success = load_study_dictionary()
     
-    # Step 2: Extract dataset
-    extract_success = extract_excel_to_jsonl(
-        input_dir="data/dataset/Indo-vap",
-        output_dir="results/dataset/Indo-vap"
-    )
+    # Step 2: Extract dataset (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
+    result = extract_excel_to_jsonl()
     
-    if dict_success and extract_success:
+    if dict_success and result['files_created'] > 0:
         print("✓ Pipeline completed successfully!")
 
 Custom Processing
@@ -76,21 +73,22 @@ De-identification Workflow
 Complete pipeline with de-identification::
 
     from scripts import extract_excel_to_jsonl
-    from scripts.utils.deidentify import deidentify_dataset
+    from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
+    import config
     
-    # Step 1: Extract data
-    extract_excel_to_jsonl(
-        input_dir="data/dataset/Indo-vap",
-        output_dir="results/dataset/Indo-vap"
+    # Step 1: Extract data (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
+    result = extract_excel_to_jsonl()
+    
+    # Step 2: De-identify with custom configuration
+    deidentify_config = DeidentificationConfig(
+        countries=['IN', 'US'],
+        enable_encryption=True
     )
     
-    # Step 2: De-identify with encryption
     deidentify_dataset(
-        input_dir="results/dataset/Indo-vap/cleaned",
+        input_dir=f"{config.CLEAN_DATASET_DIR}/cleaned",
         output_dir="results/deidentified/Indo-vap",
-        countries=['IN', 'US'],
-        encrypt=True,
-        master_key_path="keys/master.key"
+        config=deidentify_config
     )
 
 Module Structure

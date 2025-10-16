@@ -38,7 +38,7 @@ Key Features
 ------------
 
 - **Multi-Country Support**: HIPAA (US), GDPR (EU/GB), DPDPA (IN), and 11 other countries
-- **PHI/PII Detection**: 20+ PHI types with country-specific patterns
+- **PHI/PII Detection**: 21 PHI types with country-specific patterns
 - **Pseudonymization**: Consistent, reversible pseudonyms with encrypted mapping
 - **Date Shifting**: Preserves time intervals while shifting dates
 - **Encrypted Storage**: Fernet encryption for mapping files

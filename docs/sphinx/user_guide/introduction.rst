@@ -4,7 +4,7 @@ Introduction
 Overview
 --------
 
-RePORTaLiN is a production-ready data processing pipeline designed to extract and transform 
+RePORTaLiN is a beta-stage data processing pipeline designed to extract and transform 
 medical research data from Excel files into structured JSONL format. The system is built 
 with robustness, efficiency, and ease of use in mind.
 

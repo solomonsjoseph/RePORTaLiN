@@ -15,6 +15,7 @@ RED := \033[0;31m
 GREEN := \033[0;32m
 YELLOW := \033[0;33m
 BLUE := \033[0;34m
+CYAN := \033[0;36m
 NC := \033[0m # No Color
 
 # Detect Python command (python3 preferred, fallback to python)
@@ -49,7 +50,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch test venv check-python version lint format status
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version lint format status
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -81,6 +82,7 @@ help:
 	@echo "  make docs                     - Build Sphinx HTML documentation"
 	@echo "  make docs-open                - Build docs and open in browser"
 	@echo "  make docs-watch               - Auto-rebuild docs on file changes (requires sphinx-autobuild)"
+	@echo "  make docs-help                - Show advanced Sphinx documentation options"
 	@echo ""
 	@echo "$(GREEN)Cleaning:$(NC)"
 	@echo "  make clean                    - Remove Python cache files"
@@ -299,3 +301,7 @@ docs-watch:
 		echo "$(YELLOW)Or run: make install (if already in requirements.txt)$(NC)"; \
 		exit 1; \
 	fi
+
+# Show advanced Sphinx documentation options (delegates to Sphinx Makefile)
+docs-help:
+	@cd docs/sphinx && $(MAKE) help

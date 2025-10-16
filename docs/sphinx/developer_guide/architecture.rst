@@ -24,7 +24,7 @@ emphasizes:
 - **Transparency**: Detailed logging at every step with audit trails
 - **Security**: Encryption-by-default for de-identification mappings
 - **Compliance**: Multi-country privacy regulation support (14 countries)
-- **Performance**: Processes 200,000+ texts/second, handles 1.8M+ records
+- **Performance**: Optimized for high throughput (benchmarks pending)
 
 Architecture Diagram
 --------------------

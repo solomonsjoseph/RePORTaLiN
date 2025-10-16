@@ -3,7 +3,7 @@
 # Enhanced for cross-platform compatibility and robustness
 #
 # Features:
-# - Cross-platform sed compatibility (macOS/Linux/BSD)
+# - Cross-platform compatibility (macOS/Linux/BSD)
 # - Environment variable-based mode switching (no file modification)
 # - Enhanced error handling and validation
 # - Browser detection for multiple platforms
@@ -64,7 +64,7 @@ help:
 	@echo "$(BLUE)Sphinx builder:$(NC) $(SPHINXBUILD)"
 	@echo ""
 
-.PHONY: help Makefile user-mode dev-mode clean cleanall html-open watch check check-sphinx
+.PHONY: help user-mode dev-mode clean cleanall html-open watch check check-sphinx
 
 # Check if Sphinx is installed
 check-sphinx:
@@ -150,5 +150,5 @@ cleanall:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+%:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

@@ -23,12 +23,16 @@ DATASET_SUFFIXES = ('_csv_files', '_files')
 
 # Explicitly define public API
 __all__ = [
+    # Path constants
     'ROOT_DIR', 'DATA_DIR', 'RESULTS_DIR', 'DATASET_BASE_DIR',
     'DATASET_FOLDER_NAME', 'DATASET_DIR', 'DATASET_NAME', 'CLEAN_DATASET_DIR',
     'DICTIONARY_EXCEL_FILE', 'DICTIONARY_JSON_OUTPUT_DIR',
-    'LOG_LEVEL', 'LOG_NAME',
+    # Configuration constants
+    'LOG_LEVEL', 'LOG_NAME', 'DEFAULT_DATASET_NAME', 'DATASET_SUFFIXES',
+    # Public functions
     'ensure_directories', 'validate_config',
-    'DEFAULT_DATASET_NAME'
+    # Helper functions (used internally during module initialization)
+    'get_dataset_folder', 'normalize_dataset_name',
 ]
 
 # Project paths
@@ -75,18 +79,24 @@ def normalize_dataset_name(folder_name: Optional[str]) -> str:
     Note:
         Removes the longest matching suffix to ensure correct normalization
         regardless of suffix ordering (e.g., '_csv_files' before '_files').
+        Whitespace is stripped before suffix removal for consistent behavior.
     """
     if not folder_name:
         return DEFAULT_DATASET_NAME
     
+    # Strip whitespace first to ensure suffix detection works correctly
+    name = folder_name.strip()
+    if not name:
+        return DEFAULT_DATASET_NAME
+    
     # Find and remove the longest matching suffix
-    name = folder_name
     matching_suffixes = [s for s in DATASET_SUFFIXES if name.endswith(s)]
     if matching_suffixes:
         # Remove the longest suffix to handle cases like '_csv_files' vs '_files'
         longest_suffix = max(matching_suffixes, key=len)
         name = name[:-len(longest_suffix)]
     
+    # Strip again after suffix removal
     name = name.strip()
     return name if name else DEFAULT_DATASET_NAME
 
