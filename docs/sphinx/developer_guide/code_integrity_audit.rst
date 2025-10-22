@@ -40,7 +40,7 @@ Audit Scope
 **🔄 PENDING (2/9):**
 
 - ``scripts/utils/__init__.py``
-- ``scripts/utils/deidentify.py`` (1,265 lines)
+- ``scripts/deidentify.py`` (1,265 lines)
 - ``scripts/utils/country_regulations.py`` (1,327 lines)
 
 **Total:** ~4,100+ lines of Python code + 2 Makefiles (426 lines total) audited
@@ -78,7 +78,7 @@ All 46 exported functions and classes across 7 modules have complete docstrings:
 - ``scripts.extract_data``: 6 functions documented ✓
 - ``scripts.utils.__init__``: 9 functions documented ✓
 - ``scripts.utils.logging``: 11 functions/classes documented ✓
-- ``scripts.utils.deidentify``: 10 functions/classes documented ✓
+- ``scripts.deidentify``: 10 functions/classes documented ✓
 - ``scripts.utils.country_regulations``: 6 functions/classes documented ✓
 
 Export/Import Integrity
@@ -113,7 +113,7 @@ Export/Import Integrity
    * - ``scripts.utils.logging``
      - 11
      - ✅ Verified
-   * - ``scripts.utils.deidentify``
+   * - ``scripts.deidentify``
      - 10
      - ✅ Verified
    * - ``scripts.utils.country_regulations``
@@ -132,7 +132,7 @@ Export/Import Integrity
    import scripts.extract_data                ✓
    import scripts.utils                       ✓
    import scripts.utils.logging               ✓
-   import scripts.utils.deidentify            ✓
+   import scripts.deidentify            ✓
    import scripts.utils.country_regulations   ✓
    
    # Result: No circular dependencies detected
@@ -170,7 +170,7 @@ Data Integrity
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import PHIType
+   from scripts.deidentify import PHIType
    
    phi_types = list(PHIType)
    print(f"PHI/PII Types: {len(phi_types)}")
@@ -241,7 +241,7 @@ Issues Found and Fixed
 
 **Issue 1: Compliance Claim Wording**
 
-:Location: ``scripts/utils/deidentify.py:9``
+:Location: ``scripts/deidentify.py:9``
 :Severity: Minor
 :Status: ✅ FIXED
 
@@ -302,7 +302,7 @@ Changed unverified "100% type hint coverage" claims to:
 - Fixed ``extract_excel_to_jsonl()`` calls to use no parameters (function uses config internally)
 - Updated return value handling to use ``result['files_created']``
 - Fixed ``deidentify_dataset()`` example to use ``DeidentificationConfig`` object
-- Added correct import: ``from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig``
+- Added correct import: ``from scripts.deidentify import deidentify_dataset, DeidentificationConfig``
 - Updated config creation: ``deidentify_config = DeidentificationConfig(countries=['IN', 'US'], enable_encryption=True)``
 
 **Reason:** Examples must match actual function signatures to be correct and executable.
@@ -670,7 +670,7 @@ scripts/__init__.py (136 lines)
    
    # Example 3: De-identification Workflow ✅
    from scripts import extract_excel_to_jsonl
-   from scripts.utils.deidentify import deidentify_dataset
+   from scripts.deidentify import deidentify_dataset
    import config
 
 ✅ **Function signatures match documentation:**
@@ -682,7 +682,7 @@ scripts/__init__.py (136 lines)
 
 - ``scripts.load_dictionary``: 2 public functions ✅
 - ``scripts.extract_data``: 6 public functions ✅
-- ``scripts.utils.deidentify``: 10 public functions ✅
+- ``scripts.deidentify``: 10 public functions ✅
 - ``scripts.utils.country_regulations``: 6 public functions ✅
 - ``scripts.utils.logging``: 12 public functions ✅
 
@@ -1833,7 +1833,7 @@ Phase 2: Import Verification
    ✓ config                            (Project module)
    ✓ scripts.load_dictionary           (Project module)
    ✓ scripts.extract_data              (Project module)
-   ✓ scripts.utils.deidentify          (Project module)
+   ✓ scripts.deidentify          (Project module)
    ✓ scripts.utils.logging             (Project module)
 
 ✅ **All dependencies importable, no circular imports detected**
@@ -2025,7 +2025,7 @@ Phase 9: Dependency Integration
    ✓ extract_excel_to_jsonl()
      Called with: no arguments
 
-**From ``scripts.utils.deidentify``:**
+**From ``scripts.deidentify``:**
 
 .. code-block:: python
 
@@ -2168,7 +2168,7 @@ Phase 14: Sphinx Documentation Compatibility
      - scripts.load_dictionary
 
      - scripts.extract_data
-     - scripts.utils.deidentify
+     - scripts.deidentify
      - config
    
    RST Sections: 9

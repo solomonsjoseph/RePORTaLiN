@@ -163,7 +163,7 @@ See Also
 --------
 - :mod:`scripts.load_dictionary` - Data dictionary processing
 - :mod:`scripts.extract_data` - Data extraction
-- :mod:`scripts.utils.deidentify` - De-identification
+- :mod:`scripts.deidentify` - De-identification
 - :mod:`config` - Configuration settings
 """
 import argparse
@@ -173,7 +173,7 @@ from typing import Callable, Any
 from pathlib import Path
 from scripts.load_dictionary import load_study_dictionary
 from scripts.extract_data import extract_excel_to_jsonl
-from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
+from scripts.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging as log
 import config
 

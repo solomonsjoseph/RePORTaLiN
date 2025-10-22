@@ -291,7 +291,7 @@ Main pipeline documentation with comprehensive usage examples (162 lines, 2,214%
 
 **Key Improvements:**
 
-1. **Public API Definition** (``scripts/utils/deidentify.py``):
+1. **Public API Definition** (``scripts/deidentify.py``):
    - ``__all__`` explicitly exports 10 items (1 Enum, 2 Data Classes, 5 Core Classes, 2 Functions)
    - Clear separation of public vs internal API
    - Better IDE support and import clarity
@@ -350,7 +350,7 @@ Python Files (9):
   6. ✅ scripts/utils/__init__.py - 157 lines (1,863% increase from 8) - Enhanced v0.0.10
   7. ✅ scripts/utils/logging.py - 97 lines (75% reduction from 387) - Enhanced v0.0.4
   8. ✅ scripts/utils/country_regulations.py - 1,296 lines (legal compliance) - Enhanced v0.0.5
-  9. ✅ scripts/utils/deidentify.py - 1,254 lines (security/compliance) - Enhanced v0.0.12 with DEBUG logging
+  9. ✅ scripts/deidentify.py - 1,254 lines (security/compliance) - Enhanced v0.0.12 with DEBUG logging
 
 Configuration Files (5):
   10. ✅ .gitignore - 62 lines (optimal)
@@ -385,7 +385,7 @@ Sphinx Documentation Files (25 .rst files, 10,507 total lines):
     32. ✅ docs/sphinx/api/scripts.extract_data.rst - 291 lines
     33. ✅ docs/sphinx/api/scripts.load_dictionary.rst - 326 lines
     34. ✅ docs/sphinx/api/scripts.rst - 225 lines
-    35. ✅ docs/sphinx/api/scripts.utils.deidentify.rst - 94 lines
+    35. ✅ docs/sphinx/api/scripts.deidentify.rst - 94 lines
     36. ✅ docs/sphinx/api/scripts.utils.rst - 334 lines
 
   Root Documentation (3 files, 711 lines):

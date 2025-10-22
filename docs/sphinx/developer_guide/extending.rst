@@ -1055,7 +1055,7 @@ Example: Adding a New Country
 Add the new country to:
    - ``docs/sphinx/user_guide/country_regulations.rst``
    - ``README.md``
-   - CLI help text in ``scripts/utils/deidentify.py``
+   - CLI help text in ``scripts/deidentify.py``
 
 Field Types and Privacy Levels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1173,7 +1173,7 @@ Testing Your Country Regulation
    python3 -m scripts.utils.country_regulations --countries XX --show-fields
    
    # Test de-identification with sample text
-   python3 -c "from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig; \
+   python3 -c "from scripts.deidentify import DeidentificationEngine, DeidentificationConfig; \
    config = DeidentificationConfig(countries=['XX']); \
    engine = DeidentificationEngine(config=config); \
    print(engine.deidentify_text('Patient John Doe, ID: 1234567890'))"

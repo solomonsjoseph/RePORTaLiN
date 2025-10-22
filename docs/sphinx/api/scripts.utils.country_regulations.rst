@@ -270,7 +270,7 @@ Integration with De-identification
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import DeidentificationEngine
+   from scripts.deidentify import DeidentificationEngine
    from scripts.utils.country_regulations import CountryRegulationManager
    
    # Set up country-specific de-identification
@@ -335,7 +335,7 @@ Each country regulation includes:
 See Also
 --------
 
-:doc:`scripts.utils.deidentify`
+:doc:`scripts.deidentify`
    De-identification engine that uses country regulations
 
 :doc:`../user_guide/country_regulations`

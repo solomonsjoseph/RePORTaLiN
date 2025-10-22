@@ -239,8 +239,8 @@ The two-phase table splitting algorithm is well-designed:
 
 **Code Quality**: A+ (Excellent)
 
-5. scripts/utils/deidentify.py - PHI/PII De-identification
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+5. scripts/deidentify.py - PHI/PII De-identification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Status**: ✅ Code Quality Verified
 
@@ -876,7 +876,7 @@ File Inventory
 5. ``scripts/load_dictionary.py`` (448 lines) - Enhanced v0.0.12 with DEBUG logging
 6. ``scripts/utils/__init__.py`` (157 lines) - Enhanced v0.0.10
 7. ``scripts/utils/logging.py`` (387 lines)
-8. ``scripts/utils/deidentify.py`` (1,012 lines) - Enhanced v0.0.12 with DEBUG logging
+8. ``scripts/deidentify.py`` (1,012 lines) - Enhanced v0.0.12 with DEBUG logging
 9. ``docs/sphinx/conf.py`` (Sphinx config)
 
 **Documentation Files**:
@@ -1049,7 +1049,7 @@ Import Verification
     from scripts.utils import logging          # ✓
     from scripts.extract_data import extract_excel_to_jsonl  # ✓
     from scripts.load_dictionary import load_study_dictionary  # ✓
-    from scripts.utils.deidentify import DeidentificationEngine  # ✓
+    from scripts.deidentify import DeidentificationEngine  # ✓
 
 Syntax Validation
 ~~~~~~~~~~~~~~~~~
@@ -1084,7 +1084,7 @@ Configuration Validation
 .. code-block:: python
 
     # Encryption default verification
-    from scripts.utils.deidentify import DeidentificationConfig
+    from scripts.deidentify import DeidentificationConfig
     cfg = DeidentificationConfig()
     assert cfg.enable_encryption == True  # ✓ Passed
 

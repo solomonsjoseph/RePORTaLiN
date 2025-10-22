@@ -147,7 +147,7 @@ De-identification is configured through ``DeidentificationConfig`` dataclass:
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import DeidentificationConfig
+   from scripts.deidentify import DeidentificationConfig
    
    config = DeidentificationConfig(
        # Pseudonym templates

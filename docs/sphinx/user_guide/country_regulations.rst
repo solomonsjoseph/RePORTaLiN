@@ -302,13 +302,13 @@ Single Country
 
 De-identify data according to US regulations (default)::
 
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap
 
 Specify a different country::
 
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --countries IN \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap
@@ -318,7 +318,7 @@ Multiple Countries
 
 Process data that may contain identifiers from multiple countries::
 
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --countries US IN ID BR \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap
@@ -328,7 +328,7 @@ All Countries
 
 Enable detection for all supported countries::
 
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --countries ALL \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap
@@ -338,7 +338,7 @@ List Supported Countries
 
 View all supported countries and their regulations::
 
-   python -m scripts.utils.deidentify --list-countries
+   python -m scripts.deidentify --list-countries
 
 Python API
 ----------
@@ -348,7 +348,7 @@ Basic Usage
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig
+   from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
    
    # Configure for India
    config = DeidentificationConfig(
@@ -370,7 +370,7 @@ Multiple Countries
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig
+   from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
    
    # Configure for multiple countries
    config = DeidentificationConfig(
@@ -598,7 +598,7 @@ API Reference
 -------------
 
 - ``scripts.utils.country_regulations`` - Country regulation management
-- ``scripts.utils.deidentify`` - De-identification engine
+- ``scripts.deidentify`` - De-identification engine
 
 See Also
 ========

@@ -237,10 +237,10 @@ make run-deidentify-plain
 
 ```bash
 # List supported countries
-python3 -m scripts.utils.deidentify --list-countries
+python3 -m scripts.deidentify --list-countries
 
 # Direct de-identification
-python3 -m scripts.utils.deidentify \
+python3 -m scripts.deidentify \
   --countries IN US \
   --input-dir results/dataset/Indo-vap/cleaned \
   --output-dir results/deidentified/Indo-vap

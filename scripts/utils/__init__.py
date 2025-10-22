@@ -16,7 +16,7 @@ Exports 9 logging functions via ``__all__`` for convenient access:
 
 **Specialized functionality (import from submodules):**
 - ``scripts.utils.logging`` - Enhanced logging (11 exports)
-- ``scripts.utils.deidentify`` - De-identification engine (10 exports)
+- ``scripts.deidentify`` - De-identification engine (10 exports)
 - ``scripts.utils.country_regulations`` - Privacy regulations (6 exports)
 
 Usage
@@ -30,7 +30,7 @@ Basic logging (from utils package)::
 
 Specialized features (from submodules)::
 
-    from scripts.utils.deidentify import deidentify_dataset
+    from scripts.deidentify import deidentify_dataset
     from scripts.utils.country_regulations import get_supported_countries
     
     # See individual module documentation for complete examples
@@ -38,7 +38,7 @@ Specialized features (from submodules)::
 See Also
 --------
 - :mod:`scripts.utils.logging` - Logging utilities
-- :mod:`scripts.utils.deidentify` - De-identification
+- :mod:`scripts.deidentify` - De-identification
 - :mod:`scripts.utils.country_regulations` - Privacy compliance
 """
 

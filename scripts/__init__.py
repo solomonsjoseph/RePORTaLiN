@@ -22,7 +22,7 @@ For more specialized functionality, import directly from submodules:
 
 - ``scripts.load_dictionary``: Dictionary processing (2 public functions)
 - ``scripts.extract_data``: Data extraction (6 public functions)
-- ``scripts.utils.deidentify``: De-identification engine (10 public functions)
+- ``scripts.deidentify``: De-identification engine (10 public functions)
 - ``scripts.utils.country_regulations``: Privacy regulations (6 public functions)
 - ``scripts.utils.logging``: Enhanced logging (12 public functions)
 
@@ -73,7 +73,7 @@ De-identification Workflow
 Complete pipeline with de-identification::
 
     from scripts import extract_excel_to_jsonl
-    from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
+    from scripts.deidentify import deidentify_dataset, DeidentificationConfig
     import config
     
     # Step 1: Extract data (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
@@ -100,9 +100,9 @@ The package is organized as follows::
     ├── __init__.py              # Package API (this file)
     ├── load_dictionary.py       # Data dictionary processing
     ├── extract_data.py          # Excel to JSONL extraction
+    ├── deidentify.py            # De-identification engine
     └── utils/                   # Utility modules
         ├── __init__.py
-        ├── deidentify.py        # De-identification engine
         ├── country_regulations.py  # Privacy compliance
         └── logging.py           # Enhanced logging
 
@@ -121,7 +121,7 @@ See Also
 --------
 - :mod:`scripts.load_dictionary` - Data dictionary processing
 - :mod:`scripts.extract_data` - Data extraction
-- :mod:`scripts.utils.deidentify` - De-identification
+- :mod:`scripts.deidentify` - De-identification
 - :mod:`scripts.utils.country_regulations` - Privacy regulations
 - :mod:`scripts.utils.logging` - Logging utilities
 """

@@ -34,7 +34,7 @@ PEP 8 Compliance
    
    - ``main.py``
    - ``scripts/extract_data.py``
-   - ``scripts/utils/deidentify.py``
+   - ``scripts/deidentify.py``
    - ``scripts/utils/country_regulations.py``
 
    **Example format:**
@@ -126,7 +126,7 @@ Implement comprehensive unit tests using ``pytest``:
 .. code-block:: python
 
    import pytest
-   from scripts.utils.deidentify import deidentify_text
+   from scripts.deidentify import deidentify_text
    
    def test_deidentify_text_removes_phi():
        """Test that PHI is properly removed."""

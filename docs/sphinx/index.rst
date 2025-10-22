@@ -121,7 +121,7 @@ logging.py          387             97              75%
   * Backward compatible with zero breaking changes
   * Code quality verified with code density 64.2%
 
-- **v0.0.6**: Enhanced ``scripts/utils/deidentify.py`` with:
+- **v0.0.6**: Enhanced ``scripts/deidentify.py`` with:
   
   * Explicit public API definition via ``__all__`` (10 exports)
   * Enhanced module docstring with comprehensive usage examples (48 lines)

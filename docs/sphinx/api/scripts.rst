@@ -46,7 +46,7 @@ For specialized functionality, import directly from submodules:
 
 - ``scripts.load_dictionary`` - 2 public functions
 - ``scripts.extract_data`` - 6 public functions  
-- ``scripts.utils.deidentify`` - 10 public functions
+- ``scripts.deidentify`` - 10 public functions
 - ``scripts.utils.country_regulations`` - 6 public functions
 - ``scripts.utils.logging`` - 12 public functions
 
@@ -73,7 +73,7 @@ Submodules
    scripts.extract_data
    scripts.load_dictionary
    scripts.utils.logging
-   scripts.utils.deidentify
+   scripts.deidentify
    scripts.utils.country_regulations
 
 Module Summary
@@ -119,10 +119,10 @@ utils
 
 Utility modules including de-identification and logging.
 
-De-identification (``scripts.utils.deidentify``)
+De-identification (``scripts.deidentify``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. currentmodule:: scripts.utils.deidentify
+.. currentmodule:: scripts.deidentify
 
 PHI/PII de-identification module with pseudonymization and encryption.
 
@@ -139,7 +139,7 @@ Key functions:
 - :func:`deidentify_dataset`: Batch dataset de-identification
 - :func:`validate_dataset`: Dataset validation
 
-See: :doc:`scripts.utils.deidentify`
+See: :doc:`scripts.deidentify`
 
 Logging (``scripts.utils.logging``)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -210,7 +210,7 @@ De-identification
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import DeidentificationEngine
+   from scripts.deidentify import DeidentificationEngine
    
    # Initialize engine
    engine = DeidentificationEngine()
@@ -227,7 +227,7 @@ Batch De-identification
 
 .. code-block:: python
 
-   from scripts.utils.deidentify import deidentify_dataset
+   from scripts.deidentify import deidentify_dataset
    
    # Process entire dataset (maintains directory structure)
    stats = deidentify_dataset(

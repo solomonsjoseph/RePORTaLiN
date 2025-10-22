@@ -82,7 +82,7 @@ The de-identification module explicitly defines its public API through ``__all__
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import (
+    from scripts.deidentify import (
         # Enums
         PHIType,                    # PHI/PII type categorization
         
@@ -113,7 +113,7 @@ The de-identification module explicitly defines its public API through ``__all__
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import DeidentificationEngine, DeidentificationConfig
+    from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
     
     # Configure with custom settings
     config = DeidentificationConfig(
@@ -135,7 +135,7 @@ The de-identification module explicitly defines its public API through ``__all__
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import deidentify_dataset, validate_dataset
+    from scripts.deidentify import deidentify_dataset, validate_dataset
     
     # Process entire dataset
     stats = deidentify_dataset(
@@ -158,7 +158,7 @@ The de-identification module explicitly defines its public API through ``__all__
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import (
+    from scripts.deidentify import (
         DeidentificationEngine,
         PHIType,
         DetectionPattern
@@ -183,7 +183,7 @@ Basic Usage
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import DeidentificationEngine
+    from scripts.deidentify import DeidentificationEngine
 
     # Initialize engine
     engine = DeidentificationEngine()
@@ -201,7 +201,7 @@ Batch Processing
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import deidentify_dataset
+    from scripts.deidentify import deidentify_dataset
 
     # Process entire dataset (maintains directory structure)
     # Input directory contains: original/ and cleaned/ subdirectories
@@ -226,24 +226,24 @@ Command Line Interface
 .. code-block:: bash
 
     # Basic usage - processes subdirectories recursively
-    python -m scripts.utils.deidentify \
+    python -m scripts.deidentify \
         --input-dir results/dataset/Indo-vap \
         --output-dir results/deidentified/Indo-vap
 
     # With validation
-    python -m scripts.utils.deidentify \
+    python -m scripts.deidentify \
         --input-dir results/dataset/Indo-vap \
         --output-dir results/deidentified/Indo-vap \
         --validate
 
     # Specify text fields
-    python -m scripts.utils.deidentify \
+    python -m scripts.deidentify \
         --input-dir results/dataset/Indo-vap \
         --output-dir results/deidentified/Indo-vap \
         --text-fields patient_name notes diagnosis
         
     # Disable encryption (not recommended)
-    python -m scripts.utils.deidentify \
+    python -m scripts.deidentify \
         --input-dir results/dataset/Indo-vap \
         --output-dir results/deidentified/Indo-vap \
         --no-encryption
@@ -412,7 +412,7 @@ the same file structure between input and output directories:
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import deidentify_dataset
+    from scripts.deidentify import deidentify_dataset
 
     # Process with subdirectories (default)
     stats = deidentify_dataset(
@@ -441,7 +441,7 @@ DeidentificationConfig
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import DeidentificationConfig, DeidentificationEngine
+    from scripts.deidentify import DeidentificationConfig, DeidentificationEngine
 
     config = DeidentificationConfig(
         # Date shifting
@@ -469,7 +469,7 @@ Custom PHI Patterns
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import DetectionPattern, PHIType
+    from scripts.deidentify import DetectionPattern, PHIType
     import re
 
     # Define custom pattern
@@ -497,7 +497,7 @@ The date shifter automatically uses intelligent multi-format parsing with countr
 
 .. code-block:: python
 
-    from scripts.utils.deidentify import DateShifter
+    from scripts.deidentify import DateShifter
 
     # For India (DD/MM/YYYY format priority)
     shifter_india = DateShifter(
@@ -557,7 +557,7 @@ directory:
 .. code-block:: python
 
     from cryptography.fernet import Fernet
-    from scripts.utils.deidentify import DeidentificationConfig
+    from scripts.deidentify import DeidentificationConfig
 
     # Generate and save key
     encryption_key = Fernet.generate_key()
@@ -608,7 +608,7 @@ Validation
         print("✓ No PHI detected")
 
     # Validate entire dataset (processes all subdirectories)
-    from scripts.utils.deidentify import validate_dataset
+    from scripts.deidentify import validate_dataset
 
     validation_results = validate_dataset(
         "results/deidentified/Indo-vap"
@@ -707,11 +707,11 @@ Optimization Tips
 Examples
 --------
 
-See ``scripts/utils/deidentify.py`` ``--help`` for command-line usage:
+See ``scripts/deidentify.py`` ``--help`` for command-line usage:
 
 .. code-block:: bash
 
-    python -m scripts.utils.deidentify --help
+    python -m scripts.deidentify --help
 
 Examples include:
 
@@ -902,22 +902,22 @@ The date shifter automatically tries multiple formats and preserves the original
 API Reference
 -------------
 
-For complete API documentation, see the :doc:`../api/scripts.utils.deidentify` module reference.
+For complete API documentation, see the :doc:`../api/scripts.deidentify` module reference.
 
 Key Classes
 ~~~~~~~~~~~
 
-* :class:`scripts.utils.deidentify.DeidentificationEngine` - Main processing engine
-* :class:`scripts.utils.deidentify.PseudonymGenerator` - Pseudonym generation
-* :class:`scripts.utils.deidentify.DateShifter` - Date shifting
-* :class:`scripts.utils.deidentify.MappingStore` - Encrypted storage
-* :class:`scripts.utils.deidentify.PatternLibrary` - PHI patterns
+* :class:`scripts.deidentify.DeidentificationEngine` - Main processing engine
+* :class:`scripts.deidentify.PseudonymGenerator` - Pseudonym generation
+* :class:`scripts.deidentify.DateShifter` - Date shifting
+* :class:`scripts.deidentify.MappingStore` - Encrypted storage
+* :class:`scripts.deidentify.PatternLibrary` - PHI patterns
 
 Key Functions
 ~~~~~~~~~~~~~
 
-* :func:`scripts.utils.deidentify.deidentify_dataset` - Batch processing
-* :func:`scripts.utils.deidentify.validate_dataset` - Dataset validation
+* :func:`scripts.deidentify.deidentify_dataset` - Batch processing
+* :func:`scripts.deidentify.validate_dataset` - Dataset validation
 
 Migration Guide (v0.0.6)
 ------------------------
@@ -932,17 +932,13 @@ If you're upgrading from a previous version, here's what's new and what you migh
 
    .. code-block:: python
    
-      # Old way (still works)
-      from scripts.utils import deidentify
-      engine = deidentify.DeidentificationEngine()
-      
-      # New way (recommended for clarity)
-      from scripts.utils.deidentify import DeidentificationEngine
+      # Recommended import style
+      from scripts.deidentify import DeidentificationEngine
       engine = DeidentificationEngine()
 
 2. **Type Checking Benefits**:
    
-   If you use type checkers (mypy, pyright), you'll now get better type inference:
+   If you use type checkers (mypy, pyright), you'll get better type inference:
    
    .. code-block:: python
    
@@ -955,7 +951,7 @@ If you're upgrading from a previous version, here's what's new and what you migh
    
    .. code-block:: python
    
-      from scripts.utils import deidentify
+      from scripts import deidentify
       print(deidentify.__all__)
       # ['PHIType', 'DetectionPattern', 'DeidentificationConfig', ...]
 
@@ -974,7 +970,7 @@ See Also
 
 **API & Technical References**:
 
-* :doc:`../api/scripts.utils.deidentify` - Complete API reference
+* :doc:`../api/scripts.deidentify` - Complete API reference
 * :doc:`../developer_guide/contributing` - Best practices for error handling and API design
 * :doc:`../developer_guide/extending` - Extending de-identification features
 * :doc:`../changelog` - Version 0.0.6 changelog

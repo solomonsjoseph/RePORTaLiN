@@ -174,16 +174,16 @@ You can also run de-identification separately:
 .. code-block:: bash
 
    # De-identify existing dataset
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap \
        --countries IN US
 
    # List supported countries
-   python -m scripts.utils.deidentify --list-countries
+   python -m scripts.deidentify --list-countries
 
    # Validate de-identified output
-   python -m scripts.utils.deidentify \
+   python -m scripts.deidentify \
        --input-dir results/dataset/Indo-vap \
        --output-dir results/deidentified/Indo-vap \
        --validate

@@ -1,7 +1,7 @@
-scripts.utils.deidentify module
+scripts.deidentify module
 ================================
 
-.. automodule:: scripts.utils.deidentify
+.. automodule:: scripts.deidentify
    :members:
    :undoc-members:
    :show-inheritance:
@@ -51,7 +51,7 @@ Classes
 DeidentificationEngine
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.DeidentificationEngine
+.. autoclass:: scripts.deidentify.DeidentificationEngine
    :members:
    :undoc-members:
    :show-inheritance:
@@ -59,7 +59,7 @@ DeidentificationEngine
 PseudonymGenerator
 ~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.PseudonymGenerator
+.. autoclass:: scripts.deidentify.PseudonymGenerator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -67,7 +67,7 @@ PseudonymGenerator
 DateShifter
 ~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.DateShifter
+.. autoclass:: scripts.deidentify.DateShifter
    :members:
    :undoc-members:
    :show-inheritance:
@@ -75,7 +75,7 @@ DateShifter
 MappingStore
 ~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.MappingStore
+.. autoclass:: scripts.deidentify.MappingStore
    :members:
    :undoc-members:
    :show-inheritance:
@@ -83,7 +83,7 @@ MappingStore
 PatternLibrary
 ~~~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.PatternLibrary
+.. autoclass:: scripts.deidentify.PatternLibrary
    :members:
    :undoc-members:
    :show-inheritance:
@@ -94,7 +94,7 @@ Enumerations
 PHIType
 ~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.PHIType
+.. autoclass:: scripts.deidentify.PHIType
    :members:
    :undoc-members:
    :show-inheritance:
@@ -105,7 +105,7 @@ Data Classes
 DetectionPattern
 ~~~~~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.DetectionPattern
+.. autoclass:: scripts.deidentify.DetectionPattern
    :members:
    :undoc-members:
    :show-inheritance:
@@ -113,7 +113,7 @@ DetectionPattern
 DeidentificationConfig
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: scripts.utils.deidentify.DeidentificationConfig
+.. autoclass:: scripts.deidentify.DeidentificationConfig
    :members:
    :undoc-members:
    :show-inheritance:
@@ -124,9 +124,9 @@ Functions
 deidentify_dataset
 ~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: scripts.utils.deidentify.deidentify_dataset
+.. autofunction:: scripts.deidentify.deidentify_dataset
 
 validate_dataset
 ~~~~~~~~~~~~~~~~
 
-.. autofunction:: scripts.utils.deidentify.validate_dataset
+.. autofunction:: scripts.deidentify.validate_dataset

@@ -135,7 +135,7 @@ The main function executes these steps in order:
 
 3. **Step 2**: De-identify Data (Optional)
    
-   De-identifies PHI/PII from extracted data using :func:`scripts.utils.deidentify.deidentify_dataset`.
+   De-identifies PHI/PII from extracted data using :func:`scripts.deidentify.deidentify_dataset`.
    Must be explicitly enabled with ``--enable-deidentification``.
    
    - Encryption enabled by default for security
@@ -175,7 +175,7 @@ See Also
 :mod:`scripts.load_dictionary`
    Dictionary loading functionality
 
-:mod:`scripts.utils.deidentify`
+:mod:`scripts.deidentify`
    De-identification utilities
 
 :mod:`scripts.utils.logging`

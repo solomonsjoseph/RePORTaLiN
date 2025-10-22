@@ -17,7 +17,7 @@ meets their specific regulatory requirements.
 Example:
     Basic de-identification::
 
-        from scripts.utils.deidentify import deidentify_dataset, DeidentificationConfig
+        from scripts.deidentify import deidentify_dataset, DeidentificationConfig
 
         # Configure de-identification
         config = DeidentificationConfig(
@@ -36,7 +36,7 @@ Example:
 
     Using the engine directly::
 
-        from scripts.utils.deidentify import DeidentificationEngine
+        from scripts.deidentify import DeidentificationEngine
 
         engine = DeidentificationEngine(config)
         deidentified_text = engine.deidentify_text("Patient John Doe, MRN: AB123456")
@@ -44,7 +44,7 @@ Example:
 
     Validation::
 
-        from scripts.utils.deidentify import validate_dataset
+        from scripts.deidentify import validate_dataset
 
         is_clean = validate_dataset(
             file_path='data/deidentified_data.jsonl',
@@ -1171,8 +1171,8 @@ def main() -> None:
             for code, name in get_all_supported_countries().items():
                 print(f"  {code}: {name}")
             print("\nUsage Examples:")
-            print("  python -m scripts.utils.deidentify --countries US IN --input-dir <dir> --output-dir <dir>")
-            print("  python -m scripts.utils.deidentify --countries ALL --input-dir <dir> --output-dir <dir>")
+            print("  python -m scripts.deidentify --countries US IN --input-dir <dir> --output-dir <dir>")
+            print("  python -m scripts.deidentify --countries ALL --input-dir <dir> --output-dir <dir>")
         else:
             print("Country regulations module not available.")
         return

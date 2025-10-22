@@ -245,8 +245,8 @@ When ``--verbose`` or ``-v`` flag is used:
 
 **Design Pattern**: Singleton logger instance with configurable formatting
 
-6. scripts/utils/deidentify.py - De-identification Engine
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+6. scripts/deidentify.py - De-identification Engine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose**: Remove PHI/PII from text data with pseudonymization
 
@@ -616,7 +616,7 @@ Located in: ``scripts/extract_data.py`` → ``clean_duplicate_columns()``
 
 **Algorithm 4: Cryptographic Pseudonymization**
 
-Located in: ``scripts/utils/deidentify.py`` → ``PseudonymGenerator.generate()``
+Located in: ``scripts/deidentify.py`` → ``PseudonymGenerator.generate()``
 
 **Purpose:** Generate deterministic, unique pseudonyms for PHI/PII values
 
@@ -662,7 +662,7 @@ Located in: ``scripts/utils/deidentify.py`` → ``PseudonymGenerator.generate()`
 
 **Algorithm 5: Consistent Date Shifting (Country-Aware)**
 
-Located in: ``scripts/utils/deidentify.py`` → ``DateShifter.shift_date()``
+Located in: ``scripts/deidentify.py`` → ``DateShifter.shift_date()``
 
 **Purpose:** Shift all dates by consistent offset to preserve temporal relationships,
 with intelligent multi-format detection and country-specific priority
@@ -734,7 +734,7 @@ with intelligent multi-format detection and country-specific priority
 
 **Data Structure: Mapping Store (Encrypted)**
 
-Located in: ``scripts/utils/deidentify.py`` → ``MappingStore``
+Located in: ``scripts/deidentify.py`` → ``MappingStore``
 
 **Purpose:** Securely store original → pseudonym mappings
 
