@@ -437,9 +437,8 @@ The ``scripts.utils.logging`` module provides a robust logging infrastructure wi
        critical,          # Log critical errors
        success,           # Log success messages (custom level)
        
-       # Constants (2)
+       # Constants (1)
        SUCCESS,           # SUCCESS level constant (25)
-       Colors,            # ANSI color codes
    )
 
 Best Practices for Extensions

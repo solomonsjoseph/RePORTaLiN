@@ -278,7 +278,6 @@ Issues Found and Fixed
 - ``docs/sphinx/api/scripts.extract_data.rst``: Updated 1 instance
 - ``docs/sphinx/developer_guide/extending.rst``: Updated 2 instances
 - ``docs/sphinx/changelog.rst``: Updated 2 instances
-- ``docs/sphinx/developer_guide/colored_output_implementation.rst``: Updated 1 instance
 
 Changed unverified "100% type hint coverage" claims to:
 

@@ -21,7 +21,6 @@ intelligent filtering.
 
 - Custom SUCCESS log level (25) between INFO and WARNING
 - Dual output: console (filtered) + file (complete)
-- Colored console output for better readability
 - Thread-safe and optimized (no record mutation)
 - Explicit public API via ``__all__``
 
@@ -49,12 +48,11 @@ The module exports the following public interface via ``__all__`` (12 exports to
    critical(message, *args, **kwargs) # Critical error messages
    success(message, *args, **kwargs)  # Success messages (custom level)
 
-**Constants** (2):
+**Constants** (1):
 
 .. code-block:: python
 
    SUCCESS  # Custom log level constant (25)
-   Colors   # ANSI color codes class
 
 **Usage Example**:
 
@@ -315,15 +313,13 @@ Console Handler
 ~~~~~~~~~~~~~~~
 
 - **Output**: stdout
-- **Format**: Colored format with level and message (``LEVEL: message``)
+- **Format**: Simple format with level and message (``LEVEL: message``)
 - **Filter**: Shows only SUCCESS, ERROR, and CRITICAL messages (suppresses DEBUG, INFO, WARNING)
-- **Colors**: Color-coded by level (GREEN for SUCCESS, RED for ERROR/CRITICAL)
 - **Performance**: Optimized - no record mutation, direct formatting
 
-**Technical Details** (v0.0.4):
-  - ``ColoredFormatter`` does not mutate log records (thread-safe)
+**Technical Details**:
+  - ``CustomFormatter`` does not mutate log records (thread-safe)
   - No unnecessary copying of records (performance optimized)
-  - Uses ANSI escape codes for terminal colors
 
 File Handler
 ~~~~~~~~~~~~

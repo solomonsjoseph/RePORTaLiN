@@ -132,7 +132,6 @@ logging.py          387             97              75%
 - **v0.0.5**: Enhanced ``scripts/utils/country_regulations.py`` with explicit public API (6 exports) and comprehensive usage examples in docstring
 - **v0.0.4**: Enhanced ``scripts/utils/logging.py`` module with improved type hints, optimized performance (no record mutation), and explicit public API (12 exports)
 - **v0.0.3**: Enhanced ``config.py`` module with utility functions, bug fixes, and improved robustness
-- **v0.0.2**: Added colored output support for logs and progress bars
 
 See :doc:`changelog` for complete details.
 
@@ -151,7 +150,6 @@ Documentation Sections
    user_guide/quickstart
    user_guide/configuration
    user_guide/usage
-   user_guide/colored_output
    user_guide/deidentification
    user_guide/country_regulations
    user_guide/troubleshooting
@@ -166,7 +164,6 @@ Documentation Sections
    developer_guide/architecture
    developer_guide/contributing
    developer_guide/extending
-   developer_guide/colored_output_implementation
    developer_guide/code_integrity_audit
    developer_guide/production_readiness
    developer_guide/future_enhancements

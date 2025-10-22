@@ -91,7 +91,7 @@ Module-by-Module Review
 - Enhanced documentation with 162-line docstring (2,214% increase)
 - Explicit public API (``__all__`` with 2 exports)
 - Complete usage examples and command-line reference
-- Proper logging integration with colored output and verbose mode
+- Proper logging integration with verbose mode
 - Clear step numbering and success/failure reporting
 - Version tracking (v0.0.12)
 - Verbose logging feature for detailed debugging
@@ -99,8 +99,8 @@ Module-by-Module Review
 **Logical Flow**:
 
 1. Parse command-line arguments (10 options)
-2. Initialize logging system with color support
-3. Display startup banner (if colors enabled)
+2. Initialize logging system
+3. Display startup banner
 4. Execute pipeline steps in sequence:
    
    - Step 0: Load data dictionary (optional, ``--skip-dictionary``)

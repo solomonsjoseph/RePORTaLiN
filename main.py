@@ -9,7 +9,7 @@ Central entry point for the clinical data processing pipeline, orchestrating:
 - PHI/PII de-identification with country-specific compliance
 
 This module provides a complete end-to-end pipeline with comprehensive error handling,
-progress tracking, colored output, and flexible configuration via command-line arguments.
+progress tracking, and flexible configuration via command-line arguments.
 
 Public API
 ----------
@@ -23,7 +23,6 @@ Key Features
 - **Multi-Step Pipeline**: Dictionary → Extraction → De-identification
 - **Flexible Execution**: Skip individual steps or run complete pipeline
 - **Country Compliance**: Support for 14 countries (US, IN, ID, BR, etc.)
-- **Colored Output**: Enhanced visual feedback (can be disabled)
 - **Error Recovery**: Comprehensive error handling with detailed logging
 - **Version Tracking**: Built-in version management
 
@@ -39,7 +38,7 @@ Pipeline Steps
 - Converts Excel files to JSONL format
 - Dual output: original and cleaned versions
 - Type conversion and validation
-- Progress tracking with colored bars
+- Progress tracking with real-time feedback
 
 **Step 2: De-identification (Opt-in)**
 - PHI/PII detection and pseudonymization
@@ -98,8 +97,8 @@ Advanced Configuration
 
 Combine multiple options::
 
-    # Complete pipeline with de-identification, no colors
-    python3 main.py --enable-deidentification --countries IN US ID --no-color
+    # Complete pipeline with de-identification
+    python3 main.py --enable-deidentification --countries IN US ID
     
     # Extraction + de-identification only (skip dictionary)
     python3 main.py --skip-dictionary --enable-deidentification --countries ALL
@@ -139,8 +138,8 @@ Command-Line Arguments
 - ``-c, --countries CODES``: Country codes (e.g., IN US ID BR) or ALL
 - ``--no-encryption``: Disable encrypted mappings (testing only)
 
-**Output Options:**
-- ``--no-color``: Disable colored output in logs and progress bars
+**Logging Options:**
+- ``-v, --verbose``: Enable verbose (DEBUG level) logging
 
 **Information:**
 - ``--version``: Show program version and exit
@@ -222,7 +221,6 @@ def main() -> None:
         --no-encryption: Disable encryption for de-identification mappings
         -c, --countries: Country codes (e.g., IN US ID BR) or ALL
         -v, --verbose: Enable verbose (DEBUG level) logging
-        --no-color: Disable colored output
     """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
@@ -243,22 +241,19 @@ def main() -> None:
                        help="Disable encryption for de-identification mappings (testing only, not recommended).")
     parser.add_argument('-c', '--countries', nargs='+',
                        help="Country codes for de-identification (e.g., IN US ID BR) or ALL. Default: IN (India).")
-    parser.add_argument('--no-color', action='store_true',
-                       help="Disable colored output in logs and progress bars.")
     parser.add_argument('-v', '--verbose', action='store_true',
                        help="Enable verbose (DEBUG level) logging for detailed processing information.")
     args = parser.parse_args()
 
     # Set log level based on verbose flag
     log_level = logging.DEBUG if args.verbose else config.LOG_LEVEL
-    log.setup_logger(name=config.LOG_NAME, log_level=log_level, use_color=not args.no_color)
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level)
     log.info("Starting RePORTaLiN pipeline...")
     
-    # Display startup banner with color (unless disabled)
-    if not args.no_color:
-        print("\n\033[1m\033[36m" + "=" * 70 + "\033[0m")
-        print("\033[1m\033[36mRePORTaLiN - Report India Clinical Study Data Pipeline\033[0m")
-        print("\033[1m\033[36m" + "=" * 70 + "\033[0m\n")
+    # Display startup banner
+    print("\n" + "=" * 70)
+    print("RePORTaLiN - Report India Clinical Study Data Pipeline")
+    print("=" * 70 + "\n")
 
     if not args.skip_dictionary:
         run_step("Step 0: Loading Data Dictionary", 

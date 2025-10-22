@@ -33,7 +33,6 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **Data Extraction**: Excel to JSONL conversion with validation
 - **De-identification**: Advanced PHI/PII detection and pseudonymization with country-specific privacy regulations
 - **Security**: Encryption by default, secure key management, and audit trails
-- **Colored Output**: Enhanced visual feedback with colored logs and progress bars
 
 ## Key Features
 
@@ -51,7 +50,6 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 ### 📊 Data Processing
 - **Multi-table detection** from complex Excel layouts
 - **JSONL output** for efficient streaming
-- **Colored output** for improved readability and user experience
 - **Progress tracking** with real-time feedback
 - **Duplicate detection** and intelligent column handling
 - **Type conversion** with validation and error handling
@@ -102,9 +100,6 @@ python3 main.py --verbose
 
 # Verbose with de-identification
 python3 main.py -v --enable-deidentification --countries IN US
-
-# Disable colored output (if needed)
-python3 main.py --no-color
 
 # Using Makefile
 make run                    # Without de-identification
@@ -344,6 +339,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - v0.0.5: Enhanced `country_regulations.py` with explicit public API and usage examples
 - v0.0.4: Enhanced `logging.py` with improved type hints and optimized performance
 - v0.0.3: Enhanced `config.py` with utility functions and improved robustness
-- v0.0.2: Added colored output support for logs and progress bars
 
 This project is part of the RePORTaLiN (Report India Clinical Study) consortium.

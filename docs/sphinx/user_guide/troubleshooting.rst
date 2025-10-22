@@ -295,9 +295,6 @@ Console Output Issues
    
    # Or modify the console filter in scripts/utils/logging.py
 
-**Technical Note** (v0.0.4): Console output uses colored formatting for better readability.
-If colors don't display correctly, check your terminal's ANSI support.
-
 Configuration Issues
 --------------------
 

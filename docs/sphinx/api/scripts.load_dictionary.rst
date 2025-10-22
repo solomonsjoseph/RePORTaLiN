@@ -51,7 +51,7 @@ The module docstring has been enhanced from 165 to 2,480 characters (97 lines), 
 - Boundary detection: Uses empty rows/columns to identify table boundaries
 - "Ignore below" support: Handles special markers to segregate extra tables
 - Duplicate column handling: Automatically deduplicates column names
-- Progress tracking: Real-time progress bars with colored output
+- Progress tracking: Real-time progress bars
 - Metadata injection: Adds ``__sheet__`` and ``__table__`` fields
 
 **Algorithm Documentation:**

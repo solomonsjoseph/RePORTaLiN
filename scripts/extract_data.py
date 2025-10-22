@@ -39,7 +39,7 @@ Key Features:
     - Type conversion: Handles pandas/numpy types, dates, NaN values
     - Integrity checks: Validates output files before skipping
     - Error recovery: Continues processing even if individual files fail
-    - Progress tracking: Real-time colored progress bars
+    - Progress tracking: Real-time progress bars
 """
 import os
 import sys
@@ -226,10 +226,10 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
     print(f"Found {len(excel_files)} Excel files to process...")
     total_records, files_created, files_skipped, errors = 0, 0, 0, []
     
-    # Enhanced progress bar with color
+    # Progress bar for processing files
     for excel_file in tqdm(excel_files, desc="Processing files", unit="file",
                            file=sys.stdout, dynamic_ncols=True, leave=True,
-                           colour='green', bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'):
+                           bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'):
         # Check if files already exist in both original and cleaned directories
         original_file = Path(config.CLEAN_DATASET_DIR) / "original" / f"{excel_file.stem}.jsonl"
         cleaned_file = Path(config.CLEAN_DATASET_DIR) / "cleaned" / f"{excel_file.stem}.jsonl"
@@ -258,14 +258,14 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
             errors.append(error_msg)
             log.error(f"Failed to process {excel_file.name}: {error_msg}")
     
-    # Summary with colors
-    print(f"\n\033[1m\033[36mExtraction complete:\033[0m")
-    print(f"  \033[32m✓\033[0m {total_records} total records processed")
-    print(f"  \033[32m✓\033[0m {files_created} JSONL files created")
-    print(f"  \033[33m⊙\033[0m {files_skipped} files skipped (already exist)")
-    print(f"  \033[36m→\033[0m Output directory: {config.CLEAN_DATASET_DIR}")
+    # Summary
+    print(f"\nExtraction complete:")
+    print(f"  ✓ {total_records} total records processed")
+    print(f"  ✓ {files_created} JSONL files created")
+    print(f"  ⊙ {files_skipped} files skipped (already exist)")
+    print(f"  → Output directory: {config.CLEAN_DATASET_DIR}")
     if errors:
-        print(f"  \033[31m✗\033[0m {len(errors)} files had errors")
+        print(f"  ✗ {len(errors)} files had errors")
         log.error(f"{len(errors)} files had errors during extraction")
     
     log.info(f"Extraction complete: {total_records} records, {files_created} files created, {files_skipped} skipped")

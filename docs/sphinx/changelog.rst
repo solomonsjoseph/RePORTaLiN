@@ -3,6 +3,28 @@ Changelog
 
 All notable changes to RePORTaLiN are documented here.
 
+Version 0.1.0 (TBD) - Pre-Release Cleanup
+------------------------------------------
+
+**Removal**: Simplified logging by removing colored output feature
+
+.. versionchanged:: 0.1.0
+   Removed colored output support from logging module to simplify codebase before first major release.
+
+Removed Features
+~~~~~~~~~~~~~~~~
+
+❌ **Colored Output Removal**:
+  - Removed ``Colors`` class from ``scripts/utils/logging.py``
+  - Removed ``ColoredFormatter`` and color-related code
+  - Removed ``--no-color`` command-line flag
+  - Removed ``use_color`` parameter from ``setup_logger()``
+  - Deleted documentation files:
+    - ``docs/sphinx/user_guide/colored_output.rst``
+    - ``docs/sphinx/developer_guide/colored_output_implementation.rst``
+
+**Rationale**: Colored output added complexity without significant user benefit for this project type.
+
 Version 0.0.12 (2025-10-15) - Verbose Logging & Auto-Rebuild Features
 ----------------------------------------------------------------------
 
