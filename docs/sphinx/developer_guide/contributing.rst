@@ -532,6 +532,109 @@ Getting Started
 
       git checkout -b feature/your-feature-name
 
+Version Management
+------------------
+
+.. versionadded:: 0.2.0
+   Hybrid version management system with automatic semantic versioning via conventional commits.
+
+RePORTaLiN uses a **hybrid version management system** that combines:
+
+- **Single source of truth**: ``__version__.py`` 
+- **Automatic bumping**: Post-commit hook for VS Code/GUI workflows
+- **Manual control**: Makefile targets and CLI scripts when needed
+
+How Version Bumping Works
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Automatic (Recommended for Most Users)**:
+
+When you commit with a conventional commit message, the version is automatically bumped:
+
+.. code-block:: bash
+
+   # From VS Code or command line - just commit normally!
+   git add .
+   git commit -m "feat: add new feature"
+   # → Post-commit hook detects "feat:" and bumps 0.2.0 → 0.3.0
+   # → Amends commit to include __version__.py change
+
+**Version Bump Rules**:
+
++-------------------------+------------------+-------------------------+
+| Commit Type             | Version Bump     | Example                 |
++=========================+==================+=========================+
+| ``fix:``                | Patch            | 0.2.0 → 0.2.1           |
++-------------------------+------------------+-------------------------+
+| ``feat:``               | Minor            | 0.2.0 → 0.3.0           |
++-------------------------+------------------+-------------------------+
+| ``feat!:`` or           | Major            | 0.2.0 → 1.0.0           |
+| ``BREAKING CHANGE:``    |                  |                         |
++-------------------------+------------------+-------------------------+
+| ``docs:``, ``chore:``,  | No bump          | 0.2.0 → 0.2.0           |
+| ``refactor:``, etc.     |                  |                         |
++-------------------------+------------------+-------------------------+
+
+**Manual Version Bumping**:
+
+When you need explicit control (e.g., for releases):
+
+.. code-block:: bash
+
+   # Bump patch version (0.2.0 → 0.2.1)
+   make bump-patch
+   git commit -m "chore: bump version to 0.2.1"
+   
+   # Bump minor version (0.2.0 → 0.3.0)
+   make bump-minor
+   git commit -m "chore: bump version to 0.3.0"
+   
+   # Bump major version (0.2.0 → 1.0.0)
+   make bump-major
+   git commit -m "chore: bump version to 1.0.0"
+
+**Smart Commit (Preview Before Committing)**:
+
+Use ``smart-commit`` when you want to see the version change before committing:
+
+.. code-block:: bash
+
+   # Preview version bump
+   ./smart-commit "feat: add new feature"
+   # Shows: Current: 0.2.0 → New: 0.3.0
+   # Asks for confirmation before committing
+
+**Check Current Version**:
+
+.. code-block:: bash
+
+   # Quick version check
+   make show-version
+   # or
+   python main.py --version
+
+Version Import Pattern
+~~~~~~~~~~~~~~~~~~~~~~
+
+All modules import version from ``__version__.py``:
+
+.. code-block:: python
+
+   # Correct: Import from __version__.py
+   from __version__ import __version__
+   
+   # Then use in your module
+   __version__ = __version__  # Re-export at module level
+
+This ensures version consistency across:
+
+- CLI output (``--version`` flag)
+- Module ``__version__`` attributes  
+- Sphinx documentation (``docs/sphinx/conf.py``)
+- Package metadata
+
+**Never hardcode versions** in module files - always import from ``__version__.py``.
+
 Development Workflow
 --------------------
 
@@ -558,52 +661,98 @@ Making Changes
 Commit Guidelines
 ~~~~~~~~~~~~~~~~~
 
-Use clear, descriptive commit messages:
+.. versionchanged:: 0.2.0
+   RePORTaLiN now uses **Conventional Commits** with automatic semantic versioning.
+   Version bumps are handled automatically via post-commit hook.
+
+Use **Conventional Commits** for automatic semantic versioning:
 
 .. code-block:: text
 
-   # Good commit messages
-   ✅ Add support for CSV output format
-   ✅ Fix date conversion bug in extract_data.py
-   ✅ Update documentation for configuration options
-   ✅ Refactor table detection algorithm for clarity
+   # Patch bump (0.2.0 → 0.2.1) - Bug fixes
+   ✅ fix: correct date conversion bug in extract_data.py
+   ✅ fix(deidentify): handle missing PHI patterns gracefully
 
-   # Bad commit messages
-   ❌ Update
-   ❌ Fix bug
-   ❌ Changes
+   # Minor bump (0.2.0 → 0.3.0) - New features
+   ✅ feat: add CSV output format support
+   ✅ feat(cli): add --verbose flag for DEBUG logging
 
-Commit Message Format:
-
-.. code-block:: text
-
-   <type>: <subject>
-
-   <body>
-
-   <footer>
-
-Types:
-
-- ``feat``: New feature
-- ``fix``: Bug fix
-- ``docs``: Documentation changes
-- ``style``: Code style changes (formatting, etc.)
-- ``refactor``: Code refactoring
-- ``test``: Adding or updating tests
-- ``chore``: Maintenance tasks
-
-Example:
-
-.. code-block:: text
-
-   feat: Add CSV export option
+   # Major bump (0.2.0 → 1.0.0) - Breaking changes
+   ✅ feat!: redesign configuration file structure
+   ✅ feat: remove deprecated --legacy-mode flag
    
-   - Add convert_to_csv() function in extract_data.py
-   - Add --format csv command-line option
-   - Update documentation with CSV examples
+   BREAKING CHANGE: Configuration now uses YAML instead of JSON
+
+   # No version bump - Documentation, refactoring, etc.
+   ✅ docs: update README with new examples
+   ✅ refactor: simplify table detection algorithm
+   ✅ chore: update dependencies
+
+**Conventional Commit Format**:
+
+.. code-block:: text
+
+   <type>[optional scope][optional !]: <description>
+
+   [optional body]
+
+   [optional footer(s)]
+
+**Commit Types**:
+
+- ``feat:``: New feature (→ **Minor bump**)
+- ``fix:``: Bug fix (→ **Patch bump**)
+- ``feat!:`` or ``BREAKING CHANGE:``: Breaking change (→ **Major bump**)
+- ``docs:``: Documentation only (no version bump)
+- ``style:``: Code style/formatting (no version bump)
+- ``refactor:``: Code refactoring (no version bump)
+- ``test:``: Add/update tests (no version bump)
+- ``chore:``: Maintenance tasks (no version bump)
+
+**How It Works**:
+
+1. Commit normally from VS Code or CLI with conventional commit message
+2. Post-commit hook automatically detects commit type
+3. Version bumped in ``__version__.py`` based on commit type
+4. Commit is amended to include version change
+5. Final commit contains both your changes AND version bump
+
+**Examples**:
+
+.. code-block:: bash
+
+   # Option 1: VS Code (recommended)
+   # Just commit normally - version bumps automatically!
+   git add .
+   git commit -m "feat: add CSV export"  # → Auto-bumps to 0.3.0
    
-   Closes #42
+   # Option 2: CLI with preview (smart-commit)
+   ./smart-commit "feat: add CSV export"  # Shows version before commit
+   
+   # Option 3: Manual version bump
+   make bump-minor  # Bump minor version manually
+   git commit -m "chore: bump version"
+
+**Good Examples**:
+
+.. code-block:: text
+
+   ✅ feat: add support for CSV output format
+   ✅ fix: correct date parsing in extract_data.py
+   ✅ docs: update configuration documentation
+   ✅ feat(deidentify): add encryption support
+   ✅ fix(cli)!: change --output flag to --output-dir
+   
+   BREAKING CHANGE: --output flag renamed for clarity
+
+**Bad Examples**:
+
+.. code-block:: text
+
+   ❌ Update (too vague, no type)
+   ❌ Fix bug (no description, no type)
+   ❌ Changes (meaningless)
+   ❌ Added feature (wrong tense, no type)
 
 .. _coding-standards:
 
