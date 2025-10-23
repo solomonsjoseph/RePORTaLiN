@@ -6,7 +6,7 @@ scripts.utils.country\_regulations module
    :undoc-members:
    :show-inheritance:
 
-.. versionchanged:: 0.0.5
+.. versionchanged:: 0.3.0
    Added explicit public API definition via ``__all__`` (6 exports) and enhanced module
    docstring with usage examples.
 
@@ -15,7 +15,7 @@ Overview
 
 The ``country_regulations`` module provides comprehensive country-specific data privacy regulations for patient data de-identification. It supports 14 countries across North America, Europe, Asia-Pacific, and Africa, ensuring compliance with local privacy laws.
 
-**Public API** (v0.0.5):
+**Public API**:
 
 .. code-block:: python
 

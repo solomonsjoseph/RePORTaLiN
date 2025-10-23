@@ -6,7 +6,8 @@ Welcome to RePORTaLiN Documentation
 **RePORTaLiN** is a robust data extraction pipeline for processing medical research data 
 from Excel files to JSONL format with advanced PHI/PII de-identification capabilities.
 
-**Recent Optimization (October 13, 2025):**  
+**Current Version: 0.3.0 (October 23, 2025)**  
+✅ Production-ready pipeline with complete de-identification support  
 ✅ 68% code reduction (1,235 lines removed) while maintaining 100% functionality  
 ✅ Comprehensive developer and user documentation added  
 ✅ All edge cases and algorithms thoroughly documented
@@ -56,9 +57,11 @@ logging.py          387             97              75%
 - ``deidentify.py`` (1,129 lines) - HIPAA/GDPR compliance documentation
 - ``country_regulations.py`` (1,280 lines) - 14 country privacy regulations
 
-**Recent Enhancements (October 15, 2025):**
+**What's New**
 
-- **v0.0.12** (Latest): Added verbose logging and auto-rebuild features:
+See :doc:`changelog` for complete version history. Recent enhancements:
+
+- **v0.0.12**: Added verbose logging and auto-rebuild features:
   
   * **Verbose Logging**: Added ``-v`` / ``--verbose`` command-line flag for DEBUG-level logging
   * Enhanced logging in all core modules (load_dictionary, extract_data, deidentify)
@@ -102,7 +105,9 @@ logging.py          387             97              75%
   * Backward compatible with zero breaking changes
   * Clear API guidance (package vs submodule imports)
 
-**Recent Enhancements (October 14, 2025):**
+See :doc:`changelog` for complete version history and all enhancements.
+
+**Earlier Enhancements:**
 
 - **v0.0.8**: Enhanced ``scripts/load_dictionary.py`` with:
   
@@ -164,8 +169,15 @@ Documentation Sections
    developer_guide/architecture
    developer_guide/contributing
    developer_guide/extending
+   developer_guide/auto_documentation
    developer_guide/code_integrity_audit
    developer_guide/production_readiness
+   developer_guide/documentation_audit
+   developer_guide/documentation_policy
+   developer_guide/documentation_style_guide
+   developer_guide/terminology_simplification
+   developer_guide/gitignore_verification
+   developer_guide/script_reorganization
    developer_guide/future_enhancements
 
 📚 **API Reference** - Technical documentation for all modules

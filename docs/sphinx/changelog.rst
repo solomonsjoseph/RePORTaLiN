@@ -3,6 +3,47 @@ Changelog
 
 All notable changes to RePORTaLiN are documented here.
 
+Version 0.3.0 (2025-10-23) - Documentation Enhancement
+------------------------------------------------------
+
+**Enhancement**: Comprehensive documentation updates for version management system
+
+.. versionadded:: 0.3.0
+   Updated all documentation to reflect the new hybrid version management system.
+
+Documentation Updates
+~~~~~~~~~~~~~~~~~~~~~
+
+✨ **Sphinx Documentation**:
+  - Enhanced ``changelog.rst`` with complete v0.2.0 entry (84 lines)
+  - Added "Version Management" section to ``contributing.rst``
+  - Updated "Commit Guidelines" with Conventional Commits specification
+  - Added version bump rules reference table
+  - Documented all three workflows (VS Code, smart-commit, manual)
+  - Added version import pattern guidelines
+
+✨ **Developer Guide**:
+  - Complete workflow documentation for all version management methods
+  - Conventional commit format with examples (good and bad)
+  - Version import pattern best practices
+  - Cross-references to related documentation
+
+**Technical Details**:
+  - All documentation verified for accuracy
+  - Module docstrings confirmed to import from ``__version__.py``
+  - No legacy references remaining
+  - Consistent terminology across all docs
+
+**Files Updated**:
+  - ``docs/sphinx/changelog.rst``: Added v0.2.0 entry
+  - ``docs/sphinx/developer_guide/contributing.rst``: Version management section (109 lines)
+  - Verified ``README.md`` completeness
+
+**User Impact**:
+  - Clear, comprehensive documentation for all version management workflows
+  - Easy-to-follow examples for conventional commits
+  - Complete reference for developers and contributors
+
 Version 0.2.0 (2025-10-23) - Hybrid Version Management System
 --------------------------------------------------------------
 
@@ -1098,7 +1139,7 @@ Deprecation Policy
 Support
 -------
 
-- **Current Version**: 0.0.1 (October 2025)
+- **Current Version**: 0.3.0 (October 2025)
 - **Support**: Active development
 - **Python**: 3.13+
 

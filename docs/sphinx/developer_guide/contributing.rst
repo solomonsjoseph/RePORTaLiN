@@ -1,23 +1,26 @@
 Contributing
 ============
 
-We welcome contributions to RePORTaLiN! This guide will help you get started.
+**For Developers: Contributing to RePORTaLiN**
 
-**LATEST UPDATE (October 15, 2025)**
+We welcome contributions to RePORTaLiN! This guide will help you get started with development,
+testing, and submitting your improvements.
 
-✅ **VERBOSE LOGGING FEATURE (v0.0.12)**  
-✅ **Added -v/--verbose flag for DEBUG-level logging throughout pipeline**  
-✅ **Enhanced logging in all core modules (main, extract, load_dictionary, deidentify)**  
-✅ **Comprehensive documentation updates (user guide, troubleshooting, architecture)**  
-✅ **Version synchronized to 0.0.12 (aligned with latest enhancement)**  
-✅ **Backward compatibility preserved (default behavior unchanged)**
+**LATEST UPDATE (October 23, 2025)**
 
-**Recent Improvements (v0.0.12):**
+✅ **Current Version: 0.3.0**  
+✅ **Verbose logging feature** with -v/--verbose flag for DEBUG-level logging  
+✅ **Complete de-identification pipeline** with encryption support  
+✅ **Comprehensive documentation** across all modules and guides  
+✅ **Production-ready codebase** with robust error handling and type safety
 
-1. **Verbose Logging Feature**:
-   - Added ``-v`` / ``--verbose`` command-line flag
-   - Enables DEBUG-level logging for detailed processing insights
-   - Enhanced logging in:
+**Project Status (v0.3.0):**
+
+1. **Core Features Complete**:
+   - Full data extraction and transformation pipeline
+   - De-identification with mapping and encryption
+   - Multi-country regulatory compliance
+   - Verbose logging for debugging
      * ``load_dictionary.py``: Sheet names, table detection
      * ``extract_data.py``: File lists, duplicate detection
      * ``deidentify.py``: Config details, progress tracking
@@ -167,7 +170,7 @@ Main pipeline documentation with comprehensive usage examples (162 lines, 2,214%
    - Additive enhancements only
    - Code quality verified
 
-**PREVIOUS UPDATE (October 14, 2025)**
+**PREVIOUS UPDATE (October 14-15, 2025)**
 
 ✅ **DATA DICTIONARY MODULE ENHANCEMENT (v0.0.8)**  
 ✅ **Added explicit public API definition via ``__all__`` (2 exports)**  
@@ -329,7 +332,7 @@ Main pipeline documentation with comprehensive usage examples (162 lines, 2,214%
 ✅ **Thread-safe and optimized (no record mutation)**  
 ✅ **Specific exception handling (ValueError instead of generic Exception)**  
 
-**PREVIOUS UPDATE (October 13, 2025)**
+**PREVIOUS UPDATE (October 13-15, 2025)**
 
 ✅ **COMPREHENSIVE PROJECT AUDIT - ALL FILES REVIEWED**  
 ✅ **Every file in every folder and subfolder checked (excluding only .backup/ and data/)**  
@@ -462,7 +465,7 @@ The documentation is well-organized with:
 
 ---
 
-**Recent Project Optimization (October 13, 2025):**
+**Historical Project Optimization (October 13-15, 2025):**
 
 ✅ **Task Completed:** Recursive code optimization with comprehensive documentation  
 ✅ **Code Reduced:** 68% (1,235 lines removed from 5 core files)  
@@ -831,7 +834,7 @@ Use Google-style docstrings:
 Building Documentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. versionadded:: 0.0.12
+.. versionadded:: 0.3.0
    Added ``make docs-watch`` for auto-rebuild on file changes.
 
 The project uses Sphinx for documentation with autodoc enabled. Documentation is automatically
@@ -922,10 +925,10 @@ Example structure:
 Error Handling
 ~~~~~~~~~~~~~~
 
-.. versionchanged:: 0.0.4
+.. versionchanged:: 0.3.0
    Logging module now uses specific exceptions (``ValueError``) instead of generic ``Exception``.
 
-.. versionchanged:: 0.0.6
+.. versionchanged:: 0.3.0
    De-identification module demonstrates robust error handling with 9 try/except blocks for 
    cryptography imports, country regulations, pattern loading, mapping I/O, and file processing.
 
@@ -943,7 +946,7 @@ Use appropriate exception handling:
        log.error(f"Permission denied: {path}")
        raise
 
-**Best Practices for Error Handling (v0.0.6)**:
+**Best Practices for Error Handling**:
 
 1. **Optional Dependency Handling**:
 
@@ -1011,7 +1014,7 @@ Use appropriate exception handling:
 Public API Definition
 ~~~~~~~~~~~~~~~~~~~~~
 
-.. versionadded:: 0.0.6
+.. versionadded:: 0.3.0
    All utility modules now define explicit public APIs using ``__all__``.
 
 Define ``__all__`` to explicitly declare your module's public API:
@@ -1063,7 +1066,7 @@ Define ``__all__`` to explicitly declare your module's public API:
 Return Type Annotations
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. versionchanged:: 0.0.6
+.. versionchanged:: 0.3.0
    All functions now include explicit return type annotations, including ``-> None`` for 
    functions that don't return values.
 

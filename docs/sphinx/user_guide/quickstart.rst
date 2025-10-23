@@ -262,7 +262,7 @@ Common First-Run Issues
 
 ---
 
-**Issue**: "Module not found"
+**Issue**: "Package not found"
 
 **Solution**: Ensure dependencies are installed:
 
@@ -456,7 +456,7 @@ Troubleshooting
 
 ---
 
-**Problem:** "ModuleNotFoundError: No module named 'pandas'"
+**Problem:** "Package 'pandas' not found"
 
 **Solution:** Install dependencies:
 

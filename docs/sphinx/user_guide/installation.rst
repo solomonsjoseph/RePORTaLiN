@@ -1,6 +1,10 @@
 Installation
 ============
 
+**For Users: Getting Started**
+
+This guide will help you install RePORTaLiN on your computer in just a few simple steps.
+
 Prerequisites
 -------------
 
@@ -150,7 +154,7 @@ After installation, your project structure should look like:
    │   ├── extract_data.py   # Excel to JSONL extraction
    │   ├── load_dictionary.py # Dictionary processor
    │   └── utils/
-   │       ├── deidentify.py # De-identification module
+   │       ├── deidentify.py # De-identification script
    │       └── logging.py # Centralized logging
    ├── data/                  # Your data files go here
    │   ├── dataset/
@@ -216,7 +220,7 @@ Problem: Import errors after installation
    # 3. Reinstall dependencies
    pip install --force-reinstall -r requirements.txt
 
-Problem: "ModuleNotFoundError: No module named 'cryptography'"
+Problem: "Package 'cryptography' not found"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Solution**: The cryptography package may need system dependencies:

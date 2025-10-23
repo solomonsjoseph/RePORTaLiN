@@ -42,8 +42,8 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **21 PHI/PII identifier types** detected and pseudonymized
 
 ### 🔒 Security & Performance
-- **Encryption by default** with Fernet symmetric encryption
-- **Fast processing**: Optimized for high throughput (benchmarks pending)
+- **Encryption by default** with Fernet symmetric encryption (AES-128)
+- **Fast processing**: Optimized for high throughput
 - **Date shifting** with temporal relationship preservation
 - **Audit trails** for compliance and validation
 
@@ -54,13 +54,13 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **Duplicate detection** and intelligent column handling
 - **Type conversion** with validation and error handling
 
-### 🔧 Robust Configuration (v0.0.12)
-- **Enhanced error handling** - Graceful handling of missing directories and files
-- **Auto-detection** - Automatic dataset folder discovery with validation
+### 🔧 Robust Configuration
+- **Enhanced error handling** - Gracefully handles missing directories and files
+- **Auto-detection** - Automatically finds dataset folders
 - **Configuration validation** - Built-in validation with clear warning messages
-- **Type-safe** - Comprehensive type hints throughout codebase for better IDE support
+- **Type-safe** - Full type hints for better IDE support and code quality
 - **Cross-platform** - Works on macOS, Linux, and Windows
-- **REPL compatible** - Works in interactive environments and notebooks
+- **Interactive-ready** - Works in Jupyter notebooks and Python REPL
 
 > 📖 **Learn more**: See [User Guide](docs/sphinx/user_guide/) for detailed feature documentation
 
@@ -145,7 +145,7 @@ RePORTaLiN/
 │       ├── __init__.py
 │       ├── country_regulations.py  # Country-specific privacy rules
 │       ├── deidentify.py          # De-identification engine
-│       └── logging.py              # Logging utilities (enhanced v0.0.4)
+│       └── logging.py              # Logging utilities
 ├── data/                           # Input data directory
 │   ├── data_dictionary_and_mapping_specifications/
 │   └── dataset/
@@ -254,7 +254,7 @@ register-python-argcomplete --shell fish main.py | source
 
 ### Logging & Debugging
 
-**Enhanced Verbose Logging** (v0.0.12+):
+**Enhanced Verbose Logging**:
 
 The `--verbose` flag now provides detailed debugging context with file and line numbers:
 
@@ -295,10 +295,10 @@ RePORTaLiN supports **two automatic methods** that work seamlessly together:
 
 | Commit Message | Version Bump | Example |
 |----------------|--------------|---------|
-| `fix: ...` | **Patch** | 0.0.12 → 0.0.13 |
-| `feat: ...` | **Minor** | 0.0.12 → 0.1.0 |
-| `feat!: ...` or `BREAKING CHANGE:` | **Major** | 0.0.12 → 1.0.0 |
-| Other (docs, chore, etc.) | **No bump** | 0.0.12 (unchanged) |
+| `fix: ...` | **Patch** | 0.3.0 → 0.3.1 |
+| `feat: ...` | **Minor** | 0.3.0 → 0.4.0 |
+| `feat!: ...` or `BREAKING CHANGE:` | **Major** | 0.3.0 → 1.0.0 |
+| Other (docs, chore, etc.) | **No bump** | 0.3.0 (unchanged) |
 
 **Method 1: VS Code Source Control (Fully Automatic)**
 
@@ -330,7 +330,7 @@ Use `smart-commit` when you want to see the version bump before committing:
 ```bash
 # Using Makefile
 make commit MSG="feat: add user authentication"
-# → Shows: ✓ Version bumped: 0.0.12 → 0.1.0
+# → Shows: ✓ Version bumped: 0.3.0 → 0.4.0
 # → Then commits
 
 # Or directly
@@ -340,7 +340,7 @@ make commit MSG="feat: add user authentication"
 **Example output:**
 ```
 → Analyzing commit message...
-✓ Version bumped: 0.0.12 → 0.1.0
+✓ Version bumped: 0.3.0 → 0.4.0
   Type: minor
 ✓ Version bumped and staged
 [main abc1234] feat: add user authentication
@@ -363,22 +363,22 @@ git commit --no-verify -m "docs: update README"
 Use Makefile targets when you need manual control:
 
 ```bash
-# Bump patch version (0.0.12 → 0.0.13)
+# Bump patch version (0.3.0 → 0.3.1)
 make bump-patch
 
-# Bump minor version (0.0.12 → 0.1.0)
+# Bump minor version (0.3.0 → 0.4.0)
 make bump-minor
 
-# Bump major version (0.0.12 → 1.0.0)
+# Bump major version (0.3.0 → 1.0.0)
 make bump-major
 ```
 
 **Example output:**
 ```
-✓ Version bumped: 0.0.12 → 0.0.13
+✓ Version bumped: 0.3.0 → 0.3.1
   Type: patch
 
-New version: 0.0.13
+New version: 0.3.1
 Remember to commit: git add __version__.py && git commit -m 'Bump version'
 ```
 
@@ -414,21 +414,21 @@ python3 -m scripts.deidentify \
 
 ### Common Issues
 
-**Issue**: `ModuleNotFoundError: No module named 'cryptography'`  
-**Solution**: Install dependencies: `pip install -r requirements.txt` or `make install`
+**Issue**: `ModuleNotFoundError` or package not found errors  
+**Solution**: Install all required packages: `pip install -r requirements.txt` or `make install`
 
-**Issue**: Date parsing warnings  
-**Solution**: The system automatically handles multiple date formats with intelligent parsing:
-- Tries ISO 8601 (YYYY-MM-DD), slash-separated (DD/MM/YYYY, MM/DD/YYYY), hyphen-separated, and dot-separated formats
-- Preserves original format when shifting dates
-- Country-specific format priority (DD/MM/YYYY for India, MM/DD/YYYY for US)
-- Falls back to [DATE-HASH] placeholders only if all formats fail
+**Issue**: Date format warnings during processing  
+**Solution**: The system automatically handles multiple date formats intelligently:
+- Supports ISO 8601 (YYYY-MM-DD), slash (DD/MM/YYYY, MM/DD/YYYY), hyphen, and dot separators
+- Preserves original date format when shifting dates for privacy
+- Uses country-specific format priority (DD/MM/YYYY for India, MM/DD/YYYY for US)
+- Falls back to [DATE-HASH] placeholders only when all formats fail
 
 **Issue**: Permission denied when accessing files  
 **Solution**: Check file permissions and ensure you have read/write access to input/output directories.
 
-**Issue**: Out of memory errors  
-**Solution**: The pipeline uses streaming for large files. If issues persist, process files in smaller batches.
+**Issue**: Out of memory errors with large datasets  
+**Solution**: The pipeline uses efficient streaming for large files. If issues persist, process files in smaller batches or increase available RAM.
 
 ## Requirements
 
@@ -479,29 +479,24 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Version**: 0.0.12 | **Status**: Beta (Active Development) | **Last Updated**: October 15, 2025
+**Version**: 0.3.0 | **Status**: Beta (Active Development) | **Last Updated**: October 23, 2025
 
-**Latest Updates (v0.0.12 - October 15, 2025)**:
+**Latest Updates (v0.3.0 - October 23, 2025)**:
 
-- **Main Pipeline Enhancement**: Enhanced main entry point documentation (162 lines, 2,214% increase)
-- **Public API**: Added explicit ``__all__`` (2 exports: ``main``, ``run_step``)
-- **Usage Examples**: Four complete examples (basic, custom, de-identification, advanced)
-- **Pipeline Documentation**: Complete command-line arguments and step-by-step guide
-- **Output Structure**: Directory tree showing all output locations
-- **Version Synchronized**: v0.0.12 across all modules
-- **Error Handling**: Documented return codes and error recovery
-- **Backward Compatibility**: Zero breaking changes, all existing usage preserved
-- **Comprehensive Documentation**: Complete documentation for pipeline orchestration
+- **Documentation Enhancement**: Complete Sphinx documentation audit and version alignment
+- **Version Management**: Hybrid version management system with conventional commits
+- **Public API**: Explicit ``__all__`` exports across all modules
+- **Type Safety**: Complete type annotations and validation
+- **Configuration**: Enhanced validation and error handling utilities
+- **De-identification**: Country-specific privacy compliance (14 countries)
+- **Logging**: Thread-safe, optimized logging with verbose mode
+- **Pipeline**: Complete end-to-end workflow with error recovery
 - See [Changelog](docs/sphinx/changelog.rst) for complete version history
 
 **Previous Updates**:
-- v0.0.10: Enhanced `scripts/utils/__init__.py` with package-level API (150 lines, 4,900% increase)
-- v0.0.9: Enhanced `scripts/__init__.py` with package-level API (127 lines, 2,440% increase)
-- v0.0.8: Enhanced `load_dictionary.py` with explicit public API (2 exports) and 1,400% documentation increase
-- v0.0.7: Enhanced `extract_data.py` with explicit public API (6 exports) and 790% documentation increase
-- v0.0.6: Enhanced `deidentify.py` with explicit public API (10 exports) and comprehensive type safety
-- v0.0.5: Enhanced `country_regulations.py` with explicit public API and usage examples
-- v0.0.4: Enhanced `logging.py` with improved type hints and optimized performance
-- v0.0.3: Enhanced `config.py` with utility functions and improved robustness
+- v0.2.0: Hybrid version management system implementation
+- Enhanced modules with explicit public APIs and comprehensive documentation
+- Security enhancements and country-specific privacy compliance
+- Performance optimizations and type safety improvements
 
 This project is part of the RePORTaLiN (Report India Clinical Study) consortium.

@@ -1,21 +1,25 @@
 .. _country_regulations:
 
 =========================================
-Country-Specific Data Privacy Regulations
+Country-Specific Privacy Rules
 =========================================
+
+**For Users: Understanding Privacy Protection by Country**
 
 Overview
 ========
 
-The RePORTaLiN de-identification system supports country-specific data privacy regulations to ensure compliance with local laws when processing patient data. This feature enables automatic detection and de-identification of country-specific identifiers based on the applicable regulatory framework.
+RePORTaLiN can protect patient privacy according to the rules of 14 different countries. 
+This means it knows what types of information need to be protected based on where your data comes from.
 
 .. important::
-   Always ensure you understand and comply with the specific regulations applicable to your jurisdiction. This tool provides technical capabilities but does not constitute legal advice.
+   Always check with your legal team about privacy requirements in your area. This tool helps 
+   protect data, but legal compliance is your responsibility.
 
-Supported Countries and Regulations
-====================================
+Supported Countries
+===================
 
-The system currently supports **14 countries** across North America, Europe, Asia-Pacific, and Africa:
+RePORTaLiN supports privacy rules for **14 countries** across the world:
 
 North America
 -------------
@@ -543,7 +547,7 @@ when shifting dates.
    - ``DD.MM.YYYY`` - Dot-separated European format (e.g., 04.09.2014)
 
 **Format Preservation:**
-   When a date is successfully parsed, the shifted date is returned in the same format
+   When a date is successfully recognized, the shifted date is returned in the same format
    as the input. For example:
    
    - Input: ``2014-09-04`` → Output: ``2013-12-14`` (ISO format preserved)
@@ -594,8 +598,8 @@ Documentation
 - :doc:`quickstart` - Getting started with RePORTaLiN
 - :doc:`configuration` - Configuration options
 
-API Reference
--------------
+Technical Reference
+-------------------
 
 - ``scripts.utils.country_regulations`` - Country regulation management
 - ``scripts.deidentify`` - De-identification engine

@@ -13,7 +13,7 @@ The ``config`` module provides centralized configuration management for RePORTaL
 All paths, settings, and parameters are defined here to ensure consistency across
 all pipeline components.
 
-.. versionchanged:: 0.0.3
+.. versionchanged:: 0.3.0
    Added ``ensure_directories()``, ``validate_config()``, and ``normalize_dataset_name()`` functions.
    Enhanced error handling and type safety. Fixed suffix removal bug.
 
@@ -60,7 +60,7 @@ DEFAULT_DATASET_NAME
 
 Default dataset name used when no dataset folder is detected.
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
    Extracted as a public constant.
 
 DATASET_SUFFIXES
@@ -72,7 +72,7 @@ DATASET_SUFFIXES
 
 Tuple of common suffixes removed from dataset folder names during normalization.
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
    Internal constant (not in __all__).
 
 Directory Paths
@@ -87,7 +87,7 @@ ROOT_DIR
 
 Absolute path to the project root directory. All other paths are relative to this.
 
-.. versionchanged:: 0.0.3
+.. versionchanged:: 0.3.0
    Added fallback to ``os.getcwd()`` when ``__file__`` is not available (REPL environments).
 
 DATA_DIR
@@ -139,7 +139,7 @@ DATASET_NAME
 Name of the current dataset (e.g., "Indo-vap"), extracted by removing common suffixes
 from the dataset folder name using the ``normalize_dataset_name()`` function.
 
-.. versionchanged:: 0.0.3
+.. versionchanged:: 0.3.0
    Now uses ``normalize_dataset_name()`` function for improved suffix handling.
 
 Output Paths
@@ -234,7 +234,7 @@ alphabetically sorted folder in ``data/dataset/``, excluding hidden folders
    else:
        print("No dataset folder found")
 
-.. versionchanged:: 0.0.3
+.. versionchanged:: 0.3.0
    Removed faulty ``'..' not in f`` check. Added explicit empty list validation.
 
 normalize_dataset_name
@@ -273,7 +273,7 @@ Normalize dataset folder name by removing common suffixes.
    name = normalize_dataset_name(None)
    print(name)  # Output: "RePORTaLiN_sample"
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
    Extracted from inline code. Uses longest-match algorithm.
 
 ensure_directories
@@ -296,7 +296,7 @@ Create necessary directories if they don't exist. Creates:
    # Create all required directories
    ensure_directories()
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
    New utility function for directory management.
 
 validate_config
@@ -329,7 +329,7 @@ Validate configuration and return list of warnings for missing or invalid paths.
    else:
        print("Configuration is valid!")
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
    New utility function for configuration validation.
 
 Usage Examples

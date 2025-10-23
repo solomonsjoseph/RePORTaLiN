@@ -1,27 +1,30 @@
 Extending RePORTaLiN
 =====================
 
-This guide explains how to extend and customize RePORTaLiN for your specific needs.
+**For Developers: Customizing and Extending the Pipeline**
 
-.. versionchanged:: 0.0.3
+This guide explains how to extend and customize RePORTaLiN's functionality through its modular
+architecture, public APIs, and extension points.
+
+.. versionchanged:: 0.3.0
    Added configuration module utilities (``ensure_directories()``, ``validate_config()``).
    See `Working with Configuration Module`_ for new features.
 
-.. versionchanged:: 0.0.4
+.. versionchanged:: 0.3.0
    Logging module enhanced with better type hints, optimized performance, and explicit public API.
 
-.. versionchanged:: 0.0.7
+.. versionchanged:: 0.3.0
    Data extraction module enhanced with explicit public API (6 exports), comprehensive usage examples,
    and verified type safety. See `Working with Data Extraction Module`_ for public API details.
 
-.. versionchanged:: 0.0.8
+.. versionchanged:: 0.3.0
    Data dictionary module enhanced with explicit public API (2 exports), comprehensive usage examples,
    and algorithm documentation. See `Working with Data Dictionary Module`_ for public API details.
 
 Working with Data Dictionary Module
 ------------------------------------
 
-.. versionadded:: 0.0.8
+.. versionadded:: 0.3.0
 
 The ``scripts/load_dictionary.py`` module provides a well-defined public API for processing data dictionary Excel files.
 
@@ -114,7 +117,7 @@ See :doc:`../api/scripts.load_dictionary` for complete API reference.
 Working with Data Extraction Module
 ------------------------------------
 
-.. versionadded:: 0.0.7
+.. versionadded:: 0.3.0
 
 The ``scripts/extract_data.py`` module provides a well-defined public API for Excel to JSONL conversion.
 
@@ -190,7 +193,7 @@ See :doc:`../api/scripts.extract_data` for complete API reference.
 Working with Configuration Module
 ----------------------------------
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
 
 The enhanced ``config.py`` module provides utilities for robust configuration management.
 
@@ -406,7 +409,7 @@ Example: Adding Data Validation
 Adding Custom Logging
 ----------------------
 
-.. versionchanged:: 0.0.4
+.. versionchanged:: 0.3.0
    Logging module enhanced with better type hints, optimized performance, and explicit public API.
 
 Understanding the Logging Module
@@ -419,7 +422,7 @@ The ``scripts.utils.logging`` module provides a robust logging infrastructure wi
 - **Type-safe**: Comprehensive type hints throughout
 - **Well-defined API**: Explicit ``__all__`` declaration
 
-**Public API** (v0.0.4):
+**Public API**:
 
 .. code-block:: python
 

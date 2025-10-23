@@ -7,7 +7,7 @@ scripts.deidentify module
    :show-inheritance:
    :special-members: __init__
 
-.. versionchanged:: 0.0.6
+.. versionchanged:: 0.3.0
    Added explicit public API definition via ``__all__`` (10 exports), enhanced module
    docstring with comprehensive usage examples (48 lines), and added complete return type annotations.
 
@@ -17,7 +17,7 @@ Overview
 The ``deidentify`` module provides robust HIPAA/GDPR-compliant de-identification for medical datasets,
 supporting 14 countries with country-specific regulations, encrypted mapping storage, and comprehensive validation.
 
-**Public API** (v0.0.6):
+**Public API**:
 
 .. code-block:: python
 

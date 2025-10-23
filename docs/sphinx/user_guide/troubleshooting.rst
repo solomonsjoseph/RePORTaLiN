@@ -1,15 +1,17 @@
 Troubleshooting
 ===============
 
-This guide provides solutions to common issues you might encounter with RePORTaLiN.
+**For Users: Solving Common Problems**
+
+This guide helps you fix common issues you might run into while using RePORTaLiN.
 
 Installation Issues
 -------------------
 
-Module Import Errors
-~~~~~~~~~~~~~~~~~~~~~
+Missing Package Errors
+~~~~~~~~~~~~~~~~~~~~~~~
 
-**Problem**: ``ModuleNotFoundError: No module named 'pandas'`` or similar
+**Problem**: Error message saying a package like 'pandas' is not found
 
 **Solution 1**: Install dependencies
 
@@ -232,36 +234,36 @@ RePORTaLiN automatically handles this conversion.
 Logging Issues
 --------------
 
-.. versionchanged:: 0.0.4
-   Logging module enhanced for better reliability and performance.
+.. versionchanged:: 0.3.0
+   Logging system enhanced for better reliability and speed.
 
 No Log Files Created
 ~~~~~~~~~~~~~~~~~~~~
 
-**Problem**: ``.logs/`` directory empty after running pipeline
+**Problem**: ``.logs/`` folder is empty after running the tool
 
-**Solution 1**: Check permissions
+**Solution 1**: Check folder permissions
 
 .. code-block:: bash
 
    chmod 755 .logs/
    python main.py
 
-**Solution 2**: Verify logging configuration
+**Solution 2**: Verify logging is enabled
 
 .. code-block:: python
 
    python -c "import config; print(config.LOG_LEVEL)"
 
-**Solution 3**: Check for errors early in execution
+**Solution 3**: Check for early errors
 
 .. code-block:: bash
 
    # Run with verbose output
    python main.py 2>&1 | tee output.log
 
-**Technical Note** (v0.0.4): The logging system is thread-safe and optimized for performance.
-If logs are missing, check for early import errors or permission issues.
+**Note**: The logging system is designed to work reliably even with multiple processes.
+If logs are missing, check for early errors or folder permission issues.
 
 Log Files Too Large
 ~~~~~~~~~~~~~~~~~~~
@@ -298,10 +300,10 @@ Console Output Issues
 Configuration Issues
 --------------------
 
-Quick Configuration Check (v0.0.3+)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Quick Configuration Check
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
 
 **Use the built-in validation utility:**
 
@@ -333,7 +335,7 @@ Dataset Not Auto-Detected
 
    python -c "import config; print(config.DATASET_NAME)"
 
-**Solution 1**: Use validation utility (v0.0.3+)
+**Solution 1**: Use validation utility
 
 .. code-block:: python
 
@@ -648,5 +650,5 @@ See Also
 
 - :doc:`configuration`: Configuration options
 - :doc:`usage`: Usage examples
-- :doc:`../developer_guide/architecture`: System architecture
+- :doc:`../developer_guide/architecture`: Technical system design
 - GitHub Issues: Report new problems

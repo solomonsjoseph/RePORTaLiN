@@ -1,12 +1,14 @@
 Introduction
 ============
 
+**For Users: Understanding RePORTaLiN**
+
 Overview
 --------
 
-RePORTaLiN is a beta-stage data processing pipeline designed to extract and transform 
-medical research data from Excel files into structured JSONL format. The system is built 
-with robustness, efficiency, and ease of use in mind.
+RePORTaLiN is a tool that helps you convert Excel spreadsheets into a cleaner, more organized 
+format called JSONL. It's designed to be easy to use, fast, and reliable - perfect for handling 
+medical research data without requiring technical expertise.
 
 Purpose
 -------
@@ -39,10 +41,10 @@ Key Benefits
    - Graceful handling of edge cases
 
 **Flexibility**
-   - Dynamic dataset detection (works with any dataset folder)
-   - Configurable paths and settings
-   - Modular architecture for easy customization
-   - Command-line options for partial execution
+   - Works with any dataset folder automatically
+   - Adjustable paths and settings
+   - Easy to customize for your needs
+   - Options to run specific parts of the process
 
 Use Cases
 ---------

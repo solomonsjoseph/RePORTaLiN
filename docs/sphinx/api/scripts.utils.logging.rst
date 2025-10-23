@@ -6,7 +6,7 @@ scripts.utils.logging module
    :undoc-members:
    :show-inheritance:
 
-.. versionchanged:: 0.0.4
+.. versionchanged:: 0.3.0
    Enhanced code quality: removed unused imports, improved type hints, optimized performance,
    and added explicit public API definition via ``__all__``.
 

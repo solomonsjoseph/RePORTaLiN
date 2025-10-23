@@ -247,5 +247,23 @@ data/data_dictionary_and_mapping_specifications/~$*.xlsx
 # data/dataset/
 # data/Annotated_PDFs/
 
-# Others
+# AI/Editor cache and temporary files
 .vision/
+.vision/**
+
+# Documentation Policy: NO .md files except README.md
+# All documentation goes in docs/sphinx/*.rst files
+*.md
+!README.md
+
+# Temporary documentation files
+FIXES.md
+AUDIT.md
+VERIFICATION.md
+STATUS.md
+CHANGES.md
+NOTES.md
+*_VERIFICATION*.md
+*_AUDIT*.md
+*_REPORT*.md
+*_SUMMARY*.md

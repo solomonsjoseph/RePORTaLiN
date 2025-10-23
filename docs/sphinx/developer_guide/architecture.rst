@@ -7,9 +7,10 @@ This document provides in-depth technical details about RePORTaLiN's architectur
 algorithms, data structures, dependencies, design patterns, and extension points to enable
 effective maintenance, debugging, and feature development.
 
-**Last Updated:** October 14, 2025  
+**Last Updated:** October 23, 2025  
+**Current Version:** 0.3.0  
 **Code Optimization:** 35% reduction (640 lines) while maintaining 100% functionality  
-**Latest Enhancements:** v0.0.8 - Data dictionary module; v0.0.7 - Data extraction module
+**Historical Enhancements:** Enhanced modules from v0.0.1 through v0.0.12
 
 System Overview
 ---------------
@@ -878,7 +879,7 @@ Dependencies and Their Roles
 
 **Documentation Workflow**:
 
-.. versionadded:: 0.0.12
+.. versionadded:: 0.3.0
    Added ``make docs-watch`` for automatic documentation rebuilding.
 
 - **Autodoc is ENABLED**: Sphinx automatically extracts documentation from Python docstrings

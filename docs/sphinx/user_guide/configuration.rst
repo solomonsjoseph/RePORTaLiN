@@ -1,12 +1,13 @@
 Configuration
 =============
 
-RePORTaLiN uses a centralized configuration system through the ``config.py`` module. 
-This guide explains all configuration options and how to customize them.
+**For Users: Customizing Your Setup**
 
-.. versionchanged:: 0.0.3
-   Added new utility functions (``ensure_directories()``, ``validate_config()``), 
-   improved error handling, and fixed suffix removal bugs.
+RePORTaLiN comes with sensible defaults that work out of the box. This guide shows you 
+how to adjust settings if you need to customize where files are stored or how the tool behaves.
+
+.. versionchanged:: 0.3.0
+   Added automatic directory creation and configuration validation to make setup easier.
 
 Configuration File
 ------------------
@@ -14,15 +15,14 @@ Configuration File
 The main configuration file is ``config.py`` in the project root. It defines all paths, 
 settings, and parameters used throughout the pipeline.
 
-What's New in v0.0.3
+What's New in v0.3.0
 ~~~~~~~~~~~~~~~~~~~~~
 
 ✨ **New Features**:
-   - ``ensure_directories()`` - Automatically creates all required directories
-   - ``validate_config()`` - Validates configuration and returns warnings
-   - Enhanced error handling for missing files and directories
-   - Better suffix normalization (handles overlapping suffixes correctly)
-   - REPL/Jupyter notebook compatibility
+   - Automatically creates folders you need
+   - Checks your setup and warns you if something's wrong
+   - Better error messages when files are missing
+   - Improved handling of dataset folder names
 
 Dynamic Dataset Detection
 -------------------------
@@ -43,8 +43,8 @@ This means you can work with any dataset without modifying code:
        ├── file1.xlsx
        └── file2.xlsx
 
-.. versionchanged:: 0.0.3
-   Improved detection algorithm with better error handling and edge case coverage.
+.. versionchanged:: 0.3.0
+   Improved automatic detection with better error handling for special cases.
 
 Configuration Variables
 -----------------------
@@ -60,8 +60,8 @@ Project Root
 - **Usage**: All other paths are relative to this
 - **Modification**: Not recommended (auto-detected)
 
-.. versionchanged:: 0.0.3
-   Added fallback to ``os.getcwd()`` for REPL/notebook compatibility.
+.. versionchanged:: 0.3.0
+   Added support for running in interactive environments like Jupyter notebooks.
 
 Data Directories
 ~~~~~~~~~~~~~~~~
@@ -90,9 +90,8 @@ Dataset Paths
 - **DATASET_DIR**: Full path to current dataset (auto-detected)
 - **DATASET_NAME**: Cleaned dataset name (e.g., "Indo-vap_csv_files" → "Indo-vap")
 
-.. versionchanged:: 0.0.3
-   Now uses ``normalize_dataset_name()`` function with improved suffix handling.
-   Uses ``DEFAULT_DATASET_NAME`` constant instead of hardcoded string.
+.. versionchanged:: 0.3.0
+   Now automatically cleans up dataset names and handles common file endings better.
 
 Output Directories
 ~~~~~~~~~~~~~~~~~~
@@ -140,10 +139,10 @@ Available log levels:
 De-identification Settings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. versionadded:: 0.0.6
+.. versionadded:: 0.3.0
    De-identification configuration is now documented with comprehensive examples.
 
-De-identification is configured through ``DeidentificationConfig`` dataclass:
+De-identification settings can be customized using the configuration options:
 
 .. code-block:: python
 
@@ -221,12 +220,12 @@ Testing/development (no encryption):
 
 See :doc:`deidentification` for complete de-identification guide.
 
-Utility Functions (v0.0.3+)
----------------------------
+Helper Tools
+------------
 
-.. versionadded:: 0.0.3
+.. versionadded:: 0.3.0
 
-The configuration module now provides utility functions for common tasks.
+The configuration now provides helpful tools for common tasks.
 
 ensure_directories()
 ~~~~~~~~~~~~~~~~~~~~
@@ -401,7 +400,7 @@ Configuration Best Practices
    
    ❌ Bad: Hardcoding paths in processing functions
    
-   ✅ Good: Import from config module
+   ✅ Good: Use the configuration file
 
 4. **Document Changes**
    
@@ -484,10 +483,10 @@ Problem: "Permission denied"
    chmod -R 755 results/
    chmod 755 .logs/
 
-Problem: "Module not found: config"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Problem: "Config file not found"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Cause**: Not running from project root
+**Cause**: Not running from the correct folder
 
 **Solution**: Ensure you're in the correct directory:
 
@@ -502,6 +501,6 @@ See Also
 - :doc:`quickstart`: Quick start guide with validation examples
 - :doc:`usage`: How to use configuration in practice
 - :doc:`troubleshooting`: Configuration troubleshooting with ``validate_config()``
-- :doc:`../api/config`: Complete API documentation for configuration module
+- :doc:`../api/config`: Complete technical documentation for configuration settings
 - :doc:`../developer_guide/extending`: Extending configuration for custom needs
 - :doc:`../changelog`: Version 0.0.3 configuration enhancements

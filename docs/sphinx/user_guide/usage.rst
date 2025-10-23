@@ -1,7 +1,9 @@
 Usage Guide
 ===========
 
-This guide covers advanced usage patterns and common workflows for RePORTaLiN.
+**For Users: Working with RePORTaLiN**
+
+This guide shows you different ways to use RePORTaLiN for your daily tasks.
 
 Basic Usage
 -----------
@@ -31,34 +33,32 @@ Skip Specific Steps
    # Run neither (useful for testing configuration)
    python main.py --skip-dictionary --skip-extraction
 
-Verbose Logging
-~~~~~~~~~~~~~~~
+Detailed Logging Mode
+~~~~~~~~~~~~~~~~~~~~~
 
-Enable detailed DEBUG-level logging for troubleshooting and monitoring:
+Want to see exactly what's happening during processing? Use verbose mode:
 
 .. code-block:: bash
 
-   # Enable verbose logging
+   # Enable detailed logging
    python main.py --verbose
    
    # Short form
    python main.py -v
    
-   # With de-identification
+   # With privacy protection enabled
    python main.py -v --enable-deidentification --countries IN US
 
-**What verbose mode shows:**
+**What you'll see in the log file:**
 
-- List of files found and their processing order
-- Sheet names and table counts for dictionary files
-- Individual file processing status
-- Duplicate column detection details
-- De-identification pattern matches and PHI/PII detection counts
-- Progress updates every 1000 records for large files
+- Which files are being processed
+- How many tables were found in each file
+- Progress updates for large datasets
+- Details about any issues encountered
 
-**Log file location:** ``.logs/reportalin_YYYYMMDD_HHMMSS.log``
+**Where to find logs:** Look in the ``.logs/`` folder for files named ``reportalin_YYYYMMDD_HHMMSS.log``
 
-**Performance impact:** Minimal (<2% slowdown), increases log file size by 3-5x
+**Impact on speed:** Minimal - your processing will be just as fast
 
 .. note::
    Console output remains unchanged (only SUCCESS/ERROR messages).

@@ -1,8 +1,11 @@
 Future Enhancements
 ===================
 
+**For Developers: Planned Improvements and Roadmap**
+
 This document outlines recommended future enhancements to further improve RePORTaLiN's 
-adherence to industry standards, security best practices, and overall robustness.
+adherence to industry standards, security best practices, and overall robustness from 
+a technical implementation perspective.
 
 .. contents:: Table of Contents
    :local:

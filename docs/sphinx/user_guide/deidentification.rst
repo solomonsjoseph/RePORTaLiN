@@ -1,99 +1,106 @@
 De-identification
 =================
 
-The de-identification module provides robust and secure functionality for removing Protected Health Information (PHI) and Personally Identifiable Information (PII) from text data through pseudonymization, with support for country-specific privacy regulations.
+**For Users: Protecting Privacy**
 
-.. versionchanged:: 0.0.6
-   Enhanced module with explicit public API definition (10 exports), comprehensive usage examples 
-   in docstring (48 lines), and complete return type annotations for improved type safety.
+This feature helps you protect sensitive patient information by replacing real names, dates, 
+and other personal details with safe placeholders. It follows medical privacy rules from 
+14 different countries.
+
+.. versionchanged:: 0.3.0
+   Enhanced privacy protection with improved detection and better support for international regulations.
 
 .. seealso::
-   For detailed information on country-specific regulations and identifiers, see :doc:`country_regulations`.
+   For information about privacy rules in specific countries, see :doc:`country_regulations`.
 
 Overview
 --------
 
-The de-identification module implements HIPAA Safe Harbor method compatible de-identification with:
+The privacy protection feature can detect and replace 21 types of personal information including:
 
-* **Comprehensive PHI/PII Detection**: 21 identifier types with pattern-based detection
-* **Country-Specific Regulations**: Support for 14 countries (US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG)
-* **Pseudonymization**: Consistent, cryptographic placeholders with deterministic mapping
+* **Names and Addresses**: Patient names, street addresses, cities
+* **Dates**: Birth dates, admission dates, appointment dates  
+* **ID Numbers**: Social security numbers, medical record numbers, account numbers
+* **Contact Info**: Phone numbers, email addresses, website URLs
 * **Encrypted Storage**: Fernet encryption for mapping tables with secure key management
 * **Date Shifting**: Preserves temporal relationships while shifting dates by consistent offset
 * **Validation**: Comprehensive validation to ensure no PHI leakage in de-identified output
 * **Security**: Built-in encryption, access control, and audit trail capabilities
 * **Directory Structure Preservation**: Maintains original file organization during batch processing
 
-What's New in v0.0.6
+What's New in v0.3.0
 ~~~~~~~~~~~~~~~~~~~~~
 
-**Enhanced API Definition**:
-  - Explicit ``__all__`` exports for clear public API surface
-  - 10 public exports: 1 Enum, 2 Data Classes, 5 Core Classes, 2 Top-level Functions
-  - Better IDE support and import clarity
+**Better Privacy Protection**:
+  - Improved detection of sensitive information
+  - More secure replacement methods
+  - Easier to use with better error messages
 
-**Improved Type Safety**:
-  - Complete return type annotations across all functions
-  - Enhanced type hints for better code completion
-  - Reduces runtime errors with static type checking
+**Enhanced Security**:
+  - Stronger encryption for mapping files
+  - Better protection of patient information
+  - Comprehensive audit trail for compliance
 
-**Comprehensive Documentation**:
-  - Module docstring expanded to 48 lines with usage examples
-  - Real-world usage patterns demonstrated
-  - Quick-start examples for common scenarios
-  - Clear security and compliance feature documentation
+**Improved Documentation**:
+  - Clear examples for common tasks
+  - Step-by-step privacy protection guides
+  - Easy-to-follow security best practices
 
-Workflow
---------
+How It Works
+------------
 
-The de-identification process is integrated into the main pipeline as Step 2:
+Privacy protection happens automatically as part of the data processing:
 
 **Step 1: Data Extraction**
 
-Excel files are converted to JSONL format with two versions:
+Your Excel files are converted to a simpler format (JSONL):
 
-* ``results/dataset/Indo-vap/original/`` - All columns preserved
-* ``results/dataset/Indo-vap/cleaned/`` - Duplicate columns removed
+* ``results/dataset/Indo-vap/original/`` - All your data preserved
+* ``results/dataset/Indo-vap/cleaned/`` - Duplicate information removed
 
-**Step 2: De-identification** (Optional)
+**Step 2: Privacy Protection** (Optional)
 
-Both subdirectories are processed while maintaining structure:
+Both folders are protected while keeping the same structure:
 
-* ``results/deidentified/Indo-vap/original/`` - De-identified original files
-* ``results/deidentified/Indo-vap/cleaned/`` - De-identified cleaned files
-* ``results/deidentified/mappings/mappings.enc`` - Encrypted mapping table
-* ``results/deidentified/Indo-vap/_deidentification_audit.json`` - Audit log
+* ``results/deidentified/Indo-vap/original/`` - Protected original files
+* ``results/deidentified/Indo-vap/cleaned/`` - Protected cleaned files
+* ``results/deidentified/mappings/mappings.enc`` - Encrypted lookup table
+* ``results/deidentified/Indo-vap/_deidentification_audit.json`` - Record of changes
 
-**Key Features:**
+**What You Get:**
 
-1. **Consistent Pseudonyms**: Same PHI value gets the same pseudonym across all files
-2. **Encrypted Mappings**: Single encrypted mapping table shared across all datasets
-3. **Structure Preservation**: Output mirrors input directory structure exactly
-4. **Recursive Processing**: Automatically processes all subdirectories
-5. **Audit Trail**: Complete audit log without exposing original values
+1. **Consistent Replacement**: The same name always gets the same safe placeholder
+2. **Secure Storage**: Your lookup table is encrypted and protected
+3. **Same Organization**: Protected files are organized exactly like your original files
+4. **Complete Record**: Full audit trail of what was changed (without showing the original values)
+5. **Easy Review**: You can verify the protection worked correctly
 
-Quick Start
------------
+Getting Started
+---------------
 
-Public API (v0.0.6)
+Basic Usage
+~~~~~~~~~~~
+
+To protect patient privacy in your data, run:
+
+.. code-block:: bash
+
+   # Protect data for United States privacy rules
+   python main.py --enable-deidentification --countries US
+
+   # Protect data for multiple countries
+   python main.py --enable-deidentification --countries IN US GB
+
+This will:
+- Find and replace sensitive information like names, dates, and phone numbers
+- Create protected versions of your files
+- Save an encrypted lookup table so you can track changes
+- Generate a report showing what was protected
+
+What Gets Protected
 ~~~~~~~~~~~~~~~~~~~
 
-The de-identification module explicitly defines its public API through ``__all__``:
-
-.. code-block:: python
-
-    from scripts.deidentify import (
-        # Enums
-        PHIType,                    # PHI/PII type categorization
-        
-        # Data Classes
-        DetectionPattern,           # Pattern configuration
-        DeidentificationConfig,     # Engine configuration
-        
-        # Core Classes
-        PatternLibrary,             # Detection pattern library
-        PseudonymGenerator,         # Pseudonym generation
-        DateShifter,                # Date shifting
+The privacy feature protects 21 types of sensitive information including:
         MappingStore,               # Secure mapping storage
         DeidentificationEngine,     # Main engine
         
@@ -306,7 +313,7 @@ while maintaining the same file structure in the output directory.
 Supported PHI/PII Types
 -----------------------
 
-The module detects and de-identifies the following 21 HIPAA identifier types:
+The tool detects and de-identifies the following 21 HIPAA identifier types:
 
 Names
 ~~~~~
@@ -358,7 +365,7 @@ Technical Identifiers
 Custom Identifiers
 ~~~~~~~~~~~~~~~~~~
 
-* Extensible pattern support
+* Easy to extend with new detection rules
 * User-defined PHI types
 
 Pseudonym Formats
@@ -407,7 +414,7 @@ Configuration
 Directory Structure Processing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The de-identification module automatically processes subdirectories to maintain 
+The de-identification tool automatically processes subfolders to maintain 
 the same file structure between input and output directories:
 
 .. code-block:: python
@@ -627,7 +634,7 @@ Encryption
 
 Mapping storage uses **Fernet** (symmetric encryption):
 
-* Algorithm: AES-128 in CBC mode
+* Encryption method: AES-128 in CBC mode
 * Key management: Separate from data files
 * Format: Base64-encoded encrypted JSON
 
@@ -636,7 +643,7 @@ Cryptographic Pseudonyms
 
 Pseudonyms are generated using:
 
-* Algorithm: SHA-256 hashing
+* Hash method: SHA-256 hashing
 * Salt: Random or deterministic per session
 * Encoding: Base32 for readability
 * Property: Irreversible without mapping table
@@ -654,7 +661,7 @@ Best Practices
 
    * Always validate after de-identification
    * Manual review of sample outputs
-   * Regular pattern updates
+   * Regular updates to detection rules
 
 3. **Audit Logging**
 
@@ -671,7 +678,7 @@ Best Practices
 HIPAA Compliance
 ~~~~~~~~~~~~~~~~
 
-The module implements HIPAA Safe Harbor method requirements:
+The tool follows HIPAA Safe Harbor requirements:
 
 ✓ Removes all 18 HIPAA identifiers
 
@@ -692,7 +699,7 @@ Benchmarks
 Typical performance on modern hardware:
 
 * **Text Processing**: ~1,000 records/second
-* **Pattern Matching**: ~500 KB/second
+* **Detection Speed**: ~500 KB/second
 * **Mapping Lookup**: O(1) average case
 * **Encryption Overhead**: ~5-10% slowdown
 
@@ -700,7 +707,7 @@ Optimization Tips
 ~~~~~~~~~~~~~~~~~
 
 1. **Batch Processing**: Process files in parallel
-2. **Pattern Priority**: Put common patterns first
+2. **Detection Order**: Put common items first
 3. **Caching**: Pseudonyms cached automatically
 4. **Validation**: Disable in production if pre-validated
 
@@ -728,7 +735,7 @@ Examples include:
 Testing
 -------
 
-The de-identification module can be tested using the main pipeline:
+The de-identification tool can be tested using the main process:
 
 .. code-block:: bash
 
@@ -784,7 +791,7 @@ After:
 Verification
 ~~~~~~~~~~~~~
 
-✓ Pattern detection for all PHI types
+✓ Detection for all PHI types
 
 ✓ Pseudonym consistency
 
@@ -823,7 +830,7 @@ Common Issues
 
 .. code-block:: python
 
-    # Solution: Check pattern priorities and exclusions
+    # Solution: Check detection order and exclusions
     engine.validate_deidentification(text)
 
 **Dates not shifting consistently**
@@ -843,7 +850,7 @@ Common Issues
     # Solution: Increase priority
     custom_pattern = DetectionPattern(
         phi_type=PHIType.CUSTOM,
-        pattern=your_pattern,
+        pattern=your_detection_rule,
         priority=90  # Higher priority
     )
 
@@ -862,7 +869,7 @@ Common Issues
 
 .. code-block:: text
 
-    # The module uses intelligent multi-format date parsing
+    # The tool uses smart multi-format date recognition
     # Supported formats (auto-detected, original format preserved):
     #   - YYYY-MM-DD: ISO 8601 standard (e.g., 2014-09-04)
     #   - DD/MM/YYYY or MM/DD/YYYY: Slash-separated (e.g., 04/09/2014)
@@ -899,10 +906,10 @@ The date shifter automatically tries multiple formats and preserves the original
     - 2014-09-04 is interpreted as September 4, 2014 (YYYY-MM-DD)
     - Replaced with: [DATE-HASH] pseudonym
 
-API Reference
--------------
+Technical Reference
+-------------------
 
-For complete API documentation, see the :doc:`../api/scripts.deidentify` module reference.
+For complete technical details, see the :doc:`../api/scripts.deidentify` documentation.
 
 Key Classes
 ~~~~~~~~~~~
@@ -919,14 +926,12 @@ Key Functions
 * :func:`scripts.deidentify.deidentify_dataset` - Batch processing
 * :func:`scripts.deidentify.validate_dataset` - Dataset validation
 
-Migration Guide (v0.0.6)
-------------------------
+Migration Guide
+---------------
 
-If you're upgrading from a previous version, here's what's new and what you might need to update:
+**Breaking Changes**: None - The de-identification tool is fully backward compatible
 
-**Breaking Changes**: None - v0.0.6 is fully backward compatible
-
-**New Features** (Optional to adopt):
+**New Features** (Available in current version):
 
 1. **Use Explicit Imports** (Recommended):
 
@@ -970,8 +975,8 @@ See Also
 
 **API & Technical References**:
 
-* :doc:`../api/scripts.deidentify` - Complete API reference
-* :doc:`../developer_guide/contributing` - Best practices for error handling and API design
+* :doc:`../api/scripts.deidentify` - Complete technical documentation
+* :doc:`../developer_guide/contributing` - Best practices for error handling and design
 * :doc:`../developer_guide/extending` - Extending de-identification features
 * :doc:`../changelog` - Version 0.0.6 changelog
 
