@@ -94,14 +94,14 @@ Change Verification Checklist
    ✅ .md File Policy:
       - Tracked .md files: 1 (README.md only)
       - Blocked .md files: ALL others
-      - .vision/ folder: Properly ignored
-      - .vision/** contents: Properly ignored
+      - docs/.vision/ folder: Properly ignored
+      - docs/.vision/** contents: Properly ignored
    
    ✅ .gitignore Rules:
       - *.md → Blocks all markdown
       - !README.md → Allows README.md only
-      - .vision/ → Ignored
-      - .vision/** → All contents ignored
+      - docs/.vision/ → Ignored
+      - docs/.vision/** → All contents ignored
    
    ✅ Temporary Files:
       - No stray .md files found
@@ -205,7 +205,7 @@ Missing/Removed Files (Verified)
       - Any other .md files except README.md
    
    ✅ Correctly Ignored:
-      - .vision/ and all contents
+      - docs/.vision/ and all contents
       - tmp/ directory
       - Build artifacts (_build/)
       - __pycache__/ directories
@@ -262,8 +262,8 @@ Ignored Files
 
 .. code-block:: bash
 
-   git check-ignore -v .vision/
-   # Output: .gitignore:251:.vision/ .vision/
+   git check-ignore -v docs/.vision/
+   # Output: .gitignore:251:docs/.vision/ docs/.vision/
    # Status: ✅ CORRECT
 
 Untracked Issues
@@ -386,7 +386,7 @@ Run These to Confirm
    # Expected: 0 warnings, 0 errors
    
    # 5. Check git ignore
-   git check-ignore -v .vision/
+   git check-ignore -v docs/.vision/
    # Expected: Shows gitignore rule
 
 Expected Output
@@ -400,7 +400,7 @@ All commands should show:
    ✅ check_docs_style.sh in scripts/utils/
    ✅ All compliance checks passed
    ✅ Documentation builds successfully
-   ✅ .vision/ properly ignored
+   ✅ docs/.vision/ properly ignored
 
 Conclusion
 ----------

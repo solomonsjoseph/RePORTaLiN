@@ -43,6 +43,14 @@ author: str = 'RePORTaLiN Development Team'
 version: str = __version__
 release: str = __version__
 
+# RST prolog for automatic version substitution in all .rst files
+# This allows using |version| and |release| anywhere in documentation
+# and they will automatically update when __version__.py changes
+rst_prolog: str = f"""
+.. |version| replace:: {version}
+.. |release| replace:: {release}
+"""
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 

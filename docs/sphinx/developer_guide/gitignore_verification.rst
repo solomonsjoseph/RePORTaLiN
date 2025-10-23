@@ -15,10 +15,10 @@ Verification Summary
 
 **Git Ignore Rules Status:**
 
-✅ `.vision/` folder is properly ignored  
-✅ `.vision/**` (all contents) are properly ignored  
+✅ `docs/.vision/` folder is properly ignored  
+✅ `docs/.vision/**` (all contents) are properly ignored  
 ✅ All `.md` files blocked except `README.md`  
-✅ Temporary folders (`tmp/`, `.logs/`, `.backup/`) ignored  
+✅ Temporary folders (`tmp/`, `.logs/`, `data/.backup/`) ignored  
 ✅ No untracked `.md` files in project (excluding ignored directories)
 
 Git Tracked Files
@@ -37,10 +37,10 @@ Ignored Directories
 
 The following directories are completely ignored, including any `.md` files within:
 
-1. **.vision/** - AI/Editor cache and temporary files
+1. **docs/.vision/** - AI/Editor cache and temporary files (docs-specific)
 2. **tmp/** - Temporary files
-3. **.logs/** - Log files
-4. **.backup/** - Backup files
+3. **.logs/** - Log files (project root)
+4. **data/.backup/** - Backup files (data-specific)
 5. **.venv/** - Virtual environment
 6. **build/** - Build artifacts
 7. **docs/sphinx/_build/** - Documentation build output
@@ -54,8 +54,8 @@ Enhanced `.gitignore` Rules
 .. code-block:: text
 
    # AI/Editor cache and temporary files
-   .vision/
-   .vision/**
+   docs/.vision/
+   docs/.vision/**
 
    # Documentation Policy: NO .md files except README.md
    # All documentation goes in docs/sphinx/*.rst files
@@ -82,8 +82,8 @@ To verify that a file or directory is properly ignored:
 .. code-block:: bash
 
    # Check if a file/directory is ignored
-   git check-ignore -v .vision/
-   git check-ignore -v .vision/context.md
+   git check-ignore -v docs/.vision/
+   git check-ignore -v docs/.vision/context.md
    git check-ignore -v TERMINOLOGY_AUDIT_SUMMARY.md
 
    # List all tracked .md files (should only show README.md)
@@ -91,7 +91,7 @@ To verify that a file or directory is properly ignored:
 
    # Find any .md files not in ignored directories
    find . -name "*.md" -not -path "./.git/*" -not -path "./.venv/*" \
-          -not -path "./tmp/*" -not -path "./.vision/*" | grep -v "README.md"
+          -not -path "./tmp/*" -not -path "./docs/.vision/*" | grep -v "README.md"
 
 Documentation Policy Compliance
 --------------------------------
@@ -137,12 +137,12 @@ Run these commands to verify compliance:
    # 1. Check git tracked .md files (should only show README.md)
    git ls-files "*.md"
    
-   # 2. Verify .vision is ignored
-   git check-ignore -v .vision/
+   # 2. Verify docs/.vision is ignored
+   git check-ignore -v docs/.vision/
    
    # 3. Check for untracked .md files in project
    find . -name "*.md" -not -path "./.git/*" -not -path "./.venv/*" \
-          -not -path "./tmp/*" -not -path "./.vision/*" | grep -v "README.md"
+          -not -path "./tmp/*" -not -path "./docs/.vision/*" | grep -v "README.md"
    
    # 4. Run documentation style checker
    bash scripts/utils/check_docs_style.sh
@@ -153,7 +153,7 @@ Expected Results
 **All checks should pass with:**
 
 1. Git tracked files: ``README.md`` only
-2. `.vision/` check: Returns gitignore rule match
+2. `docs/.vision/` check: Returns gitignore rule match
 3. Untracked `.md` files: None found (count = 0)
 4. Style checker: All passed, 0 errors
 
@@ -165,8 +165,8 @@ Current Status
 .. code-block:: text
 
    ✅ Git tracked .md files: 1 (README.md only)
-   ✅ .vision/ folder: Properly ignored
-   ✅ .vision/** contents: Properly ignored
+   ✅ docs/.vision/ folder: Properly ignored
+   ✅ docs/.vision/** contents: Properly ignored
    ✅ Untracked .md files: 0 found
    ✅ Style checker: All passed
    ✅ Documentation build: Success (0 warnings, 0 errors)
@@ -195,23 +195,23 @@ If .md Files Appear in Git Status
    # Make sure *.md is not commented out
    # Make sure !README.md comes after *.md
 
-If .vision/ Files Are Tracked
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If docs/.vision/ Files Are Tracked
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Problem:** `.vision/` files showing in git status
+**Problem:** `docs/.vision/` files showing in git status
 
 **Solution:**
 
 .. code-block:: bash
 
    # 1. Remove from git cache (if already tracked)
-   git rm -r --cached .vision/
+   git rm -r --cached docs/.vision/
    
    # 2. Verify ignore rule
-   git check-ignore -v .vision/
+   git check-ignore -v docs/.vision/
    
    # 3. Commit the removal
-   git commit -m "Remove .vision/ from git tracking"
+   git commit -m "Remove docs/.vision/ from git tracking"
 
 If Documentation Build Fails
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

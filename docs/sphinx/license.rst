@@ -12,7 +12,7 @@ Project Information
 - **Project**: RePORTaLiN
 - **Description**: Data extraction pipeline for medical research data
 - **Repository**: https://github.com/solomonsjoseph/RePORTaLiN
-- **Version**: 0.0.1
+- **Version**: |version|
 
 License Terms
 -------------

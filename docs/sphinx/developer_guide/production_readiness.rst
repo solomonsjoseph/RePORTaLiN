@@ -22,17 +22,17 @@ covering functionality, logical flow, coherence, security, and adherence to best
 
 **Latest Updates:**
 
-- **v0.3.0** (Current Release): Complete pipeline with de-identification, data extraction, and dictionary loading
+- **|version|** (Current Release): Complete pipeline with de-identification, data extraction, and dictionary loading
 - **v0.2.0** (Previous Release): Enhanced data extraction with comprehensive public API
 - Enhanced type safety, public API definitions, and comprehensive documentation across all modules
 
-Assessment for Version 0.3.0
------------------------------
+Assessment for Version |version|
+---------------------------------
 
 **Assessment Date**: October 23, 2025  
 **Reviewer**: Development Team (AI-Assisted Comprehensive Assessment)  
 **Scope**: Complete codebase review for production deployment  
-**Version**: 0.3.0
+**Version**: |version|
 
 Executive Summary
 -----------------
@@ -818,13 +818,13 @@ The pipeline is suitable for production deployment in its current state. The ide
 limitations are minor and do not impact core functionality or security.
 
 **Signed Off By**: Development Team  
-**Date**: October 23, 2025 (Assessment for v0.3.0)
+**Date**: October 23, 2025 (Assessment for |version|)
 
 Appendix: Testing Summary
 --------------------------
 
 **Note**: The following test results are from historical assessments (October 2-15, 2025).
-For current version (v0.3.0) testing, please refer to the comprehensive test suite.
+For current version (|version|) testing, please refer to the comprehensive test suite.
 
 Module Import Tests
 ~~~~~~~~~~~~~~~~~~~
@@ -1157,6 +1157,6 @@ Long-term (Next 3-6 months)
 reviewed with automated verification and is approved for production deployment.*
 
 **Sign-off**: Development Team  
-**Date**: October 23, 2025 (Assessment for v0.3.0)  
+**Date**: October 23, 2025 (Assessment for |version|)  
 **Status**: ✅ APPROVED FOR PRODUCTION
 

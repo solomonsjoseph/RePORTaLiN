@@ -8,7 +8,7 @@ algorithms, data structures, dependencies, design patterns, and extension points
 effective maintenance, debugging, and feature development.
 
 **Last Updated:** October 23, 2025  
-**Current Version:** 0.3.0  
+**Current Version:** |version|  
 **Code Optimization:** 35% reduction (640 lines) while maintaining 100% functionality  
 **Historical Enhancements:** Enhanced modules from v0.0.1 through v0.0.12
 

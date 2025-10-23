@@ -8,13 +8,13 @@ testing, and submitting your improvements.
 
 **LATEST UPDATE (October 23, 2025)**
 
-✅ **Current Version: 0.3.0**  
+✅ **Current Version: |version|**  
 ✅ **Verbose logging feature** with -v/--verbose flag for DEBUG-level logging  
 ✅ **Complete de-identification pipeline** with encryption support  
 ✅ **Comprehensive documentation** across all modules and guides  
 ✅ **Production-ready codebase** with robust error handling and type safety
 
-**Project Status (v0.3.0):**
+**Project Status (v|version|):**
 
 1. **Core Features Complete**:
    - Full data extraction and transformation pipeline
@@ -335,7 +335,7 @@ Main pipeline documentation with comprehensive usage examples (162 lines, 2,214%
 **PREVIOUS UPDATE (October 13-15, 2025)**
 
 ✅ **COMPREHENSIVE PROJECT AUDIT - ALL FILES REVIEWED**  
-✅ **Every file in every folder and subfolder checked (excluding only .backup/ and data/)**  
+✅ **Every file in every folder and subfolder checked (excluding only data/.backup/ and large data/)**  
 ✅ **Code optimization: 68% reduction (1,235 lines removed, 100% functionality preserved)**  
 ✅ **Documentation: 10,507 lines across 25 .rst files (comprehensive developer & user guides)**  
 ✅ **All 9 Python files compile successfully (verified with py_compile)**  
@@ -408,7 +408,7 @@ Output Files (18 .jsonl files in results/ - data outputs, not code):
 
 **Optimization Methodology:**
 
-1. **Recursive File Discovery**: Used `find` command to list ALL files (excluding .backup/ and data/)
+1. **Recursive File Discovery**: Used `find` command to list ALL files (excluding data/.backup/ and large data/)
 2. **Systematic Review**: Checked each file individually, one at a time
 3. **Code Reduction Strategy**:
    - Removed verbose docstrings (moved examples to user documentation)

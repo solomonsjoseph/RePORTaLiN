@@ -89,7 +89,7 @@ venv.bak/
 logs/
 temp/
 tmp/
-.backup/
+data/.backup/
 *.tmp
 *.temp
 
@@ -248,8 +248,8 @@ data/data_dictionary_and_mapping_specifications/~$*.xlsx
 # data/Annotated_PDFs/
 
 # AI/Editor cache and temporary files
-.vision/
-.vision/**
+docs/.vision/
+docs/.vision/**
 
 # Documentation Policy: NO .md files except README.md
 # All documentation goes in docs/sphinx/*.rst files

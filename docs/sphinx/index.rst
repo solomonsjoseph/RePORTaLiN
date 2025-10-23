@@ -6,7 +6,7 @@ Welcome to RePORTaLiN Documentation
 **RePORTaLiN** is a robust data extraction pipeline for processing medical research data 
 from Excel files to JSONL format with advanced PHI/PII de-identification capabilities.
 
-**Current Version: 0.3.0 (October 23, 2025)**  
+**Current Version: |version| (October 23, 2025)**  
 ✅ Production-ready pipeline with complete de-identification support  
 ✅ 68% code reduction (1,235 lines removed) while maintaining 100% functionality  
 ✅ Comprehensive developer and user documentation added  

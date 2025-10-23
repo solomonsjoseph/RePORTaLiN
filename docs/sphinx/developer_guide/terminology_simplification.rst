@@ -8,7 +8,7 @@ to ensure users have an easy-to-understand experience while developers retain ac
 precise technical details.
 
 **Date:** October 23, 2025  
-**Version:** 0.3.0
+**Version:** |version|
 
 Overview
 --------

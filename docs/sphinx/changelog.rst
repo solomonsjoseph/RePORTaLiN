@@ -3,6 +3,67 @@ Changelog
 
 All notable changes to RePORTaLiN are documented here.
 
+Version 0.5.0 (2025-10-23) - Version Automation & Path Standardization
+-----------------------------------------------------------------------
+
+**Enhancement**: Comprehensive version automation and folder path standardization across entire project
+
+.. versionadded:: 0.5.0
+   Implemented automatic version substitution in all documentation and corrected folder paths project-wide.
+
+Version Automation
+~~~~~~~~~~~~~~~~~~
+
+✨ **Sphinx Auto-Versioning**:
+  - Added ``rst_prolog`` to ``docs/sphinx/conf.py`` for global ``|version|`` and ``|release|`` substitution
+  - Updated 24 documentation files to use ``|version|`` instead of hardcoded version numbers
+  - Ensured single source of truth: ``__version__.py``
+  - All current version references now automatically update when version changes
+
+📝 **Documentation Updates**:
+  - User Guide: ``configuration.rst``, ``deidentification.rst``, ``quickstart.rst``
+  - Developer Guide: ``contributing.rst``, ``production_readiness.rst``, ``documentation_audit.rst``
+  - Root Level: ``index.rst``, ``license.rst``
+  - Updated ``requirements.txt`` and ``README.md`` to reference ``__version__.py``
+
+Folder Path Standardization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+🔧 **Path Corrections**:
+  - Fixed ``.vision/`` → ``docs/.vision/`` (AI/Editor cache location)
+  - Fixed ``.backup/`` → ``data/.backup/`` (backup files location)
+  - Verified ``.logs/`` (correct as project root location)
+  - Updated ``.gitignore`` with accurate paths
+  - Updated all documentation references to use correct paths
+
+📂 **Files Updated**:
+  - ``.gitignore``: 3 path corrections
+  - ``docs/sphinx/developer_guide/gitignore_verification.rst``: 10 path references
+  - ``docs/sphinx/developer_guide/verification_complete.rst``: 4 path references
+  - ``docs/sphinx/developer_guide/contributing.rst``: 2 path references
+
+Quality Assurance
+~~~~~~~~~~~~~~~~~
+
+✅ **Comprehensive Verification**:
+  - Checked all 51 project files (11 Python + 5 config + 35 documentation)
+  - Verified zero hardcoded current version references remain
+  - Verified zero incorrect folder path references remain
+  - Confirmed all git ignore rules working correctly
+  - All checks passed with 100% clean state
+
+**User Impact**:
+  - Version numbers automatically update throughout documentation
+  - No manual version updates needed in multiple files
+  - Consistent folder path references across entire project
+  - Reduced maintenance burden for version releases
+
+**Developer Impact**:
+  - Single source of truth for versioning (``__version__.py``)
+  - Automatic documentation updates on version bump
+  - Clear, standardized folder structure
+  - Improved project maintainability
+
 Version 0.3.0 (2025-10-23) - Documentation Enhancement
 ------------------------------------------------------
 
@@ -1139,7 +1200,7 @@ Deprecation Policy
 Support
 -------
 
-- **Current Version**: 0.3.0 (October 2025)
+- **Current Version**: |version| (October 2025)
 - **Support**: Active development
 - **Python**: 3.13+
 

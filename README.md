@@ -479,9 +479,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Version**: 0.3.0 | **Status**: Beta (Active Development) | **Last Updated**: October 23, 2025
+**Version**: See `__version__.py` | **Status**: Beta (Active Development) | **Last Updated**: October 23, 2025
 
-**Latest Updates (v0.3.0 - October 23, 2025)**:
+**Latest Updates (October 23, 2025)**:
 
 - **Documentation Enhancement**: Complete Sphinx documentation audit and version alignment
 - **Version Management**: Hybrid version management system with conventional commits

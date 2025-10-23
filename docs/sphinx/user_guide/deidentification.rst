@@ -28,8 +28,8 @@ The privacy protection feature can detect and replace 21 types of personal infor
 * **Security**: Built-in encryption, access control, and audit trail capabilities
 * **Directory Structure Preservation**: Maintains original file organization during batch processing
 
-What's New in v0.3.0
-~~~~~~~~~~~~~~~~~~~~~
+What's New in |version|
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Better Privacy Protection**:
   - Improved detection of sensitive information

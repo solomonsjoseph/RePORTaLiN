@@ -1,9 +1,9 @@
 # ============================================================================
 # RePORTaLiN - Python Dependencies
 # ============================================================================
-# Version: 0.0.12
+# Version: See __version__.py for current project version
 # Python: 3.13+
-# Last Updated: October 15, 2025
+# Last Updated: October 23, 2025
 #
 # Installation:
 #   pip install -r requirements.txt

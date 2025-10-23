@@ -8,7 +8,7 @@ in the RePORTaLiN project. All contributors must follow these standards to ensur
 consistency and quality.
 
 **Last Updated:** October 23, 2025  
-**Version:** 0.3.0  
+**Version:** |version|  
 **Status:** Active Guide
 
 Overview
@@ -314,9 +314,9 @@ All **present-tense** version references MUST use the current version number:
 
 .. code-block:: restructuredtext
 
-   **Version:** 0.3.0
+   **Version:** |version|
    **Last Updated:** October 23, 2025
-   **Current Version: 0.3.0** (at top of index.rst)
+   **Current Version: |version|** (at top of index.rst)
 
 **Historical Markers (Past Tense):**
 

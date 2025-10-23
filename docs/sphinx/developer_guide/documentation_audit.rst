@@ -9,7 +9,7 @@ to documentation standards.
 
 .. note::
    **Audit Completed**: October 23, 2025  
-   **Version**: 0.3.0  
+   **Version**: |version|  
    **Status**: Complete and Verified
 
 Overview
@@ -104,7 +104,7 @@ index.rst Updates
 .. code-block:: diff
 
    - **Recent Optimization (October 13, 2025):**  
-   + **Current Version: 0.3.0 (October 23, 2025)**  
+   + **Current Version: |version| (October 23, 2025)**  
    + ✅ Production-ready pipeline with complete de-identification support  
      ✅ 68% code reduction (1,235 lines removed) while maintaining 100% functionality
 
@@ -132,7 +132,7 @@ changelog.rst Updates
      -------
      
    - - **Current Version**: 0.0.1 (October 2025)
-   + - **Current Version**: 0.3.0 (October 2025)
+   + - **Current Version**: |version| (October 2025)
      - **Support**: Active development
      - **Python**: 3.13+
 
@@ -319,7 +319,7 @@ Documentation Maintenance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Best Practices:
-    1. **Present-tense docs**: Use current version (v0.3.0)
+    1. **Present-tense docs**: Use current version (|version|)
     2. **Historical markers**: Keep "Enhanced in vX.X.X" notes
     3. **Changelogs**: Preserve all historical entries
     4. **Cross-references**: Acceptable to reference specific past versions
@@ -345,7 +345,7 @@ Final Status
 **Documentation Audit Status**: ✅ **COMPLETE AND VERIFIED**
 
 All documentation files are now:
-    ✅ Accurate and current (v0.3.0)  
+    ✅ Accurate and current (|version|)  
     ✅ Free of outdated version references in present-tense documentation  
     ✅ Consistent across all files  
     ✅ Building successfully without warnings or errors  

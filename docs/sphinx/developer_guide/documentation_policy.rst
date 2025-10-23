@@ -7,7 +7,7 @@ This document establishes the documentation standards and policies for the RePOR
 to ensure consistency, maintainability, and professional quality across all documentation.
 
 **Last Updated:** October 23, 2025  
-**Version:** 0.3.0  
+**Version:** |version|  
 **Status:** Active Policy
 
 Core Principles
@@ -157,7 +157,7 @@ All Assessment Documents MUST Include
 .. code-block:: rst
 
    **Assessment Date**: October 23, 2025  
-   **Version**: 0.3.0  
+   **Version**: |version|  
    **Status**: Current Status
    **Reviewer**: Team/Individual Name
 
@@ -342,7 +342,7 @@ Before Committing Documentation Changes
    [ ] All developer guide files have "For Developers" headers
    [ ] User guide uses simple, friendly language
    [ ] Developer guide has sufficient technical detail
-   [ ] Version directives match current version (0.3.0)
+   [ ] Version directives match current version (|version|)
    [ ] Assessment dates are current
    [ ] No .md files created (except README.md)
    [ ] Sphinx builds with 0 warnings/0 errors

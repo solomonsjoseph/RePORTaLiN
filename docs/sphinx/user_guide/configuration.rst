@@ -15,8 +15,8 @@ Configuration File
 The main configuration file is ``config.py`` in the project root. It defines all paths, 
 settings, and parameters used throughout the pipeline.
 
-What's New in v0.3.0
-~~~~~~~~~~~~~~~~~~~~~
+What's New in |version|
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ✨ **New Features**:
    - Automatically creates folders you need
