@@ -1,8 +1,269 @@
-.DS_Store
+# ============================================================================
+# RePORTaLiN .gitignore
+# ============================================================================
+# Enhanced for clinical data processing with PHI/PII protection
+#
+# Organization:
+# 1. Python & Build Artifacts
+# 2. Virtual Environments
+# 3. IDEs & Editors
+# 4. Logs & Temporary Files
+# 5. Operating Systems
+# 6. Testing & Coverage
+# 7. Type Checking
+# 8. Jupyter Notebooks
+# 9. Documentation
+# 10. Security & Secrets (CRITICAL)
+# 11. De-identification & PHI/PII (CRITICAL)
+# 12. Data Science & ML
+# 13. Databases
+# 14. Project-Specific
+
+# ============================================================================
+# 1. Python & Build Artifacts
+# ============================================================================
 __pycache__/
-data/data_dictionary_and_mapping_specifications/~$RePORT_DEB_to_Tables_mapping.xlsx
-data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx
-data/data_dictionary_and_mapping_specifications/json_output/tblSPECIMEN/tblSPECIMEN_Extraas_Ignore.jsonl
-.logs/
+*.py[cod]
+*.pyd
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================================================
+# 2. Virtual Environments
+# ============================================================================
 .venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================================================================
+# 3. IDEs & Editors
+# ============================================================================
+# VS Code
 .vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Vim / Emacs
+*.swp
+*.swo
+*~
+\#*\#
+.\#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ============================================================================
+# 4. Logs & Temporary Files
+# ============================================================================
+.logs/
+*.log
+*.log.*
+logs/
+temp/
+tmp/
+data/.backup/
+*.tmp
+*.temp
+
+# ============================================================================
+# 5. Operating Systems
+# ============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.fseventsd
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# 6. Testing & Coverage
+# ============================================================================
+.pytest_cache/
+.tox/
+.nox/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.cache
+nosetests.xml
+
+# ============================================================================
+# 7. Type Checking
+# ============================================================================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# ============================================================================
+# 8. Jupyter Notebooks
+# ============================================================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*-checkpoint.ipynb
+
+# ============================================================================
+# 9. Documentation
+# ============================================================================
+docs/sphinx/_build/
+docs/sphinx/_static/
+docs/sphinx/_templates/
+docs/_build/
+site/
+
+# ============================================================================
+# 10. Security & Secrets (CRITICAL - DO NOT COMMIT)
+# ============================================================================
+# Encryption keys
+*.key
+*.pem
+*.p12
+*.pfx
+*.fernet
+*.secret
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+secrets.*
+*.credentials
+credentials.json
+
+# SSL/TLS certificates
+*.crt
+*.cer
+*.der
+
+#git
+# .git/
+
+# ============================================================================
+# 11. De-identification & PHI/PII (CRITICAL - DO NOT COMMIT)
+# ============================================================================
+# Mapping files (contain PHI/PII → pseudonym relationships)
+*_mappings.json
+*_mappings.json.enc
+*_deidentification_key.key
+*_deidentification_audit.json
+results/deidentified/mappings/
+
+# Original dataset directories (may contain PHI/PII)
+results/dataset/
+
+# Any files marked as containing PHI/PII
+*_phi.json
+*_pii.json
+*_sensitive.*
+
+# ============================================================================
+# 12. Data Science & ML Artifacts
+# ============================================================================
+*.pkl
+*.pickle
+*.joblib
+*.h5
+*.hdf5
+*.ckpt
+*.pth
+*.pt
+*.model
+*.weights
+models/
+checkpoints/
+
+# ============================================================================
+# 13. Databases
+# ============================================================================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ============================================================================
+# 14. Project-Specific
+# ============================================================================
+# Excel temporary files
+data/data_dictionary_and_mapping_specifications/~$*.xlsx
+~$*.xlsx
+
+# Results directory (uncomment to exclude all results)
+# results/
+
+# Large data files (uncomment if needed)
+# data/dataset/
+# data/Annotated_PDFs/
+
+# AI/Editor cache and temporary files
+docs/.vision/
+docs/.vision/**
+
+# Documentation Policy: NO .md files except README.md
+# All documentation goes in docs/sphinx/*.rst files
+*.md
+!README.md
+
+# Temporary documentation files
+FIXES.md
+AUDIT.md
+VERIFICATION.md
+STATUS.md
+CHANGES.md
+NOTES.md
+*_VERIFICATION*.md
+*_AUDIT*.md
+*_REPORT*.md
+*_SUMMARY*.md
