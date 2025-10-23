@@ -603,7 +603,7 @@ Use ``smart-commit`` when you want to see the version change before committing:
 .. code-block:: bash
 
    # Preview version bump
-   ./smart-commit "feat: add new feature"
+   ./scripts/utils/smart-commit "feat: add new feature"
    # Shows: Current: 0.2.0 → New: 0.3.0
    # Asks for confirmation before committing
 
@@ -730,7 +730,7 @@ Use **Conventional Commits** for automatic semantic versioning:
    git commit -m "feat: add CSV export"  # → Auto-bumps to 0.3.0
    
    # Option 2: CLI with preview (smart-commit)
-   ./smart-commit "feat: add CSV export"  # Shows version before commit
+   ./scripts/utils/smart-commit "feat: add CSV export"  # Shows version before commit
    
    # Option 3: Manual version bump
    make bump-minor  # Bump minor version manually

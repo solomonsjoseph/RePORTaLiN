@@ -105,7 +105,7 @@ New Features
    git commit -m "feat: add new feature"  # → Auto-bumps to 0.3.0
    
    # Option 2: CLI with preview (smart-commit)
-   ./smart-commit "feat: add new feature"  # Shows version before commit
+   ./scripts/utils/smart-commit "feat: add new feature"  # Shows version before commit
    
    # Option 3: Manual version bump
    make bump-minor  # Bump minor version

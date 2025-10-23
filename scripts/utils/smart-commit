@@ -9,12 +9,12 @@
 #   - "BREAKING CHANGE:" or "!:"    → Major bump (0.3.0 → 1.0.0)
 #
 # Usage:
-#   ./smart-commit "feat: add new feature"
-#   ./smart-commit "fix: bug fix"  
-#   ./smart-commit "feat!: breaking change"
+#   ./scripts/utils/smart-commit "feat: add new feature"
+#   ./scripts/utils/smart-commit "fix: bug fix"  
+#   ./scripts/utils/smart-commit "feat!: breaking change"
 #
 # Or create a git alias:
-#   git config alias.sc '!bash smart-commit'
+#   git config alias.sc '!bash scripts/utils/smart-commit'
 #   git sc "feat: new feature"
 #
 

@@ -334,7 +334,7 @@ make commit MSG="feat: add user authentication"
 # → Then commits
 
 # Or directly
-./smart-commit "feat: add user authentication"
+./scripts/utils/smart-commit "feat: add user authentication"
 ```
 
 **Example output:**

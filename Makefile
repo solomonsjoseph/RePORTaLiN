@@ -181,7 +181,7 @@ commit:
 		echo "$(YELLOW)Usage: make commit MSG=\"your commit message\"$(NC)"; \
 		exit 1; \
 	fi
-	@./smart-commit "$(MSG)"
+	@./scripts/utils/smart-commit "$(MSG)"
 
 # Running commands
 run:
