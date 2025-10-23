@@ -95,7 +95,7 @@ python3 main.py --enable-deidentification
 # Specify countries for de-identification
 python3 main.py --enable-deidentification --countries IN US
 
-# Enable verbose logging (DEBUG level)
+# Enable verbose logging (DEBUG level with file:line context)
 python3 main.py --verbose
 
 # Verbose with de-identification
@@ -223,15 +223,147 @@ python3 main.py --skip-dictionary
 python3 main.py --skip-extraction
 python3 main.py --skip-deidentification
 
-# Verbose mode (DEBUG level logging) - see detailed processing information
+# Verbose mode (DEBUG level with detailed context - shows file:line in logs)
 python3 main.py --verbose
 python3 main.py -v --enable-deidentification --countries IN
+
+# Get enhanced help with examples
+python3 main.py --help  # Shows usage examples and all options
 
 # Testing mode (no encryption)
 python3 main.py --enable-deidentification --no-encryption
 # or
 make run-deidentify-plain
 ```
+
+### Shell Completion (Optional)
+
+Enable tab completion for bash/zsh/fish:
+
+```bash
+# For bash (add to ~/.bashrc)
+eval "$(register-python-argcomplete main.py)"
+
+# For zsh (add to ~/.zshrc)
+autoload -U bashcompinit && bashcompinit
+eval "$(register-python-argcomplete main.py)"
+
+# For fish (add to ~/.config/fish/config.fish)
+register-python-argcomplete --shell fish main.py | source
+```
+
+### Logging & Debugging
+
+**Enhanced Verbose Logging** (v0.0.12+):
+
+The `--verbose` flag now provides detailed debugging context with file and line numbers:
+
+```bash
+# Standard logging (INFO level)
+python3 main.py
+# Log format: 2025-10-22 19:17:11 - reportalin - INFO - Processing data
+
+# Verbose logging (DEBUG level with context)
+python3 main.py --verbose
+# Log format: 2025-10-22 19:17:11 - reportalin - DEBUG - [main.py:123] - Processing data
+#                                                          ↑ Shows source location
+```
+
+**Benefits:**
+- **Better debugging**: Trace messages to exact source code location
+- **Easier troubleshooting**: Quickly identify where errors occur
+- **No performance impact**: Only active when `--verbose` is used
+
+**Log file location**: `.logs/reportalin_TIMESTAMP.log`
+
+### Version Management
+
+RePORTaLiN uses **`__version__.py`** as the single source of truth for version information with intelligent **Conventional Commits** support for automatic semantic versioning.
+
+#### Current Version
+
+```bash
+# Show current version
+make show-version
+# Or
+python3 main.py --version
+```
+
+#### Automatic Version Bumping (Conventional Commits)
+
+The git pre-commit hook intelligently analyzes your commit messages and bumps the version according to **Conventional Commits** standards:
+
+| Commit Message | Version Bump | Example |
+|----------------|--------------|---------|
+| `fix: ...` | **Patch** | 0.0.12 → 0.0.13 |
+| `feat: ...` | **Minor** | 0.0.12 → 0.1.0 |
+| `feat!: ...` or `BREAKING CHANGE:` | **Major** | 0.0.12 → 1.0.0 |
+| Other (docs, chore, etc.) | **Patch** (default) | 0.0.12 → 0.0.13 |
+
+**Examples:**
+
+```bash
+# Bug fix → patch bump
+git commit -m "fix: resolve login issue"
+# → Version: 0.0.12 → 0.0.13
+
+# New feature → minor bump
+git commit -m "feat: add user authentication"
+# → Version: 0.0.12 → 0.1.0
+
+# Breaking change → major bump
+git commit -m "feat!: redesign API"
+# → Version: 0.0.12 → 1.0.0
+
+# With scope
+git commit -m "fix(auth): resolve token expiration"
+# → Version: 0.0.12 → 0.0.13
+```
+
+**Features:**
+- **Intelligent**: Analyzes commit message automatically
+- **Standard**: Follows Conventional Commits specification
+- **Transparent**: Shows version change before commit
+- **Bypassable**: Use `git commit --no-verify` to skip
+
+#### Manual Version Bumping
+
+Use Makefile targets when you need manual control:
+
+```bash
+# Bump patch version (0.0.12 → 0.0.13)
+make bump-patch
+
+# Bump minor version (0.0.12 → 0.1.0)
+make bump-minor
+
+# Bump major version (0.0.12 → 1.0.0)
+make bump-major
+```
+
+**Example output:**
+```
+✓ Version bumped: 0.0.12 → 0.0.13
+  Type: patch
+
+New version: 0.0.13
+Remember to commit: git add __version__.py && git commit -m 'Bump version'
+```
+
+#### Version Consistency
+
+All modules import version from `__version__.py`:
+- `config.py` - Configuration module
+- `main.py` - Main CLI entry point
+- `scripts/__init__.py` - Scripts package
+- `scripts/utils/__init__.py` - Utils package
+- `docs/sphinx/conf.py` - Documentation
+
+This ensures version consistency across:
+- CLI output (`--version` flag)
+- Module `__version__` attributes
+- Documentation builds
+- All import statements
 
 ### De-identification Module
 

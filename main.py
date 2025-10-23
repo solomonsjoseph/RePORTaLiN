@@ -139,7 +139,11 @@ Command-Line Arguments
 - ``--no-encryption``: Disable encrypted mappings (testing only)
 
 **Logging Options:**
-- ``-v, --verbose``: Enable verbose (DEBUG level) logging
+- ``-v, --verbose``: Enable verbose (DEBUG level) logging with detailed context
+  
+  .. note::
+     Verbose mode (v0.0.12+) includes file and line numbers in log output
+     for easier debugging: ``[filename.py:123]``
 
 **Information:**
 - ``--version``: Show program version and exit
@@ -177,8 +181,15 @@ from scripts.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging as log
 import config
 
+try:
+    import argcomplete
+    ARGCOMPLETE_AVAILABLE = True
+except ImportError:
+    ARGCOMPLETE_AVAILABLE = False
+
+from __version__ import __version__
+
 __all__ = ['main', 'run_step']
-__version__ = "0.0.12"
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
     """
@@ -224,28 +235,42 @@ def main() -> None:
     """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
-        description="RePORTaLiN pipeline for data processing.",
-        epilog="For detailed documentation, see the Sphinx docs or README.md"
+        description='Clinical data processing pipeline with de-identification support.',
+        epilog="""
+Examples:
+  %(prog)s                              # Run complete pipeline
+  %(prog)s --skip-dictionary            # Skip dictionary, run extraction
+  %(prog)s --enable-deidentification    # Run pipeline with de-identification
+  %(prog)s -c IN US --verbose           # Multi-country with debug logging
+
+For detailed documentation, see the Sphinx docs or README.md
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument('--version', action='version', version=f'%(prog)s {__version__}',
-                       help="Show program version and exit.")
+                       help="Show program version and exit")
     parser.add_argument('--skip-dictionary', action='store_true', 
-                       help="Skip data dictionary loading (Step 0).")
+                       help="Skip data dictionary loading (Step 0)")
     parser.add_argument('--skip-extraction', action='store_true', 
-                       help="Skip data extraction (Step 1).")
+                       help="Skip data extraction (Step 1)")
     parser.add_argument('--skip-deidentification', action='store_true',
-                       help="Skip de-identification of extracted data (Step 2).")
+                       help="Skip de-identification of extracted data (Step 2)")
     parser.add_argument('--enable-deidentification', action='store_true',
-                       help="Enable PHI/PII de-identification with encryption (disabled by default).")
+                       help="Enable PHI/PII de-identification with encryption")
     parser.add_argument('--no-encryption', action='store_true',
-                       help="Disable encryption for de-identification mappings (testing only, not recommended).")
-    parser.add_argument('-c', '--countries', nargs='+',
-                       help="Country codes for de-identification (e.g., IN US ID BR) or ALL. Default: IN (India).")
+                       help="Disable encryption for mappings (testing only)")
+    parser.add_argument('-c', '--countries', nargs='+', metavar='CODE',
+                       help="Country codes (IN US ID BR etc.) or ALL. Default: IN")
     parser.add_argument('-v', '--verbose', action='store_true',
-                       help="Enable verbose (DEBUG level) logging for detailed processing information.")
+                       help="Enable verbose (DEBUG) logging with detailed context")
+    
+    # Enable shell completion if available
+    if ARGCOMPLETE_AVAILABLE:
+        argcomplete.autocomplete(parser)
+    
     args = parser.parse_args()
 
-    # Set log level based on verbose flag
+    # Set log level based on verbose flag (DEBUG shows filename:lineno context)
     log_level = logging.DEBUG if args.verbose else config.LOG_LEVEL
     log.setup_logger(name=config.LOG_NAME, log_level=log_level)
     log.info("Starting RePORTaLiN pipeline...")

@@ -50,7 +50,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version lint format status
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version bump-patch bump-minor bump-major show-version lint format status
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -62,6 +62,12 @@ help:
 	@echo "  make install                  - Install all dependencies (auto-detects venv)"
 	@echo "  make check-python             - Check Python and environment status"
 	@echo "  make version                  - Show project version information"
+	@echo ""
+	@echo "$(GREEN)Version Management:$(NC)"
+	@echo "  make show-version             - Show current version only"
+	@echo "  make bump-patch               - Bump patch version (e.g., 0.0.12 → 0.0.13)"
+	@echo "  make bump-minor               - Bump minor version (e.g., 0.0.12 → 0.1.0)"
+	@echo "  make bump-major               - Bump major version (e.g., 0.0.12 → 1.0.0)"
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
 	@echo "  make run                      - Run pipeline (no de-identification)"
@@ -143,6 +149,28 @@ version:
 	@$(PYTHON_CMD) -c "import tqdm; print('  tqdm:       ', tqdm.__version__)" 2>/dev/null || echo "  tqdm:        Not installed"
 	@$(PYTHON_CMD) -c "import cryptography; print('  cryptography:', cryptography.__version__)" 2>/dev/null || echo "  cryptography: Not installed"
 	@echo ""
+
+# Version management commands
+show-version:
+	@$(PYTHON_CMD) -c "from __version__ import __version__; print(__version__)"
+
+bump-patch:
+	@./.git/hooks/bump-version patch
+	@echo ""
+	@echo "$(YELLOW)New version:$(NC) $$($(PYTHON_CMD) -c 'from __version__ import __version__; print(__version__)')"
+	@echo "$(YELLOW)Remember to commit:$(NC) git add __version__.py && git commit -m 'Bump version'"
+
+bump-minor:
+	@./.git/hooks/bump-version minor
+	@echo ""
+	@echo "$(YELLOW)New version:$(NC) $$($(PYTHON_CMD) -c 'from __version__ import __version__; print(__version__)')"
+	@echo "$(YELLOW)Remember to commit:$(NC) git add __version__.py && git commit -m 'Bump version'"
+
+bump-major:
+	@./.git/hooks/bump-version major
+	@echo ""
+	@echo "$(YELLOW)New version:$(NC) $$($(PYTHON_CMD) -c 'from __version__ import __version__; print(__version__)')"
+	@echo "$(YELLOW)Remember to commit:$(NC) git add __version__.py && git commit -m 'Bump version'"
 
 # Running commands
 run:

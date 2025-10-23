@@ -4,6 +4,10 @@ Centralized Logging Module
 
 Comprehensive logging system with custom SUCCESS level, dual output (file + console),
 and intelligent filtering. Features timestamped files and automatic log directory creation.
+
+New in v0.0.12:
+- Enhanced verbose logging with detailed formatter
+- Better error context and stack traces
 """
 import logging
 import sys
@@ -42,13 +46,21 @@ def setup_logger(name: str = "reportalin", log_level: int = logging.INFO) -> log
     log_file = logs_dir / f"{name}_{timestamp}.log"
     _log_file_path = str(log_file)
     
+    # Use detailed format for verbose (DEBUG) logging
+    if log_level == logging.DEBUG:
+        file_formatter = CustomFormatter(
+            '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+        )
+    else:
+        file_formatter = CustomFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
     file_handler = logging.FileHandler(log_file)
     file_handler.setLevel(log_level)
-    file_handler.setFormatter(CustomFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    file_handler.setFormatter(file_formatter)
     
     # Console handler: Show only SUCCESS, ERROR, and CRITICAL (suppress DEBUG, INFO, WARNING)
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.ERROR)  # Only ERROR (40) and above on console
+    console_handler.setLevel(logging.ERROR)
     console_handler.setFormatter(CustomFormatter('%(levelname)s: %(message)s'))
     
     # Add custom filter to allow SUCCESS messages on console

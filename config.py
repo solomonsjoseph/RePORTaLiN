@@ -14,8 +14,7 @@ automatic path resolution, and flexible logging configuration.
 import os
 import logging
 from typing import Optional, List
-
-__version__ = '1.0.0'
+from __version__ import __version__
 
 # Constants
 DEFAULT_DATASET_NAME = "RePORTaLiN_sample"

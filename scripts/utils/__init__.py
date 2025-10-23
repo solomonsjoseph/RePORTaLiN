@@ -43,6 +43,6 @@ See Also
 """
 
 from .logging import get_logger, setup_logger, get_log_file_path, debug, info, warning, error, critical, success
+from __version__ import __version__
 
 __all__ = ['get_logger', 'setup_logger', 'get_log_file_path', 'debug', 'info', 'warning', 'error', 'critical', 'success']
-__version__ = '0.0.10'

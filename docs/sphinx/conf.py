@@ -29,6 +29,9 @@ from typing import Dict, List, Tuple, Any
 # Add the project root to the Python path for autodoc
 sys.path.insert(0, os.path.abspath('../..'))
 
+# Import version from single source of truth
+from __version__ import __version__
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -36,9 +39,9 @@ project: str = 'RePORTaLiN'
 copyright: str = '2025, RePORTaLiN Development Team'
 author: str = 'RePORTaLiN Development Team'
 
-# Version should match main.py __version__
-version: str = '0.0.12'
-release: str = '0.0.12'
+# Version imported from __version__.py (single source of truth)
+version: str = __version__
+release: str = __version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
