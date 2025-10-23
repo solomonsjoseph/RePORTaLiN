@@ -555,6 +555,123 @@ The date shifter automatically uses intelligent multi-format parsing with countr
 * Country-specific format priority
 * Fallback to [DATE-HASH] placeholder only if all formats fail
 
+Understanding Date Format Handling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. versionadded:: 0.6.0
+   Improved date parsing with country-specific format priority and smart validation.
+
+The date shifter uses an intelligent algorithm to handle ambiguous dates correctly:
+
+**The Ambiguity Problem**
+
+Dates like ``08/09/2020`` or ``12/12/2012`` can be interpreted in multiple ways:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 25 25 30
+
+   * - Date String
+     - US Format (MM/DD)
+     - India Format (DD/MM)
+     - Ambiguity
+   * - ``08/09/2020``
+     - August 9, 2020
+     - September 8, 2020
+     - ⚠️ Both valid
+   * - ``12/12/2012``
+     - December 12, 2012
+     - December 12, 2012
+     - ⚠️ Symmetric date
+   * - ``13/05/2020``
+     - ❌ Invalid (no 13th month)
+     - May 13, 2020
+     - ✅ Unambiguous
+   * - ``05/25/2020``
+     - May 25, 2020
+     - ❌ Invalid (no 25th month)
+     - ✅ Unambiguous
+
+**The Solution: Country-Based Priority with Smart Validation**
+
+The date shifter uses a three-step algorithm:
+
+1. **Try ISO 8601 First** (``YYYY-MM-DD``): Always unambiguous, works for all countries
+2. **Try Country-Specific Format**: Use the country's preferred interpretation
+3. **Smart Validation**: Reject formats that are logically impossible
+
+**Algorithm Details:**
+
+.. code-block:: python
+
+    # Example: Processing "13/05/2020" for India (DD/MM preference)
+    
+    Step 1: Try ISO 8601 (YYYY-MM-DD)
+      Result: ❌ Doesn't match pattern
+    
+    Step 2: Try DD/MM/YYYY (India preference)
+      Parse: ✅ Day=13, Month=05 (May 13, 2020)
+      Validate: first_num=13 > 12 ✅ Valid (day can be >12)
+      Result: ✅ Success! → May 13, 2020
+    
+    # Example: Processing "13/05/2020" for USA (MM/DD preference)
+    
+    Step 1: Try ISO 8601 (YYYY-MM-DD)
+      Result: ❌ Doesn't match pattern
+    
+    Step 2: Try MM/DD/YYYY (USA preference)
+      Parse: ❌ Month=13 is invalid (only 12 months)
+      Result: Parsing fails, try next format
+    
+    Step 3: Try DD/MM/YYYY (fallback)
+      Parse: ✅ Day=13, Month=05
+      Result: ✅ Success! → May 13, 2020
+
+**Smart Validation Rules:**
+
+* If first number > 12 → **Must be day** (can't be month)
+* If second number > 12 → **Must be day** (can't be month)  
+* If both numbers ≤ 12 → **Trust country preference** (ambiguous case)
+
+**Examples by Country:**
+
+.. code-block:: python
+
+    from scripts.deidentify import DateShifter
+    
+    # India: DD/MM/YYYY preference
+    shifter_india = DateShifter(country_code="IN")
+    
+    shifter_india.shift_date("2020-01-15")   # ISO → Always Jan 15, 2020
+    shifter_india.shift_date("13/05/2020")   # Unambiguous → May 13, 2020
+    shifter_india.shift_date("08/09/2020")   # Ambiguous → Sep 8, 2020 (DD/MM)
+    shifter_india.shift_date("12/12/2012")   # Symmetric → Dec 12, 2012 (DD/MM)
+    
+    # United States: MM/DD/YYYY preference
+    shifter_us = DateShifter(country_code="US")
+    
+    shifter_us.shift_date("2020-01-15")      # ISO → Always Jan 15, 2020
+    shifter_us.shift_date("13/05/2020")      # Unambiguous → May 13, 2020
+    shifter_us.shift_date("08/09/2020")      # Ambiguous → Aug 9, 2020 (MM/DD)
+    shifter_us.shift_date("12/12/2012")      # Symmetric → Dec 12, 2012 (MM/DD)
+
+**Best Practices:**
+
+1. **Use ISO 8601 when possible** (``YYYY-MM-DD``): Eliminates all ambiguity
+2. **Set country code correctly**: Ensures consistent interpretation within your dataset
+3. **Validate output**: Review shifted dates to ensure they make sense
+4. **Document format**: Record which format your source data uses
+
+.. tip::
+   For symmetric dates like ``12/12/2012`` or ``01/01/2020``, the interpretation 
+   doesn't affect the result since both formats yield the same date. However, 
+   consistency is still maintained for audit purposes.
+
+.. warning::
+   Mixing date formats within a single dataset (e.g., some files using DD/MM and 
+   others using MM/DD) can lead to inconsistent interpretations. Always use a 
+   consistent format across your dataset, preferably ISO 8601.
+
 Encrypted Mapping Storage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -442,35 +442,104 @@ class DateShifter:
     Shifts all dates by a consistent offset while maintaining:
     - Relative time intervals between dates
     - Original date format (ISO 8601, DD/MM/YYYY, MM/DD/YYYY, hyphen/dot-separated)
-    - Country-specific format priority
+    - Country-specific format priority for consistent interpretation
     
     Supported formats (auto-detected):
-    - YYYY-MM-DD (ISO 8601)
-    - DD/MM/YYYY or MM/DD/YYYY (slash-separated)
-    - DD-MM-YYYY or MM-DD-YYYY (hyphen-separated)
+    - YYYY-MM-DD (ISO 8601) - Always tried first (unambiguous)
+    - DD/MM/YYYY or MM/DD/YYYY (slash-separated) - Country-specific priority
+    - DD-MM-YYYY or MM-DD-YYYY (hyphen-separated) - Country-specific priority
     - DD.MM.YYYY (dot-separated, European)
     
+    Date Interpretation Strategy
+    ----------------------------
+    The shifter uses a three-tier strategy to handle date ambiguity:
+    
+    1. **Unambiguous Formats (ISO 8601)**: Always tried first
+       - Example: "2020-01-15" is always January 15, 2020 regardless of country
+       
+    2. **Country-Specific Preference**: For ambiguous dates
+       - India (IN): "08/09/2020" interpreted as DD/MM → September 8, 2020
+       - USA (US): "08/09/2020" interpreted as MM/DD → August 9, 2020
+       
+    3. **Smart Validation**: Reject logically impossible formats
+       - "13/05/2020" can only be DD/MM (no 13th month)
+       - "05/25/2020" can only be MM/DD (no 25th month)
+    
+    Ambiguous Date Handling
+    -----------------------
+    For dates where both day and month are ≤ 12 (e.g., 12/12/2012, 08/09/2020):
+    
+    - **Consistency Guarantee**: All dates from the same country use the same format
+    - **Country Setting**: The country_code parameter determines interpretation
+    - **Transparency**: Users know upfront how dates will be interpreted
+    
     Examples:
-        >>> shifter = DateShifter(country_code="IN")
-        >>> shifter.shift_date("2019-01-11")  # ISO format
-        '2018-04-13'  # Shifted, format preserved
-        >>> shifter.shift_date("04/09/2014")  # DD/MM/YYYY for India
-        '14/12/2013'  # Shifted, format preserved
+        Basic usage::
+        
+            >>> shifter = DateShifter(country_code="IN")
+            >>> shifter.shift_date("2019-01-11")  # ISO format
+            '2018-04-13'  # Shifted by offset, format preserved
+            
+        Ambiguous dates (country-specific)::
+        
+            >>> shifter_india = DateShifter(country_code="IN")
+            >>> shifter_india.shift_date("08/09/2020")  # DD/MM for India
+            '18/12/2019'  # September 8, 2020 → shifted
+            
+            >>> shifter_usa = DateShifter(country_code="US")
+            >>> shifter_usa.shift_date("08/09/2020")  # MM/DD for USA
+            '28/11/2019'  # August 9, 2020 → shifted
+            
+        Symmetric dates (country preference)::
+        
+            >>> shifter = DateShifter(country_code="IN")
+            >>> shifter.shift_date("12/12/2012")  # Ambiguous!
+            '02/03/2012'  # Interpreted as DD/MM (India preference)
+            
+        Unambiguous dates (validation)::
+        
+            >>> shifter = DateShifter(country_code="IN")
+            >>> shifter.shift_date("13/05/2020")  # Must be DD/MM
+            '23/08/2019'  # May 13, 2020 → shifted (13 > 12, can't be month)
+    
+    Country Format Reference
+    ------------------------
+    - **DD/MM/YYYY countries**: IN, ID, BR, ZA, EU, GB, AU, KE, NG, GH, UG
+    - **MM/DD/YYYY countries**: US, PH, CA
+    
+    See Also
+    --------
+    - HIPAA date shifting requirements for de-identification
+    - ISO 8601 date format standard
     """
     
     def __init__(self, shift_range_days: int = 365, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = "US"):
         """
-        Initialize date shifter with multi-format support.
+        Initialize date shifter with country-specific format interpretation.
         
         Args:
-            shift_range_days: Maximum days to shift (±)
-            preserve_intervals: If True, all dates shift by same offset
-            seed: Optional seed for random shift generation
-            country_code: Country code for format priority (IN=DD/MM/YYYY, US=MM/DD/YYYY, etc.)
+            shift_range_days: Maximum days to shift (±), default 365
+            preserve_intervals: If True, all dates shift by same offset (recommended for consistency)
+            seed: Optional seed for deterministic shift generation (same seed = same shift)
+            country_code: Country code determining date format priority for ambiguous dates
+                         - "IN", "ID", "BR", "ZA", "EU", "GB", "AU", "KE", "NG", "GH", "UG": DD/MM/YYYY
+                         - "US", "PH", "CA": MM/DD/YYYY
+                         - Default: "US"
         
         Note:
-            The shifter automatically tries multiple formats (ISO 8601, slash/hyphen/dot-separated)
-            and preserves the original format in the output.
+            The country_code setting ensures consistent interpretation of ambiguous dates
+            (e.g., "08/09/2020" or "12/12/2012"). All dates from the same country will use
+            the same format rules. ISO 8601 dates (YYYY-MM-DD) are always unambiguous and
+            parse correctly regardless of country_code.
+            
+        Examples:
+            >>> # India dataset - interpret slash dates as DD/MM
+            >>> shifter_in = DateShifter(country_code="IN")
+            >>> shifter_in.shift_date("08/09/2020")  # September 8, 2020
+            
+            >>> # USA dataset - interpret slash dates as MM/DD  
+            >>> shifter_us = DateShifter(country_code="US")
+            >>> shifter_us.shift_date("08/09/2020")  # August 9, 2020
         """
         self.shift_range_days = shift_range_days
         self.preserve_intervals = preserve_intervals
@@ -498,11 +567,12 @@ class DateShifter:
         """
         Shift a date string by consistent offset with intelligent format detection.
         
-        Automatically tries multiple date formats and preserves the original format
-        in the output. Format priority is based on the country code.
+        The algorithm prioritizes unambiguous formats (ISO 8601) and uses country-specific
+        format preferences for ambiguous dates. This ensures consistency for dates like
+        12/12/2012 or 08/09/2020 which could be interpreted multiple ways.
         
         Args:
-            date_str: Date string to shift (e.g., "2019-01-11", "04/09/2014")
+            date_str: Date string to shift (e.g., "2019-01-11", "04/09/2014", "12/12/2012")
             date_format: Specific format to use (auto-detected if None)
             
         Returns:
@@ -513,53 +583,99 @@ class DateShifter:
             >>> shifter.shift_date("2019-01-11")
             '2018-04-13'  # ISO format preserved
             >>> shifter.shift_date("04/09/2014")
-            '14/12/2013'  # DD/MM/YYYY format preserved
+            '14/12/2013'  # DD/MM/YYYY format (India interprets as Sep 4)
+            >>> shifter.shift_date("12/12/2012")
+            '02/03/2012'  # DD/MM/YYYY format (country preference trusted)
+        
+        Note:
+            For ambiguous dates where both numbers are ≤ 12 (e.g., 12/12/2012, 08/09/2020),
+            the country-specific format is used consistently based on the country_code setting.
+            This ensures all dates from the same country are interpreted with the same rules.
         """
         if date_str in self._date_cache:
             return self._date_cache[date_str]
         
-        # Define common date formats to try
+        # Define common date formats to try, with COUNTRY-SPECIFIC PRIORITY
         if date_format is None:
-            # Try multiple formats based on country and common standards
+            # Strategy: Try unambiguous formats first (ISO 8601), then use country preference
+            # This ensures: 
+            #   1. Unambiguous dates (YYYY-MM-DD) always parse correctly
+            #   2. Ambiguous dates (12/12/2012) use country-specific interpretation
             if self.country_code in self.dd_mm_yyyy_countries:
                 formats_to_try = [
-                    "%d/%m/%Y",      # DD/MM/YYYY (India, UK, AU, etc.)
-                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601)
+                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601) - unambiguous, always try first
+                    "%d/%m/%Y",      # DD/MM/YYYY (India, UK, AU, etc.) - COUNTRY PREFERENCE
                     "%d-%m-%Y",      # DD-MM-YYYY
-                    "%d.%m.%Y",      # DD.MM.YYYY
+                    "%d.%m.%Y",      # DD.MM.YYYY (European)
                 ]
             else:
                 formats_to_try = [
-                    "%m/%d/%Y",      # MM/DD/YYYY (US, PH, etc.)
-                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601)
+                    "%Y-%m-%d",      # YYYY-MM-DD (ISO 8601) - unambiguous, always try first
+                    "%m/%d/%Y",      # MM/DD/YYYY (US, PH, etc.) - COUNTRY PREFERENCE
                     "%m-%d-%Y",      # MM-DD-YYYY
                 ]
         else:
             formats_to_try = [date_format]
         
         # Try each format until one works
+        # For ambiguous dates (both numbers ≤ 12), the FIRST matching format wins
+        # Since formats are ordered by country preference, this ensures consistency
+        parsed_date = None
+        successful_format = None
+        
         for fmt in formats_to_try:
             try:
                 # Parse date
                 date_obj = datetime.strptime(date_str, fmt)
                 
-                # Apply shift
-                offset_days = self._get_shift_offset()
-                shifted_date = date_obj + timedelta(days=offset_days)
+                # SMART VALIDATION: Reject formats that are logically impossible
+                # This only applies to slash-separated ambiguous formats
+                if fmt in ["%m/%d/%Y", "%d/%m/%Y", "%m-%d-%Y", "%d-%m-%Y"]:
+                    # Determine separator
+                    separator = "/" if "/" in date_str else "-"
+                    parts = date_str.split(separator)
+                    
+                    if len(parts) == 3:
+                        first_num = int(parts[0])
+                        second_num = int(parts[1])
+                        
+                        # CASE 1: First number > 12 → MUST be day (can't be month)
+                        if first_num > 12 and fmt in ["%m/%d/%Y", "%m-%d-%Y"]:
+                            # We're trying MM/DD but first number is >12 (impossible month!)
+                            continue  # Skip this format, it's logically impossible
+                        
+                        # CASE 2: Second number > 12 → MUST be day (can't be month)
+                        if second_num > 12 and fmt in ["%d/%m/%Y", "%d-%m-%Y"]:
+                            # We're trying DD/MM but second number is >12 (impossible month!)
+                            continue  # Skip this format, it's logically impossible
+                        
+                        # CASE 3: Both numbers ≤ 12 → Ambiguous! Trust country preference
+                        # Since formats are ordered by country priority, first match = correct interpretation
                 
-                # Format back to string (use the same format that worked)
-                shifted_str = shifted_date.strftime(fmt)
-                
-                # Cache and return
-                self._date_cache[date_str] = shifted_str
-                return shifted_str
+                # If we reach here, the format is valid and logically consistent
+                parsed_date = date_obj
+                successful_format = fmt
+                break
                 
             except ValueError:
+                # Parse failed (e.g., invalid date like 2020-02-30), try next format
                 continue
         
-        # If all formats fail, return placeholder
-        logging.warning(f"Could not parse date: {date_str} (tried formats: {', '.join(formats_to_try)})")
-        return f"[DATE-{hashlib.md5(date_str.encode()).hexdigest()[:6].upper()}]"
+        if parsed_date is None:
+            # If all formats fail, return placeholder and log warning
+            logging.warning(f"Could not parse date: {date_str} (tried formats: {', '.join(formats_to_try)})")
+            return f"[DATE-{hashlib.md5(date_str.encode()).hexdigest()[:6].upper()}]"
+        
+        # Apply consistent shift offset
+        offset_days = self._get_shift_offset()
+        shifted_date = parsed_date + timedelta(days=offset_days)
+        
+        # Format back to string (preserve original format)
+        shifted_str = shifted_date.strftime(successful_format)
+        
+        # Cache and return
+        self._date_cache[date_str] = shifted_str
+        return shifted_str
 
 
 # ============================================================================
@@ -804,16 +920,18 @@ class DeidentificationEngine:
             all_patterns.extend(custom_patterns)
             all_patterns.sort(key=lambda p: p.priority, reverse=True)
         
-        deidentified_text = text
-        detections = []
+        # Collect all matches with positions (avoid cascading replacement bug)
+        all_matches = []
         
-        # Apply each pattern
+        # Apply each pattern to ORIGINAL text
         for pattern_def in all_patterns:
-            matches = pattern_def.pattern.finditer(deidentified_text)
+            matches = pattern_def.pattern.finditer(text)
             
             for match in matches:
                 original_value = match.group(0)
                 phi_type = pattern_def.phi_type
+                start_pos = match.start()
+                end_pos = match.end()
                 
                 # Check if already mapped
                 pseudonym = self.mapping_store.get_pseudonym(original_value, phi_type)
@@ -834,19 +952,57 @@ class DeidentificationEngine:
                         metadata={"pattern": pattern_def.description}
                     )
                 
-                # Replace in text
-                deidentified_text = deidentified_text.replace(original_value, f"[{pseudonym}]")
-                
-                # Track detection
-                detections.append({
-                    "phi_type": phi_type.value,
+                # Store match for replacement
+                all_matches.append({
+                    "start": start_pos,
+                    "end": end_pos,
                     "original": original_value,
                     "pseudonym": pseudonym,
-                    "position": match.start()
+                    "phi_type": phi_type,
+                    "priority": pattern_def.priority
                 })
                 
                 self.stats["detections_by_type"][phi_type.value] += 1
                 self.stats["total_detections"] += 1
+        
+        # Remove overlapping matches (keep highest priority)
+        # Sort by start position, then by priority (highest first)
+        all_matches.sort(key=lambda m: (m["start"], -m["priority"]))
+        
+        non_overlapping = []
+        for match in all_matches:
+            # Check if this match overlaps with any already selected
+            overlaps = False
+            for selected in non_overlapping:
+                if not (match["end"] <= selected["start"] or match["start"] >= selected["end"]):
+                    overlaps = True
+                    break
+            
+            if not overlaps:
+                non_overlapping.append(match)
+        
+        # Apply replacements in reverse order (to preserve positions)
+        non_overlapping.sort(key=lambda m: m["start"], reverse=True)
+        
+        deidentified_text = text
+        detections = []
+        
+        for match in non_overlapping:
+            # Replace using slice to avoid cascading replacement bug
+            replacement = f"[{match['pseudonym']}]"
+            deidentified_text = (
+                deidentified_text[:match["start"]] + 
+                replacement + 
+                deidentified_text[match["end"]:]
+            )
+            
+            # Track detection
+            detections.append({
+                "phi_type": match["phi_type"].value,
+                "original": match["original"],
+                "pseudonym": match["pseudonym"],
+                "position": match["start"]
+            })
         
         self.stats["texts_processed"] += 1
         

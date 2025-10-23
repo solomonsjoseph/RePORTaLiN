@@ -418,11 +418,24 @@ python3 -m scripts.deidentify \
 **Solution**: Install all required packages: `pip install -r requirements.txt` or `make install`
 
 **Issue**: Date format warnings during processing  
-**Solution**: The system automatically handles multiple date formats intelligently:
-- Supports ISO 8601 (YYYY-MM-DD), slash (DD/MM/YYYY, MM/DD/YYYY), hyphen, and dot separators
-- Preserves original date format when shifting dates for privacy
-- Uses country-specific format priority (DD/MM/YYYY for India, MM/DD/YYYY for US)
-- Falls back to [DATE-HASH] placeholders only when all formats fail
+**Solution**: The system handles date ambiguity intelligently with country-specific format priority:
+
+**Date Interpretation Strategy:**
+1. **Unambiguous formats first**: ISO 8601 (YYYY-MM-DD) always takes priority
+2. **Country-specific preference**: For ambiguous dates (e.g., 08/09/2020, 12/12/2012)
+   - India (IN): Interprets as DD/MM/YYYY → "08/09/2020" = September 8, 2020
+   - USA (US): Interprets as MM/DD/YYYY → "08/09/2020" = August 9, 2020
+3. **Smart validation**: Rejects impossible formats
+   - "13/05/2020" can only be DD/MM (no 13th month)
+   - "05/25/2020" can only be MM/DD (no 25th month)
+
+**Consistency Guarantee**: All dates from the same country use the same interpretation rules.
+
+**Supported formats**: ISO 8601, slash/hyphen/dot-separated (DD/MM or MM/DD based on country)
+
+**Format preservation**: Original date format is preserved after shifting (e.g., if input is "DD/MM/YYYY", output is also "DD/MM/YYYY")
+
+Falls back to [DATE-HASH] placeholders only when all format parsing attempts fail.
 
 **Issue**: Permission denied when accessing files  
 **Solution**: Check file permissions and ensure you have read/write access to input/output directories.

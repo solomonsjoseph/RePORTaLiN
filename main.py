@@ -275,6 +275,17 @@ For detailed documentation, see the Sphinx docs or README.md
     log.setup_logger(name=config.LOG_NAME, log_level=log_level)
     log.info("Starting RePORTaLiN pipeline...")
     
+    # Validate configuration and warn about missing files
+    config_warnings = config.validate_config()
+    if config_warnings:
+        for warning in config_warnings:
+            log.warning(warning)
+        # Don't exit on warnings, just inform the user
+        log.info("Proceeding despite configuration warnings. Some features may not work.")
+    
+    # Ensure required directories exist
+    config.ensure_directories()
+    
     # Display startup banner
     print("\n" + "=" * 70)
     print("RePORTaLiN - Report India Clinical Study Data Pipeline")
