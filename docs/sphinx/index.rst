@@ -172,6 +172,7 @@ Documentation Sections
    developer_guide/auto_documentation
    developer_guide/code_integrity_audit
    developer_guide/production_readiness
+   developer_guide/github_pages_deployment
    developer_guide/documentation_audit
    developer_guide/documentation_policy
    developer_guide/documentation_style_guide

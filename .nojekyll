@@ -1,0 +1,2 @@
+# This file tells GitHub Pages to serve files as-is without Jekyll processing
+# This is necessary for Sphinx documentation to work properly on GitHub Pages

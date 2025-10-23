@@ -62,7 +62,7 @@ sphinx-autodoc-typehints>=1.24.0,<3.0.0
 # ruff>=0.1.0                # Fast Python linter
 # mypy>=1.5.0                # Static type checking
 
-# Auto-rebuild Documentation (Development)
+# Auto-rebuild Documentation
 # -----------------------------------------
 sphinx-autobuild>=2021.3.14  # Auto-rebuild docs on file changes (watch mode)
 
