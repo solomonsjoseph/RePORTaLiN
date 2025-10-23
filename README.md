@@ -289,9 +289,9 @@ make show-version
 python3 main.py --version
 ```
 
-#### Automatic Version Bumping (Conventional Commits)
+#### Automatic Version Bumping (Smart Commits)
 
-The git pre-commit hook intelligently analyzes your commit messages and bumps the version according to **Conventional Commits** standards:
+**Recommended:** Use the `smart-commit` script or `make commit` for automatic version bumping based on **Conventional Commits** standards:
 
 | Commit Message | Version Bump | Example |
 |----------------|--------------|---------|
@@ -300,31 +300,37 @@ The git pre-commit hook intelligently analyzes your commit messages and bumps th
 | `feat!: ...` or `BREAKING CHANGE:` | **Major** | 0.0.12 → 1.0.0 |
 | Other (docs, chore, etc.) | **Patch** (default) | 0.0.12 → 0.0.13 |
 
-**Examples:**
+**Usage:**
 
 ```bash
-# Bug fix → patch bump
-git commit -m "fix: resolve login issue"
-# → Version: 0.0.12 → 0.0.13
+# Using Makefile (recommended)
+make commit MSG="feat: add user authentication"
+make commit MSG="fix: resolve login issue"
+make commit MSG="feat!: redesign API"
 
-# New feature → minor bump
-git commit -m "feat: add user authentication"
-# → Version: 0.0.12 → 0.1.0
-
-# Breaking change → major bump
-git commit -m "feat!: redesign API"
-# → Version: 0.0.12 → 1.0.0
-
-# With scope
-git commit -m "fix(auth): resolve token expiration"
-# → Version: 0.0.12 → 0.0.13
+# Or directly using the script
+./smart-commit "feat: add user authentication"
+./smart-commit "fix: resolve login issue"
+./smart-commit "feat!: redesign API"
 ```
 
-**Features:**
-- **Intelligent**: Analyzes commit message automatically
-- **Standard**: Follows Conventional Commits specification
-- **Transparent**: Shows version change before commit
-- **Bypassable**: Use `git commit --no-verify` to skip
+**What happens:**
+1. Script analyzes your commit message
+2. Automatically bumps version according to the message type
+3. Stages the `__version__.py` file
+4. Creates the commit with both your changes AND the version bump
+
+**Example output:**
+```
+→ Analyzing commit message...
+✓ Version bumped: 0.0.12 → 0.1.0
+  Type: minor
+✓ Version bumped and staged
+[main abc1234] feat: add user authentication
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+```
+
+**Alternative:** You can still use regular `git commit` for commits that don't need version bumping, or manually bump the version afterward using the manual commands below.
 
 #### Manual Version Bumping
 

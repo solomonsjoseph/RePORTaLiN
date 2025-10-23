@@ -50,7 +50,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version bump-patch bump-minor bump-major show-version lint format status
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -68,6 +68,7 @@ help:
 	@echo "  make bump-patch               - Bump patch version (e.g., 0.0.12 → 0.0.13)"
 	@echo "  make bump-minor               - Bump minor version (e.g., 0.0.12 → 0.1.0)"
 	@echo "  make bump-major               - Bump major version (e.g., 0.0.12 → 1.0.0)"
+	@echo "  make commit MSG=\"msg\"          - Smart commit with auto version bump"
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
 	@echo "  make run                      - Run pipeline (no de-identification)"
@@ -171,6 +172,15 @@ bump-major:
 	@echo ""
 	@echo "$(YELLOW)New version:$(NC) $$($(PYTHON_CMD) -c 'from __version__ import __version__; print(__version__)')"
 	@echo "$(YELLOW)Remember to commit:$(NC) git add __version__.py && git commit -m 'Bump version'"
+
+# Smart commit with automatic version bumping
+commit:
+	@if [ -z "$(MSG)" ]; then \
+		echo "$(RED)✗ Error: Commit message required$(NC)"; \
+		echo "$(YELLOW)Usage: make commit MSG=\"your commit message\"$(NC)"; \
+		exit 1; \
+	fi
+	@./smart-commit "$(MSG)"
 
 # Running commands
 run:
