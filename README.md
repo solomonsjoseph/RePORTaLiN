@@ -289,36 +289,53 @@ make show-version
 python3 main.py --version
 ```
 
-#### Automatic Version Bumping (Smart Commits)
+#### Automatic Version Bumping (Hybrid System)
 
-**Recommended:** Use the `smart-commit` script or `make commit` for automatic version bumping based on **Conventional Commits** standards:
+RePORTaLiN supports **two automatic methods** that work seamlessly together:
 
 | Commit Message | Version Bump | Example |
 |----------------|--------------|---------|
 | `fix: ...` | **Patch** | 0.0.12 → 0.0.13 |
 | `feat: ...` | **Minor** | 0.0.12 → 0.1.0 |
 | `feat!: ...` or `BREAKING CHANGE:` | **Major** | 0.0.12 → 1.0.0 |
-| Other (docs, chore, etc.) | **Patch** (default) | 0.0.12 → 0.0.13 |
+| Other (docs, chore, etc.) | **No bump** | 0.0.12 (unchanged) |
 
-**Usage:**
+**Method 1: VS Code Source Control (Fully Automatic)**
+
+Just commit normally from VS Code or command line—version bumps automatically via post-commit hook!
 
 ```bash
-# Using Makefile (recommended)
-make commit MSG="feat: add user authentication"
-make commit MSG="fix: resolve login issue"
-make commit MSG="feat!: redesign API"
+# In terminal
+git commit -m "feat: add user authentication"
+# → Automatically bumps to 0.1.0 and includes in commit
 
-# Or directly using the script
-./smart-commit "feat: add user authentication"
-./smart-commit "fix: resolve login issue"
-./smart-commit "feat!: redesign API"
+# Or use VS Code:
+# 1. Stage your changes
+# 2. Type: "feat: add user authentication" 
+# 3. Click Commit
+# → Version automatically bumps to 0.1.0 ✓
 ```
 
-**What happens:**
-1. Script analyzes your commit message
-2. Automatically bumps version according to the message type
-3. Stages the `__version__.py` file
-4. Creates the commit with both your changes AND the version bump
+**What happens behind the scenes:**
+1. Commit is created with your files
+2. Post-commit hook analyzes the message
+3. Version is bumped automatically
+4. Hook amends the commit to include `__version__.py`
+5. Final commit contains both your changes AND the version bump
+
+**Method 2: Smart-Commit (Explicit with Preview)**
+
+Use `smart-commit` when you want to see the version bump before committing:
+
+```bash
+# Using Makefile
+make commit MSG="feat: add user authentication"
+# → Shows: ✓ Version bumped: 0.0.12 → 0.1.0
+# → Then commits
+
+# Or directly
+./smart-commit "feat: add user authentication"
+```
 
 **Example output:**
 ```
@@ -330,7 +347,16 @@ make commit MSG="feat!: redesign API"
  2 files changed, 10 insertions(+), 2 deletions(-)
 ```
 
-**Alternative:** You can still use regular `git commit` for commits that don't need version bumping, or manually bump the version afterward using the manual commands below.
+**Both methods work together perfectly:**
+- Post-commit hook detects when smart-commit was used
+- No double-bumping or conflicts
+- Use whichever method you prefer!
+
+**To disable automatic bumping:**
+```bash
+git commit --no-verify -m "docs: update README"
+# --no-verify skips all git hooks
+```
 
 #### Manual Version Bumping
 
