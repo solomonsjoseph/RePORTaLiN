@@ -50,7 +50,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
+.PHONY: help install clean clean-all clean-logs clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help docs-check test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -65,9 +65,9 @@ help:
 	@echo ""
 	@echo "$(GREEN)Version Management:$(NC)"
 	@echo "  make show-version             - Show current version only"
-	@echo "  make bump-patch               - Bump patch version (e.g., 0.3.0 → 0.3.1)"
-	@echo "  make bump-minor               - Bump minor version (e.g., 0.3.0 → 0.4.0)"
-	@echo "  make bump-major               - Bump major version (e.g., 0.3.0 → 1.0.0)"
+	@$(PYTHON_CMD) -c "from __version__ import __version__; parts = __version__.split('.'); print('  make bump-patch               - Bump patch version (e.g., {} → {}.{}.{})'.format(__version__, parts[0], parts[1], int(parts[2])+1))"
+	@$(PYTHON_CMD) -c "from __version__ import __version__; parts = __version__.split('.'); print('  make bump-minor               - Bump minor version (e.g., {} → {}.{}.0)'.format(__version__, parts[0], int(parts[1])+1))"
+	@$(PYTHON_CMD) -c "from __version__ import __version__; parts = __version__.split('.'); print('  make bump-major               - Bump major version (e.g., {} → {}.0.0)'.format(__version__, int(parts[0])+1))"
 	@echo "  make commit MSG=\"msg\"          - Smart commit with auto version bump"
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
@@ -89,6 +89,7 @@ help:
 	@echo "  make docs                     - Build Sphinx HTML documentation"
 	@echo "  make docs-open                - Build docs and open in browser"
 	@echo "  make docs-watch               - Auto-rebuild docs on file changes (requires sphinx-autobuild)"
+	@echo "  make docs-check               - Check documentation style compliance"
 	@echo "  make docs-help                - Show advanced Sphinx documentation options"
 	@echo ""
 	@echo "$(GREEN)Cleaning:$(NC)"
@@ -337,6 +338,18 @@ docs-watch:
 		echo "$(RED)✗ sphinx-autobuild not installed$(NC)"; \
 		echo "$(YELLOW)Install with: pip install sphinx-autobuild$(NC)"; \
 		echo "$(YELLOW)Or run: make install (if already in requirements.txt)$(NC)"; \
+		exit 1; \
+	fi
+
+# Check documentation style compliance
+docs-check:
+	@echo "$(BLUE)Checking documentation style compliance...$(NC)"
+	@if [ -f "scripts/utils/check_docs_style.sh" ]; then \
+		bash scripts/utils/check_docs_style.sh; \
+		echo "$(GREEN)✓ Documentation compliance check complete$(NC)"; \
+	else \
+		echo "$(RED)✗ Documentation style checker not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/check_docs_style.sh$(NC)"; \
 		exit 1; \
 	fi
 
