@@ -46,109 +46,6 @@ Pipeline Steps
 - Encrypted mapping storage
 - Date shifting with interval preservation
 
-Usage Examples
---------------
-
-Basic Usage (Complete Pipeline)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Run all steps with default configuration::
-
-    python3 main.py
-
-This executes:
-1. Data dictionary loading
-2. Data extraction
-3. De-identification disabled (opt-in)
-
-Custom Pipeline Execution
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Skip specific steps::
-
-    # Skip dictionary, run extraction only
-    python3 main.py --skip-dictionary
-    
-    # Skip both dictionary and extraction
-    python3 main.py --skip-dictionary --skip-extraction
-    
-    # Run extraction with de-identification
-    python3 main.py --enable-deidentification
-
-De-identification Workflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Enable de-identification with specific countries::
-
-    # India only (default)
-    python3 main.py --enable-deidentification
-    
-    # Multiple countries
-    python3 main.py --enable-deidentification --countries IN US
-    
-    # All supported countries
-    python3 main.py --enable-deidentification --countries ALL
-    
-    # Without encryption (testing only)
-    python3 main.py --enable-deidentification --no-encryption
-
-Advanced Configuration
-~~~~~~~~~~~~~~~~~~~~~~
-
-Combine multiple options::
-
-    # Complete pipeline with de-identification
-    python3 main.py --enable-deidentification --countries IN US ID
-    
-    # Extraction + de-identification only (skip dictionary)
-    python3 main.py --skip-dictionary --enable-deidentification --countries ALL
-
-Output Structure
-----------------
-
-The pipeline creates this directory structure::
-
-    results/
-    ├── data_dictionary_mappings/
-    │   └── [sheet_name]/
-    │       └── [sheet_name]_table.jsonl
-    ├── dataset/
-    │   └── [dataset_name]/
-    │       ├── original/
-    │       │   └── [file]_original.jsonl
-    │       └── cleaned/
-    │           └── [file]_cleaned.jsonl
-    └── deidentified/
-        └── [dataset_name]/
-            ├── original/
-            │   └── [file]_original.jsonl (de-identified)
-            └── cleaned/
-                └── [file]_cleaned.jsonl (de-identified)
-
-Command-Line Arguments
-----------------------
-
-**Pipeline Control:**
-- ``--skip-dictionary``: Skip data dictionary loading (Step 0)
-- ``--skip-extraction``: Skip data extraction (Step 1)
-- ``--enable-deidentification``: Enable de-identification (Step 2, opt-in)
-- ``--skip-deidentification``: Skip de-identification even if enabled
-
-**De-identification Options:**
-- ``-c, --countries CODES``: Country codes (e.g., IN US ID BR) or ALL
-- ``--no-encryption``: Disable encrypted mappings (testing only)
-
-**Logging Options:**
-- ``-v, --verbose``: Enable verbose (DEBUG level) logging with detailed context
-  
-  .. note::
-     Verbose mode (v0.0.12+) includes file and line numbers in log output
-     for easier debugging: ``[filename.py:123]``
-
-**Information:**
-- ``--version``: Show program version and exit
-- ``--help``: Show help message with all options
-
 Error Handling
 --------------
 
@@ -165,6 +62,15 @@ Return Codes:
 
 See Also
 --------
+**User Documentation:**
+
+- :doc:`user_guide/quickstart` - Quick start guide with basic examples
+- :doc:`user_guide/usage` - Advanced usage patterns and workflows
+- :doc:`user_guide/configuration` - Configuration and command-line options
+- :doc:`developer_guide/architecture` - Technical architecture details
+
+**API Reference:**
+
 - :mod:`scripts.load_dictionary` - Data dictionary processing
 - :mod:`scripts.extract_data` - Data extraction
 - :mod:`scripts.deidentify` - De-identification
@@ -280,7 +186,7 @@ For detailed documentation, see the Sphinx docs or README.md
     else:
         log_level = config.LOG_LEVEL
     
-    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple if hasattr(args, 'simple') else False)
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple)
     log.info("Starting RePORTaLiN pipeline...")
     
     # Validate configuration and warn about missing files

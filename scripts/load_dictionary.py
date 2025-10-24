@@ -23,52 +23,14 @@ Key Features
 - **"Ignore Below" Support**: Handles special markers to segregate extra tables
 - **Duplicate Column Handling**: Automatically deduplicates column names
 - **Progress Tracking**: Real-time progress bars
+- **Verbose Logging**: Detailed tree-view logs with timing (v0.0.12+)
 - **Metadata Injection**: Adds ``__sheet__`` and ``__table__`` fields
 
-Usage Examples
---------------
-
-Basic Usage (Recommended)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Process data dictionary with default configuration::
-
-    from scripts.load_dictionary import load_study_dictionary
-    
-    # Uses config.DICTIONARY_EXCEL_FILE and config.DICTIONARY_JSON_OUTPUT_DIR
-    success = load_study_dictionary()
-    if success:
-        print("Dictionary processed successfully!")
-
-Custom File Processing
-~~~~~~~~~~~~~~~~~~~~~~
-
-Process a custom Excel file with specific output directory::
-
-    from scripts.load_dictionary import process_excel_file
-    
-    success = process_excel_file(
-        excel_path="data/custom_dictionary.xlsx",
-        output_dir="results/custom_output",
-        preserve_na=True  # Preserve empty cells as None
-    )
-    
-    if success:
-        print("Custom file processed!")
-
-Advanced Configuration
-~~~~~~~~~~~~~~~~~~~~~~
-
-Process with custom NA handling::
-
-    from scripts.load_dictionary import load_study_dictionary
-    
-    # Don't preserve NA values (use pandas defaults)
-    success = load_study_dictionary(
-        file_path="data/my_dictionary.xlsx",
-        json_output_dir="results/my_output",
-        preserve_na=False
-    )
+Verbose Mode
+------------
+When running with ``--verbose`` flag, detailed logs are generated including
+sheet-by-sheet processing, table detection results (rows/columns), "ignore below"
+marker detection, and timing for sheets, tables, and overall processing.
 
 Table Detection Algorithm
 -------------------------
@@ -81,22 +43,12 @@ The module uses a sophisticated algorithm to detect tables:
 5. Check for "ignore below" markers and segregate subsequent tables
 6. Add metadata fields and save to JSONL
 
-Output Structure
-----------------
-For a sheet with multiple tables, creates this structure::
-
-    output_dir/
-    └── SheetName/
-        ├── SheetName_table_1.jsonl  # First table
-        ├── SheetName_table_2.jsonl  # Second table
-        └── extraas/                 # Tables after "ignore below"
-            ├── extraas_table_3.jsonl
-            └── extraas_table_4.jsonl
-
 See Also
 --------
-- :func:`scripts.extract_data.extract_excel_to_jsonl` - For dataset extraction
-- :mod:`config` - Configuration settings
+- :doc:`../user_guide/usage` - Usage examples and detailed tutorials
+- :func:`load_study_dictionary` - High-level dictionary processing function
+- :func:`process_excel_file` - Low-level custom processing
+- :mod:`scripts.extract_data` - For dataset extraction
 """
 
 __all__ = ['load_study_dictionary', 'process_excel_file']
@@ -104,10 +56,13 @@ __all__ = ['load_study_dictionary', 'process_excel_file']
 import pandas as pd
 import os
 import sys
+import time
 from typing import List, Optional
 from tqdm import tqdm
 from scripts.utils import logging as log
 import config
+
+vlog = log.get_verbose_logger()
 
 def _deduplicate_columns(columns) -> List[str]:
     """
@@ -174,12 +129,15 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
     ignore_mode = False
     
     for i, table_df in enumerate(all_tables):
+        table_start = time.time()
+        
         table_df.reset_index(drop=True, inplace=True)
         
         if not ignore_mode:
             for idx, col in enumerate(table_df.iloc[0]):
                 if "ignore below" in str(col).lower().strip():
                     log.info(f"'ignore below' found in table {i+1}. Subsequent → 'extraas'.")
+                    vlog.detail(f"'ignore below' found in table {i+1}. Subsequent → 'extraas'.")
                     ignore_mode = True
                     table_df = table_df.drop(table_df.columns[idx], axis=1)
                     break
@@ -201,11 +159,21 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
         
         if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
             log.warning(f"File exists. Skipping: {output_path}")
+            vlog.detail(f"File exists. Skipping: {output_path}")
             continue
         
-        table_df['__sheet__'], table_df['__table__'] = sheet_name, metadata_name
-        table_df.to_json(output_path, orient='records', lines=True, force_ascii=False)
-        log.info(f"Saved {len(table_df)} rows → '{output_path}'")
+        # Verbose logging for each table
+        with vlog.step(f"Table {i+1} ({table_name})"):
+            vlog.metric("Rows", len(table_df))
+            vlog.metric("Columns", len(table_df.columns))
+            
+            table_df['__sheet__'], table_df['__table__'] = sheet_name, metadata_name
+            table_df.to_json(output_path, orient='records', lines=True, force_ascii=False)
+            log.info(f"Saved {len(table_df)} rows → '{output_path}'")
+            vlog.detail(f"Saved to: {output_path}")
+            
+            table_elapsed = time.time() - table_start
+            vlog.timing("Table processing time", table_elapsed)
 
 def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = True) -> bool:
     """
@@ -219,6 +187,8 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
     Returns:
         True if processing was successful, False otherwise
     """
+    overall_start = time.time()
+    
     if not os.path.exists(excel_path):
         log.error(f"Input file not found: {excel_path}")
         return False
@@ -236,23 +206,41 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
     log.info(f"Processing: '{excel_path}'")
     success = True
     
-    # Progress bar for processing sheets
-    for sheet_name in tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
-                           file=sys.stdout, dynamic_ncols=True, leave=True,
-                           bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'):
-        try:
-            tqdm.write(f"--- Sheet: '{sheet_name}' ---")
-            parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
-            all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
-            if not all_tables:
-                tqdm.write(f"INFO: No tables found in '{sheet_name}'")
-            else:
-                tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
-                _process_and_save_tables(all_tables, sheet_name, output_dir)
-        except Exception as e:
-            tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
-            log.error(f"Error processing sheet '{sheet_name}': {e}")
-            success = False
+    # Start verbose logging context
+    with vlog.file_processing(os.path.basename(excel_path), total_records=len(xls.sheet_names)):
+        vlog.metric("Total sheets", len(xls.sheet_names))
+        
+        # Progress bar for processing sheets
+        for sheet_index, sheet_name in enumerate(tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
+                               file=sys.stdout, dynamic_ncols=True, leave=True,
+                               bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'), 1):
+            sheet_start = time.time()
+            try:
+                with vlog.step(f"Sheet {sheet_index}/{len(xls.sheet_names)}: '{sheet_name}'"):
+                    tqdm.write(f"--- Sheet: '{sheet_name}' ---")
+                    parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
+                    all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
+                    
+                    if not all_tables:
+                        tqdm.write(f"INFO: No tables found in '{sheet_name}'")
+                        vlog.detail("No tables found in this sheet")
+                    else:
+                        tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
+                        vlog.metric("Tables detected", len(all_tables))
+                        _process_and_save_tables(all_tables, sheet_name, output_dir)
+                    
+                    sheet_elapsed = time.time() - sheet_start
+                    vlog.timing("Sheet processing time", sheet_elapsed)
+            except Exception as e:
+                tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
+                log.error(f"Error processing sheet '{sheet_name}': {e}")
+                vlog.detail(f"ERROR: {str(e)}")
+                sheet_elapsed = time.time() - sheet_start
+                vlog.timing("Sheet processing time before error", sheet_elapsed)
+                success = False
+    
+    overall_elapsed = time.time() - overall_start
+    vlog.timing("Overall processing time", overall_elapsed)
     
     if success:
         log.success("Excel processing complete!")

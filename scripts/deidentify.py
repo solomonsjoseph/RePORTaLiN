@@ -14,42 +14,26 @@ mapping storage, and comprehensive validation.
 regulatory compliance. Users are responsible for validating that the de-identification
 meets their specific regulatory requirements.
 
-Example:
-    Basic de-identification::
+Key Features:
+    - PHI/PII detection using regex patterns (18+ identifier types)
+    - Country-specific regulations (14 countries: US, IN, ID, BR, etc.)
+    - Pseudonymization with deterministic hashing
+    - Date shifting with interval preservation
+    - Encrypted mapping storage
+    - Comprehensive validation
+    - Verbose logging: Detailed tree-view logs with timing (v0.0.12+)
 
-        from scripts.deidentify import deidentify_dataset, DeidentificationConfig
+Verbose Mode:
+    When running with ``--verbose`` flag, detailed logs are generated including
+    file-by-file de-identification progress, record processing counts (every 1000 records),
+    per-file and overall timing, and validation results with issue tracking.
 
-        # Configure de-identification
-        config = DeidentificationConfig(
-            enable_date_shifting=True,
-            enable_encryption=True,
-            countries=['US', 'IN']
-        )
-        
-        # De-identify dataset
-        deidentify_dataset(
-            input_path='data/patient_data.jsonl',
-            output_path='data/deidentified_data.jsonl',
-            mapping_path='mappings/phi_mappings.enc.json',
-            config=config
-        )
-
-    Using the engine directly::
-
-        from scripts.deidentify import DeidentificationEngine
-
-        engine = DeidentificationEngine(config)
-        deidentified_text = engine.deidentify_text("Patient John Doe, MRN: AB123456")
-        # Returns: "Patient PATIENT-001, MRN: MRN-001"
-
-    Validation::
-
-        from scripts.deidentify import validate_dataset
-
-        is_clean = validate_dataset(
-            file_path='data/deidentified_data.jsonl',
-            config=config
-        )
+See Also
+--------
+- :doc:`../user_guide/deidentification` - De-identification guide and examples
+- :doc:`../user_guide/country_regulations` - Country-specific regulations
+- :class:`DeidentificationEngine` - Core de-identification engine
+- :func:`deidentify_dataset` - Main de-identification function
 """
 
 import re
@@ -58,6 +42,7 @@ import hashlib
 import secrets
 import logging
 import sys
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Union
@@ -65,6 +50,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from collections import defaultdict
 import base64
+
+# ...existing code...
 
 __all__ = [
     # Enums
@@ -99,6 +86,10 @@ try:
 except ImportError:
     COUNTRY_REGULATIONS_AVAILABLE = False
     logging.warning("country_regulations module not available. Country-specific features disabled.")
+
+from scripts.utils import logging as log
+
+vlog = log.get_verbose_logger()
 # ============================================================================
 # Enums and Constants
 # ============================================================================
@@ -1113,6 +1104,7 @@ def deidentify_dataset(
     Returns:
         Dictionary with processing statistics
     """
+    overall_start = time.time()
     input_path = Path(input_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -1121,6 +1113,7 @@ def deidentify_dataset(
     engine = DeidentificationEngine(config=config)
     logging.debug(f"Initialized DeidentificationEngine with config: countries={config.countries}, "
                   f"encryption={config.enable_encryption}, log_detections={config.log_detections}")
+    vlog.detail(f"DeidentificationEngine initialized with {len(config.countries or ['IN'])} countries")
     
     # Find all JSONL files (including in subdirectories if enabled)
     if process_subdirs:
@@ -1132,6 +1125,7 @@ def deidentify_dataset(
     
     if not jsonl_files:
         logging.warning(f"No files matching '{file_pattern}' found in {input_dir}")
+        vlog.detail(f"No files matching '{file_pattern}' found in {input_dir}")
         return {"error": "No files found"}
     
     logging.info(f"Processing {len(jsonl_files)} files...")
@@ -1142,49 +1136,80 @@ def deidentify_dataset(
     files_failed = 0
     total_records = 0
     
-    # Process each file with progress bar
-    for jsonl_file in tqdm(jsonl_files, desc="De-identifying files", unit="file",
-                           file=sys.stdout, dynamic_ncols=True, leave=True):
-        try:
-            # Compute relative path to maintain directory structure
-            relative_path = jsonl_file.relative_to(input_path)
-            output_file = output_path / relative_path
-            
-            # Ensure output directory exists
-            output_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            logging.debug(f"Processing file: {jsonl_file} -> {output_file}")
-            tqdm.write(f"Processing: {relative_path}")
-            
-            records_count = 0
-            with open(jsonl_file, 'r', encoding='utf-8') as infile, \
-                 open(output_file, 'w', encoding='utf-8') as outfile:
+    # Start verbose logging context
+    with vlog.file_processing("De-identification", total_records=len(jsonl_files)):
+        vlog.metric("Total files to process", len(jsonl_files))
+        vlog.metric("File pattern", file_pattern)
+        vlog.metric("Process subdirectories", process_subdirs)
+        
+        # Process each file with progress bar
+        for file_index, jsonl_file in enumerate(tqdm(jsonl_files, desc="De-identifying files", unit="file",
+                               file=sys.stdout, dynamic_ncols=True, leave=True), 1):
+            file_start = time.time()
+            try:
+                # Compute relative path to maintain directory structure
+                relative_path = jsonl_file.relative_to(input_path)
+                output_file = output_path / relative_path
                 
-                for line_num, line in enumerate(infile, 1):
-                    if line.strip():
-                        record = json.loads(line)
-                        deidentified_record = engine.deidentify_record(record, text_fields)
-                        outfile.write(json.dumps(deidentified_record, ensure_ascii=False) + '\n')
-                        records_count += 1
-                        
-                        # Log progress for large files
-                        if records_count % 1000 == 0:
-                            logging.debug(f"  Processed {records_count} records from {jsonl_file.name}")
-            
-            total_records += records_count
-            files_processed += 1
-            logging.debug(f"Completed {jsonl_file.name}: {records_count} records de-identified")
-            tqdm.write(f"  ✓ Created {output_file.relative_to(output_path)} with {records_count} records (de-identified)")
-            
-        except FileNotFoundError:
-            files_failed += 1
-            tqdm.write(f"  ✗ File not found: {jsonl_file}")
-        except json.JSONDecodeError as e:
-            files_failed += 1
-            tqdm.write(f"  ✗ JSON error in {jsonl_file.name}: {str(e)}")
-        except Exception as e:
-            files_failed += 1
-            tqdm.write(f"  ✗ Error processing {jsonl_file.name}: {str(e)}")
+                # Ensure output directory exists
+                output_file.parent.mkdir(parents=True, exist_ok=True)
+                
+                logging.debug(f"Processing file: {jsonl_file} -> {output_file}")
+                tqdm.write(f"Processing: {relative_path}")
+                
+                # Process file with verbose logging
+                with vlog.step(f"File {file_index}/{len(jsonl_files)}: {relative_path}"):
+                    records_count = 0
+                    detections_count = 0
+                    
+                    with vlog.step("Reading and de-identifying records"):
+                        with open(jsonl_file, 'r', encoding='utf-8') as infile, \
+                             open(output_file, 'w', encoding='utf-8') as outfile:
+                            
+                            for line_num, line in enumerate(infile, 1):
+                                if line.strip():
+                                    record = json.loads(line)
+                                    deidentified_record = engine.deidentify_record(record, text_fields)
+                                    outfile.write(json.dumps(deidentified_record, ensure_ascii=False) + '\n')
+                                    records_count += 1
+                                    
+                                    # Log progress for large files
+                                    if records_count % 1000 == 0:
+                                        logging.debug(f"  Processed {records_count} records from {jsonl_file.name}")
+                                        vlog.detail(f"Processed {records_count} records...")
+                    
+                    vlog.metric("Records processed", records_count)
+                    total_records += records_count
+                    files_processed += 1
+                    
+                    file_elapsed = time.time() - file_start
+                    vlog.timing("File processing time", file_elapsed)
+                    
+                    logging.debug(f"Completed {jsonl_file.name}: {records_count} records de-identified")
+                    tqdm.write(f"  ✓ Created {output_file.relative_to(output_path)} with {records_count} records (de-identified)")
+                
+            except FileNotFoundError:
+                files_failed += 1
+                file_elapsed = time.time() - file_start
+                tqdm.write(f"  ✗ File not found: {jsonl_file}")
+                vlog.detail(f"ERROR: File not found")
+                vlog.timing("Processing time before error", file_elapsed)
+            except json.JSONDecodeError as e:
+                files_failed += 1
+                file_elapsed = time.time() - file_start
+                tqdm.write(f"  ✗ JSON error in {jsonl_file.name}: {str(e)}")
+                vlog.detail(f"ERROR: JSON decode error: {str(e)}")
+                vlog.timing("Processing time before error", file_elapsed)
+            except Exception as e:
+                files_failed += 1
+                file_elapsed = time.time() - file_start
+                tqdm.write(f"  ✗ Error processing {jsonl_file.name}: {str(e)}")
+                vlog.detail(f"ERROR: {str(e)}")
+                vlog.timing("Processing time before error", file_elapsed)
+    
+    # Calculate overall timing
+    overall_elapsed = time.time() - overall_start
+    vlog.timing("Overall de-identification time", overall_elapsed)
     
     # Print summary
     print(f"\n{'='*70}")
@@ -1203,6 +1228,7 @@ def deidentify_dataset(
     stats['files_processed'] = files_processed
     stats['files_failed'] = files_failed
     stats['total_records'] = total_records
+    stats['processing_time'] = overall_elapsed
     logging.info(f"De-identification complete. Statistics: {stats}")
     
     # Export audit log (without originals)
@@ -1229,6 +1255,7 @@ def validate_dataset(
     Returns:
         Dictionary with validation results
     """
+    overall_start = time.time()
     dataset_path = Path(dataset_dir)
     engine = DeidentificationEngine()
     
@@ -1241,35 +1268,75 @@ def validate_dataset(
     
     jsonl_files = list(dataset_path.glob(file_pattern))
     
-    for jsonl_file in jsonl_files:
-        validation_results["total_files"] += 1
-        file_has_issues = False
+    if not jsonl_files:
+        logging.warning(f"No files matching '{file_pattern}' found in {dataset_dir}")
+        vlog.detail(f"No files matching '{file_pattern}' found")
+        return validation_results
+    
+    logging.info(f"Validating {len(jsonl_files)} files...")
+    
+    # Start verbose logging context
+    with vlog.file_processing("Dataset validation", total_records=len(jsonl_files)):
+        vlog.metric("Total files to validate", len(jsonl_files))
+        vlog.metric("File pattern", file_pattern)
         
-        with open(jsonl_file, 'r', encoding='utf-8') as f:
-            for line_num, line in enumerate(f, 1):
-                if line.strip():
-                    validation_results["total_records"] += 1
-                    record = json.loads(line)
+        for file_index, jsonl_file in enumerate(tqdm(jsonl_files, desc="Validating files", unit="file",
+                                               file=sys.stdout, dynamic_ncols=True, leave=True), 1):
+            file_start = time.time()
+            validation_results["total_files"] += 1
+            file_has_issues = False
+            issues_count = 0
+            
+            with vlog.step(f"File {file_index}/{len(jsonl_files)}: {jsonl_file.name}"):
+                records_in_file = 0
+                
+                try:
+                    with open(jsonl_file, 'r', encoding='utf-8') as f:
+                        for line_num, line in enumerate(f, 1):
+                            if line.strip():
+                                validation_results["total_records"] += 1
+                                records_in_file += 1
+                                record = json.loads(line)
+                                
+                                # Get text fields
+                                fields = text_fields or [k for k, v in record.items() if isinstance(v, str)]
+                                
+                                # Validate each field
+                                for field in fields:
+                                    if field in record and isinstance(record[field], str):
+                                        is_valid, potential_phi = engine.validate_deidentification(record[field])
+                                        
+                                        if not is_valid:
+                                            file_has_issues = True
+                                            issues_count += 1
+                                            validation_results["potential_phi_found"].append({
+                                                "file": jsonl_file.name,
+                                                "line": line_num,
+                                                "field": field,
+                                                "issues": potential_phi
+                                            })
                     
-                    # Get text fields
-                    fields = text_fields or [k for k, v in record.items() if isinstance(v, str)]
+                    vlog.metric("Records validated", records_in_file)
+                    if file_has_issues:
+                        vlog.metric("Issues found", issues_count)
+                        validation_results["files_with_issues"].append(jsonl_file.name)
+                        tqdm.write(f"  ⚠ {jsonl_file.name}: Found {issues_count} potential PHI issues")
+                    else:
+                        tqdm.write(f"  ✓ {jsonl_file.name}: All records valid")
                     
-                    # Validate each field
-                    for field in fields:
-                        if field in record and isinstance(record[field], str):
-                            is_valid, potential_phi = engine.validate_deidentification(record[field])
-                            
-                            if not is_valid:
-                                file_has_issues = True
-                                validation_results["potential_phi_found"].append({
-                                    "file": jsonl_file.name,
-                                    "line": line_num,
-                                    "field": field,
-                                    "issues": potential_phi
-                                })
+                    file_elapsed = time.time() - file_start
+                    vlog.timing("File validation time", file_elapsed)
+                    
+                except Exception as e:
+                    file_has_issues = True
+                    logging.error(f"Error validating {jsonl_file.name}: {str(e)}")
+                    vlog.detail(f"ERROR: {str(e)}")
+                    file_elapsed = time.time() - file_start
+                    vlog.timing("Validation time before error", file_elapsed)
         
-        if file_has_issues:
-            validation_results["files_with_issues"].append(jsonl_file.name)
+        # Calculate overall timing
+        overall_elapsed = time.time() - overall_start
+        vlog.timing("Overall validation time", overall_elapsed)
     
     # Summary
     validation_results["is_valid"] = len(validation_results["files_with_issues"]) == 0
@@ -1278,6 +1345,8 @@ def validate_dataset(
         f"{validation_results['total_files']} files. "
         f"Found {len(validation_results['potential_phi_found'])} potential issues."
     )
+    validation_results["processing_time"] = overall_elapsed
+    logging.info(validation_results["summary"])
     
     return validation_results
 

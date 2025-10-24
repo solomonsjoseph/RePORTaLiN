@@ -167,6 +167,7 @@ Documentation Sections
    :caption: 🔧 Developer Guide
 
    developer_guide/architecture
+   developer_guide/project_vision
    developer_guide/contributing
    developer_guide/extending
    developer_guide/auto_documentation

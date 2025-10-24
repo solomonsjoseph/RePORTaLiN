@@ -9,30 +9,6 @@ type conversion, progress tracking, and error recovery.
 This module provides robust Excel-to-JSONL conversion with duplicate column
 handling, data validation, and comprehensive error recovery.
 
-Example:
-    Basic usage::
-
-        from scripts.extract_data import extract_excel_to_jsonl
-        
-        # Extract all Excel files from dataset directory
-        result = extract_excel_to_jsonl()
-        print(f"Processed {result['files_created']} files")
-        print(f"Total records: {result['total_records']}")
-
-    Programmatic usage::
-
-        from scripts.extract_data import process_excel_file, find_excel_files
-        from pathlib import Path
-        
-        # Find Excel files
-        excel_files = find_excel_files("data/dataset/Indo-vap")
-        
-        # Process individual file
-        for file in excel_files:
-            success, count, error = process_excel_file(file, "results/dataset")
-            if success:
-                print(f"{file.name}: {count} records")
-
 Key Features:
     - Dual output: Creates both original and cleaned JSONL versions
     - Duplicate column removal: Intelligently removes SUBJID2, SUBJID3, etc.
@@ -40,10 +16,23 @@ Key Features:
     - Integrity checks: Validates output files before skipping
     - Error recovery: Continues processing even if individual files fail
     - Progress tracking: Real-time progress bars
+    - Verbose logging: Detailed tree-view logs with timing (v0.0.12+)
+
+Verbose Mode:
+    When running with ``--verbose`` flag, detailed logs are generated including
+    file-by-file processing, Excel loading details (rows/columns), duplicate column
+    detection, and per-file timing information.
+
+See Also
+--------
+- :doc:`../user_guide/usage` - Usage examples and detailed tutorials
+- :func:`extract_excel_to_jsonl` - Main extraction function
+- :func:`process_excel_file` - Process individual Excel files
 """
 import os
 import sys
 import json
+import time
 import pandas as pd
 import numpy as np
 import re
@@ -53,6 +42,8 @@ from typing import List, Tuple, Optional, Dict, Any
 from tqdm import tqdm
 from scripts.utils import logging as log
 import config
+
+vlog = log.get_verbose_logger()
 
 __all__ = [
     # Main Functions
@@ -67,13 +58,42 @@ __all__ = [
 ]
 
 def clean_record_for_json(record: dict) -> dict:
-    """Convert pandas record to JSON-serializable types."""
+    """
+    Convert pandas record to JSON-serializable types.
+    
+    Handles NaN, infinity, numpy types, and datetime objects, ensuring
+    all values are properly serializable to JSON format.
+    
+    Args:
+        record: Dictionary with potentially non-JSON-serializable values
+        
+    Returns:
+        Dictionary with all values converted to JSON-serializable types
+        
+    Note:
+        - NaN values are converted to None
+        - Infinity values (+inf, -inf) are converted to None
+        - Numpy types are converted to Python native types
+        - Datetime objects are converted to ISO format strings
+    """
     cleaned = {}
     for key, value in record.items():
         if pd.isna(value):
             cleaned[key] = None
         elif isinstance(value, (np.integer, np.floating)):
-            cleaned[key] = value.item()
+            # Convert numpy numeric types to Python types
+            num_value = value.item()
+            # Handle infinity and -infinity (check before converting to Python type)
+            if not np.isfinite(value):
+                cleaned[key] = None  # Convert inf/-inf to None for valid JSON
+            else:
+                cleaned[key] = num_value
+        elif isinstance(value, (float, int)):
+            # Handle Python native float/int (might contain inf)
+            if isinstance(value, float) and not np.isfinite(value):
+                cleaned[key] = None  # Convert inf/-inf to None for valid JSON
+            else:
+                cleaned[key] = value
         elif isinstance(value, (pd.Timestamp, np.datetime64, datetime, date)):
             cleaned[key] = str(value)
         else:
@@ -110,6 +130,7 @@ def convert_dataframe_to_jsonl(df: pd.DataFrame, output_file: Path, source_filen
 
 def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Optional[str]]:
     """Process Excel file to JSONL format, creating both original and cleaned versions."""
+    start_time = time.time()
     try:
         # Create separate directories for original and cleaned files
         original_dir = Path(output_dir) / "original"
@@ -121,24 +142,42 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         output_file_cleaned = cleaned_dir / f"{excel_file.stem}.jsonl"
         
         # Use openpyxl engine for better performance with .xlsx files
-        df = pd.read_excel(excel_file, engine='openpyxl')
+        with vlog.step("Loading Excel file"):
+            df = pd.read_excel(excel_file, engine='openpyxl')
+            vlog.metric("Rows", len(df))
+            vlog.metric("Columns", len(df.columns))
+        
         if is_dataframe_empty(df):
             tqdm.write(f"  ⊘ Skipping {excel_file.name} (empty)")
             return False, 0, None
         
         # Save original version
-        records_count = convert_dataframe_to_jsonl(df, output_file, excel_file.name)
-        tqdm.write(f"  ✓ Created original/{output_file.name} with {records_count} rows (original)")
+        with vlog.step("Saving original version"):
+            records_count = convert_dataframe_to_jsonl(df, output_file, excel_file.name)
+            vlog.detail(f"Created: {output_file.name} ({records_count} records)")
+            tqdm.write(f"  ✓ Created original/{output_file.name} with {records_count} rows (original)")
         
-        # Clean duplicate columns like SUBJID2, SUBJID3, etc. and save cleaned version
-        df_cleaned = clean_duplicate_columns(df)
-        records_count_cleaned = convert_dataframe_to_jsonl(df_cleaned, output_file_cleaned, excel_file.name)
-        tqdm.write(f"  ✓ Created cleaned/{output_file_cleaned.name} with {records_count_cleaned} rows (cleaned)")
+        # Clean duplicate columns and save cleaned version
+        with vlog.step("Cleaning duplicate columns"):
+            df_cleaned = clean_duplicate_columns(df)
+            vlog.detail(f"Removed {len(df.columns) - len(df_cleaned.columns)} duplicate columns")
+        
+        with vlog.step("Saving cleaned version"):
+            records_count_cleaned = convert_dataframe_to_jsonl(df_cleaned, output_file_cleaned, excel_file.name)
+            vlog.detail(f"Created: {output_file_cleaned.name} ({records_count_cleaned} records)")
+            tqdm.write(f"  ✓ Created cleaned/{output_file_cleaned.name} with {records_count_cleaned} rows (cleaned)")
+        
+        # Log timing
+        elapsed_time = time.time() - start_time
+        vlog.timing("Total processing time", elapsed_time)
         
         return True, records_count, None
     except Exception as e:
         error_msg = f"Error processing {excel_file.name}: {str(e)}"
         tqdm.write(f"  ✗ {error_msg}")
+        vlog.detail(f"ERROR: {error_msg}")
+        elapsed_time = time.time() - start_time
+        vlog.timing("Processing time before error", elapsed_time)
         return False, 0, error_msg
 
 def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -168,10 +207,12 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
                     if df[col].isna().all() or df[col].equals(df[base_name]):
                         columns_to_remove.append(col)
                         log.debug(f"Marking {col} for removal (duplicate of {base_name})")
+                        vlog.detail(f"Marking {col} for removal (duplicate of {base_name})")
                     else:
                         # Column has different data, keep it
                         columns_to_keep.append(col)
                         log.debug(f"Keeping {col} (different from {base_name})")
+                        vlog.detail(f"Keeping {col} (different from {base_name})")
                 except Exception as e:
                     # If comparison fails, keep the column to be safe
                     columns_to_keep.append(col)
@@ -186,6 +227,7 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
     if columns_to_remove:
         tqdm.write(f"    → Removing duplicate columns: {', '.join(columns_to_remove)}")
         log.info(f"Removed {len(columns_to_remove)} duplicate columns: {', '.join(columns_to_remove)}")
+        vlog.detail(f"Removed {len(columns_to_remove)} duplicate columns: {', '.join(columns_to_remove)}")
     
     return df[columns_to_keep].copy()
 
@@ -212,6 +254,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
     Returns:
         Dictionary with extraction statistics
     """
+    overall_start = time.time()
     os.makedirs(config.CLEAN_DATASET_DIR, exist_ok=True)
     excel_files = find_excel_files(config.DATASET_DIR)
     
@@ -226,37 +269,52 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
     print(f"Found {len(excel_files)} Excel files to process...")
     total_records, files_created, files_skipped, errors = 0, 0, 0, []
     
-    # Progress bar for processing files
-    for excel_file in tqdm(excel_files, desc="Processing files", unit="file",
-                           file=sys.stdout, dynamic_ncols=True, leave=True,
-                           bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'):
-        # Check if files already exist in both original and cleaned directories
-        original_file = Path(config.CLEAN_DATASET_DIR) / "original" / f"{excel_file.stem}.jsonl"
-        cleaned_file = Path(config.CLEAN_DATASET_DIR) / "cleaned" / f"{excel_file.stem}.jsonl"
+    # Start verbose logging context
+    with vlog.file_processing("Data extraction", total_records=len(excel_files)):
+        vlog.metric("Total files to process", len(excel_files))
         
-        # Check if files exist AND have valid content (integrity check)
-        if (original_file.exists() and cleaned_file.exists() and
-            check_file_integrity(original_file) and check_file_integrity(cleaned_file)):
-            files_skipped += 1
-            tqdm.write(f"  ⊙ Skipping {excel_file.name} (valid output already exists)")
-            log.debug(f"Skipping {excel_file.name} - valid output exists")
-            continue
-        
-        # If files exist but are corrupted, warn and reprocess
-        if original_file.exists() or cleaned_file.exists():
-            tqdm.write(f"  ⚠ Re-processing {excel_file.name} (existing files are corrupted or incomplete)")
-            log.warning(f"Re-processing {excel_file.name} - existing files corrupted")
+        # Progress bar for processing files
+        for file_index, excel_file in enumerate(tqdm(excel_files, desc="Processing files", unit="file",
+                                   file=sys.stdout, dynamic_ncols=True, leave=True,
+                                   bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'), 1):
+            # Check if files already exist in both original and cleaned directories
+            original_file = Path(config.CLEAN_DATASET_DIR) / "original" / f"{excel_file.stem}.jsonl"
+            cleaned_file = Path(config.CLEAN_DATASET_DIR) / "cleaned" / f"{excel_file.stem}.jsonl"
             
-        tqdm.write(f"Processing: {excel_file.name}")
-        log.debug(f"Processing {excel_file.name}")
-        success, records_count, error_msg = process_excel_file(excel_file, config.CLEAN_DATASET_DIR)
-        if success:
-            files_created += 1
-            total_records += records_count
-            log.debug(f"Successfully processed {excel_file.name}: {records_count} records")
-        elif error_msg:
-            errors.append(error_msg)
-            log.error(f"Failed to process {excel_file.name}: {error_msg}")
+            # Check if files exist AND have valid content (integrity check)
+            if (original_file.exists() and cleaned_file.exists() and
+                check_file_integrity(original_file) and check_file_integrity(cleaned_file)):
+                files_skipped += 1
+                tqdm.write(f"  ⊙ Skipping {excel_file.name} (valid output already exists)")
+                log.debug(f"Skipping {excel_file.name} - valid output exists")
+                vlog.detail(f"File {file_index}: Skipped (valid output exists)")
+                continue
+            
+            # If files exist but are corrupted, warn and reprocess
+            if original_file.exists() or cleaned_file.exists():
+                tqdm.write(f"  ⚠ Re-processing {excel_file.name} (existing files are corrupted or incomplete)")
+                log.warning(f"Re-processing {excel_file.name} - existing files corrupted")
+                vlog.detail(f"File {file_index}: Re-processing (corrupted files)")
+                
+            tqdm.write(f"Processing: {excel_file.name}")
+            log.debug(f"Processing {excel_file.name}")
+            
+            # Process file with verbose logging context
+            with vlog.step(f"File {file_index}/{len(excel_files)}: {excel_file.name}"):
+                success, records_count, error_msg = process_excel_file(excel_file, config.CLEAN_DATASET_DIR)
+                if success:
+                    files_created += 1
+                    total_records += records_count
+                    log.debug(f"Successfully processed {excel_file.name}: {records_count} records")
+                    vlog.detail(f"✓ Successfully processed ({records_count} records)")
+                elif error_msg:
+                    errors.append(error_msg)
+                    log.error(f"Failed to process {excel_file.name}: {error_msg}")
+                    vlog.detail(f"✗ Error: {error_msg}")
+    
+    # Calculate overall timing
+    overall_elapsed = time.time() - overall_start
+    vlog.timing("Overall extraction time", overall_elapsed)
     
     # Summary
     print(f"\nExtraction complete:")
@@ -275,7 +333,8 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
         "files_created": files_created,
         "files_skipped": files_skipped,
         "total_records": total_records,
-        "errors": errors
+        "errors": errors,
+        "processing_time": overall_elapsed
     }
 
 
