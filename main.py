@@ -263,6 +263,8 @@ For detailed documentation, see the Sphinx docs or README.md
                        help="Country codes (IN US ID BR etc.) or ALL. Default: IN")
     parser.add_argument('-v', '--verbose', action='store_true',
                        help="Enable verbose (DEBUG) logging with detailed context")
+    parser.add_argument('--simple', action='store_true',
+                       help="Enable simple logging (INFO level, minimal details)")
     
     # Enable shell completion if available
     if ARGCOMPLETE_AVAILABLE:
@@ -270,9 +272,15 @@ For detailed documentation, see the Sphinx docs or README.md
     
     args = parser.parse_args()
 
-    # Set log level based on verbose flag (DEBUG shows filename:lineno context)
-    log_level = logging.DEBUG if args.verbose else config.LOG_LEVEL
-    log.setup_logger(name=config.LOG_NAME, log_level=log_level)
+    # Set log level based on flags: verbose (DEBUG) > default (INFO) > simple (INFO but less console output)
+    if args.verbose:
+        log_level = logging.DEBUG
+    elif args.simple:
+        log_level = logging.INFO
+    else:
+        log_level = config.LOG_LEVEL
+    
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple if hasattr(args, 'simple') else False)
     log.info("Starting RePORTaLiN pipeline...")
     
     # Validate configuration and warn about missing files
@@ -347,14 +355,18 @@ For detailed documentation, see the Sphinx docs or README.md
                 process_subdirs=True  # Enable recursive processing
             )
             
-            log.info(f"De-identification complete:")
-            log.info(f"  Texts processed: {stats.get('texts_processed', 0)}")
-            log.info(f"  Total detections: {stats.get('total_detections', 0)}")
-            log.info(f"  Countries: {', '.join(stats.get('countries', ['N/A']))}")
-            log.info(f"  Unique mappings: {stats.get('total_mappings', 0)}")
-            log.info(f"  Output structure:")
-            log.info(f"    - {output_dir}/original/  (de-identified original files)")
-            log.info(f"    - {output_dir}/cleaned/   (de-identified cleaned files)")
+            # Build consolidated completion message
+            completion_msg = (
+                f"De-identification complete:\n"
+                f"  Texts processed: {stats.get('texts_processed', 0)}\n"
+                f"  Total detections: {stats.get('total_detections', 0)}\n"
+                f"  Countries: {', '.join(stats.get('countries', ['N/A']))}\n"
+                f"  Unique mappings: {stats.get('total_mappings', 0)}\n"
+                f"  Output structure:\n"
+                f"    - {output_dir}/original/  (de-identified original files)\n"
+                f"    - {output_dir}/cleaned/   (de-identified cleaned files)"
+            )
+            log.info(completion_msg)
             
             return stats
         

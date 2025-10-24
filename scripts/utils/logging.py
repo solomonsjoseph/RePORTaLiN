@@ -28,8 +28,14 @@ class CustomFormatter(logging.Formatter):
             record.levelname = "SUCCESS"
         return super().format(record)
 
-def setup_logger(name: str = "reportalin", log_level: int = logging.INFO) -> logging.Logger:
-    """Set up central logger with file and console handlers."""
+def setup_logger(name: str = "reportalin", log_level: int = logging.INFO, simple_mode: bool = False) -> logging.Logger:
+    """Set up central logger with file and console handlers.
+    
+    Args:
+        name: Logger name
+        log_level: Logging level (DEBUG, INFO, WARNING, etc.)
+        simple_mode: If True, minimal console output (success/errors only)
+    """
     global _logger, _log_file_path
     
     if _logger is not None:
@@ -58,18 +64,31 @@ def setup_logger(name: str = "reportalin", log_level: int = logging.INFO) -> log
     file_handler.setLevel(log_level)
     file_handler.setFormatter(file_formatter)
     
-    # Console handler: Show only SUCCESS, ERROR, and CRITICAL (suppress DEBUG, INFO, WARNING)
+    # Console handler: behavior depends on simple_mode
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.ERROR)
-    console_handler.setFormatter(CustomFormatter('%(levelname)s: %(message)s'))
     
-    # Add custom filter to allow SUCCESS messages on console
-    class SuccessOrErrorFilter(logging.Filter):
-        """Allow SUCCESS (25), ERROR (40), and CRITICAL (50) but suppress WARNING (30)."""
-        def filter(self, record: logging.LogRecord) -> bool:
-            return record.levelno == SUCCESS or record.levelno >= logging.ERROR
-    
-    console_handler.addFilter(SuccessOrErrorFilter())
+    if simple_mode:
+        # Simple mode: only show SUCCESS, WARNING, ERROR, and CRITICAL
+        console_handler.setLevel(logging.WARNING)
+        console_handler.setFormatter(CustomFormatter('%(levelname)s: %(message)s'))
+        
+        class SimpleFilter(logging.Filter):
+            """Allow SUCCESS (25), WARNING (30), ERROR (40), and CRITICAL (50)."""
+            def filter(self, record: logging.LogRecord) -> bool:
+                return record.levelno == SUCCESS or record.levelno >= logging.WARNING
+        
+        console_handler.addFilter(SimpleFilter())
+    else:
+        # Default mode: Show only SUCCESS, ERROR, and CRITICAL (suppress DEBUG, INFO, WARNING)
+        console_handler.setLevel(logging.ERROR)
+        console_handler.setFormatter(CustomFormatter('%(levelname)s: %(message)s'))
+        
+        class SuccessOrErrorFilter(logging.Filter):
+            """Allow SUCCESS (25), ERROR (40), and CRITICAL (50) but suppress WARNING (30)."""
+            def filter(self, record: logging.LogRecord) -> bool:
+                return record.levelno == SUCCESS or record.levelno >= logging.ERROR
+        
+        console_handler.addFilter(SuccessOrErrorFilter())
     
     _logger.addHandler(file_handler)
     _logger.addHandler(console_handler)
