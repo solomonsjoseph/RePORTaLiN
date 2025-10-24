@@ -62,7 +62,7 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **Cross-platform** - Works on macOS, Linux, and Windows
 - **Interactive-ready** - Works in Jupyter notebooks and Python REPL
 
-> 📖 **Learn more**: See [User Guide](docs/sphinx/user_guide/) for detailed feature documentation
+> 📖 **Learn more**: See [Full Documentation](https://solomonsjoseph.github.io/RePORTaLiN/) for detailed feature documentation
 
 ## Quick Start
 
@@ -166,13 +166,7 @@ RePORTaLiN/
         └── developer_guide/      # Developer documentation
 ```
 
-## Documentation
-
-[Full Documentation](https://solomonsjoseph.github.io/RePORTaLiN/)
-[User Guide](https://solomonsjoseph.github.io/RePORTaLiN/user_guide/)
-[Developer Guide](https://solomonsjoseph.github.io/RePORTaLiN/developer_guide/)
-
-### Building Documentation Locally
+# Building Documentation Locally
 
 ```bash
 cd docs/sphinx
