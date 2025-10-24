@@ -168,28 +168,11 @@ RePORTaLiN/
 
 ## Documentation
 
-### 📚 Complete Documentation
+[Full Documentation](https://solomonsjoseph.github.io/RePORTaLiN/)
+[User Guide](https://solomonsjoseph.github.io/RePORTaLiN/user_guide/)
+[Developer Guide](https://solomonsjoseph.github.io/RePORTaLiN/developer_guide/)
 
-Comprehensive guides and references are available in the Sphinx documentation:
-
-**User Guides:**
-- [Quick Start Guide](docs/sphinx/user_guide/quickstart.rst) - Get started in minutes
-- [Usage Guide](docs/sphinx/user_guide/usage.rst) - Detailed usage instructions
-- [De-identification Guide](docs/sphinx/user_guide/deidentification.rst) - PHI/PII removal and privacy
-- [Country Regulations](docs/sphinx/user_guide/country_regulations.rst) - Country-specific privacy rules
-- [Configuration](docs/sphinx/user_guide/configuration.rst) - Configuration options
-- [Troubleshooting](docs/sphinx/user_guide/troubleshooting.rst) - Common issues and solutions
-
-**Developer Guides:**
-- [Architecture](docs/sphinx/developer_guide/architecture.rst) - System design and algorithms
-- [Contributing](docs/sphinx/developer_guide/contributing.rst) - How to contribute
-- [Extending](docs/sphinx/developer_guide/extending.rst) - Adding features and countries
-- [Production Readiness](docs/sphinx/developer_guide/production_readiness.rst) - Security and best practices
-
-**API Reference:**
-- [API Documentation](docs/sphinx/api/) - Auto-generated API references
-
-### Building Documentation
+### Building Documentation Locally
 
 ```bash
 cd docs/sphinx
