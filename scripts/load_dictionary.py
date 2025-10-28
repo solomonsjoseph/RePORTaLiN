@@ -213,10 +213,10 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
         # Progress bar for processing sheets
         for sheet_index, sheet_name in enumerate(tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
                                file=sys.stdout, dynamic_ncols=True, leave=True,
-                               bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'), 1):
+                               bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')):
             sheet_start = time.time()
             try:
-                with vlog.step(f"Sheet {sheet_index}/{len(xls.sheet_names)}: '{sheet_name}'"):
+                with vlog.step(f"Sheet {sheet_index + 1}/{len(xls.sheet_names)}: '{sheet_name}'"):
                     tqdm.write(f"--- Sheet: '{sheet_name}' ---")
                     parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
                     all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
