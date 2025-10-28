@@ -219,13 +219,95 @@ Core Components
 When ``--verbose`` or ``-v`` flag is used:
 
 - Log level set to DEBUG in ``main.py``
+- VerboseLogger class provides tree-view, context-managed output
+- Integrated into all three pipeline steps (Dictionary Loading, Data Extraction, De-identification)
 - Additional details logged throughout pipeline:
   
   - File lists and processing order
-  - Sheet/table detection details
-  - Duplicate column detection
-  - PHI/PII pattern matches
-  - Record-level progress (every 1000 records)
+  - Sheet/table detection details with row/column counts
+  - Duplicate column detection and removal reasons with detailed explanations
+  - Processing phases with timing information (per-file, per-sheet, per-table, overall)
+  - PHI/PII pattern matches and replacement counts (de-identification step)
+  - Record-level progress (every 1000 records for large files)
+  - Validation results with issue tracking
+  - Comprehensive timing for all operations
+
+**VerboseLogger Class**:
+
+The ``VerboseLogger`` class provides centralized verbose logging with tree-view formatting and context management:
+
+.. code-block:: python
+
+   # In module
+   from scripts.utils import logging as log
+   vlog = log.get_verbose_logger()
+   
+   # Usage in code
+   with vlog.file_processing("Data dictionary", total_records=43):
+       vlog.metric("Total sheets", 43)
+       
+       for sheet_idx, sheet_name in enumerate(sheets, 1):
+           with vlog.step(f"Sheet {sheet_idx}/{len(sheets)}: '{sheet_name}'"):
+               vlog.metric("Tables detected", num_tables)
+               vlog.detail("Processing table...")
+               vlog.timing("Sheet processing time", elapsed)
+
+**Output Format**:
+
+.. code-block:: text
+
+    DEBUG: ├─ Processing: Data extraction (65 files)
+    DEBUG:   ├─ Total files to process: 65
+    DEBUG:   ├─ File 1/65: 10_TST.xlsx
+    DEBUG:   │  ├─ Loading Excel file
+    DEBUG:   │  │  ├─ Rows: 412
+    DEBUG:   │  │  ├─ Columns: 28
+    DEBUG:   │  ├─ Cleaning duplicate columns
+    DEBUG:   │  │  ├─ Marking SUBJID2 for removal (duplicate of SUBJID)
+    DEBUG:   │  │  ├─ Removed 3 duplicate columns: SUBJID2, AGE_2, PHONE_3
+    DEBUG:   │  └─ ⏱ Total processing time: 0.45s
+    DEBUG:   └─ ⏱ Overall extraction time: 32.15s
+
+**Key Methods**:
+
+- ``file_processing(name, total_records)``: Wrap entire file processing
+- ``step(name)``: Wrap a processing step
+- ``detail(message)``: Log a detail line
+- ``metric(label, value)``: Log a metric/statistic
+- ``timing(operation, seconds)``: Log timing information
+- ``items_list(label, items, max_show)``: Log list of items with truncation
+
+**Integration Pattern**:
+
+All pipeline modules (``load_dictionary.py``, ``extract_data.py``, ``deidentify.py``) follow this pattern:
+
+1. Import verbose logger at module level:
+   
+   .. code-block:: python
+   
+      from scripts.utils import logging as log
+      vlog = log.get_verbose_logger()
+
+2. Wrap main processing functions with context managers:
+   
+   .. code-block:: python
+   
+      with vlog.file_processing(filename):
+          # Main processing
+          for item in items:
+              with vlog.step(f"Processing {item}"):
+                  # Item processing
+                  vlog.metric("Metric", value)
+                  vlog.timing("Operation", elapsed_time)
+
+3. Always log both to file (verbose) and console (normal):
+   
+   .. code-block:: python
+   
+      log.debug(...)      # File only in verbose mode
+      log.info(...)       # File always
+      log.success(...)    # Console + file
+      vlog.detail(...)    # File only in verbose mode (via context)
 
 **Usage**:
 
@@ -236,15 +318,19 @@ When ``--verbose`` or ``-v`` flag is used:
    # Standard (INFO level)
    python main.py
    
-   # Verbose (DEBUG level)
+   # Verbose (DEBUG level) with tree-view logs
    python main.py -v
+   
+   # Verbose with de-identification
+   python main.py -v --enable-deidentification
    
    # In code
    log.debug("Detailed processing info")  # Only in verbose mode
    log.info("Major step completed")       # Always logged to file
    log.success("Pipeline completed")      # Console + file
+   vlog.detail("Context-managed detail")  # Only in verbose mode
 
-**Design Pattern**: Singleton logger instance with configurable formatting
+**Design Pattern**: Singleton logger instance with configurable formatting; VerboseLogger provides tree-view abstraction over standard logging
 
 6. scripts/deidentify.py - De-identification Engine
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

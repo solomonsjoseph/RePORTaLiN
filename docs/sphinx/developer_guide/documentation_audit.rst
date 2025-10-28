@@ -8,9 +8,10 @@ on the RePORTaLiN project to ensure version consistency, accuracy, and adherence
 to documentation standards.
 
 .. note::
-   **Audit Completed**: October 23, 2025  
-   **Version**: |version|  
-   **Status**: Complete and Verified
+   **Assessment Date:** October 23, 2025  
+   **Version:** |version|  
+   **Status:** Complete and Verified  
+   **Reviewer:** Development Team
 
 Overview
 --------

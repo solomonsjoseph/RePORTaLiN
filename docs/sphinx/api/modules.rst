@@ -11,12 +11,20 @@ RePORTaLiN's API is organized into several modules:
 .. toctree::
    :maxdepth: 2
 
+   __version__
    main
    config
    scripts
 
 Core Modules
 ------------
+
+:mod:`__version__`
+~~~~~~~~~~~~~~~~~~
+
+Single source of truth for version information.
+
+See: :doc:`__version__`
 
 :mod:`main`
 ~~~~~~~~~~~

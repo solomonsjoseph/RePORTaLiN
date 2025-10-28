@@ -72,7 +72,7 @@ help:
 	@echo ""
 	@echo "$(GREEN)Running:$(NC)"
 	@echo "  make run                      - Run pipeline (no de-identification)"
-	@echo "  make run-deidentify           - Run pipeline WITH de-identification (encrypted)"
+	@echo "  make run-deidentify           - Run pipeline WITH de-identification (simple logging)"
 	@echo "  make run-deidentify-plain     - Run pipeline WITH de-identification (NO encryption)"
 	@echo ""
 	@echo "$(GREEN)Development:$(NC)"
@@ -81,9 +81,10 @@ help:
 	@echo "  make format                   - Format code (if black installed)"
 	@echo "  make status                   - Show project status summary"
 	@echo ""
-	@echo "$(YELLOW)Debug (For Developers Only):$(NC)"
-	@echo "  make run-verbose              - Run pipeline with verbose (DEBUG) logging"
-	@echo "  make run-deidentify-verbose   - Run WITH de-identification + verbose logging"
+	@echo "$(YELLOW)Logging Modes (For Developers):$(NC)"
+	@echo "  make run-verbose              - Run with VERBOSE (DEBUG) logging - detailed context in .logs/"
+	@echo "  make run-deidentify-verbose   - Run de-identification + VERBOSE logging"
+	@echo "  Note: Simple logging is default for 'make run-deidentify' (INFO level, minimal output)"
 	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
 	@echo "  make docs                     - Build Sphinx HTML documentation"
@@ -199,7 +200,8 @@ run-verbose:
 run-deidentify:
 	@echo "$(BLUE)Running RePORTaLiN pipeline WITH de-identification (encrypted)...$(NC)"
 	@echo "$(YELLOW)Note: Encryption is enabled by default for security$(NC)"
-	@$(PYTHON_CMD) main.py --enable-deidentification
+	@echo "$(YELLOW)      Simple logging mode (INFO level, no debug details)$(NC)"
+	@$(PYTHON_CMD) main.py --enable-deidentification --simple
 	@echo "$(GREEN)✓ Pipeline completed$(NC)"
 
 run-deidentify-verbose:

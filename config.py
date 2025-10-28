@@ -14,7 +14,12 @@ automatic path resolution, and flexible logging configuration.
 import os
 import logging
 from typing import Optional, List
-from __version__ import __version__
+
+# Safe version import with fallback
+try:
+    from __version__ import __version__
+except ImportError:
+    __version__ = "unknown"
 
 # Constants
 DEFAULT_DATASET_NAME = "RePORTaLiN_sample"
@@ -49,6 +54,8 @@ def get_dataset_folder() -> Optional[str]:
         
     Note:
         Folders starting with '.' are excluded as they are typically hidden.
+        Errors during directory listing are silently handled to avoid issues
+        during module initialization (before logging is configured).
     """
     if not os.path.exists(DATASET_BASE_DIR):
         return None
@@ -60,9 +67,12 @@ def get_dataset_folder() -> Optional[str]:
         if not folders:
             return None
         return sorted(folders)[0]
-    except (OSError, PermissionError):
+    except (OSError, PermissionError) as e:
         # Silently return None on errors during config initialization
         # Logging will be available later after logger is set up
+        # Store error for later reporting if needed
+        import sys
+        print(f"Warning: Error accessing dataset directory: {e}", file=sys.stderr)
         return None
 
 def normalize_dataset_name(folder_name: Optional[str]) -> str:
@@ -101,7 +111,12 @@ def normalize_dataset_name(folder_name: Optional[str]) -> str:
 
 # Dataset configuration
 DATASET_FOLDER_NAME = get_dataset_folder()
-DATASET_DIR = os.path.join(DATASET_BASE_DIR, DATASET_FOLDER_NAME or DEFAULT_DATASET_NAME)
+# Construct dataset directory path with fallback
+if DATASET_FOLDER_NAME:
+    DATASET_DIR = os.path.join(DATASET_BASE_DIR, DATASET_FOLDER_NAME)
+else:
+    # Use default as fallback if no dataset folder found
+    DATASET_DIR = os.path.join(DATASET_BASE_DIR, DEFAULT_DATASET_NAME)
 DATASET_NAME = normalize_dataset_name(DATASET_FOLDER_NAME)
 CLEAN_DATASET_DIR = os.path.join(RESULTS_DIR, "dataset", DATASET_NAME)
 
