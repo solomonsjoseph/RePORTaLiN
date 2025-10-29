@@ -15,6 +15,7 @@ RePORTaLiN's API is organized into several modules:
    main
    config
    scripts
+   scripts.utils
 
 Core Modules
 ------------
@@ -46,6 +47,13 @@ See: :doc:`config`
 Core processing modules for data extraction and dictionary loading.
 
 See: :doc:`scripts`
+
+:mod:`scripts.utils`
+~~~~~~~~~~~~~~~~~~~~
+
+Utility functions and classes used across the RePORTaLiN pipeline.
+
+See: :doc:`scripts.utils`
 
 Quick Reference
 ---------------
@@ -137,6 +145,33 @@ Custom Processing
    
    # Export
    convert_dataframe_to_jsonl(df, 'output.jsonl', 'input.xlsx')
+
+**Logging (scripts.utils)**:
+
+.. code-block:: python
+
+   from scripts.utils import logging as log
+   
+   # Get logger for your module
+   logger = log.get_logger(__name__)
+   logger.info("Processing started")
+   logger.success("Processing completed successfully!")
+   
+   # Or use quick access functions
+   from scripts.utils.logging import info, success, warning, error
+   info("Quick logging message")
+   success("Operation successful!")
+
+**Country Regulations (scripts.utils)**:
+
+.. code-block:: python
+
+   from scripts.utils.country_regulations import get_country_config
+   
+   # Get country-specific configuration
+   config = get_country_config('India')
+   print(f"PII fields: {config.pii_fields}")
+   print(f"Date format: {config.date_format}")
 
 Module Index
 ------------

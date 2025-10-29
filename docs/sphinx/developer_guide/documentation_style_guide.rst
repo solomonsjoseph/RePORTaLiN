@@ -3,13 +3,26 @@ Documentation Style Guide
 
 **For Developers: Writing Standards and Best Practices**
 
-This guide provides detailed style guidelines for writing and maintaining documentation
-in the RePORTaLiN project. All contributors must follow these standards to ensure
+This guide provides detailed style guidelines and documentation policies for writing and maintaining 
+documentation in the RePORTaLiN project. All contributors must follow these standards to ensure
 consistency and quality.
 
-**Last Updated:** October 23, 2025  
+**Last Updated:** October 28, 2025  
 **Version:** |version|  
 **Status:** Active Guide
+
+.. contents:: Table of Contents
+   :local:
+   :depth: 3
+
+Core Documentation Principles
+------------------------------
+
+1. **Single Source of Truth**: All project documentation lives in Sphinx (``.rst`` files)
+2. **No Markdown Proliferation**: Avoid creating ``.md`` files except README.md
+3. **Audience-Specific Content**: Clear separation between user and developer documentation
+4. **Version Accuracy**: All documentation matches current codebase version
+5. **Quality Standards**: Concise, robust, accurate, and production-ready
 
 Overview
 --------
@@ -485,6 +498,228 @@ API Documentation
       
       results = extract_all_data(config)
 
+Documentation Policy & Enforcement
+-----------------------------------
+
+Mandatory Requirements
+~~~~~~~~~~~~~~~~~~~~~~~
+
+All User Guide Files MUST
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. **Start with "For Users" Header**
+2. **Use Simple Language** - No technical jargon
+3. **Include Examples** - Real-world use cases with step-by-step instructions
+4. **Use Friendly Tone** - Emojis where appropriate, "you" language
+
+All Developer Guide Files MUST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. **Start with "For Developers" Header**
+2. **Use Technical Precision** - Full terminology, architecture diagrams, algorithms
+3. **Include Implementation Details** - Code snippets, design patterns, edge cases
+4. **Reference Code Directly** - Module names, function signatures, class hierarchies
+
+NO Markdown Files Policy
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+❌ **PROHIBITED - DO NOT CREATE:**
+   - ``FIXES.md``, ``AUDIT.md``, ``VERIFICATION.md``, ``STATUS.md``
+   - ``CHANGES.md``, ``NOTES.md``
+   - Any other ``.md`` files in project root or ``docs/``
+
+✅ **INSTEAD, UPDATE:**
+   - Relevant ``.rst`` files in ``docs/sphinx/``
+   - Create new ``.rst`` in appropriate guide section
+   - Add to existing documentation where content fits
+
+Content Placement Guide
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 40 30
+
+   * - Content Type
+     - Destination
+     - File
+   * - Bug fixes
+     - Developer Guide
+     - ``code_integrity_audit.rst`` or ``changelog.rst``
+   * - New features
+     - User Guide + Developer Guide
+     - Appropriate guide files + ``changelog.rst``
+   * - Architecture changes
+     - Developer Guide
+     - ``architecture.rst``
+   * - Code audits
+     - Developer Guide
+     - ``code_integrity_audit.rst``
+   * - User instructions
+     - User Guide
+     - Appropriate user guide file
+   * - API changes
+     - API Reference
+     - Relevant ``api/*.rst`` file
+
+Quality Checklist
+~~~~~~~~~~~~~~~~~
+
+**Before Committing Documentation Changes:**
+
+.. code-block:: text
+
+   [ ] All user guide files have "For Users" headers
+   [ ] All developer guide files have "For Developers" headers
+   [ ] User guide uses simple, friendly language
+   [ ] Developer guide has sufficient technical detail
+   [ ] Version directives use |version| substitution
+   [ ] Assessment dates are current
+   [ ] No .md files created (except README.md)
+   [ ] Sphinx builds with 0 warnings/0 errors
+   [ ] All code examples tested
+   [ ] No redundant information
+
+Automated Verification
+~~~~~~~~~~~~~~~~~~~~~~
+
+**Run before every commit:**
+
+.. code-block:: bash
+
+   # 1. Check documentation style
+   bash scripts/utils/check_docs_style.sh
+   
+   # 2. Build Sphinx documentation
+   cd docs/sphinx && make clean html
+   
+   # 3. Verify no warnings/errors
+   # Expected: "build succeeded" with 0 warnings
+
+Documentation Maintenance Checklist
+------------------------------------
+
+**For Developers: Quarterly Documentation Review**
+
+To prevent documentation bloat and maintain quality, perform these checks quarterly:
+
+Quarterly Review Tasks
+~~~~~~~~~~~~~~~~~~~~~~
+
+**1. Version Reference Audit** (15 minutes)
+
+   .. code-block:: bash
+
+      # Check for outdated version references
+      cd docs/sphinx
+      grep -r "versionadded:: 0\." user_guide/ developer_guide/ api/
+      grep -r "versionchanged:: 0\." user_guide/ developer_guide/ api/
+
+   ✅ Update version directives to current version  
+   ✅ Archive old version markers to changelog if needed
+
+**2. Redundancy Check** (30 minutes)
+
+   Review for duplicate content across files:
+
+   - [ ] Check if multiple files explain the same concept
+   - [ ] Verify cross-references are used instead of content duplication
+   - [ ] Consolidate overlapping content where possible
+   - [ ] Update or remove outdated historical verification documents
+
+**3. Link Validation** (10 minutes)
+
+   .. code-block:: bash
+
+      # Build docs and check for broken references
+      cd docs/sphinx
+      make clean
+      make html
+
+   ✅ No broken cross-references (``WARNING: undefined label``)  
+   ✅ No missing documents (``WARNING: document isn't included``)  
+   ✅ External links are still valid
+
+**4. File Organization Review** (20 minutes)
+
+   - [ ] All files have clear, unique purposes
+   - [ ] Historical/archived content is in ``historical_verification.rst``
+   - [ ] No orphaned files (not in any toctree)
+   - [ ] Directory structure makes logical sense
+
+**5. Style Compliance Check** (10 minutes)
+
+   .. code-block:: bash
+
+      # Run style checker
+      bash scripts/utils/check_docs_style.sh
+
+   ✅ All user docs have "**For Users:**" headers  
+   ✅ All developer docs have "**For Developers:**" headers  
+   ✅ No .md files except README.md  
+   ✅ Consistent formatting throughout
+
+**6. Content Freshness** (15 minutes)
+
+   - [ ] Installation instructions match current dependencies
+   - [ ] Code examples run without errors
+   - [ ] Screenshots/examples reflect current UI/output
+   - [ ] Troubleshooting section addresses current issues
+
+**7. Size Management** (10 minutes)
+
+   .. code-block:: bash
+
+      # Check documentation size
+      wc -l docs/sphinx/**/*.rst | tail -1
+      
+      # List largest files
+      wc -l docs/sphinx/**/*.rst | sort -rn | head -10
+
+   ✅ Total line count is reasonable (< 15,000 lines)  
+   ✅ No single file exceeds 1,000 lines without good reason  
+   ✅ Large files can be split or archived if needed
+
+Archival Guidelines
+~~~~~~~~~~~~~~~~~~~
+
+Move content to ``historical_verification.rst`` if:
+
+- ✅ It's a verification/audit from a past release
+- ✅ It documents completed migration/reorganization work
+- ✅ It's referenced in changelog but no longer needs active visibility
+- ✅ It's valuable for audit trails but not for current development
+
+**Example:** October 2025 verification documents were archived to reduce active 
+documentation from ~15,000 to ~13,000 lines while preserving historical records.
+
+When to Create New Files
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Only create new documentation files when:
+
+1. **New major feature** requires comprehensive guide (> 200 lines)
+2. **New audience segment** needs dedicated content (e.g., data analysts)
+3. **Complex topic** deserves standalone treatment (e.g., performance tuning)
+4. **Regulatory requirement** mandates separate documentation
+
+**Default:** Add content to existing files using new sections instead of new files.
+
+Enforcement Policy
+~~~~~~~~~~~~~~~~~~~
+
+This policy is **mandatory** for all documentation changes. Pull requests that:
+
+❌ Create new .md files (except README.md)  
+❌ Use incorrect headers ("For Users" vs "For Developers")  
+❌ Have outdated version references  
+❌ Fail Sphinx build  
+❌ Fail style checker  
+
+Will be **rejected** until corrected.
+
+**Exceptions:** Only ``README.md`` in project root, historical markers in ``changelog.rst``
+
 Resources
 ---------
 
@@ -496,9 +731,9 @@ Resources
 Related Documentation
 ---------------------
 
-* :doc:`documentation_policy` - Documentation standards and policies
 * :doc:`contributing` - How to contribute to the project
 * :doc:`architecture` - Technical architecture overview
+* :doc:`historical_verification` - Archived verification and audit records
 
 ---
 

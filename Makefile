@@ -90,7 +90,9 @@ help:
 	@echo "  make docs                     - Build Sphinx HTML documentation"
 	@echo "  make docs-open                - Build docs and open in browser"
 	@echo "  make docs-watch               - Auto-rebuild docs on file changes (requires sphinx-autobuild)"
-	@echo "  make docs-check               - Check documentation style compliance"
+	@echo "  make docs-check               - Quick style compliance check (daily use, ~10 sec)"
+	@echo "  make docs-quality             - Comprehensive quality check (quarterly, ~60 sec)"
+	@echo "  make docs-maintenance         - Full maintenance: check + quality + build"
 	@echo "  make docs-help                - Show advanced Sphinx documentation options"
 	@echo ""
 	@echo "$(GREEN)Cleaning:$(NC)"
@@ -343,7 +345,7 @@ docs-watch:
 		exit 1; \
 	fi
 
-# Check documentation style compliance
+# Check documentation style compliance (quick, for daily use)
 docs-check:
 	@echo "$(BLUE)Checking documentation style compliance...$(NC)"
 	@if [ -f "scripts/utils/check_docs_style.sh" ]; then \
@@ -354,6 +356,41 @@ docs-check:
 		echo "$(YELLOW)Expected at: scripts/utils/check_docs_style.sh$(NC)"; \
 		exit 1; \
 	fi
+
+# Comprehensive documentation quality check (for quarterly reviews)
+docs-quality:
+	@echo "$(BLUE)Running comprehensive documentation quality check...$(NC)"
+	@echo "$(YELLOW)This performs deep analysis and may take 30-60 seconds$(NC)"
+	@if [ -f "scripts/utils/check_documentation_quality.py" ]; then \
+		$(PYTHON_CMD) scripts/utils/check_documentation_quality.py; \
+		echo "$(GREEN)✓ Documentation quality check complete$(NC)"; \
+	else \
+		echo "$(RED)✗ Documentation quality checker not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/check_documentation_quality.py$(NC)"; \
+		exit 1; \
+	fi
+
+# Full documentation maintenance (all checks + build)
+docs-maintenance:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)     Full Documentation Maintenance Check      $(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo ""
+	@echo "$(CYAN)Step 1/4: Checking current version...$(NC)"
+	@cat __version__.py
+	@echo ""
+	@echo "$(CYAN)Step 2/4: Running style compliance check...$(NC)"
+	@$(MAKE) docs-check
+	@echo ""
+	@echo "$(CYAN)Step 3/4: Running comprehensive quality check...$(NC)"
+	@$(MAKE) docs-quality
+	@echo ""
+	@echo "$(CYAN)Step 4/4: Building documentation...$(NC)"
+	@$(MAKE) docs
+	@echo ""
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ Full documentation maintenance complete!$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
 
 # Show advanced Sphinx documentation options (delegates to Sphinx Makefile)
 docs-help:

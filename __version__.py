@@ -25,6 +25,10 @@ Version History
 ---------------
 Recent versions (see docs/sphinx/changelog.rst for complete history):
 
+- **0.8.5** (Oct 28, 2025): Complete API documentation and tmp/ cleanup
+- **0.8.4** (Oct 28, 2025): Logging integration and import consistency fixes
+- **0.8.3** (Oct 28, 2025): Project-wide documentation updates and Makefile enhancements
+- **0.8.2** (Oct 28, 2025): Documentation redundancy removal and reorganization
 - **0.8.1** (Oct 23, 2025): Enhanced version tracking and documentation
 - **0.0.12** (Oct 2025): Added verbose logging, auto-rebuild docs, VerboseLogger class
 - **0.0.11** (Oct 2025): Enhanced main.py with comprehensive docstring (162 lines)
@@ -50,14 +54,14 @@ Import and use the version string::
     from __version__ import __version__
     
     print(f"RePORTaLiN version {__version__}")
-    # Output: RePORTaLiN version 0.8.1
+    # Output: RePORTaLiN version 0.8.5
 
 Access from command line::
 
     $ python main.py --version
-    RePORTaLiN 0.8.1
+    RePORTaLiN 0.8.5
 """
 
-__version__ = "0.8.1"
+__version__ = "0.8.5"
 
 __all__ = ['__version__']

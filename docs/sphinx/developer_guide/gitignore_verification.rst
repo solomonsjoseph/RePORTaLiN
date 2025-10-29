@@ -119,9 +119,9 @@ Documentation Policy Compliance
            │   ├── configuration.rst       ← All .rst ✅
            │   └── ...
            └── developer_guide/
-               ├── architecture.rst        ← All .rst ✅
-               ├── contributing.rst        ← All .rst ✅
-               ├── documentation_policy.rst← All .rst ✅
+               ├── architecture.rst            ← All .rst ✅
+               ├── contributing.rst            ← All .rst ✅
+               ├── documentation_style_guide.rst ← All .rst ✅
                └── ...
 
 Verification Checklist
@@ -257,10 +257,9 @@ Best Practices
 Related Documentation
 ---------------------
 
-- :doc:`documentation_policy` - Documentation standards and enforcement
-- :doc:`documentation_style_guide` - Style guide for .rst documentation
+- :doc:`documentation_style_guide` - Documentation standards and style guide
 - :doc:`terminology_simplification` - Language simplification audit
-- :doc:`documentation_audit` - Complete documentation audit
+- :doc:`historical_verification` - Archived verification and audit records
 
 See Also
 --------

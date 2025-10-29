@@ -136,13 +136,13 @@ if [ $ERRORS -gt 0 ]; then
     echo -e "${RED}✗ COMPLIANCE CHECK FAILED${NC}"
     echo ""
     echo "Please fix the errors above and review:"
-    echo "  docs/DOCUMENTATION_STYLE_GUIDE.md"
+    echo "  docs/sphinx/developer_guide/documentation_style_guide.rst"
     exit 1
 elif [ $WARNINGS -gt 0 ]; then
     echo -e "${YELLOW}⚠ COMPLIANCE CHECK PASSED WITH WARNINGS${NC}"
     echo ""
     echo "Consider reviewing warnings to improve documentation quality."
-    echo "  docs/DOCUMENTATION_STYLE_GUIDE.md"
+    echo "  docs/sphinx/developer_guide/documentation_style_guide.rst"
     exit 0
 else
     echo -e "${GREEN}✓ ALL COMPLIANCE CHECKS PASSED${NC}"

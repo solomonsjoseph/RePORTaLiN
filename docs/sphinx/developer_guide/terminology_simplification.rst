@@ -307,16 +307,16 @@ Compliance Status
 
 **Enforcement Layers:**
 
-1. **Policy** - ``documentation_policy.rst`` defines requirements
-2. **Style Guide** - ``documentation_style_guide.rst`` provides examples
-3. **Automation** - ``scripts/utils/check_docs_style.sh`` validates compliance
-4. **Git Control** - ``.gitignore`` blocks non-compliant file types
+1. **Policy & Style Guide** - ``documentation_style_guide.rst`` defines requirements and provides examples
+2. **Quick Automation** - ``scripts/utils/check_docs_style.sh`` validates basic compliance (daily use)
+3. **Comprehensive Automation** - ``scripts/utils/check_documentation_quality.py`` performs deep quality checks (quarterly)
+4. **CI/CD Integration** - ``.github/workflows/docs-quality-check.yml`` runs automated checks
+5. **Git Control** - ``.gitignore`` blocks non-compliant file types
 
 See Also
 --------
 
-* :doc:`documentation_policy` - Documentation enforcement policy
-* :doc:`documentation_style_guide` - Detailed style guide with examples
-* :doc:`documentation_audit` - Comprehensive documentation audit
+* :doc:`documentation_style_guide` - Documentation style guide and policy
+* :doc:`historical_verification` - Archived verification and audit records
 * :doc:`../changelog` - Version history and changes
 

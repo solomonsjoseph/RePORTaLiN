@@ -562,9 +562,9 @@ After first push:
 Related Documentation
 ---------------------
 
-- :doc:`documentation_policy` - Documentation standards and guidelines
+- :doc:`documentation_style_guide` - Documentation standards and style guide
 - :doc:`documentation_style_guide` - Formatting and style requirements
-- :doc:`documentation_audit` - Complete documentation audit
+- :doc:`historical_verification` - Archived verification and audit records
 - :doc:`production_readiness` - Production readiness checklist
 
 See Also

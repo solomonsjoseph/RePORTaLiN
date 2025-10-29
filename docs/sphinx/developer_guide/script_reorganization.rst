@@ -262,7 +262,7 @@ Related Documentation
 - :doc:`documentation_style_guide` - Style guide and standards
 - :doc:`terminology_simplification` - Language simplification audit
 - :doc:`gitignore_verification` - File exclusion compliance
-- :doc:`documentation_policy` - Documentation enforcement policy
+- :doc:`documentation_style_guide` - Documentation style guide and policy
 
 See Also
 --------
