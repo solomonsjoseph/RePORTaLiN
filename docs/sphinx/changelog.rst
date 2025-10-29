@@ -1,7 +1,76 @@
 Changelog
 =========
 
-All notable changes to RePORTaLiN are documented here.
+All notable changes to this project will be documented in this file.
+
+The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`_,
+and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
+
+Version 0.8.6 (October 29, 2025)
+--------------------------------
+
+**Phase 1: Core Version Automation - COMPLETE** 🎉
+
+This release implements a comprehensive automatic versioning system that updates the version 
+after every commit with no manual intervention required.
+
+Version Management Enhancements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✅ **Enhanced Version Module** (``__version__.py``):
+  - **Added Version Tuple**: Introduced ``__version_info__`` tuple for programmatic version comparisons
+  - **Dual Format Support**: Maintains both string (``"0.8.6"``) and tuple (``(0, 8, 6)``) formats
+  - **PEP 396 Compliance**: Follows Python best practices for version attributes
+  - **Benefit**: Enables version comparisons like ``if __version_info__ >= (1, 0, 0)``
+
+🔧 **Enhanced Version Bumping** (``.git/hooks/bump-version``):
+  - **Dual Update System**: Automatically maintains both ``__version__`` string and ``__version_info__`` tuple
+  - **Python Import Validation**: Tests version import after each update to catch errors immediately
+  - **Tuple Consistency Check**: Validates that tuple matches the string version
+  - **Centralized Logging**: Records all version bumps to ``.logs/version_updates.log`` with timestamps
+  - **Cross-Platform Support**: Works seamlessly on macOS and Linux
+  - **Conventional Commits**: Auto-detects bump type from commit messages:
+    * ``feat:`` → Minor bump (0.8.5 → 0.9.0)
+    * ``fix:`` → Patch bump (0.8.5 → 0.8.6)
+    * ``feat!:`` or ``BREAKING CHANGE:`` → Major bump (0.8.5 → 1.0.0)
+  - **Benefit**: Robust, automatic version updates with complete audit trail
+
+📝 **Centralized Logging** (``scripts/utils/check_documentation_quality.py``):
+  - **Log Location Fix**: Moved log file from ``docs/sphinx/`` to ``.logs/`` directory
+  - **Auto-Directory Creation**: Creates ``.logs/`` directory if it doesn't exist
+  - **Consistent Location**: All project logs now in centralized ``.logs/`` folder
+  - **Benefit**: Cleaner project structure and easier log management
+
+Quality Assurance
+~~~~~~~~~~~~~~~~~
+
+✅ **Testing Results**:
+  - ✅ Manual version bumping (patch, minor, major) - PASSED
+  - ✅ Auto-detection from commit messages - PASSED
+  - ✅ Python import validation - PASSED
+  - ✅ Tuple consistency validation - PASSED
+  - ✅ Logging verification - PASSED
+  - ✅ Cross-platform compatibility - PASSED
+
+**Log Files Created**:
+  - ``.logs/version_updates.log`` - Version bump audit trail (NEW)
+  - ``.logs/quality_check.log`` - Documentation quality checks (MOVED)
+
+Migration Notes
+~~~~~~~~~~~~~~~
+
+**For Developers**:
+  - Version is now automatically updated after every commit
+  - No manual version updates needed in ``__version__.py``
+  - Use conventional commit messages for correct bump detection
+  - Review ``.logs/version_updates.log`` for version history
+
+**For CI/CD**:
+  - Post-commit hooks will automatically bump version
+  - All logs now in ``.logs/`` directory
+  - Version tuple available for programmatic checks
+
+---
 
 Version 0.8.5 (2025-10-28) - Documentation Completeness
 --------------------------------------------------------
@@ -93,7 +162,7 @@ Code Quality Improvements
 
 🔧 **Documentation Quality Checker Enhancements** (``scripts/utils/check_documentation_quality.py``):
   - **Logging Integration**:
-    * Added comprehensive file-based logging to ``docs/sphinx/quality_check.log``
+    * Added comprehensive file-based logging to ``.logs/quality_check.log``
     * Logs all operations, issues detected, and final results
     * Resolved circular import issues by using standard ``logging`` library directly
     * Implemented path manipulation to avoid shadowing standard library modules
@@ -125,7 +194,7 @@ Quality Assurance
 
 ✅ **Testing Results**:
   - Documentation quality checker runs successfully
-  - Log file creation verified (``docs/sphinx/quality_check.log``)
+  - Log file creation verified (``.logs/quality_check.log``)
   - All 36 files checked, 18,996 lines analyzed
   - No errors, 36 warnings (all false positives - valid Sphinx references)
   - Exit codes working correctly (0=success, 1=warnings, 2=errors)
@@ -134,7 +203,7 @@ Migration Notes
 ~~~~~~~~~~~~~~~
 
 **For Developers**:
-  - The quality checker now creates a log file in ``docs/sphinx/quality_check.log``
+  - The quality checker now creates a log file in ``.logs/quality_check.log``
   - Review this log file for detailed information about quality checks
   - Log file uses standard Python logging format with timestamps
   - Consider adding ``quality_check.log`` to ``.gitignore`` if desired
@@ -1664,6 +1733,7 @@ and HIPAA-compliant de-identification capabilities.
 - Pattern-based detection of 21 sensitive data types (names, SSN, MRN, dates, addresses, etc.)
 - Consistent pseudonymization with cryptographic hashing (SHA-256)
 - Encrypted mapping storage using Fernet (AES-128-CBC + HMAC-SHA256)
+
 - Multi-format date shifting (ISO 8601, slash/hyphen/dot-separated) with format preservation and temporal relationship preservation
 - Batch processing with progress tracking and validation
 - CLI interface for standalone operations

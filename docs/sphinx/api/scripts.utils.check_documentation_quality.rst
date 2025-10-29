@@ -130,7 +130,7 @@ Logging
 
 The quality checker uses file-based logging for audit trails:
 
-**Log File Location**: ``docs/sphinx/quality_check.log``
+**Log File Location**: ``.logs/quality_check.log``
 
 **Log Format**:
 

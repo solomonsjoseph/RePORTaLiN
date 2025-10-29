@@ -62,8 +62,9 @@ def _setup_logging() -> std_logging.Logger:
     logger = std_logging.getLogger('doc_quality_checker')
     logger.setLevel(std_logging.INFO)
     
-    # File handler - log to docs directory
-    log_dir = _repo_root / 'docs' / 'sphinx'
+    # File handler - log to .logs directory (centralized logging)
+    log_dir = _repo_root / '.logs'
+    log_dir.mkdir(exist_ok=True)  # Ensure .logs directory exists
     log_file = log_dir / 'quality_check.log'
     
     file_handler = std_logging.FileHandler(log_file, mode='a')
