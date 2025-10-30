@@ -62,7 +62,7 @@ Access from command line::
     RePORTaLiN 0.8.5
 """
 
-__version__ = "0.8.6"
-__version_info__ = (0, 8, 6)
+__version__ = "0.8.8"
+__version_info__ = (0, 8, 8)
 
 __all__ = ['__version__', '__version_info__']
