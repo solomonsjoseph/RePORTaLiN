@@ -97,93 +97,37 @@ This will:
 - Save an encrypted lookup table so you can track changes
 - Generate a report showing what was protected
 
+.. _deidentification-what-gets-protected:
+
 What Gets Protected
 ~~~~~~~~~~~~~~~~~~~
 
-The privacy feature protects 21 types of sensitive information including:
-        MappingStore,               # Secure mapping storage
-        DeidentificationEngine,     # Main engine
-        
-        # Top-level Functions
-        deidentify_dataset,         # Batch processing
-        validate_dataset,           # Validation
-    )
+The privacy feature protects **21 types** of sensitive information including:
 
-**What to Import**:
+**Names and Identifiers:**
+  - First names, last names, full patient names
+  - Medical record numbers (MRN)
+  - Social security numbers (SSN)
+  - Account numbers, license numbers
 
-- **For Basic Use**: Import ``DeidentificationEngine`` and optionally ``DeidentificationConfig``
-- **For Batch Processing**: Import ``deidentify_dataset`` and ``validate_dataset``
-- **For Advanced Use**: Import specific classes like ``DateShifter``, ``MappingStore``, etc.
-- **For Custom Patterns**: Import ``PHIType`` and ``DetectionPattern``
+**Contact Information:**
+  - Phone numbers
+  - Email addresses
+  - Street addresses, cities, states, ZIP codes
+  - Website URLs and IP addresses
 
-**Example - Basic Usage**:
+**Dates and Ages:**
+  - Birth dates, appointment dates, admission dates
+  - Ages over 89 (HIPAA requirement)
 
-.. code-block:: python
+**Device and Location:**
+  - Device identifiers
+  - Geographic locations
+  - Organization names
 
-    from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
-    
-    # Configure with custom settings
-    config = DeidentificationConfig(
-        enable_date_shifting=True,
-        enable_encryption=True,
-        countries=['US', 'IN']
-    )
-    
-    # Create engine
-    engine = DeidentificationEngine(config=config)
-    
-    # De-identify text
-    text = "Patient John Doe, MRN: AB123456, DOB: 01/15/1980"
-    deidentified = engine.deidentify_text(text)
-    print(deidentified)
-    # Output: "Patient [PATIENT-A4B8], MRN: [MRN-X7Y2], DOB: [DATE-1980-01-15]"
+For developer information about the Public API, see :doc:`../api/scripts.deidentify`.
 
-**Example - Batch Processing**:
-
-.. code-block:: python
-
-    from scripts.deidentify import deidentify_dataset, validate_dataset
-    
-    # Process entire dataset
-    stats = deidentify_dataset(
-        input_dir="data/patient_records",
-        output_dir="data/deidentified",
-        config=config
-    )
-    
-    # Validate results
-    validation = validate_dataset(
-        dataset_dir="data/deidentified"
-    )
-    
-    if validation['is_valid']:
-        print("✓ No PHI detected in output")
-    else:
-        print(f"⚠ Found {len(validation['potential_phi_found'])} issues")
-
-**Example - Custom Patterns**:
-
-.. code-block:: python
-
-    from scripts.deidentify import (
-        DeidentificationEngine,
-        PHIType,
-        DetectionPattern
-    )
-    import re
-    
-    # Define custom pattern for employee IDs
-    custom_pattern = DetectionPattern(
-        phi_type=PHIType.CUSTOM,
-        pattern=re.compile(r'EMP-\d{6}'),
-        priority=85,
-        description="Employee ID format: EMP-XXXXXX"
-    )
-    
-    # Use with engine
-    engine = DeidentificationEngine()
-    text = "Employee EMP-123456 accessed record"
-    deidentified = engine.deidentify_text(text, custom_patterns=[custom_pattern])
+.. _deidentification-basic-usage:
 
 Basic Usage
 ~~~~~~~~~~~
@@ -198,6 +142,12 @@ Basic Usage
     # De-identify text
     original = "Patient John Doe, MRN: 123456, DOB: 01/15/1980"
     deidentified = engine.deidentify_text(original)
+    # Output: "Patient [PATIENT-A4B8], MRN: [MRN-X7Y2], DOB: [DATE-1980-01-15]"
+
+    # Save mappings
+    engine.save_mappings()
+
+.. _deidentification-batch-processing:
     # Output: "Patient [PATIENT-A4B8], MRN: [MRN-X7Y2], DOB: [DATE-1980-01-15]"
 
     # Save mappings
@@ -227,6 +177,91 @@ Batch Processing
     #   ├── cleaned/           (de-identified cleaned files)
     #   └── _deidentification_audit.json
 
+.. _deidentification-advanced-usage:
+
+Advanced Usage
+--------------
+
+.. _deidentification-with-config:
+
+Custom Configuration
+~~~~~~~~~~~~~~~~~~~~
+
+Configure de-identification behavior with ``DeidentificationConfig``:
+
+.. code-block:: python
+
+    from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
+    
+    # Create custom configuration
+    config = DeidentificationConfig(
+        enable_date_shifting=True,
+        date_shift_range_days=365,
+        preserve_date_intervals=True,
+        enable_encryption=True,
+        enable_validation=True,
+        strict_mode=True,
+        countries=['US', 'IN'],
+        enable_country_patterns=True
+    )
+    
+    # Use configuration
+    engine = DeidentificationEngine(config=config)
+    text = "Patient John Doe, MRN: AB123456, DOB: 01/15/1980"
+    deidentified = engine.deidentify_text(text)
+
+.. _deidentification-custom-patterns:
+
+Custom Detection Patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add organization-specific patterns:
+
+.. code-block:: python
+
+    from scripts.deidentify import (
+        DeidentificationEngine,
+        PHIType,
+        DetectionPattern
+    )
+    import re
+    
+    # Define custom pattern for employee IDs
+    custom_pattern = DetectionPattern(
+        phi_type=PHIType.CUSTOM,
+        pattern=re.compile(r'EMP-\d{6}'),
+        priority=85,
+        description="Employee ID format: EMP-XXXXXX"
+    )
+    
+    # Use with engine
+    engine = DeidentificationEngine()
+    text = "Employee EMP-123456 accessed record"
+    deidentified = engine.deidentify_text(text, custom_patterns=[custom_pattern])
+
+.. _deidentification-validation:
+
+Validation
+~~~~~~~~~~
+
+Validate de-identified datasets to ensure no PHI leakage:
+
+.. code-block:: python
+
+    from scripts.deidentify import validate_dataset
+    
+    # Validate de-identified output
+    validation = validate_dataset(
+        dataset_dir="results/deidentified/Indo-vap"
+    )
+    
+    if validation['is_valid']:
+        print("✓ No PHI detected in output")
+    else:
+        print(f"⚠ Found {len(validation['potential_phi_found'])} issues")
+        for issue in validation['potential_phi_found']:
+            print(f"  - {issue['file']}: {issue['text']}")
+
 Command Line Interface
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -255,6 +290,8 @@ Command Line Interface
         --output-dir results/deidentified/Indo-vap \
         --no-encryption
 
+.. _deidentification-pipeline-integration:
+
 Pipeline Integration
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -266,8 +303,8 @@ while maintaining the same file structure in the output directory.
     # Enable de-identification in main pipeline
     python main.py --enable-deidentification
 
-    # Skip de-identification
-    python main.py --enable-deidentification --skip-deidentification
+    # With multi-country support
+    python main.py --enable-deidentification --countries IN US GB
     
     # Disable encryption (not recommended for production)
     python main.py --enable-deidentification --no-encryption

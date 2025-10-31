@@ -267,7 +267,7 @@ clean-all:
 	@rm -rf .logs/
 	@echo "$(GREEN)✓ Log files cleaned$(NC)"
 	@echo "$(BLUE)Cleaning temp files...$(NC)"
-	@rm -rf tmp/*.* 2>/dev/null || true
+	@rm -rf tmp/* 2>/dev/null || true
 	@echo "$(GREEN)✓ Temp files cleaned$(NC)"
 	@echo "$(BLUE)Cleaning documentation build files...$(NC)"
 	@rm -rf docs/sphinx/_build/

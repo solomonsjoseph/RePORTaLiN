@@ -26,42 +26,29 @@ Working with Data Dictionary Module
 
 .. versionadded:: 0.3.0
 
-The ``scripts/load_dictionary.py`` module provides a well-defined public API for processing data dictionary Excel files.
+The ``scripts/load_dictionary.py`` module provides intelligent table detection and JSONL conversion 
+for data dictionary Excel files with multi-table support and "ignore below" markers.
 
-Using the Public API
-~~~~~~~~~~~~~~~~~~~~
+**For complete API documentation, see** :doc:`../api/scripts.load_dictionary`.
 
-The module exports 2 functions via ``__all__``:
-
-1. **load_study_dictionary** - High-level function using config defaults
-2. **process_excel_file** - Low-level function for custom workflows
-
-**Best Practice: Use the public API**
+Quick Start
+~~~~~~~~~~~
 
 .. code-block:: python
 
-   # Recommended: Use public API
-   from scripts.load_dictionary import (
-       load_study_dictionary,
-       process_excel_file
-   )
+   from scripts.load_dictionary import load_study_dictionary
    
-   # High-level usage with config defaults
+   # Use config defaults
    success = load_study_dictionary()
-   
-   # Custom file processing
-   success = process_excel_file(
-       excel_path="data/custom_dictionary.xlsx",
-       output_dir="results/custom_output",
-       preserve_na=True
-   )
 
-**Extending with Custom Processing**
+Extension Example: Custom Validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Here's how to extend the module with custom post-processing:
 
 .. code-block:: python
 
    from scripts.load_dictionary import process_excel_file
-   import pandas as pd
    
    def custom_dictionary_processor(
        excel_path: str,
@@ -69,107 +56,63 @@ The module exports 2 functions via ``__all__``:
        custom_validation: callable = None
    ) -> bool:
        """Process dictionary with custom validation."""
-       
-       # Process with standard function
        success = process_excel_file(excel_path, output_dir)
        
        if success and custom_validation:
-           # Apply custom post-processing
            custom_validation(output_dir)
        
        return success
    
    # Use custom processor
-   def validate_output(output_dir: str):
-       """Custom validation logic."""
-       print(f"Validating output in {output_dir}")
-       # Add your validation logic here
-   
    custom_dictionary_processor(
        "data/dictionary.xlsx",
        "results/output",
-       validate_output
+       lambda d: print(f"Validated {d}")
    )
 
-**Understanding Multi-Table Detection**
-
-The module's table detection algorithm:
-
-1. Identifies horizontal strips (separated by empty rows)
-2. Within each strip, identifies vertical sections (separated by empty columns)
-3. Extracts each non-empty section as a separate table
-4. Deduplicates column names by appending numeric suffixes
-5. Checks for "ignore below" markers and segregates subsequent tables
-6. Adds metadata fields (``__sheet__``, ``__table__``)
-7. Saves to JSONL with proper directory structure
-
-**Type Safety Benefits**
-
-The module has return type hints on all functions:
-
-- All functions have return type annotations
-- IDEs provide better autocomplete and error detection
-- Static analysis tools can verify return types
-- Documentation is clear about expected outputs
-
-See :doc:`../api/scripts.load_dictionary` for complete API reference.
+.. seealso::
+   
+   **Multi-Table Detection Algorithm**
+      See :doc:`../api/scripts.load_dictionary` for details on how the module 
+      automatically detects and extracts multiple tables from complex Excel layouts.
+   
+   **Public API Reference**
+      Complete documentation of the 2 exported functions: ``load_study_dictionary`` 
+      and ``process_excel_file``.
 
 Working with Data Extraction Module
 ------------------------------------
 
 .. versionadded:: 0.3.0
 
-The ``scripts/extract_data.py`` module provides a well-defined public API for Excel to JSONL conversion.
+The ``scripts/extract_data.py`` module converts Excel files to JSONL format with intelligent 
+duplicate column removal, type conversion, and progress tracking.
 
-Using the Public API
-~~~~~~~~~~~~~~~~~~~~
+**For complete API documentation, see** :doc:`../api/scripts.extract_data`.
 
-The module exports 6 functions via ``__all__``:
-
-1. **extract_excel_to_jsonl** - Batch process all Excel files
-2. **process_excel_file** - Process a single Excel file
-3. **find_excel_files** - Find Excel files in a directory
-4. **convert_dataframe_to_jsonl** - Convert DataFrame to JSONL
-5. **clean_record_for_json** - Clean record for JSON serialization
-6. **clean_duplicate_columns** - Remove duplicate columns
-
-**Best Practice: Use the public API**
+Quick Start
+~~~~~~~~~~~
 
 .. code-block:: python
 
-   # Recommended: Use public API
-   from scripts.extract_data import (
-       extract_excel_to_jsonl,
-       process_excel_file,
-       find_excel_files
-   )
+   from scripts.extract_data import extract_excel_to_jsonl
    
-   # Batch processing
-   extract_excel_to_jsonl(
-       input_dir="data/dataset/Indo-vap",
-       output_dir="results/dataset/Indo-vap"
-   )
-   
-   # Single file processing
-   result = process_excel_file(
-       "data/file.xlsx",
-       "results/output"
-   )
-   print(f"Processed {result['records']} records")
+   # Batch process all files
+   result = extract_excel_to_jsonl()
+   print(f"Created {result['files_created']} files")
 
-**Extending with Custom Conversions**
+Extension Example: Custom Data Transformations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apply custom transformations before JSONL conversion:
 
 .. code-block:: python
 
    import pandas as pd
-   from scripts.extract_data import (
-       clean_record_for_json,
-       convert_dataframe_to_jsonl
-   )
+   from scripts.extract_data import convert_dataframe_to_jsonl
    
    def custom_dataframe_processor(df: pd.DataFrame) -> pd.DataFrame:
        """Apply custom transformations before conversion."""
-       # Custom logic here
        df = df.dropna(subset=['required_column'])
        df['new_column'] = df['old_column'] * 2
        return df
@@ -179,16 +122,14 @@ The module exports 6 functions via ``__all__``:
    df = custom_dataframe_processor(df)
    convert_dataframe_to_jsonl(df, "output.jsonl", "input.xlsx")
 
-**Type Safety Benefits**
-
-The module has complete type hint coverage:
-
-- All functions have parameter and return type annotations
-- IDEs provide better autocomplete and error detection
-- Static analysis tools (mypy, pyright) can verify correctness
-- Documentation is clear about expected inputs/outputs
-
-See :doc:`../api/scripts.extract_data` for complete API reference.
+.. seealso::
+   
+   **Duplicate Column Removal**
+      See :doc:`../api/scripts.extract_data` for details on the intelligent 
+      algorithm that removes ``SUBJID2``, ``SUBJID3``, etc.
+   
+   **Public API Reference**
+      Complete documentation of all 6 exported functions for custom workflows.
 
 Working with Configuration Module
 ----------------------------------

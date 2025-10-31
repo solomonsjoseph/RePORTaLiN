@@ -14,7 +14,7 @@ The ``scripts.utils`` package provides reusable utility components for:
 
 - **Centralized Logging**: Structured logging with file output and custom levels
 - **Country Regulations**: Country-specific de-identification rules and compliance
-- **Documentation Quality**: Automated documentation validation and quality checks
+- **Documentation Maintenance**: Unified quality checking, style validation, and build system
 
 **Package Structure**:
 
@@ -24,9 +24,9 @@ The ``scripts.utils`` package provides reusable utility components for:
    ├── __init__.py                          # Package initialization and exports
    ├── logging.py                           # Centralized logging system
    ├── country_regulations.py               # Country-specific regulations
-   ├── check_documentation_quality.py       # Documentation quality checker
-   ├── check_docs_style.sh                  # Shell-based style checker
-   └── doc_maintenance_commands.sh          # Maintenance convenience functions
+   ├── doc_maintenance_toolkit.py           # ✅ Unified documentation maintenance tool
+   ├── smart-commit.sh                      # Git commit with version bumping
+   └── (old doc scripts archived to tmp/)   # See tmp/archive_old_doc_scripts/README.rst
 
 Modules
 -------
@@ -39,7 +39,22 @@ Core Utilities
    
    scripts.utils.logging
    scripts.utils.country_regulations
-   scripts.utils.check_documentation_quality
+
+Documentation Tools
+~~~~~~~~~~~~~~~~~~~
+
+.. important::
+   **Consolidation Complete (2025-10-30)**: All documentation maintenance tools
+   have been unified into :doc:`doc_maintenance_toolkit`.
+   
+   **Old scripts ARCHIVED**: The following scripts have been moved to
+   ``tmp/archive_old_doc_scripts/`` and are **no longer in active use**:
+   
+   - ❌ ``check_docs_style.sh`` → Use ``--mode style``
+   - ❌ ``check_documentation_quality.py`` → Use ``--mode quality``
+   - ❌ ``doc_maintenance_commands.sh`` → Use CLI commands
+   
+   See the migration guide in :doc:`doc_maintenance_toolkit` for command equivalents.
 
 Logging Module
 ^^^^^^^^^^^^^^
@@ -102,75 +117,50 @@ Country Regulations Module
 
 See :doc:`scripts.utils.country_regulations` for complete documentation.
 
-Documentation Quality Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Documentation Maintenance Toolkit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:mod:`scripts.utils.check_documentation_quality` - Automated documentation validation.
+:doc:`doc_maintenance_toolkit` - Unified documentation quality, style, and build system.
 
 **Key Features**:
 
-- Version reference consistency checks
-- File size monitoring
-- Redundant content detection
-- Cross-reference validation
-- Style compliance verification
-- Comprehensive reporting
+- Style compliance checking (fast, for pre-commit hooks)
+- Comprehensive quality analysis (version refs, redundancy, cross-refs)
+- Sphinx documentation building
+- Full maintenance suite combining all checks
+- Centralized logging to ``.logs/`` directory
+- Multiple output modes (quiet, normal, verbose)
 
 **Common Usage**:
 
 .. code-block:: bash
 
-   # Command-line execution
-   python3 scripts/utils/check_documentation_quality.py
+   # Quick style check (for pre-commit hooks)
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode style
    
-   # Makefile integration
-   make docs-quality
+   # Comprehensive quality analysis
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode quality --verbose
+   
+   # Build documentation
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode build --open
+   
+   # Full maintenance suite
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode full
 
-See :doc:`scripts.utils.check_documentation_quality` for complete documentation.
+**Replaces** (archived to ``tmp/archive_old_doc_scripts/``):
 
-Shell Utilities
-~~~~~~~~~~~~~~~
+- ``check_docs_style.sh`` - Shell-based style checker (**ARCHIVED**)
+- ``check_documentation_quality.py`` - Python quality checker (**ARCHIVED**)
+- ``doc_maintenance_commands.sh`` - Build and utility commands (**ARCHIVED**)
 
-Documentation Style Checker
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+See :doc:`doc_maintenance_toolkit` for complete documentation and migration guide.
 
-``scripts/utils/check_docs_style.sh`` - Fast shell-based style compliance checker.
-
-**Purpose**: Quick validation (~10 seconds) for daily development.
-
-**Checks**:
-
-- User guide files have ``**For Users:**`` header
-- Developer guide files have ``**For Developers:**`` header
-- No technical jargon in user guide
-- Sphinx build succeeds without warnings
-
-**Usage**:
-
-.. code-block:: bash
-
-   ./scripts/utils/check_docs_style.sh
-   # or
-   make docs-check
-
-Documentation Maintenance Commands
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``scripts/utils/doc_maintenance_commands.sh`` - Convenience shell functions.
-
-**Functions**:
-
-- ``check_version`` - Display current version
-- ``quick_commit <msg>`` - Commit with automatic version bump
-- ``full_maintenance`` - Complete maintenance workflow
-
-**Usage**:
-
-.. code-block:: bash
-
-   source scripts/utils/doc_maintenance_commands.sh
-   check_version
-   quick_commit "docs: update getting started guide"
+.. warning::
+   **DEPRECATED**: The old documentation maintenance scripts have been **archived**
+   to ``tmp/archive_old_doc_scripts/`` and should no longer be used.  
+   
+   Use :doc:`doc_maintenance_toolkit` instead. See the migration guide for
+   command equivalents.
 
 Package API
 -----------
@@ -240,9 +230,10 @@ When to Use What
 
 **For Documentation Quality**:
 
-- **Daily dev**: Use ``check_docs_style.sh`` (fast)
-- **Pre-commit**: Use ``check_documentation_quality.py`` (comprehensive)
-- **Quarterly**: Automated via GitHub Actions
+- **Daily dev**: Use ``doc_maintenance_toolkit.py --mode style`` (fast, ~10s)
+- **Pre-commit**: Use ``doc_maintenance_toolkit.py --mode style --quick``
+- **Full check**: Use ``doc_maintenance_toolkit.py --mode quality`` (comprehensive)
+- **Quarterly**: Use ``doc_maintenance_toolkit.py --mode full`` via GitHub Actions
 
 Logging Best Practices
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -318,14 +309,17 @@ Documentation Quality Best Practices
 
 .. code-block:: bash
 
-   # Run before committing
-   make docs-quality
+   # Run before committing (fast)
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode style
    
-   # Review warnings periodically
-   python3 scripts/utils/check_documentation_quality.py > review.txt
+   # Comprehensive quality review
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode quality > review.txt
+   
+   # Full maintenance suite
+   python3 scripts/utils/doc_maintenance_toolkit.py --mode full
    
    # Integrate into CI/CD
-   # See .github/workflows/docs-quality-check.yml
+   # See doc_maintenance_toolkit documentation
 
 **DON'T**:
 
@@ -523,7 +517,7 @@ Related Documentation
 
 - :doc:`scripts.utils.logging` - Logging module detailed docs
 - :doc:`scripts.utils.country_regulations` - Country regulations detailed docs
-- :doc:`scripts.utils.check_documentation_quality` - Quality checker detailed docs
+- :doc:`doc_maintenance_toolkit` - Documentation maintenance toolkit (NEW)
 - :doc:`../developer_guide/architecture` - Overall project architecture
 - :doc:`../developer_guide/extending` - Extending the project
 
@@ -546,6 +540,11 @@ Version History
 .. versionchanged:: 0.8.4
    Enhanced logging integration and resolved circular import issues.
 
+.. versionadded:: 0.0.13
+   **Documentation Consolidation**: Added unified ``doc_maintenance_toolkit.py`` 
+   consolidating ``check_docs_style.sh``, ``check_documentation_quality.py``, 
+   and ``doc_maintenance_commands.sh`` into single tool. Old scripts archived for reference.
+
 Submodules
 ----------
 
@@ -554,7 +553,7 @@ Submodules
 
    scripts.utils.logging
    scripts.utils.country_regulations
-   scripts.utils.check_documentation_quality
+   doc_maintenance_toolkit
 
 Module Contents
 ---------------

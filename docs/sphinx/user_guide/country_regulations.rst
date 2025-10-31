@@ -347,6 +347,9 @@ View all supported countries and their regulations::
 Python API
 ----------
 
+For complete de-identification examples with country-specific configurations, 
+see :ref:`deidentification-with-config` in the De-identification guide.
+
 Basic Usage
 ~~~~~~~~~~~
 
@@ -360,43 +363,18 @@ Basic Usage
        enable_country_patterns=True
    )
    
-   # Create engine
+   # Create engine and process text
    engine = DeidentificationEngine(config=config)
-   
-   # De-identify text
    text = "Patient Rajesh Kumar, Aadhaar: 1234 5678 9012"
    deidentified = engine.deidentify_text(text)
-   print(deidentified)
-   # Output: "Patient [PATIENT-...], Aadhaar: [SSN-...]"
 
-Multiple Countries
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   from scripts.deidentify import DeidentificationEngine, DeidentificationConfig
-   
-   # Configure for multiple countries
-   config = DeidentificationConfig(
-       countries=["US", "IN", "BR", "ID"],
-       enable_country_patterns=True
-   )
-   
-   engine = DeidentificationEngine(config=config)
-   
-   # Process mixed international data
-   texts = [
-       "US Patient: John Doe, SSN: 123-45-6789",
-       "India Patient: Rajesh Kumar, Aadhaar: 1234 5678 9012",
-       "Brazil Patient: Maria Silva, CPF: 123.456.789-01"
-   ]
-   
-   for text in texts:
-       deidentified = engine.deidentify_text(text)
-       print(deidentified)
+For more examples including multi-country configurations and validation, 
+see :doc:`deidentification`.
 
 Working with Country Regulations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Access country-specific regulations programmatically:
 
 .. code-block:: python
 

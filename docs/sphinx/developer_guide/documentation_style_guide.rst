@@ -315,317 +315,163 @@ Cross-References
    See :py:func:`scripts.extract_data.extract_all_data`
    See :py:class:`scripts.deidentify.DeidManager`
 
-Version Information
--------------------
+Cross-Reference Best Practices (Updated October 2025)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version Directives
-~~~~~~~~~~~~~~~~~~
+.. versionadded:: 0.2.0
+   Advanced cross-reference patterns to eliminate documentation duplication.
 
-**Current Version (Present Tense):**
+**Primary Principle: Single Source of Truth**
 
-All **present-tense** version references MUST use the current version number:
+Always prefer cross-references over duplicating content. This ensures:
 
-.. code-block:: restructuredtext
+* ✅ No synchronization issues when code or examples change
+* ✅ Clear authority for each topic
+* ✅ Reduced maintenance burden
+* ✅ Consistent information across documentation
 
-   **Version:** |version|
-   **Last Updated:** October 23, 2025
-   **Current Version: |version|** (at top of index.rst)
+**Creating Reference Targets**
 
-**Historical Markers (Past Tense):**
-
-Historical version markers should only appear in:
-
-* ``changelog.rst`` - version history
-* When explicitly discussing past versions (e.g., "Added in v0.0.12")
-
-**Example in changelog:**
+To enable deep linking to specific sections, add reference targets:
 
 .. code-block:: restructuredtext
 
-   Version 0.0.12 (December 2024)
-   ------------------------------
+   .. _deid-basic-example:
+
+   Basic De-identification Example
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   This example shows how to de-identify patient data...
+
+**Referencing Targets**
+
+From another file, reference the target:
+
+.. code-block:: restructuredtext
+
+   For a complete example, see :ref:`deid-basic-example`.
+
+**Cross-Reference Hierarchy**
+
+Follow this hierarchy when deciding where content should live:
+
+1. **User Guide** = Authoritative source for features and usage
+   - Comprehensive examples
+   - Step-by-step instructions
+   - Troubleshooting
    
-   * Added verbose logging flag
-   * Enhanced documentation
+2. **API Documentation** = Reference for code details
+   - Function signatures
+   - Parameter descriptions
+   - Return values
+   - Minimal usage examples (1-3 lines)
+   
+3. **Developer Guide** = Technical architecture and extension
+   - Cross-reference user guide for features
+   - Cross-reference API for code details
+   - Focus on "how to extend" not "how to use"
 
-Last Updated Dates
-~~~~~~~~~~~~~~~~~~
+**Practical Examples**
 
-All documentation files should include:
-
-.. code-block:: restructuredtext
-
-   **Last Updated:** [Month Day, Year]
-   **Version:** [Current version number]
-
-Update these dates when making substantive changes to the file.
-
-Maintenance Standards
----------------------
-
-When to Update Documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Documentation must be updated when:
-
-* Adding new features
-* Changing existing behavior
-* Deprecating functionality
-* Fixing bugs that affect documented behavior
-* Updating configuration options
-* Changing command-line arguments
-* Modifying file formats or schemas
-
-Review Checklist
-~~~~~~~~~~~~~~~~
-
-Before committing documentation changes, verify:
-
-☑ File uses ``.rst`` format (not ``.md``)  
-☑ Correct audience header present (For Users / For Developers)  
-☑ Appropriate language/tone for target audience  
-☑ All code examples tested and working  
-☑ Cross-references are valid  
-☑ Version information is current  
-☑ No broken links or references  
-☑ Sphinx builds without warnings/errors  
-☑ Grammar and spelling checked  
-
-Automated Compliance
---------------------
-
-Style Checker Script
-~~~~~~~~~~~~~~~~~~~~
-
-Run the automated style checker before committing:
-
-.. code-block:: bash
-
-   ./scripts/utils/check_docs_style.sh
-
-This script verifies:
-
-* All user guide files have "For Users:" headers
-* All developer guide files have "For Developers:" headers
-* User guide files don't contain technical jargon
-* Sphinx builds without warnings/errors
-
-Git Pre-Commit Hook
-~~~~~~~~~~~~~~~~~~~~
-
-The ``.gitignore`` file blocks accidental ``.md`` commits:
-
-.. code-block:: text
-
-   # Block all Markdown files except README.md
-   *.md
-   !README.md
-
-Common Patterns
----------------
-
-Installation Instructions
-~~~~~~~~~~~~~~~~~~~~~~~~~
+**❌ BAD - Duplicate content:**
 
 .. code-block:: restructuredtext
 
-   Installation
-   ------------
+   # In api/scripts.rst
+   De-identification Manager
+   ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   1. Clone the repository:
+   The DeidManager class handles de-identification.
 
-      .. code-block:: bash
-
-         git clone https://github.com/org/reportalin.git
-         cd reportalin
-
-   2. Install dependencies:
-
-      .. code-block:: bash
-
-         pip install -r requirements.txt
-
-Configuration Examples
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: restructuredtext
-
-   Configuration
-   -------------
-
-   Edit ``config.py`` to customize behavior:
+   Example:
 
    .. code-block:: python
 
-      # Enable de-identification
-      ENABLE_DEID = True
+      from scripts.deidentify import DeidManager
       
-      # Set output format
-      OUTPUT_FORMAT = "jsonl"
+      manager = DeidManager()
+      manager.load_config('config.py')
+      manager.deidentify_data(df)
 
-Troubleshooting
-~~~~~~~~~~~~~~~
+   # In user_guide/deidentification.rst
+   Using De-identification
+   ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: restructuredtext
-
-   Troubleshooting
-   ---------------
-
-   **Problem:** Error message XYZ
-
-   **Solution:**
-   
-   1. Check that...
-   2. Verify that...
-   3. Try running...
-
-   **Still not working?** See :doc:`../developer_guide/architecture` 
-   for technical details.
-
-API Documentation
-~~~~~~~~~~~~~~~~~
-
-.. code-block:: restructuredtext
-
-   .. autofunction:: scripts.extract_data.extract_all_data
-      :noindex:
-
-   Example usage:
+   Example:
 
    .. code-block:: python
 
-      from scripts.extract_data import extract_all_data
+      from scripts.deidentify import DeidManager
       
-      results = extract_all_data(config)
+      manager = DeidManager()
+      manager.load_config('config.py')
+      manager.deidentify_data(df)
 
-Documentation Policy & Enforcement
------------------------------------
+**✅ GOOD - Cross-references:**
 
-Mandatory Requirements
-~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: restructuredtext
 
-All User Guide Files MUST
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+   # In user_guide/deidentification.rst
+   .. _deid-basic-example:
 
-1. **Start with "For Users" Header**
-2. **Use Simple Language** - No technical jargon
-3. **Include Examples** - Real-world use cases with step-by-step instructions
-4. **Use Friendly Tone** - Emojis where appropriate, "you" language
+   Basic De-identification Example
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-All Developer Guide Files MUST
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   The following example shows how to de-identify patient data:
 
-1. **Start with "For Developers" Header**
-2. **Use Technical Precision** - Full terminology, architecture diagrams, algorithms
-3. **Include Implementation Details** - Code snippets, design patterns, edge cases
-4. **Reference Code Directly** - Module names, function signatures, class hierarchies
+   .. code-block:: python
 
-NO Markdown Files Policy
-~~~~~~~~~~~~~~~~~~~~~~~~~
+      from scripts.deidentify import DeidManager
+      
+      manager = DeidManager()
+      manager.load_config('config.py')
+      manager.deidentify_data(df)
 
-❌ **PROHIBITED - DO NOT CREATE:**
-   - ``FIXES.md``, ``AUDIT.md``, ``VERIFICATION.md``, ``STATUS.md``
-   - ``CHANGES.md``, ``NOTES.md``
-   - Any other ``.md`` files in project root or ``docs/``
+   # In api/scripts.rst
+   De-identification Manager
+   ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-✅ **INSTEAD, UPDATE:**
-   - Relevant ``.rst`` files in ``docs/sphinx/``
-   - Create new ``.rst`` in appropriate guide section
-   - Add to existing documentation where content fits
+   For usage examples, see :ref:`deid-basic-example` in the user guide.
 
-Content Placement Guide
-~~~~~~~~~~~~~~~~~~~~~~~
+**Reference Naming Conventions**
 
-.. list-table::
-   :header-rows: 1
-   :widths: 30 40 30
+Use clear, descriptive reference target names:
 
-   * - Content Type
-     - Destination
-     - File
-   * - Bug fixes
-     - Developer Guide
-     - ``code_integrity_audit.rst`` or ``changelog.rst``
-   * - New features
-     - User Guide + Developer Guide
-     - Appropriate guide files + ``changelog.rst``
-   * - Architecture changes
-     - Developer Guide
-     - ``architecture.rst``
-   * - Code audits
-     - Developer Guide
-     - ``code_integrity_audit.rst``
-   * - User instructions
-     - User Guide
-     - Appropriate user guide file
-   * - API changes
-     - API Reference
-     - Relevant ``api/*.rst`` file
+* Format: ``section-topic-type``
+* Examples:
+  - ``deid-basic-example``
+  - ``country-regulations-india``
+  - ``extract-data-advanced``
+  - ``config-encryption-options``
 
-Quality Checklist
-~~~~~~~~~~~~~~~~~
+**When to Create Reference Targets**
 
-**Before Committing Documentation Changes:**
+Create reference targets for:
 
-.. code-block:: text
+* ✅ Code examples that might be referenced elsewhere
+* ✅ Important conceptual sections
+* ✅ Configuration examples
+* ✅ Country-specific regulations or procedures
+* ✅ Troubleshooting solutions
 
-   [ ] All user guide files have "For Users" headers
-   [ ] All developer guide files have "For Developers" headers
-   [ ] User guide uses simple, friendly language
-   [ ] Developer guide has sufficient technical detail
-   [ ] Version directives use |version| substitution
-   [ ] Assessment dates are current
-   [ ] No .md files created (except README.md)
-   [ ] Sphinx builds with 0 warnings/0 errors
-   [ ] All code examples tested
-   [ ] No redundant information
+**Do NOT create targets for:**
 
-Automated Verification
-~~~~~~~~~~~~~~~~~~~~~~
+* ❌ Every subsection (creates noise)
+* ❌ Temporary/version-specific content
+* ❌ Minor notes or tips
 
-**Run before every commit:**
+**Maintaining Cross-References**
 
-.. code-block:: bash
+When refactoring documentation:
 
-   # 1. Check documentation style
-   bash scripts/utils/check_docs_style.sh
-   
-   # 2. Build Sphinx documentation
-   cd docs/sphinx && make clean html
-   
-   # 3. Verify no warnings/errors
-   # Expected: "build succeeded" with 0 warnings
+1. Search for all references to the content being moved
+2. Update cross-references to point to new location
+3. Add reference targets if moving content requires deep linking
+4. Build documentation and verify all links work
+5. Update any related index entries
 
-Documentation Maintenance Checklist
-------------------------------------
-
-**For Developers: Quarterly Documentation Review**
-
-To prevent documentation bloat and maintain quality, perform these checks quarterly:
-
-Quarterly Review Tasks
-~~~~~~~~~~~~~~~~~~~~~~
-
-**1. Version Reference Audit** (15 minutes)
-
-   .. code-block:: bash
-
-      # Check for outdated version references
-      cd docs/sphinx
-      grep -r "versionadded:: 0\." user_guide/ developer_guide/ api/
-      grep -r "versionchanged:: 0\." user_guide/ developer_guide/ api/
-
-   ✅ Update version directives to current version  
-   ✅ Archive old version markers to changelog if needed
-
-**2. Redundancy Check** (30 minutes)
-
-   Review for duplicate content across files:
-
-   - [ ] Check if multiple files explain the same concept
-   - [ ] Verify cross-references are used instead of content duplication
-   - [ ] Consolidate overlapping content where possible
-   - [ ] Update or remove outdated historical verification documents
+Link Validation
+----------------
 
 **3. Link Validation** (10 minutes)
 
@@ -635,106 +481,14 @@ Quarterly Review Tasks
       cd docs/sphinx
       make clean
       make html
+      
+      # Run link checker
+      make linkcheck
 
    ✅ No broken cross-references (``WARNING: undefined label``)  
    ✅ No missing documents (``WARNING: document isn't included``)  
-   ✅ External links are still valid
+   ✅ External links are still valid  
+   ✅ Internal reference targets resolve correctly
 
-**4. File Organization Review** (20 minutes)
-
-   - [ ] All files have clear, unique purposes
-   - [ ] Historical/archived content is in ``historical_verification.rst``
-   - [ ] No orphaned files (not in any toctree)
-   - [ ] Directory structure makes logical sense
-
-**5. Style Compliance Check** (10 minutes)
-
-   .. code-block:: bash
-
-      # Run style checker
-      bash scripts/utils/check_docs_style.sh
-
-   ✅ All user docs have "**For Users:**" headers  
-   ✅ All developer docs have "**For Developers:**" headers  
-   ✅ No .md files except README.md  
-   ✅ Consistent formatting throughout
-
-**6. Content Freshness** (15 minutes)
-
-   - [ ] Installation instructions match current dependencies
-   - [ ] Code examples run without errors
-   - [ ] Screenshots/examples reflect current UI/output
-   - [ ] Troubleshooting section addresses current issues
-
-**7. Size Management** (10 minutes)
-
-   .. code-block:: bash
-
-      # Check documentation size
-      wc -l docs/sphinx/**/*.rst | tail -1
-      
-      # List largest files
-      wc -l docs/sphinx/**/*.rst | sort -rn | head -10
-
-   ✅ Total line count is reasonable (< 15,000 lines)  
-   ✅ No single file exceeds 1,000 lines without good reason  
-   ✅ Large files can be split or archived if needed
-
-Archival Guidelines
-~~~~~~~~~~~~~~~~~~~
-
-Move content to ``historical_verification.rst`` if:
-
-- ✅ It's a verification/audit from a past release
-- ✅ It documents completed migration/reorganization work
-- ✅ It's referenced in changelog but no longer needs active visibility
-- ✅ It's valuable for audit trails but not for current development
-
-**Example:** October 2025 verification documents were archived to reduce active 
-documentation from ~15,000 to ~13,000 lines while preserving historical records.
-
-When to Create New Files
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Only create new documentation files when:
-
-1. **New major feature** requires comprehensive guide (> 200 lines)
-2. **New audience segment** needs dedicated content (e.g., data analysts)
-3. **Complex topic** deserves standalone treatment (e.g., performance tuning)
-4. **Regulatory requirement** mandates separate documentation
-
-**Default:** Add content to existing files using new sections instead of new files.
-
-Enforcement Policy
-~~~~~~~~~~~~~~~~~~~
-
-This policy is **mandatory** for all documentation changes. Pull requests that:
-
-❌ Create new .md files (except README.md)  
-❌ Use incorrect headers ("For Users" vs "For Developers")  
-❌ Have outdated version references  
-❌ Fail Sphinx build  
-❌ Fail style checker  
-
-Will be **rejected** until corrected.
-
-**Exceptions:** Only ``README.md`` in project root, historical markers in ``changelog.rst``
-
-Resources
----------
-
-* **Sphinx Documentation:** https://www.sphinx-doc.org/
-* **reStructuredText Primer:** https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-* **Google Developer Documentation Style Guide:** https://developers.google.com/style
-* **Write the Docs:** https://www.writethedocs.org/guide/
-
-Related Documentation
----------------------
-
-* :doc:`contributing` - How to contribute to the project
-* :doc:`architecture` - Technical architecture overview
-* :doc:`historical_verification` - Archived verification and audit records
-
----
-
-**Questions?** Contact the documentation team or open an issue on GitHub.
+   The ``linkcheck`` target validates all external URLs and reports broken links.
+   Review ``_build/linkcheck/output.txt`` for detailed results.

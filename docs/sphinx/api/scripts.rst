@@ -208,35 +208,36 @@ Dictionary Loading
 De-identification
 ~~~~~~~~~~~~~~~~~
 
+For comprehensive de-identification examples, see :doc:`../user_guide/deidentification`.
+
+Quick example:
+
 .. code-block:: python
 
    from scripts.deidentify import DeidentificationEngine
    
-   # Initialize engine
    engine = DeidentificationEngine()
-   
-   # De-identify text
    original = "Patient John Doe, MRN: 123456, SSN: 123-45-6789"
    deidentified = engine.deidentify_text(original)
-   
-   # Save mappings
-   engine.save_mappings()
+
+See :ref:`deidentification-basic-usage` for complete usage patterns.
 
 Batch De-identification
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+For batch processing with directory structure preservation, 
+see :ref:`deidentification-batch-processing`.
+
+Quick example:
 
 .. code-block:: python
 
    from scripts.deidentify import deidentify_dataset
    
-   # Process entire dataset (maintains directory structure)
    stats = deidentify_dataset(
        input_dir="results/dataset/Indo-vap",
-       output_dir="results/deidentified/Indo-vap",
-       process_subdirs=True
+       output_dir="results/deidentified/Indo-vap"
    )
-   
-   print(f"Processed {stats['texts_processed']} texts")
 
 Single File Processing
 ~~~~~~~~~~~~~~~~~~~~~~
