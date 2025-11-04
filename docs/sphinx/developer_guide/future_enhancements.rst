@@ -510,7 +510,7 @@ Create Docker containerization for easy deployment:
        build: .
        volumes:
          - ./data:/app/data
-         - ./results:/app/results
+         - ./output:/app/output
        environment:
          - LOG_LEVEL=INFO
 

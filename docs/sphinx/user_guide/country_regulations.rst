@@ -307,15 +307,15 @@ Single Country
 De-identify data according to US regulations (default)::
 
    python -m scripts.deidentify \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap
 
 Specify a different country::
 
    python -m scripts.deidentify \
        --countries IN \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap
 
 Multiple Countries
 ~~~~~~~~~~~~~~~~~~
@@ -324,8 +324,8 @@ Process data that may contain identifiers from multiple countries::
 
    python -m scripts.deidentify \
        --countries US IN ID BR \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap
 
 All Countries
 ~~~~~~~~~~~~~
@@ -334,8 +334,8 @@ Enable detection for all supported countries::
 
    python -m scripts.deidentify \
        --countries ALL \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap
 
 List Supported Countries
 ~~~~~~~~~~~~~~~~~~~~~~~~

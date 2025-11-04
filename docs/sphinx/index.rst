@@ -82,6 +82,7 @@ Documentation Sections
    user_guide/quickstart
    user_guide/configuration
    user_guide/usage
+   user_guide/data_migration
    user_guide/deidentification
    user_guide/country_regulations
    user_guide/troubleshooting
@@ -95,6 +96,7 @@ Documentation Sections
 
    developer_guide/architecture
    developer_guide/project_vision
+   developer_guide/migration_system
    developer_guide/contributing
    developer_guide/extending
    developer_guide/auto_documentation

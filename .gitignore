@@ -200,10 +200,10 @@ credentials.json
 *_mappings.json.enc
 *_deidentification_key.key
 *_deidentification_audit.json
-results/deidentified/mappings/
+output/deidentified/mappings/
 
 # Original dataset directories (may contain PHI/PII)
-results/dataset/
+output/dataset/
 
 # Any files marked as containing PHI/PII
 *_phi.json
@@ -241,8 +241,8 @@ checkpoints/
 data/data_dictionary_and_mapping_specifications/~$*.xlsx
 ~$*.xlsx
 
-# Results directory (uncomment to exclude all results)
-# results/
+# Output directory (uncomment to exclude all output)
+# output/
 
 # Large data files (uncomment if needed)
 # data/dataset/

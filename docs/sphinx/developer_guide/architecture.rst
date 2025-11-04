@@ -410,7 +410,7 @@ Step-by-Step Data Flow:
                                   │
                                   ▼
                         Save as JSONL in:
-                        results/data_dictionary_mappings/
+                        output/data_dictionary_mappings/
                     │
                     ▼
    4. Step 1: extract_excel_to_jsonl()
@@ -432,7 +432,7 @@ Step-by-Step Data Flow:
                                   │
                                   ▼
                         Save as JSONL in:
-                        results/dataset/<dataset_name>/
+                        output/dataset/<dataset_name>/
                             ├── original/  (all columns)
                             └── cleaned/   (duplicates removed)
                     │
@@ -456,13 +456,13 @@ Step-by-Step Data Flow:
                                   │
                                   ▼
                         Save de-identified in:
-                        results/deidentified/<dataset_name>/
+                        output/deidentified/<dataset_name>/
                             ├── original/  (de-identified)
                             ├── cleaned/   (de-identified)
                             └── _deidentification_audit.json
                         
                         Store encrypted mappings:
-                        results/deidentified/mappings/
+                        output/deidentified/mappings/
                             └── mappings.enc
 
 Data Flow Architecture

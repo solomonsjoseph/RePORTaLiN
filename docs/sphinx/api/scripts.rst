@@ -39,7 +39,7 @@ The package exports 2 high-level functions for the main processing pipeline:
    # Step 2: Extract dataset
    extract_success = extract_excel_to_jsonl(
        input_dir="data/dataset/Indo-vap",
-       output_dir="results/dataset/Indo-vap"
+       output_dir="output/dataset/Indo-vap"
    )
 
 For specialized functionality, import directly from submodules:
@@ -235,8 +235,8 @@ Quick example:
    from scripts.deidentify import deidentify_dataset
    
    stats = deidentify_dataset(
-       input_dir="results/dataset/Indo-vap",
-       output_dir="results/deidentified/Indo-vap"
+       input_dir="output/dataset/Indo-vap",
+       output_dir="output/deidentified/Indo-vap"
    )
 
 Single File Processing
@@ -249,7 +249,7 @@ Single File Processing
    
    # Process one file
    input_file = Path("data/dataset/Indo-vap/10_TST.xlsx")
-   output_dir = Path("results/dataset/Indo-vap")
+   output_dir = Path("output/dataset/Indo-vap")
    
    result = process_excel_file(str(input_file), str(output_dir))
    print(f"Processed {result['records']} records")

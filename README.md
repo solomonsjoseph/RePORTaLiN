@@ -150,7 +150,7 @@ RePORTaLiN/
 │   ├── data_dictionary_and_mapping_specifications/
 │   └── dataset/
 │       └── Indo-vap_csv_files/    # Excel files for processing
-├── results/                        # Output directory
+├── output/                         # Output directory
 │   ├── data_dictionary_mappings/  # Processed dictionaries
 │   ├── dataset/                   # Extracted JSONL files
 │   └── deidentified/             # De-identified data
@@ -383,8 +383,8 @@ python3 -m scripts.deidentify --list-countries
 # Direct de-identification
 python3 -m scripts.deidentify \
   --countries IN US \
-  --input-dir results/dataset/Indo-vap/cleaned \
-  --output-dir results/deidentified/Indo-vap
+  --input-dir output/dataset/Indo-vap/cleaned \
+  --output-dir output/deidentified/Indo-vap
 ```
 
 ## Troubleshooting

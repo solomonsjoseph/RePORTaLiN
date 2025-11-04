@@ -112,7 +112,7 @@ Process multiple datasets one at a time:
    python main.py
 
    # Move results to backup
-   mv results/dataset/Indo-vap results/dataset/Indo-vap_backup
+   mv output/dataset/Indo-vap output/dataset/Indo-vap_backup
 
    # Process second dataset
    # Replace data/dataset/ contents with new dataset
@@ -183,7 +183,7 @@ The de-identified data maintains the same directory structure:
 
 .. code-block:: text
 
-   results/deidentified/Indo-vap/
+   output/deidentified/Indo-vap/
    ├── original/
    │   ├── 10_TST.jsonl          # De-identified original files
    │   ├── 11_IGRA.jsonl
@@ -194,7 +194,7 @@ The de-identified data maintains the same directory structure:
    │   └── ...
    └── _deidentification_audit.json  # Audit log
 
-   results/deidentified/mappings/
+   output/deidentified/mappings/
    └── mappings.enc                   # Encrypted mapping table
 
 Standalone De-identification
@@ -206,8 +206,8 @@ You can also run de-identification separately:
 
    # De-identify existing dataset
    python -m scripts.deidentify \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap \
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap \
        --countries IN US
 
    # List supported countries
@@ -215,8 +215,8 @@ You can also run de-identification separately:
 
    # Validate de-identified output
    python -m scripts.deidentify \
-       --input-dir results/dataset/Indo-vap \
-       --output-dir results/deidentified/Indo-vap \
+       --input-dir output/dataset/Indo-vap \
+       --output-dir output/deidentified/Indo-vap \
        --validate
 
 Working with De-identified Data
@@ -227,7 +227,7 @@ Working with De-identified Data
    import pandas as pd
 
    # Read de-identified file
-   df = pd.read_json('results/deidentified/Indo-vap/cleaned/10_TST.jsonl', lines=True)
+   df = pd.read_json('output/deidentified/Indo-vap/cleaned/10_TST.jsonl', lines=True)
    
    # PHI/PII has been replaced with pseudonyms
    print(df.head())
@@ -361,14 +361,14 @@ Verbose output shows de-identification and validation details:
 
     ├─ Processing: De-identification (65 files)
     │  ├─ Total files to process: 65
-    │  ├─ File 1/65: results/dataset/original/10_TST.jsonl
+    │  ├─ File 1/65: output/dataset/original/10_TST.jsonl
     │  │  ├─ Reading and de-identifying records
     │  │  │  ├─ Processed 100 records...
     │  │  │  ├─ Processed 200 records...
     │  │  │  ├─ Processed 412 records
     │  │  ├─ Records processed: 412
     │  │  └─ ⏱ File processing time: 0.89s
-    │  ├─ File 2/65: results/dataset/original/11_IGRA.jsonl
+    │  ├─ File 2/65: output/dataset/original/11_IGRA.jsonl
     │  │  ...
     │  └─ ⏱ Overall de-identification time: 78.34s
     │

@@ -98,6 +98,23 @@ Common Functions
 
    from scripts.utils import logging as log
    
+   logger = log.get_logger(__name__)
+   logger.info("Processing...")
+   logger.success("Complete!")
+
+**Data Migration**:
+
+.. code-block:: python
+
+   from scripts.utils.migrate_data_structure import DataMigrationManager
+   
+   # Test migration
+   manager = DataMigrationManager(dry_run=True)
+   manager.run_migration()
+   
+   # Run actual migration
+   manager = DataMigrationManager(dry_run=False)
+   manager.run_migration()
    log.info("Information message")
    log.success("Success message")
    log.warning("Warning message")
@@ -115,7 +132,7 @@ Process All Files
    from pathlib import Path
    
    input_dir = Path("data/dataset/my_data")
-   output_dir = Path("results/my_data")
+   output_dir = Path("output/my_data")
    
    files = find_excel_files(input_dir)
    for file in files:

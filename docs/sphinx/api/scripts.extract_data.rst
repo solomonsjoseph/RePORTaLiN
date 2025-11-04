@@ -90,7 +90,7 @@ Batch process all Excel files in a directory.
    
    extract_excel_to_jsonl(
        input_dir="data/dataset/Indo-vap",
-       output_dir="results/dataset/Indo-vap"
+       output_dir="output/dataset/Indo-vap"
    )
 
 process_excel_file
@@ -119,7 +119,7 @@ Process a single Excel file.
    
    result = process_excel_file(
        "data/dataset/Indo-vap/10_TST.xlsx",
-       "results/dataset/Indo-vap"
+       "output/dataset/Indo-vap"
    )
    print(f"Processed {result['records']} records")
 

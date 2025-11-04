@@ -70,11 +70,11 @@ Understanding the Output
 
 After the pipeline completes, you'll find:
 
-1. **Extracted Data** in ``results/dataset/<dataset_name>/``
+1. **Extracted Data** in ``output/dataset/<dataset_name>/``
 
    .. code-block:: text
 
-      results/dataset/Indo-vap/
+      output/dataset/Indo-vap/
       ├── original/                 (All columns preserved)
       │   ├── 10_TST.jsonl          (631 records)
       │   ├── 11_IGRA.jsonl         (262 records)
@@ -91,11 +91,11 @@ After the pipeline completes, you'll find:
    - **original/** - All columns preserved as-is from Excel files
    - **cleaned/** - Duplicate columns removed (e.g., SUBJID2, SUBJID3)
 
-2. **Data Dictionary Mappings** in ``results/data_dictionary_mappings/``
+2. **Data Dictionary Mappings** in ``output/data_dictionary_mappings/``
 
    .. code-block:: text
 
-      results/data_dictionary_mappings/
+      output/data_dictionary_mappings/
       ├── Codelists/
       │   ├── Codelists_table_1.jsonl
       │   └── Codelists_table_2.jsonl
@@ -103,11 +103,11 @@ After the pipeline completes, you'll find:
       │   └── tblENROL_table.jsonl
       └── ...                       (14 sheets)
 
-3. **De-identified Data** (if ``--enable-deidentification`` is used) in ``results/deidentified/<dataset_name>/``
+3. **De-identified Data** (if ``--enable-deidentification`` is used) in ``output/deidentified/<dataset_name>/``
 
    .. code-block:: text
 
-      results/deidentified/Indo-vap/
+      output/deidentified/Indo-vap/
       ├── original/                 (De-identified original files)
       │   ├── 10_TST.jsonl
       │   └── ...
@@ -133,7 +133,7 @@ JSONL files can be viewed in several ways:
 .. code-block:: bash
 
    # View first few lines
-   head results/dataset/Indo-vap/original/10_TST.jsonl
+   head output/dataset/Indo-vap/original/10_TST.jsonl
 
 **Using Python:**
 
@@ -142,7 +142,7 @@ JSONL files can be viewed in several ways:
    import pandas as pd
    
    # Read JSONL file
-   df = pd.read_json('results/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
+   df = pd.read_json('output/dataset/Indo-vap/original/10_TST.jsonl', lines=True)
    print(df.head())
 
 **Using jq (command-line JSON processor):**
@@ -150,7 +150,7 @@ JSONL files can be viewed in several ways:
 .. code-block:: bash
 
    # Pretty-print first record
-   head -n 1 results/dataset/Indo-vap/original/10_TST.jsonl | jq
+   head -n 1 output/dataset/Indo-vap/original/10_TST.jsonl | jq
 
 Command-Line Options
 --------------------
@@ -201,7 +201,7 @@ RePORTaLiN automatically detects your dataset:
 
 1. Place your Excel files in ``data/dataset/<your_dataset_name>/``
 2. Run ``python main.py``
-3. Results appear in ``results/dataset/<your_dataset_name>/``
+3. Results appear in ``output/dataset/<your_dataset_name>/``
 
 Example:
 
@@ -215,7 +215,7 @@ Example:
        └── ...
 
    # Automatically creates
-   results/dataset/
+   output/dataset/
    └── my_research_data/
        ├── file1.jsonl
        ├── file2.jsonl
@@ -339,11 +339,11 @@ Execute the main pipeline with this simple command:
 
 **Step 4: Check Your Results**
 
-Navigate to the results folder:
+Navigate to the output folder:
 
 .. code-block:: bash
 
-   cd results/dataset/
+   cd output/dataset/
    ls
 
 ✅ **Expected Output:** You'll see a folder with your dataset name (e.g., ``Indo-vap/``)
@@ -352,7 +352,7 @@ Look inside:
 
 .. code-block:: bash
 
-   ls results/dataset/Indo-vap/
+   ls output/dataset/Indo-vap/
 
 ✅ **Expected Output:**
 
@@ -373,7 +373,7 @@ Open any .jsonl file to see the converted data:
 
 .. code-block:: bash
 
-   head -n 5 results/dataset/Indo-vap/original/10_TST.jsonl
+   head -n 5 output/dataset/Indo-vap/original/10_TST.jsonl
 
 ✅ **Expected Output:** You'll see JSON-formatted data, one record per line:
 
@@ -400,7 +400,7 @@ If you need to remove sensitive patient information (PHI/PII), use the de-identi
 
 .. code-block:: text
 
-   De-identifying dataset: results/dataset/Indo-vap -> results/deidentified/Indo-vap
+   De-identifying dataset: output/dataset/Indo-vap -> output/deidentified/Indo-vap
    Processing both 'original' and 'cleaned' subdirectories...
    Countries: IN (default)
    De-identifying files: 100%|██████████| 43/43 [00:25<00:00, 1.72file/s]
@@ -431,7 +431,7 @@ This applies privacy regulations for India, United States, Indonesia, and Brazil
 
 .. code-block:: bash
 
-   head -n 3 results/deidentified/Indo-vap/original/10_TST.jsonl
+   head -n 3 output/deidentified/Indo-vap/original/10_TST.jsonl
 
 ✅ **Expected Output:** Sensitive data replaced with placeholders:
 
@@ -441,7 +441,7 @@ This applies privacy regulations for India, United States, Indonesia, and Brazil
    {"SUBJID": "[MRN-K2M5P1]", "PATIENT_NAME": "[PATIENT-D9F2G7]", "DOB": "[DATE-2]", ...}
 
 **Note:** Original → Pseudonym mappings are encrypted and stored securely in:
-``results/deidentified/mappings/mappings.enc``
+``output/deidentified/mappings/mappings.enc``
 
 Troubleshooting
 ---------------
@@ -488,7 +488,7 @@ To reprocess, delete the output folder:
 
 .. code-block:: bash
 
-   rm -rf results/dataset/my_dataset/
+   rm -rf output/dataset/my_dataset/
    python3 main.py
 
 ---
@@ -526,7 +526,7 @@ Common Use Cases
 
 .. code-block:: bash
 
-   rm -rf results/
+   rm -rf output/
    python3 main.py
 
 ---
@@ -550,7 +550,7 @@ Next Steps
 
 1. 📊 **Analyze your data:** Use the .jsonl files with pandas, jq, or any JSON tool
 2. 📖 **Read the full documentation:** Learn about advanced configuration options
-3. 🔒 **Review de-identification:** Check the audit log at ``results/deidentified/_deidentification_audit.json``
+3. 🔒 **Review de-identification:** Check the audit log at ``output/deidentified/_deidentification_audit.json``
 4. 📝 **Check logs:** Detailed operation logs are in ``.logs/reportalin_<timestamp>.log``
 
 **Need help?** See the :doc:`troubleshooting` guide or review the logs for detailed error messages.

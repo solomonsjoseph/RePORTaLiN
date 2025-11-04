@@ -108,7 +108,7 @@ High-level API for loading a data dictionary Excel file.
    # Or specify custom paths
    success = load_study_dictionary(
        file_path="data/data_dictionary.xlsx",
-       json_output_dir="results/data_dictionary_mappings"
+       json_output_dir="output/data_dictionary_mappings"
    )
 
 process_excel_file
@@ -136,7 +136,7 @@ Process all sheets in a data dictionary Excel file.
    
    success = process_excel_file(
        excel_path="data/dictionary.xlsx",
-       output_dir="results/dictionary_output"
+       output_dir="output/dictionary_output"
    )
 
 Table Detection
@@ -315,7 +315,7 @@ The module creates this output structure:
 
 .. code-block:: text
 
-   results/data_dictionary_mappings/
+   output/data_dictionary_mappings/
    ├── Sheet1/
    │   └── Sheet1_table.jsonl          # Single table
    │
@@ -374,7 +374,7 @@ Read Output Tables
    
    # Read a dictionary table
    df = pd.read_json(
-       'results/data_dictionary_mappings/tblENROL/tblENROL_table.jsonl',
+       'output/data_dictionary_mappings/tblENROL/tblENROL_table.jsonl',
        lines=True
    )
    print(df.head())

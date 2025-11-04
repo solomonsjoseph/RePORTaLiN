@@ -255,12 +255,14 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
         Dictionary with extraction statistics
     """
     overall_start = time.time()
-    os.makedirs(config.CLEAN_DATASET_DIR, exist_ok=True)
-    excel_files = find_excel_files(config.DATASET_DIR)
+    # Use new v0.3.0 config API: DATASETS_DIR and OUTPUT_DIR
+    clean_dataset_dir = os.path.join(config.OUTPUT_DIR, "cleaned_datasets")
+    os.makedirs(clean_dataset_dir, exist_ok=True)
+    excel_files = find_excel_files(config.DATASETS_DIR)
     
     if not excel_files:
-        log.warning(f"No Excel files found in {config.DATASET_DIR}")
-        print(f"No Excel files found in {config.DATASET_DIR}")
+        log.warning(f"No Excel files found in {config.DATASETS_DIR}")
+        print(f"No Excel files found in {config.DATASETS_DIR}")
         return {"files_found": 0, "files_created": 0, "files_skipped": 0, 
                 "total_records": 0, "errors": []}
     
@@ -278,8 +280,8 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
                                    file=sys.stdout, dynamic_ncols=True, leave=True,
                                    bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'), 1):
             # Check if files already exist in both original and cleaned directories
-            original_file = Path(config.CLEAN_DATASET_DIR) / "original" / f"{excel_file.stem}.jsonl"
-            cleaned_file = Path(config.CLEAN_DATASET_DIR) / "cleaned" / f"{excel_file.stem}.jsonl"
+            original_file = Path(clean_dataset_dir) / "original" / f"{excel_file.stem}.jsonl"
+            cleaned_file = Path(clean_dataset_dir) / "cleaned" / f"{excel_file.stem}.jsonl"
             
             # Check if files exist AND have valid content (integrity check)
             if (original_file.exists() and cleaned_file.exists() and
@@ -301,7 +303,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
             
             # Process file with verbose logging context
             with vlog.step(f"File {file_index}/{len(excel_files)}: {excel_file.name}"):
-                success, records_count, error_msg = process_excel_file(excel_file, config.CLEAN_DATASET_DIR)
+                success, records_count, error_msg = process_excel_file(excel_file, clean_dataset_dir)
                 if success:
                     files_created += 1
                     total_records += records_count
@@ -321,7 +323,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
     print(f"  ✓ {total_records} total records processed")
     print(f"  ✓ {files_created} JSONL files created")
     print(f"  ⊙ {files_skipped} files skipped (already exist)")
-    print(f"  → Output directory: {config.CLEAN_DATASET_DIR}")
+    print(f"  → Output directory: {clean_dataset_dir}")
     if errors:
         print(f"  ✗ {len(errors)} files had errors")
         log.error(f"{len(errors)} files had errors during extraction")

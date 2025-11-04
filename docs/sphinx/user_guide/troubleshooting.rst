@@ -384,7 +384,7 @@ Wrong Output Directory
 
    python -c "import config; print(config.CLEAN_DATASET_DIR)"
 
-The output should be: ``results/dataset/<dataset_name>/``
+The output should be: ``output/dataset/<dataset_name>/``
 
 Path Issues
 ~~~~~~~~~~~
@@ -643,7 +643,7 @@ Common Error Messages
 
    # Close Excel files
    # Check permissions
-   chmod -R 755 data/ results/
+   chmod -R 755 data/ output/
 
 See Also
 --------

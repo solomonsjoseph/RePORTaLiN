@@ -69,10 +69,10 @@ Data Directories
 .. code-block:: python
 
    DATA_DIR = os.path.join(ROOT_DIR, "data")
-   RESULTS_DIR = os.path.join(ROOT_DIR, "results")
+   OUTPUT_DIR = os.path.join(ROOT_DIR, "output")
 
 - **DATA_DIR**: Location of raw input data
-- **RESULTS_DIR**: Location for processed outputs
+- **OUTPUT_DIR**: Location for processed outputs
 - **Modification**: Can be changed if you want different locations
 
 Dataset Paths
@@ -98,8 +98,8 @@ Output Directories
 
 .. code-block:: python
 
-   CLEAN_DATASET_DIR = os.path.join(RESULTS_DIR, "dataset", DATASET_NAME)
-   DICTIONARY_JSON_OUTPUT_DIR = os.path.join(RESULTS_DIR, "data_dictionary_mappings")
+   CLEAN_DATASET_DIR = os.path.join(OUTPUT_DIR, "dataset", DATASET_NAME)
+   DICTIONARY_JSON_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "data_dictionary_mappings")
 
 - **CLEAN_DATASET_DIR**: Where extracted JSONL files are saved
 - **DICTIONARY_JSON_OUTPUT_DIR**: Where dictionary tables are saved
@@ -240,7 +240,7 @@ Automatically creates all required directories if they don't exist.
    ensure_directories()
 
 **What it creates**:
-   - ``RESULTS_DIR``
+   - ``OUTPUT_DIR``
    - ``CLEAN_DATASET_DIR``
    - ``DICTIONARY_JSON_OUTPUT_DIR``
 
@@ -330,7 +330,7 @@ To use a different data directory:
 
    # config.py
    DATA_DIR = "/path/to/my/data"
-   RESULTS_DIR = "/path/to/my/results"
+   OUTPUT_DIR = "/path/to/my/output"
 
 Example 3: Different Dictionary File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -448,7 +448,7 @@ The configuration creates this structure:
    │   └── data_dictionary_and_mapping_specifications/
    │       └── RePORT_DEB_to_Tables_mapping.xlsx
    │
-   └── results/
+   └── output/
        ├── dataset/
        │   └── <dataset_name>/          # Mirrors input structure
        └── data_dictionary_mappings/
@@ -480,7 +480,7 @@ Problem: "Permission denied"
 
 .. code-block:: bash
 
-   chmod -R 755 results/
+   chmod -R 755 output/
    chmod 755 .logs/
 
 Problem: "Config file not found"

@@ -14,8 +14,10 @@ All paths, settings, and parameters are defined here to ensure consistency acros
 all pipeline components.
 
 .. versionchanged:: 0.3.0
-   Added ``ensure_directories()``, ``validate_config()``, and ``normalize_dataset_name()`` functions.
-   Enhanced error handling and type safety. Fixed suffix removal bug.
+   **Major refactoring**: Removed legacy dataset detection logic. Added dynamic study
+   detection with ``detect_study_name()``. Introduced standardized folder structure
+   with ``datasets/``, ``annotated_pdfs/``, and ``data_dictionary/`` subdirectories.
+   Removed backward compatibility with old folder naming.
 
 Module Metadata
 ---------------
@@ -25,7 +27,7 @@ __version__
 
 .. code-block:: python
 
-   __version__ = '1.0.0'
+   __version__ = '0.3.0'
 
 Module version string.
 
@@ -35,11 +37,12 @@ __all__
 .. code-block:: python
 
    __all__ = [
-       'ROOT_DIR', 'DATA_DIR', 'RESULTS_DIR', 'DATASET_BASE_DIR',
-       'DATASET_FOLDER_NAME', 'DATASET_DIR', 'DATASET_NAME', 'CLEAN_DATASET_DIR',
+       'BASE_DIR', 'DATA_DIR', 'OUTPUT_DIR', 'LOGS_DIR', 'TMP_DIR',
+       'STUDY_NAME', 'STUDY_DATA_DIR',
+       'DATASETS_DIR', 'ANNOTATED_PDFS_DIR', 'DATA_DICTIONARY_DIR',
        'DICTIONARY_EXCEL_FILE', 'DICTIONARY_JSON_OUTPUT_DIR',
        'LOG_LEVEL', 'LOG_NAME',
-       'ensure_directories', 'validate_config',
+       'ensure_directories', 'validate_config', 'detect_study_name',
        'DEFAULT_DATASET_NAME'
    ]
 
@@ -56,112 +59,174 @@ DEFAULT_DATASET_NAME
 
 .. code-block:: python
 
-   DEFAULT_DATASET_NAME = "RePORTaLiN_sample"
+   DEFAULT_DATASET_NAME = "Indo-VAP"
 
-Default dataset name used when no dataset folder is detected.
+Default dataset name used when no study folder is detected.
 
-.. versionadded:: 0.3.0
-   Extracted as a public constant.
-
-DATASET_SUFFIXES
-^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-   DATASET_SUFFIXES = ('_csv_files', '_files')
-
-Tuple of common suffixes removed from dataset folder names during normalization.
-
-.. versionadded:: 0.3.0
-   Internal constant (not in __all__).
+.. versionchanged:: 0.3.0
+   Changed from "RePORTaLiN_sample" to "Indo-VAP".
 
 Directory Paths
 ~~~~~~~~~~~~~~~
 
-ROOT_DIR
+BASE_DIR
 ^^^^^^^^
 
 .. code-block:: python
 
-   ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+   BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
 
 Absolute path to the project root directory. All other paths are relative to this.
 
 .. versionchanged:: 0.3.0
-   Added fallback to ``os.getcwd()`` when ``__file__`` is not available (REPL environments).
+   Renamed from ``ROOT_DIR`` to ``BASE_DIR`` for clarity.
 
 DATA_DIR
 ^^^^^^^^
 
 .. code-block:: python
 
-   DATA_DIR = os.path.join(ROOT_DIR, "data")
+   DATA_DIR = os.path.join(BASE_DIR, "data")
 
-Path to the data directory containing input files.
+Path to the data directory containing all study data.
 
-RESULTS_DIR
-^^^^^^^^^^^
+Study Configuration
+~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
-
-   RESULTS_DIR = os.path.join(ROOT_DIR, "results")
-
-Path to the results directory for output files.
-
-Dataset Paths
-~~~~~~~~~~~~~
-
-DATASET_BASE_DIR
-^^^^^^^^^^^^^^^^
+STUDY_NAME
+^^^^^^^^^^
 
 .. code-block:: python
 
-   DATASET_BASE_DIR = os.path.join(DATA_DIR, "dataset")
+   STUDY_NAME = detect_study_name()
 
-Base directory containing dataset folders.
+Name of the current study, automatically detected by scanning the data directory.
+Falls back to ``DEFAULT_DATASET_NAME`` if no study folders are found.
 
-DATASET_DIR
-^^^^^^^^^^^
+.. versionadded:: 0.3.0
+   Dynamic study detection replaces hardcoded dataset name.
+
+STUDY_DATA_DIR
+^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-   DATASET_DIR = get_dataset_folder()
+   STUDY_DATA_DIR = os.path.join(DATA_DIR, STUDY_NAME)
 
-Path to the current dataset directory (auto-detected).
+Base directory for the current study's data (e.g., ``data/Indo-VAP/``).
 
-DATASET_NAME
+.. versionadded:: 0.3.0
+
+Study Data Directories
+~~~~~~~~~~~~~~~~~~~~~~
+
+DATASETS_DIR
 ^^^^^^^^^^^^
 
 .. code-block:: python
 
-   DATASET_NAME = normalize_dataset_name(DATASET_FOLDER_NAME)
+   DATASETS_DIR = os.path.join(STUDY_DATA_DIR, "datasets")
 
-Name of the current dataset (e.g., "Indo-vap"), extracted by removing common suffixes
-from the dataset folder name using the ``normalize_dataset_name()`` function.
+Directory containing study dataset files (Excel/CSV files).
 
-.. versionchanged:: 0.3.0
-   Now uses ``normalize_dataset_name()`` function for improved suffix handling.
+**Example structure**:
+
+.. code-block:: text
+
+   data/Indo-VAP/datasets/
+   ├── 1A_ICScreening.xlsx
+   ├── 1B_HCScreening.xlsx
+   └── ...
+
+.. versionadded:: 0.3.0
+   Replaces ``DATASET_DIR`` with standardized naming.
+
+ANNOTATED_PDFS_DIR
+^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   ANNOTATED_PDFS_DIR = os.path.join(STUDY_DATA_DIR, "annotated_pdfs")
+
+Directory containing annotated PDF files for the study.
+
+**Example structure**:
+
+.. code-block:: text
+
+   data/Indo-VAP/annotated_pdfs/
+   ├── 1A Index Case Screening v1.0.pdf
+   ├── 1B HHC Screening v1.0.pdf
+   └── ...
+
+.. versionadded:: 0.3.0
+
+DATA_DICTIONARY_DIR
+^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   DATA_DICTIONARY_DIR = os.path.join(STUDY_DATA_DIR, "data_dictionary")
+
+Directory containing data dictionary and mapping specification files.
+
+**Example structure**:
+
+.. code-block:: text
+
+   data/Indo-VAP/data_dictionary/
+   └── RePORT_DEB_to_Tables_mapping.xlsx
+
+.. versionadded:: 0.3.0
 
 Output Paths
 ~~~~~~~~~~~~
 
-CLEAN_DATASET_DIR
-^^^^^^^^^^^^^^^^^
+OUTPUT_DIR
+^^^^^^^^^^
 
 .. code-block:: python
 
-   CLEAN_DATASET_DIR = os.path.join(RESULTS_DIR, "dataset", DATASET_NAME)
+   OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 
-Output directory for extracted JSONL files.
+Base directory for all output files.
+
+.. versionadded:: 0.3.0
+   Replaces ``RESULTS_DIR``.
+
+LOGS_DIR
+^^^^^^^^
+
+.. code-block:: python
+
+   LOGS_DIR = os.path.join(BASE_DIR, ".logs")
+
+Directory for log files.
+
+.. versionadded:: 0.3.0
+
+TMP_DIR
+^^^^^^^
+
+.. code-block:: python
+
+   TMP_DIR = os.path.join(BASE_DIR, "tmp")
+
+Directory for temporary files.
+
+.. versionadded:: 0.3.0
 
 DICTIONARY_JSON_OUTPUT_DIR
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: python
 
-   DICTIONARY_JSON_OUTPUT_DIR = os.path.join(RESULTS_DIR, "data_dictionary_mappings")
+   DICTIONARY_JSON_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "data_dictionary_mappings")
 
-Output directory for data dictionary tables.
+Output directory for processed data dictionary files.
+
+.. versionchanged:: 0.3.0
+   Now uses ``OUTPUT_DIR`` instead of ``RESULTS_DIR``.
 
 Dictionary File
 ~~~~~~~~~~~~~~~
@@ -172,12 +237,14 @@ DICTIONARY_EXCEL_FILE
 .. code-block:: python
 
    DICTIONARY_EXCEL_FILE = os.path.join(
-       DATA_DIR,
-       "data_dictionary_and_mapping_specifications",
+       DATA_DICTIONARY_DIR,
        "RePORT_DEB_to_Tables_mapping.xlsx"
    )
 
 Path to the data dictionary Excel file.
+
+.. versionchanged:: 0.3.0
+   Now uses ``DATA_DICTIONARY_DIR`` for standardized path.
 
 Logging Settings
 ~~~~~~~~~~~~~~~~
@@ -208,73 +275,34 @@ Logger instance name used throughout the application.
 Functions
 ---------
 
-get_dataset_folder
-~~~~~~~~~~~~~~~~~~
+detect_study_name
+~~~~~~~~~~~~~~~~~
 
-.. autofunction:: config.get_dataset_folder
+.. autofunction:: config.detect_study_name
    :no-index:
 
-Automatically detect the dataset folder from the file system. Returns the first
-alphabetically sorted folder in ``data/dataset/``, excluding hidden folders
-(those starting with '.').
+Automatically detect the study name by scanning the data directory structure.
 
 **Returns**:
-  - ``str``: Name of the detected dataset folder
-  - ``None``: If no folders exist or directory is inaccessible
+  - ``str``: Name of the first valid study folder found, or ``DEFAULT_DATASET_NAME`` if none exist
+
+**Algorithm**:
+  1. Lists all subdirectories in ``DATA_DIR``
+  2. Excludes hidden folders (starting with '.')
+  3. Returns the first folder found (alphabetically sorted)
+  4. Falls back to ``DEFAULT_DATASET_NAME`` if no folders exist
 
 **Example**:
 
 .. code-block:: python
 
-   from config import get_dataset_folder
+   from config import detect_study_name
    
-   folder = get_dataset_folder()
-   if folder:
-       print(f"Detected dataset: {folder}")
-   else:
-       print("No dataset folder found")
-
-.. versionchanged:: 0.3.0
-   Removed faulty ``'..' not in f`` check. Added explicit empty list validation.
-
-normalize_dataset_name
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: config.normalize_dataset_name
-   :no-index:
-
-Normalize dataset folder name by removing common suffixes.
-
-**Parameters**:
-  - ``folder_name`` (``Optional[str]``): The dataset folder name to normalize
-
-**Returns**:
-  - ``str``: Normalized dataset name
-
-**Algorithm**:
-  Removes the longest matching suffix from ``DATASET_SUFFIXES`` to handle
-  overlapping suffixes correctly (e.g., ``_csv_files`` vs ``_files``).
-
-**Examples**:
-
-.. code-block:: python
-
-   from config import normalize_dataset_name
-   
-   # Remove suffix
-   name = normalize_dataset_name("Indo-vap_csv_files")
-   print(name)  # Output: "Indo-vap"
-   
-   # Handle overlapping suffixes
-   name = normalize_dataset_name("test_files")
-   print(name)  # Output: "test"
-   
-   # Fallback to default
-   name = normalize_dataset_name(None)
-   print(name)  # Output: "RePORTaLiN_sample"
+   study = detect_study_name()
+   print(f"Detected study: {study}")  # Output: "Indo-VAP"
 
 .. versionadded:: 0.3.0
-   Extracted from inline code. Uses longest-match algorithm.
+   Replaces ``get_dataset_folder()`` with simplified logic.
 
 ensure_directories
 ~~~~~~~~~~~~~~~~~~
@@ -282,9 +310,10 @@ ensure_directories
 .. autofunction:: config.ensure_directories
    :no-index:
 
-Create necessary directories if they don't exist. Creates:
-  - ``RESULTS_DIR``
-  - ``CLEAN_DATASET_DIR``
+Create necessary output directories if they don't exist. Creates:
+  - ``OUTPUT_DIR``
+  - ``LOGS_DIR``
+  - ``TMP_DIR``
   - ``DICTIONARY_JSON_OUTPUT_DIR``
 
 **Example**:
@@ -296,8 +325,8 @@ Create necessary directories if they don't exist. Creates:
    # Create all required directories
    ensure_directories()
 
-.. versionadded:: 0.3.0
-   New utility function for directory management.
+.. versionchanged:: 0.3.0
+   Now creates ``OUTPUT_DIR``, ``LOGS_DIR``, and ``TMP_DIR`` instead of legacy paths.
 
 validate_config
 ~~~~~~~~~~~~~~~
@@ -305,14 +334,17 @@ validate_config
 .. autofunction:: config.validate_config
    :no-index:
 
-Validate configuration and return list of warnings for missing or invalid paths.
+Validate configuration and raise errors if critical paths are missing.
 
-**Returns**:
-  - ``List[str]``: List of warning messages (empty if all valid)
+**Raises**:
+  - ``FileNotFoundError``: If any required directory or file doesn't exist
 
 **Validates**:
   - ``DATA_DIR`` exists
-  - ``DATASET_DIR`` exists
+  - ``STUDY_DATA_DIR`` exists
+  - ``DATASETS_DIR`` exists
+  - ``ANNOTATED_PDFS_DIR`` exists
+  - ``DATA_DICTIONARY_DIR`` exists
   - ``DICTIONARY_EXCEL_FILE`` exists
 
 **Example**:
@@ -321,16 +353,14 @@ Validate configuration and return list of warnings for missing or invalid paths.
 
    from config import validate_config
    
-   warnings = validate_config()
-   if warnings:
-       print("Configuration warnings:")
-       for warning in warnings:
-           print(f"  - {warning}")
-   else:
+   try:
+       validate_config()
        print("Configuration is valid!")
+   except FileNotFoundError as e:
+       print(f"Configuration error: {e}")
 
-.. versionadded:: 0.3.0
-   New utility function for configuration validation.
+.. versionchanged:: 0.3.0
+   Now raises exceptions instead of returning warnings. Validates new directory structure.
 
 Usage Examples
 --------------
@@ -340,119 +370,192 @@ Basic Usage
 
 .. code-block:: python
 
-   import config
+   from config import (
+       STUDY_NAME,
+       DATASETS_DIR,
+       ANNOTATED_PDFS_DIR,
+       DATA_DICTIONARY_DIR,
+       validate_config
+   )
    
-   # Access configuration
-   print(f"Dataset: {config.DATASET_NAME}")
-   print(f"Input: {config.DATASET_DIR}")
-   print(f"Output: {config.CLEAN_DATASET_DIR}")
+   # Validate configuration on startup
+   validate_config()
+   
+   # Access study-specific paths
+   print(f"Current study: {STUDY_NAME}")
+   print(f"Datasets location: {DATASETS_DIR}")
+   print(f"Annotated PDFs location: {ANNOTATED_PDFS_DIR}")
+   
+   # List all datasets for current study
+   import os
+   datasets = [f for f in os.listdir(DATASETS_DIR) if f.endswith('.xlsx')]
+   print(f"Found {len(datasets)} dataset files")
 
-Using New Utility Functions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dynamic Study Detection
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from config import detect_study_name, DATA_DIR
+   import os
+   
+   # Detect available studies
+   study = detect_study_name()
+   print(f"Auto-detected study: {study}")
+   
+   # List all available studies
+   studies = [d for d in os.listdir(DATA_DIR) 
+              if os.path.isdir(os.path.join(DATA_DIR, d)) 
+              and not d.startswith('.')]
+   print(f"Available studies: {studies}")
+
+Working with Multiple Studies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   import os
+   from config import DATA_DIR
+   
+   # Process all available studies
+   for study in os.listdir(DATA_DIR):
+       study_path = os.path.join(DATA_DIR, study)
+       if os.path.isdir(study_path) and not study.startswith('.'):
+           datasets_dir = os.path.join(study_path, "datasets")
+           if os.path.exists(datasets_dir):
+               print(f"Processing study: {study}")
+               # Process datasets...
+
+Using Utility Functions
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
    from config import ensure_directories, validate_config
    
-   # Ensure all directories exist
+   # Ensure all output directories exist
    ensure_directories()
    
-   # Validate configuration
-   warnings = validate_config()
-   if warnings:
-       for warning in warnings:
-           print(f"Warning: {warning}")
-
-Custom Configuration
-~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
-
-   # config.py modifications
-   import os
-   
-   # Use environment variable
-   DATA_DIR = os.getenv("REPORTALIN_DATA", os.path.join(ROOT_DIR, "data"))
-   
-   # Custom logging
-   import logging
-   LOG_LEVEL = logging.DEBUG
+   # Validate configuration before processing
+   try:
+       validate_config()
+       print("All required directories and files exist")
+   except FileNotFoundError as e:
+       print(f"Configuration error: {e}")
+       exit(1)
 
 Best Practices
 --------------
 
-1. **Always call ensure_directories()** before file operations:
+1. **Always validate configuration at startup**:
 
    .. code-block:: python
 
-      from config import ensure_directories, CLEAN_DATASET_DIR
+      from config import validate_config, ensure_directories
       
+      # Validate input paths
+      validate_config()
+      
+      # Create output directories
       ensure_directories()
-      # Now safe to write to CLEAN_DATASET_DIR
 
-2. **Validate configuration at startup**:
+2. **Use constants instead of hardcoded values**:
+
+   .. code-block:: python
+
+      from config import DATASETS_DIR, STUDY_NAME
+      
+      # Good
+      dataset_path = os.path.join(DATASETS_DIR, "1A_ICScreening.xlsx")
+      
+      # Avoid
+      dataset_path = f"data/{STUDY_NAME}/datasets/1A_ICScreening.xlsx"
+
+3. **Handle missing directories gracefully**:
 
    .. code-block:: python
 
       from config import validate_config
       
-      warnings = validate_config()
-      if warnings:
-          logger.warning("Configuration issues detected:")
-          for warning in warnings:
-              logger.warning(f"  {warning}")
-
-3. **Use constants instead of hardcoded values**:
-
-   .. code-block:: python
-
-      from config import DEFAULT_DATASET_NAME
-      
-      # Good
-      dataset = folder_name or DEFAULT_DATASET_NAME
-      
-      # Avoid
-      dataset = folder_name or "RePORTaLiN_sample"
+      try:
+          validate_config()
+      except FileNotFoundError as e:
+          logger.error(f"Configuration error: {e}")
+          logger.info("Please ensure data structure follows the standard layout")
+          exit(1)
 
 Directory Structure
 -------------------
 
-The configuration defines this structure:
+The configuration defines this standardized structure:
 
 .. code-block:: text
 
    RePORTaLiN/
-   ├── data/                           (DATA_DIR)
-   │   ├── dataset/                    (DATASET_BASE_DIR)
-   │   │   └── <dataset_name>/         (DATASET_DIR)
-   │   └── data_dictionary_and_mapping_specifications/
-   │       └── RePORT_DEB_to_Tables_mapping.xlsx  (DICTIONARY_EXCEL_FILE)
+   ├── data/                              (DATA_DIR)
+   │   └── {STUDY_NAME}/                  (STUDY_DATA_DIR)
+   │       ├── datasets/                  (DATASETS_DIR)
+   │       │   ├── 1A_ICScreening.xlsx
+   │       │   ├── 1B_HCScreening.xlsx
+   │       │   └── ...
+   │       ├── annotated_pdfs/            (ANNOTATED_PDFS_DIR)
+   │       │   ├── 1A Index Case Screening v1.0.pdf
+   │       │   └── ...
+   │       └── data_dictionary/           (DATA_DICTIONARY_DIR)
+   │           └── RePORT_DEB_to_Tables_mapping.xlsx
    │
-   └── results/                        (RESULTS_DIR)
-       ├── dataset/
-       │   └── <dataset_name>/         (CLEAN_DATASET_DIR)
-       └── data_dictionary_mappings/   (DICTIONARY_JSON_OUTPUT_DIR)
+   ├── output/                            (OUTPUT_DIR)
+   │   └── data_dictionary_mappings/      (DICTIONARY_JSON_OUTPUT_DIR)
+   ├── .logs/                             (LOGS_DIR)
+   └── tmp/                               (TMP_DIR)
+
+Migration from v0.2.x
+---------------------
+
+**Breaking Changes**:
+
+The following constants and functions have been **removed**:
+
+- ``ROOT_DIR`` → Use ``BASE_DIR``
+- ``RESULTS_DIR`` → Use ``OUTPUT_DIR``
+- ``DATASET_BASE_DIR`` → No longer needed (use ``STUDY_DATA_DIR``)
+- ``DATASET_FOLDER_NAME`` → Use ``STUDY_NAME``
+- ``DATASET_DIR`` → Use ``DATASETS_DIR``
+- ``DATASET_NAME`` → Use ``STUDY_NAME``
+- ``CLEAN_DATASET_DIR`` → Build path dynamically with ``OUTPUT_DIR``
+- ``DATASET_SUFFIXES`` → No longer needed
+- ``get_dataset_folder()`` → Use ``detect_study_name()``
+- ``normalize_dataset_name()`` → No longer needed
+
+**Migration example**:
+
+.. code-block:: python
+
+   # Old (v0.2.x)
+   from config import DATASET_DIR, DATASET_NAME, CLEAN_DATASET_DIR
+   
+   # New (v0.3.0)
+   from config import DATASETS_DIR, STUDY_NAME, OUTPUT_DIR
+   
+   # Old path construction
+   input_path = os.path.join(DATASET_DIR, "file.xlsx")
+   output_path = os.path.join(CLEAN_DATASET_DIR, "file.jsonl")
+   
+   # New path construction
+   input_path = os.path.join(DATASETS_DIR, "file.xlsx")
+   output_path = os.path.join(OUTPUT_DIR, "dataset", STUDY_NAME, "file.jsonl")
 
 See Also
 --------
 
-:doc:`../user_guide/configuration`
-   User guide for configuration and utility functions
+:doc:`../user_guide/data_migration`
+   User guide for data structure and migration
 
-:doc:`../user_guide/quickstart`
-   Quick start guide with configuration validation
-
-:doc:`../user_guide/troubleshooting`
-   Troubleshooting with validation utilities
-
-:doc:`../developer_guide/extending`
-   Extending the configuration module
-
-:doc:`../developer_guide/contributing`
-   Configuration module contribution guidelines
+:doc:`../developer_guide/migration_system`
+   Technical details on migration system
 
 :doc:`../changelog`
-   Version 0.0.3 changes and enhancements
+   Version 0.3.0 changes and breaking changes
 
 :mod:`main`
    Main pipeline that uses configuration

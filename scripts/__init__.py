@@ -39,7 +39,7 @@ Process both data dictionary and dataset with default configuration::
     # Step 1: Load data dictionary
     dict_success = load_study_dictionary()
     
-    # Step 2: Extract dataset (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
+    # Step 2: Extract dataset (uses config.DATASETS_DIR and config.OUTPUT_DIR)
     result = extract_excel_to_jsonl()
     
     if dict_success and result['files_created'] > 0:
@@ -56,7 +56,7 @@ Use individual modules for custom workflows::
     # Custom dictionary processing
     process_excel_file(
         excel_path="custom_dict.xlsx",
-        output_dir="results/custom_dict"
+        output_dir="output/custom_dict"
     )
     
     # Custom data extraction with file discovery
@@ -64,7 +64,7 @@ Use individual modules for custom workflows::
     for file_path in excel_files:
         process_data(
             excel_path=file_path,
-            output_dir="results/custom_output"
+            output_dir="output/custom_output"
         )
 
 De-identification Workflow
@@ -75,8 +75,9 @@ Complete pipeline with de-identification::
     from scripts import extract_excel_to_jsonl
     from scripts.deidentify import deidentify_dataset, DeidentificationConfig
     import config
+    import os
     
-    # Step 1: Extract data (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
+    # Step 1: Extract data (uses config.DATASETS_DIR and config.OUTPUT_DIR)
     result = extract_excel_to_jsonl()
     
     # Step 2: De-identify with custom configuration
@@ -85,9 +86,10 @@ Complete pipeline with de-identification::
         enable_encryption=True
     )
     
+    clean_dataset_dir = os.path.join(config.OUTPUT_DIR, "cleaned_datasets")
     deidentify_dataset(
-        input_dir=f"{config.CLEAN_DATASET_DIR}/cleaned",
-        output_dir="results/deidentified/Indo-vap",
+        input_dir=f"{clean_dataset_dir}/cleaned",
+        output_dir=os.path.join(config.OUTPUT_DIR, "deidentified", config.STUDY_NAME),
         config=deidentify_config
     )
 

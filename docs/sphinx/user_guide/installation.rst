@@ -161,7 +161,7 @@ After installation, your project structure should look like:
    │   │   └── <dataset_name>/  # Excel files (e.g., Indo-vap_csv_files/)
    │   └── data_dictionary_and_mapping_specifications/
    │       └── RePORT_DEB_to_Tables_mapping.xlsx
-   ├── results/               # Output files (created automatically)
+   ├── output/               # Output files (created automatically)
    │   ├── dataset/           # Extracted JSONL files
    │   ├── deidentified/      # De-identified data (if enabled)
    │   └── data_dictionary_mappings/  # Dictionary outputs

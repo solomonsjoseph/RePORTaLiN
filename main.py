@@ -189,13 +189,18 @@ For detailed documentation, see the Sphinx docs or README.md
     log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple)
     log.info("Starting RePORTaLiN pipeline...")
     
-    # Validate configuration and warn about missing files
-    config_warnings = config.validate_config()
-    if config_warnings:
-        for warning in config_warnings:
-            log.warning(warning)
-        # Don't exit on warnings, just inform the user
-        log.info("Proceeding despite configuration warnings. Some features may not work.")
+    # Validate configuration (v0.3.0: raises exceptions on errors)
+    try:
+        config.validate_config()
+        log.info("Configuration validated successfully")
+    except FileNotFoundError as e:
+        log.error(f"Configuration validation failed: {e}")
+        print(f"\n❌ Configuration Error: {e}")
+        print("\nPlease ensure your data directory structure is correct:")
+        print(f"  data/{config.STUDY_NAME}/datasets/")
+        print(f"  data/{config.STUDY_NAME}/annotated_pdfs/")
+        print(f"  data/{config.STUDY_NAME}/data_dictionary/")
+        return 1
     
     # Ensure required directories exist
     config.ensure_directories()
@@ -222,11 +227,12 @@ For detailed documentation, see the Sphinx docs or README.md
     # De-identification step (opt-in for now)
     if args.enable_deidentification and not args.skip_deidentification:
         def run_deidentification():
-            # Input directory contains original/ and cleaned/ subdirectories
-            input_dir = Path(config.CLEAN_DATASET_DIR)
+            # Input directory contains original/ and cleaned/ subdirectories (v0.3.0)
+            clean_dataset_dir = Path(config.OUTPUT_DIR) / "cleaned_datasets"
+            input_dir = clean_dataset_dir / "cleaned"
             
-            # Output to dedicated deidentified directory within results
-            output_dir = Path(config.RESULTS_DIR) / "deidentified" / config.DATASET_NAME
+            # Output to dedicated deidentified directory within output (v0.3.0)
+            output_dir = Path(config.OUTPUT_DIR) / "deidentified" / config.STUDY_NAME
             
             log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
             log.info(f"Processing both 'original' and 'cleaned' subdirectories...")

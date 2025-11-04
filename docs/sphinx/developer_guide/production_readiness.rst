@@ -492,17 +492,17 @@ Data Flow
 **Path**: ✅ COHERENT
 
 1. **Input**: Excel files in ``data/dataset/<name>/``
-2. **Extract**: Convert to JSONL in ``results/dataset/<name>/`` with subdirectories:
+2. **Extract**: Convert to JSONL in ``output/dataset/<name>/`` with subdirectories:
    
    - ``original/`` - All columns preserved
    - ``cleaned/`` - Duplicate columns removed
 
-3. **De-identify**: Process to ``results/deidentified/<name>/`` maintaining structure:
+3. **De-identify**: Process to ``output/deidentified/<name>/`` maintaining structure:
    
    - ``original/`` - De-identified original files
    - ``cleaned/`` - De-identified cleaned files
 
-4. **Mappings**: Store in ``results/deidentified/mappings/``
+4. **Mappings**: Store in ``output/deidentified/mappings/``
 
 **Data Integrity**:
 
@@ -949,13 +949,13 @@ Version Control & Data Tracking
 - ✅ Documentation (``docs/``, ``README.md``)
 - ✅ Input data dictionary specifications (``data/data_dictionary_and_mapping_specifications/``)
 - ✅ Annotated PDFs (``data/Annotated_PDFs/``)
-- ✅ **De-identified datasets** (``results/deidentified/Indo-vap/``)
-- ✅ Data dictionary mappings (``results/data_dictionary_mappings/``)
+- ✅ **De-identified datasets** (``output/deidentified/Indo-vap/``)
+- ✅ Data dictionary mappings (``output/data_dictionary_mappings/``)
 
 **What Should NOT Be Tracked (gitignored):**
 
-- ❌ Original datasets with PHI/PII (``results/dataset/``)
-- ❌ Deidentification mappings (``results/deidentified/mappings/``)
+- ❌ Original datasets with PHI/PII (``output/dataset/``)
+- ❌ Deidentification mappings (``output/deidentified/mappings/``)
 - ❌ Deidentification audit logs (``*_deidentification_audit.json``)
 - ❌ Encryption keys (``*.key``, ``*.pem``, ``*.fernet``)
 - ❌ Mapping files (``*_mappings.json``, ``*_mappings.json.enc``)

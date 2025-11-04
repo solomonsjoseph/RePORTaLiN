@@ -55,17 +55,17 @@ Privacy protection happens automatically as part of the data processing:
 
 Your Excel files are converted to a simpler format (JSONL):
 
-* ``results/dataset/Indo-vap/original/`` - All your data preserved
-* ``results/dataset/Indo-vap/cleaned/`` - Duplicate information removed
+* ``output/dataset/Indo-vap/original/`` - All your data preserved
+* ``output/dataset/Indo-vap/cleaned/`` - Duplicate information removed
 
 **Step 2: Privacy Protection** (Optional)
 
 Both folders are protected while keeping the same structure:
 
-* ``results/deidentified/Indo-vap/original/`` - Protected original files
-* ``results/deidentified/Indo-vap/cleaned/`` - Protected cleaned files
-* ``results/deidentified/mappings/mappings.enc`` - Encrypted lookup table
-* ``results/deidentified/Indo-vap/_deidentification_audit.json`` - Record of changes
+* ``output/deidentified/Indo-vap/original/`` - Protected original files
+* ``output/deidentified/Indo-vap/cleaned/`` - Protected cleaned files
+* ``output/deidentified/mappings/mappings.enc`` - Encrypted lookup table
+* ``output/deidentified/Indo-vap/_deidentification_audit.json`` - Record of changes
 
 **What You Get:**
 
@@ -163,8 +163,8 @@ Batch Processing
     # Process entire dataset (maintains directory structure)
     # Input directory contains: original/ and cleaned/ subdirectories
     stats = deidentify_dataset(
-        input_dir="results/dataset/Indo-vap",
-        output_dir="results/deidentified/Indo-vap",
+        input_dir="output/dataset/Indo-vap",
+        output_dir="output/deidentified/Indo-vap",
         process_subdirs=True  # Recursively process subdirectories
     )
 
@@ -172,7 +172,7 @@ Batch Processing
     print(f"Detected {stats['total_detections']} PHI items")
     
     # Output structure:
-    # results/deidentified/Indo-vap/
+    # output/deidentified/Indo-vap/
     #   ├── original/          (de-identified original files)
     #   ├── cleaned/           (de-identified cleaned files)
     #   └── _deidentification_audit.json
@@ -252,7 +252,7 @@ Validate de-identified datasets to ensure no PHI leakage:
     
     # Validate de-identified output
     validation = validate_dataset(
-        dataset_dir="results/deidentified/Indo-vap"
+        dataset_dir="output/deidentified/Indo-vap"
     )
     
     if validation['is_valid']:
@@ -269,25 +269,25 @@ Command Line Interface
 
     # Basic usage - processes subdirectories recursively
     python -m scripts.deidentify \
-        --input-dir results/dataset/Indo-vap \
-        --output-dir results/deidentified/Indo-vap
+        --input-dir output/dataset/Indo-vap \
+        --output-dir output/deidentified/Indo-vap
 
     # With validation
     python -m scripts.deidentify \
-        --input-dir results/dataset/Indo-vap \
-        --output-dir results/deidentified/Indo-vap \
+        --input-dir output/dataset/Indo-vap \
+        --output-dir output/deidentified/Indo-vap \
         --validate
 
     # Specify text fields
     python -m scripts.deidentify \
-        --input-dir results/dataset/Indo-vap \
-        --output-dir results/deidentified/Indo-vap \
+        --input-dir output/dataset/Indo-vap \
+        --output-dir output/deidentified/Indo-vap \
         --text-fields patient_name notes diagnosis
         
     # Disable encryption (not recommended)
     python -m scripts.deidentify \
-        --input-dir results/dataset/Indo-vap \
-        --output-dir results/deidentified/Indo-vap \
+        --input-dir output/dataset/Indo-vap \
+        --output-dir output/deidentified/Indo-vap \
         --no-encryption
 
 .. _deidentification-pipeline-integration:
@@ -313,7 +313,7 @@ while maintaining the same file structure in the output directory.
 
 .. code-block:: text
 
-    results/
+    output/
     ├── dataset/
     │   └── Indo-vap/
     │       ├── original/        (extracted JSONL files)
@@ -334,14 +334,14 @@ while maintaining the same file structure in the output directory.
    
    **Safe to Track in Git:**
    
-   * ✅ De-identified datasets (``results/deidentified/Indo-vap/``)
-   * ✅ Data dictionary mappings (``results/data_dictionary_mappings/``)
+   * ✅ De-identified datasets (``output/deidentified/Indo-vap/``)
+   * ✅ Data dictionary mappings (``output/data_dictionary_mappings/``)
    * ✅ Source code and documentation
    
    **Never Commit to Git:**
    
-   * ❌ Original datasets with PHI (``results/dataset/``)
-   * ❌ Deidentification mappings (``results/deidentified/mappings/``)
+   * ❌ Original datasets with PHI (``output/dataset/``)
+   * ❌ Deidentification mappings (``output/deidentified/mappings/``)
    * ❌ Encryption keys (``*.key``, ``*.pem``, ``*.fernet``)
    * ❌ Audit logs (``*_deidentification_audit.json``)
    
@@ -460,15 +460,15 @@ the same file structure between input and output directories:
 
     # Process with subdirectories (default)
     stats = deidentify_dataset(
-        input_dir="results/dataset/Indo-vap",
-        output_dir="results/deidentified/Indo-vap",
+        input_dir="output/dataset/Indo-vap",
+        output_dir="output/deidentified/Indo-vap",
         process_subdirs=True  # Recursively process all subdirectories
     )
     
     # Process only top-level files (no subdirectories)
     stats = deidentify_dataset(
-        input_dir="results/dataset/Indo-vap",
-        output_dir="results/deidentified/Indo-vap",
+        input_dir="output/dataset/Indo-vap",
+        output_dir="output/deidentified/Indo-vap",
         process_subdirs=False  # Only process files in the root directory
     )
 
@@ -712,7 +712,7 @@ The date shifter uses a three-step algorithm:
 Encrypted Mapping Storage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Mapping tables are stored in a centralized location within the ``results/deidentified/mappings/``
+Mapping tables are stored in a centralized location within the ``output/deidentified/mappings/``
 directory:
 
 .. code-block:: python
@@ -733,7 +733,7 @@ directory:
 
     engine = DeidentificationEngine(config=config)
     
-    # Mappings stored in: results/deidentified/mappings/mappings.enc
+    # Mappings stored in: output/deidentified/mappings/mappings.enc
     # This single mapping file is used across all datasets and subdirectories
 
 Record De-identification
@@ -772,7 +772,7 @@ Validation
     from scripts.deidentify import validate_dataset
 
     validation_results = validate_dataset(
-        "results/deidentified/Indo-vap"
+        "output/deidentified/Indo-vap"
     )
 
     print(f"Valid: {validation_results['is_valid']}")
@@ -909,16 +909,16 @@ When processing the Indo-vap dataset:
     INFO:reportalin:  Total detections: 365620
     INFO:reportalin:  Unique mappings: 5398
     INFO:reportalin:  Output structure:
-    INFO:reportalin:    - results/deidentified/Indo-vap/original/  (de-identified original files)
-    INFO:reportalin:    - results/deidentified/Indo-vap/cleaned/   (de-identified cleaned files)
+    INFO:reportalin:    - output/deidentified/Indo-vap/original/  (de-identified original files)
+    INFO:reportalin:    - output/deidentified/Indo-vap/cleaned/   (de-identified cleaned files)
 
 **What happens:**
 
 * Processes both ``original/`` and ``cleaned/`` subdirectories (43 files each = 86 total)
 * Detects and replaces PHI/PII in all string fields
 * Creates 5,398 unique pseudonym mappings
-* Generates encrypted mapping table at ``results/deidentified/mappings/mappings.enc``
-* Exports audit log at ``results/deidentified/Indo-vap/_deidentification_audit.json``
+* Generates encrypted mapping table at ``output/deidentified/mappings/mappings.enc``
+* Exports audit log at ``output/deidentified/Indo-vap/_deidentification_audit.json``
 
 **Sample De-identification:**
 
@@ -1014,8 +1014,8 @@ Common Issues
 
     # Solution: Ensure process_subdirs is enabled
     stats = deidentify_dataset(
-        input_dir="results/dataset/Indo-vap",
-        output_dir="results/deidentified/Indo-vap",
+        input_dir="output/dataset/Indo-vap",
+        output_dir="output/deidentified/Indo-vap",
         process_subdirs=True  # Must be True to preserve structure
     )
 

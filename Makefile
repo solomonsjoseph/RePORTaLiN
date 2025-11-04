@@ -50,7 +50,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-tmp clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help docs-check test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
+.PHONY: help install clean clean-all clean-logs clean-tmp clean-output clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help docs-check test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -99,7 +99,7 @@ help:
 	@echo "  make clean                    - Remove Python cache files"
 	@echo "  make clean-logs               - Remove log files"
 	@echo "  make clean-tmp                - Remove tmp files (analysis/reports)"
-	@echo "  make clean-results            - Remove generated results"
+	@echo "  make clean-output             - Remove generated output files"
 	@echo "  make clean-docs               - Remove documentation build files"
 	@echo "  make clean-all                - Remove ALL generated files (including tmp)"
 	@echo ""
@@ -243,11 +243,11 @@ clean-tmp:
 	@rm -rf tmp/*.rst tmp/*.log tmp/*.txt 2>/dev/null || true
 	@echo "$(GREEN)✓ Temp files cleaned$(NC)"
 
-clean-results:
-	@echo "$(RED)WARNING: This will delete all generated results!$(NC)"
+clean-output:
+	@echo "$(RED)WARNING: This will delete all generated output files!$(NC)"
 	@printf "Press Enter to continue or Ctrl+C to cancel..." && read confirm
-	@rm -rf results/
-	@echo "$(GREEN)✓ Results cleaned$(NC)"
+	@rm -rf output/
+	@echo "$(GREEN)✓ Output files cleaned$(NC)"
 
 clean-docs:
 	@echo "$(BLUE)Cleaning documentation build files...$(NC)"
@@ -255,7 +255,7 @@ clean-docs:
 	@echo "$(GREEN)✓ Documentation build files cleaned$(NC)"
 
 clean-all:
-	@echo "$(RED)WARNING: This will delete cache, logs, results, tmp files, and documentation builds!$(NC)"
+	@echo "$(RED)WARNING: This will delete cache, logs, output, tmp files, and documentation builds!$(NC)"
 	@printf "Press Enter to continue or Ctrl+C to cancel..." && read confirm
 	@echo "$(BLUE)Cleaning up Python cache files...$(NC)"
 	@find . -type d -name "__pycache__" -not -path "./.venv/*" -exec rm -rf {} + 2>/dev/null || true
@@ -272,8 +272,8 @@ clean-all:
 	@echo "$(BLUE)Cleaning documentation build files...$(NC)"
 	@rm -rf docs/sphinx/_build/
 	@echo "$(GREEN)✓ Documentation build files cleaned$(NC)"
-	@echo "$(BLUE)Cleaning results...$(NC)"
-	@rm -rf results/
+	@echo "$(BLUE)Cleaning output...$(NC)"
+	@rm -rf output/
 	@echo "$(GREEN)✓ All generated files cleaned$(NC)"
 
 # Testing commands
@@ -323,7 +323,7 @@ status:
 	@echo "$(GREEN)Project Structure:$(NC)"
 	@echo "  Data Dictionary: $$([ -f 'data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx' ] && echo '$(GREEN)✓$(NC)' || echo '$(RED)✗$(NC)')"
 	@echo "  Dataset Files: $$([ -d 'data/dataset' ] && find data/dataset -name '*.xlsx' 2>/dev/null | wc -l | xargs) files"
-	@echo "  Results: $$([ -d 'results' ] && echo '$(GREEN)✓ Exists$(NC)' || echo '$(YELLOW)⚠ Not generated yet$(NC)')"
+	@echo "  Output: $$([ -d 'output' ] && echo '$(GREEN)✓ Exists$(NC)' || echo '$(YELLOW)⚠ Not generated yet$(NC)')"
 	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
 	@echo "  Sphinx Docs: $$([ -f 'docs/sphinx/_build/html/index.html' ] && echo '$(GREEN)✓ Built$(NC)' || echo '$(YELLOW)⚠ Not built (run: make docs)$(NC)')"

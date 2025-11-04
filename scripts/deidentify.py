@@ -869,8 +869,8 @@ class DeidentificationEngine:
         if mapping_store is None:
             try:
                 import config as project_config
-                # Store mappings in the deidentified directory for better organization
-                storage_path = Path(project_config.RESULTS_DIR) / "deidentified" / "mappings" / "mappings.enc"
+                # Store mappings in the deidentified directory for better organization (v0.3.0 API)
+                storage_path = Path(project_config.OUTPUT_DIR) / "deidentified" / "mappings" / "mappings.enc"
             except (ImportError, AttributeError):
                 # Fallback to current directory if config not available
                 storage_path = Path.cwd() / "deidentification_mappings.enc"
@@ -1361,10 +1361,10 @@ def main() -> None:
     
     parser = argparse.ArgumentParser(
         description="De-identify PHI/PII in text data with country-specific regulations",
-        epilog="Example: python deidentify.py --input-dir data/ --output-dir results/ --countries US IN"
+        epilog="Example: python deidentify.py --input-dir data/ --output-dir output/ --countries US IN"
     )
     parser.add_argument("--input-dir", help="Input directory with JSONL files (default: auto-detect from config)")
-    parser.add_argument("--output-dir", help="Output directory for de-identified files (default: results/deidentified/)")
+    parser.add_argument("--output-dir", help="Output directory for de-identified files (default: output/deidentified/)")
     parser.add_argument("-c", "--countries", nargs="+", 
                        help="Country codes (e.g., IN US ID BR GB CA AU KE NG GH UG) or ALL for all supported countries. "
                             "Default: IN. Supported: US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG")
@@ -1411,12 +1411,13 @@ def main() -> None:
             import os
             import config as project_config
             if not input_dir:
-                # Auto-detect dataset directory from config
-                input_dir = os.path.join(project_config.RESULTS_DIR, "dataset", project_config.DATASET_NAME)
+                # Auto-detect dataset directory from config (v0.3.0 API)
+                clean_dataset_dir = os.path.join(project_config.OUTPUT_DIR, "cleaned_datasets")
+                input_dir = os.path.join(clean_dataset_dir, "cleaned")
                 print(f"Using auto-detected input directory: {input_dir}")
             if not output_dir:
-                # Use sensible default for output
-                output_dir = os.path.join(project_config.RESULTS_DIR, "deidentified", project_config.DATASET_NAME)
+                # Use sensible default for output (v0.3.0 API)
+                output_dir = os.path.join(project_config.OUTPUT_DIR, "deidentified", project_config.STUDY_NAME)
                 print(f"Using default output directory: {output_dir}")
         except (ImportError, AttributeError) as e:
             if not input_dir or not output_dir:

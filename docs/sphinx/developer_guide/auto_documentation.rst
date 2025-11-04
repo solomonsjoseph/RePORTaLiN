@@ -120,14 +120,14 @@ The Autodoc Pipeline
        """Create all required output directories.
        
        This function creates:
-       - RESULTS_DIR
+       - OUTPUT_DIR
        - CLEAN_DATASET_DIR  
        - DICTIONARY_JSON_OUTPUT_DIR
        
        Raises:
            OSError: If directory creation fails
        """
-       os.makedirs(RESULTS_DIR, exist_ok=True)
+       os.makedirs(OUTPUT_DIR, exist_ok=True)
        # ...
 
 .. code-block:: bash

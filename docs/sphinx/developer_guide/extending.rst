@@ -66,7 +66,7 @@ Here's how to extend the module with custom post-processing:
    # Use custom processor
    custom_dictionary_processor(
        "data/dictionary.xlsx",
-       "results/output",
+       "output/output",
        lambda d: print(f"Validated {d}")
    )
 
@@ -904,7 +904,7 @@ Example: YAML Configuration
    
    pipeline:
      input_dir: data/dataset/Indo-vap
-     output_dir: results/dataset/Indo-vap
+     output_dir: output/dataset/Indo-vap
      
    processing:
      parallel: true

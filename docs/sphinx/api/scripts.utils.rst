@@ -24,6 +24,7 @@ The ``scripts.utils`` package provides reusable utility components for:
    ├── __init__.py                          # Package initialization and exports
    ├── logging.py                           # Centralized logging system
    ├── country_regulations.py               # Country-specific regulations
+   ├── migrate_data_structure.py            # Data structure migration system
    ├── doc_maintenance_toolkit.py           # ✅ Unified documentation maintenance tool
    ├── smart-commit.sh                      # Git commit with version bumping
    └── (old doc scripts archived to tmp/)   # See tmp/archive_old_doc_scripts/README.rst
@@ -39,6 +40,7 @@ Core Utilities
    
    scripts.utils.logging
    scripts.utils.country_regulations
+   scripts.utils.migrate_data_structure
 
 Documentation Tools
 ~~~~~~~~~~~~~~~~~~~
@@ -91,6 +93,52 @@ Logging Module
    success("Process completed!")
 
 See :doc:`scripts.utils.logging` for complete documentation.
+
+Migration Module
+^^^^^^^^^^^^^^^^
+
+:mod:`scripts.utils.migrate_data_structure` - Data structure migration system.
+
+**Key Features**:
+
+- Dynamic study name detection from dataset folders
+- Automatic backup creation with timestamps
+- Dry-run mode for safe testing
+- Comprehensive pre and post-migration validation
+- Detailed migration logging and audit trails
+- Cross-platform compatibility (macOS, Linux, Windows)
+
+**Common Usage**:
+
+.. code-block:: python
+
+   from scripts.utils.migrate_data_structure import DataMigrationManager
+   
+   # Test with dry-run first
+   manager = DataMigrationManager(dry_run=True)
+   manager.run_migration()
+   
+   # Run actual migration
+   manager = DataMigrationManager(dry_run=False)
+   success = manager.run_migration()
+
+**Command-Line Usage**:
+
+.. code-block:: bash
+
+   # Dry-run (test mode)
+   python -m scripts.utils.migrate_data_structure --dry-run
+   
+   # Actual migration
+   python -m scripts.utils.migrate_data_structure
+
+**Quick Access**:
+
+- **User Guide**: :doc:`/user_guide/data_migration`
+- **Developer Guide**: :doc:`/developer_guide/migration_system`
+- **API Reference**: :doc:`scripts.utils.migrate_data_structure`
+
+See :doc:`scripts.utils.migrate_data_structure` for complete API documentation.
 
 Country Regulations Module
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
