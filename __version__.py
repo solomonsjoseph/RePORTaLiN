@@ -122,7 +122,7 @@ Version format is validated at import time::
 
 import re
 
-__version__: str = "0.8.12"
+__version__: str = "0.8.11"
 
 # Validate semantic versioning format (MAJOR.MINOR.PATCH)
 if not re.match(r'^\d+\.\d+\.\d+$', __version__):
