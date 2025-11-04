@@ -357,12 +357,12 @@ docs-watch:
 # Check documentation style compliance (quick, for daily use)
 docs-check:
 	@echo "$(BLUE)Checking documentation style compliance...$(NC)"
-	@if [ -f "scripts/utils/check_docs_style.sh" ]; then \
-		bash scripts/utils/check_docs_style.sh; \
+	@if [ -f "scripts/utils/doc_maintenance_toolkit.py" ]; then \
+		$(PYTHON_CMD) scripts/utils/doc_maintenance_toolkit.py --mode style; \
 		echo "$(GREEN)✓ Documentation compliance check complete$(NC)"; \
 	else \
-		echo "$(RED)✗ Documentation style checker not found$(NC)"; \
-		echo "$(YELLOW)Expected at: scripts/utils/check_docs_style.sh$(NC)"; \
+		echo "$(RED)✗ Documentation maintenance toolkit not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/doc_maintenance_toolkit.py$(NC)"; \
 		exit 1; \
 	fi
 
@@ -370,12 +370,12 @@ docs-check:
 docs-quality:
 	@echo "$(BLUE)Running comprehensive documentation quality check...$(NC)"
 	@echo "$(YELLOW)This performs deep analysis and may take 30-60 seconds$(NC)"
-	@if [ -f "scripts/utils/check_documentation_quality.py" ]; then \
-		$(PYTHON_CMD) scripts/utils/check_documentation_quality.py; \
+	@if [ -f "scripts/utils/doc_maintenance_toolkit.py" ]; then \
+		$(PYTHON_CMD) scripts/utils/doc_maintenance_toolkit.py --mode quality; \
 		echo "$(GREEN)✓ Documentation quality check complete$(NC)"; \
 	else \
-		echo "$(RED)✗ Documentation quality checker not found$(NC)"; \
-		echo "$(YELLOW)Expected at: scripts/utils/check_documentation_quality.py$(NC)"; \
+		echo "$(RED)✗ Documentation maintenance toolkit not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/doc_maintenance_toolkit.py$(NC)"; \
 		exit 1; \
 	fi
 

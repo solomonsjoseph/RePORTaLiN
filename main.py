@@ -200,7 +200,7 @@ For detailed documentation, see the Sphinx docs or README.md
         print(f"  data/{config.STUDY_NAME}/datasets/")
         print(f"  data/{config.STUDY_NAME}/annotated_pdfs/")
         print(f"  data/{config.STUDY_NAME}/data_dictionary/")
-        return 1
+        sys.exit(1)
     
     # Ensure required directories exist
     config.ensure_directories()

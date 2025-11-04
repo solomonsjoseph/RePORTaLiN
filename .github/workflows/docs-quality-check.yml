@@ -42,7 +42,7 @@ jobs:
       - name: Run documentation quality checks
         id: quality_check
         run: |
-          python scripts/utils/check_documentation_quality.py > quality_report.txt 2>&1
+          python scripts/utils/doc_maintenance_toolkit.py --mode quality > quality_report.txt 2>&1
           echo "REPORT<<EOF" >> $GITHUB_OUTPUT
           cat quality_report.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -212,7 +212,7 @@ jobs:
             body += '- [ ] Validate all cross-references\n';
             body += '- [ ] Verify external links are still valid\n';
             body += '- [ ] Review file organization\n';
-            body += '- [ ] Check style compliance (run `bash scripts/utils/check_docs_style.sh`)\n';
+            body += '- [ ] Check style compliance (run `python scripts/utils/doc_maintenance_toolkit.py --mode style`)\n';
             body += '- [ ] Update content freshness (installation, examples, screenshots)\n';
             body += '- [ ] Consider archiving old verification documents\n';
             body += '- [ ] Rebuild and verify documentation\n\n';
