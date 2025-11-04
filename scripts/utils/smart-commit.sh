@@ -68,8 +68,8 @@ if ! git diff --quiet ||  ! git diff --cached --quiet; then
     echo -e "${BLUE}→ Analyzing commit message...${NC}"
     log_message "INFO" "Changes detected, proceeding with version bump"
     
-    # Get current version before bump
-    CURRENT_VERSION=$(grep -E '^__version__\s*=\s*"' "$VERSION_FILE" | sed 's/.*"\(.*\)".*/\1/')
+    # Get current version before bump (supports both annotated and plain syntax)
+    CURRENT_VERSION=$(grep -E '^__version__\s*(:\s*\w+\s*)?=\s*"' "$VERSION_FILE" | sed 's/.*"\(.*\)".*/\1/')
     log_message "INFO" "Current version: $CURRENT_VERSION"
     
     # Check if version bump script exists
@@ -81,8 +81,8 @@ if ! git diff --quiet ||  ! git diff --cached --quiet; then
         BUMP_EXIT_CODE=$?
         
         if [ $BUMP_EXIT_CODE -eq 0 ]; then
-            # Get new version after bump
-            NEW_VERSION=$(grep -E '^__version__\s*=\s*"' "$VERSION_FILE" | sed 's/.*"\(.*\)".*/\1/')
+            # Get new version after bump (supports both annotated and plain syntax)
+            NEW_VERSION=$(grep -E '^__version__\s*(:\s*\w+\s*)?=\s*"' "$VERSION_FILE" | sed 's/.*"\(.*\)".*/\1/')
             
             echo -e "${GREEN}✓ Version bumped successfully${NC}"
             echo -e "${BLUE}  $CURRENT_VERSION → $NEW_VERSION${NC}"

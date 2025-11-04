@@ -22,9 +22,9 @@ The module automatically validates that ``__version__`` follows semantic version
 format (MAJOR.MINOR.PATCH) using regex pattern ``^\\d+\\.\\d+\\.\\d+$``.
 
 **Valid formats:**
-    - ``"0.8.8"`` ✅
-    - ``"1.0.0"`` ✅
-    - ``"10.23.456"`` ✅
+    - ``"0.8.10"`` ✅
+    - ``"0.8.10"`` ✅
+    - ``"0.8.10"`` ✅
 
 **Invalid formats** (raise ValueError at import time):
     - ``"0.8.8a"`` ❌ (alpha suffix not allowed)
@@ -122,7 +122,7 @@ Version format is validated at import time::
 
 import re
 
-__version__: str = "0.8.8"
+__version__: str = "0.8.10"
 
 # Validate semantic versioning format (MAJOR.MINOR.PATCH)
 if not re.match(r'^\d+\.\d+\.\d+$', __version__):
