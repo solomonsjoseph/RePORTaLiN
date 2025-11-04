@@ -228,14 +228,15 @@ For detailed documentation, see the Sphinx docs or README.md
     if args.enable_deidentification and not args.skip_deidentification:
         def run_deidentification():
             # Input directory contains original/ and cleaned/ subdirectories (v0.3.0)
-            clean_dataset_dir = Path(config.OUTPUT_DIR) / "cleaned_datasets"
-            input_dir = clean_dataset_dir / "cleaned"
+            clean_dataset_dir = Path(config.OUTPUT_DIR) / config.STUDY_NAME
+            # Process the parent directory to include both original/ and cleaned/
+            input_dir = clean_dataset_dir
             
             # Output to dedicated deidentified directory within output (v0.3.0)
             output_dir = Path(config.OUTPUT_DIR) / "deidentified" / config.STUDY_NAME
             
             log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
-            log.info(f"Processing both 'original' and 'cleaned' subdirectories...")
+            log.info(f"Processing both 'original/' and 'cleaned/' subdirectories...")
             
             # Parse countries argument
             countries = None

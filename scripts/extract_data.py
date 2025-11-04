@@ -256,7 +256,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
     """
     overall_start = time.time()
     # Use new v0.3.0 config API: DATASETS_DIR and OUTPUT_DIR
-    clean_dataset_dir = os.path.join(config.OUTPUT_DIR, "cleaned_datasets")
+    clean_dataset_dir = os.path.join(config.OUTPUT_DIR, config.STUDY_NAME)
     os.makedirs(clean_dataset_dir, exist_ok=True)
     excel_files = find_excel_files(config.DATASETS_DIR)
     
