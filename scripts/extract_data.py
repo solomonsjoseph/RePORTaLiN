@@ -180,16 +180,24 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         vlog.timing("Processing time before error", elapsed_time)
         return False, 0, error_msg
 
-def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
+def clean_duplicate_columns(df: pd.DataFrame, similarity_threshold: float = 0.95) -> pd.DataFrame:
     """
     Remove duplicate columns ending with numeric suffixes (e.g., SUBJID2, SUBJID3).
     
     Only removes columns if:
     1. Column name ends with optional underscore and digits (e.g., SUBJID2, NAME_3)
     2. Base column name exists (e.g., SUBJID, NAME)
-    3. Content is identical to base column OR column is entirely null
+    3. Content is identical to base column in ≥95% of rows OR column is entirely null
     
-    This prevents accidental removal of legitimate columns that happen to end with numbers.
+    This prevents accidental removal of legitimate columns that happen to end with numbers
+    while removing true duplicates that may have minor differences in a few rows.
+    
+    Args:
+        df: DataFrame to clean
+        similarity_threshold: Minimum fraction of matching rows (default 0.95 = 95%)
+        
+    Returns:
+        DataFrame with duplicate columns removed
     """
     columns_to_keep = []
     columns_to_remove = []
@@ -203,16 +211,25 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
             # Only remove if base column exists AND content is duplicate/empty
             if base_name in df.columns:
                 try:
-                    # Check if column is entirely null or identical to base column
-                    if df[col].isna().all() or df[col].equals(df[base_name]):
+                    # Check if column is entirely null
+                    if df[col].isna().all():
                         columns_to_remove.append(col)
-                        log.debug(f"Marking {col} for removal (duplicate of {base_name})")
-                        vlog.detail(f"Marking {col} for removal (duplicate of {base_name})")
+                        log.debug(f"Marking {col} for removal (entirely null)")
+                        vlog.detail(f"Marking {col} for removal (entirely null)")
                     else:
-                        # Column has different data, keep it
-                        columns_to_keep.append(col)
-                        log.debug(f"Keeping {col} (different from {base_name})")
-                        vlog.detail(f"Keeping {col} (different from {base_name})")
+                        # Calculate similarity: fraction of rows that match
+                        matching_rows = (df[col] == df[base_name]).sum()
+                        similarity = matching_rows / len(df) if len(df) > 0 else 0
+                        
+                        if similarity >= similarity_threshold:
+                            columns_to_remove.append(col)
+                            log.debug(f"Marking {col} for removal ({similarity:.1%} similar to {base_name})")
+                            vlog.detail(f"Marking {col} for removal ({similarity:.1%} similar to {base_name})")
+                        else:
+                            # Column has different data, keep it
+                            columns_to_keep.append(col)
+                            log.debug(f"Keeping {col} ({similarity:.1%} similar to {base_name}, below {similarity_threshold:.1%} threshold)")
+                            vlog.detail(f"Keeping {col} ({similarity:.1%} similar to {base_name})")
                 except Exception as e:
                     # If comparison fails, keep the column to be safe
                     columns_to_keep.append(col)
