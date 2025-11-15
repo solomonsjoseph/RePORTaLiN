@@ -52,6 +52,7 @@ Date: December 2025
 Version: 2.0.0 (smart migration with custom path support)
 """
 
+import argparse
 import os
 import shutil
 import sys
@@ -68,17 +69,18 @@ if _script_dir in sys.path:
     sys.path.remove(_script_dir)
 
 # Now import standard logging
-import logging
-
 # Add root directory for imports
 if _root_dir not in sys.path:
     sys.path.insert(0, _root_dir)
 
 import config
-from scripts.utils import logging as custom_log
+from scripts.utils import logging_system as log
 
-# Setup logger
-logger = custom_log.setup_logger("migrate_data_structure", log_level=logging.INFO)
+# Setup enhanced logger
+log.setup_logging(
+    module_name="scripts.utils.migrate_data_structure",
+    log_level="INFO"
+)
 
 
 def extract_study_name(data_dir: Path) -> str:
@@ -98,9 +100,10 @@ def extract_study_name(data_dir: Path) -> str:
         str: Extracted study name or 'ext_data' as fallback
         
     Examples:
-        >>> extract_study_name(Path('data'))  # with dataset/Indo-vap_csv_files
+        >>> from pathlib import Path
+        >>> extract_study_name(Path('data'))  # str: with dataset/Indo-vap_csv_files
         'Indo-VAP'
-        >>> extract_study_name(Path('data'))  # with dataset/data
+        >>> extract_study_name(Path('data'))  # str: with dataset/data (generic)
         'ext_data'
     """
     dataset_dir = data_dir / 'dataset'
@@ -109,19 +112,19 @@ def extract_study_name(data_dir: Path) -> str:
     generic_names = {'dataset', 'data', 'files', 'csv', 'excel', 'raw'}
     
     if not dataset_dir.exists():
-        logger.warning("Dataset directory not found, using fallback name 'ext_data'")
+        log.warning("Dataset directory not found, using fallback name 'ext_data'")
         return 'ext_data'
     
     # Find first subdirectory in dataset folder
     subdirs = [d for d in dataset_dir.iterdir() if d.is_dir()]
     
     if not subdirs:
-        logger.warning("No subdirectories in dataset folder, using fallback name 'ext_data'")
+        log.warning("No subdirectories in dataset folder, using fallback name 'ext_data'")
         return 'ext_data'
     
     # Get the first subdirectory name
     folder_name = subdirs[0].name
-    logger.info(f"Detected dataset folder: {folder_name}")
+    log.info(f"Detected dataset folder: {folder_name}")
     
     # Remove common suffixes
     study_name = folder_name
@@ -133,7 +136,7 @@ def extract_study_name(data_dir: Path) -> str:
     
     # Check if name is too short or generic
     if len(study_name) < 2 or study_name.lower() in generic_names:
-        logger.warning(f"Study name '{study_name}' is generic, using fallback 'ext_data'")
+        log.warning(f"Study name '{study_name}' is generic, using fallback 'ext_data'")
         return 'ext_data'
     
     # Capitalize parts after hyphen (Indo-vap -> Indo-VAP)
@@ -142,7 +145,7 @@ def extract_study_name(data_dir: Path) -> str:
         # Keep first part as-is, capitalize rest
         study_name = parts[0] + '-' + '-'.join(p.upper() for p in parts[1:])
     
-    logger.info(f"Extracted study name: {study_name}")
+    log.info(f"Extracted study name: {study_name}")
     return study_name
 
 
@@ -187,22 +190,22 @@ class DataMigrationManager:
         # Default path: Reorganize WITHIN data/ directory
         if self.is_custom_path:
             self.dest_dir = default_data_dir
-            logger.info(f"Source directory (custom): {self.source_dir}")
-            logger.info(f"Destination directory: {self.dest_dir}")
+            log.info(f"Source directory (custom): {self.source_dir}")
+            log.info(f"Destination directory: {self.dest_dir}")
         else:
             self.dest_dir = self.source_dir
-            logger.info(f"Data directory (default): {self.source_dir}")
+            log.info(f"Data directory (default): {self.source_dir}")
         
-        logger.info(f"Custom path: {self.is_custom_path}")
+        log.info(f"Custom path: {self.is_custom_path}")
         
         # Auto-detect study name from source dataset folder
         self.study_name = extract_study_name(self.source_dir)
-        logger.info(f"Study name determined: {self.study_name}")
+        log.info(f"Study name determined: {self.study_name}")
         
         # Define migration mappings (dynamically based on detected study name)
         self.old_to_new = self._build_migration_mappings()
         
-        logger.info(f"Migration Manager initialized (dry_run={dry_run}, custom_path={self.is_custom_path})")
+        log.info(f"Migration Manager initialized (dry_run={dry_run}, custom_path={self.is_custom_path})")
     
     def _build_migration_mappings(self) -> Dict[str, str]:
         """
@@ -243,12 +246,12 @@ class DataMigrationManager:
         if (self.source_dir / 'data_dictionary_and_mapping_specifications').exists():
             mappings['data_dictionary_and_mapping_specifications'] = f'{self.study_name}/data_dictionary'
         
-        logger.info(f"Built {len(mappings)} migration mappings:")
+        log.info(f"Built {len(mappings)} migration mappings:")
         for old, new in mappings.items():
             if self.is_custom_path:
-                logger.info(f"  {self.source_dir}/{old} → {self.dest_dir}/{new}")
+                log.info(f"  {self.source_dir}/{old} → {self.dest_dir}/{new}")
             else:
-                logger.info(f"  {old} → {new}")
+                log.info(f"  {old} → {new}")
         
         return mappings
     
@@ -281,7 +284,7 @@ class DataMigrationManager:
         )
         
         if has_new_structure:
-            logger.info(f"✅ Data already in v0.3.0 format: {study_dir}")
+            log.info(f"✅ Data already in v0.3.0 format: {study_dir}")
             return True
         
         return False
@@ -293,10 +296,10 @@ class DataMigrationManager:
         Returns:
             bool: True if structure is valid for migration
         """
-        logger.info("Validating current data structure...")
+        log.info("Validating current data structure...")
         
         if not self.source_dir.exists():
-            logger.error(f"Source directory not found: {self.source_dir}")
+            log.error(f"Source directory not found: {self.source_dir}")
             return False
         
         # Check if old structure exists in source
@@ -306,35 +309,35 @@ class DataMigrationManager:
             if full_path.exists():
                 old_paths.append(full_path)
                 file_count = len(list(full_path.rglob('*')))
-                logger.info(f"✓ Found: {old_path} ({file_count} items)")
+                log.info(f"✓ Found: {old_path} ({file_count} items)")
             else:
-                logger.warning(f"✗ Not found: {old_path}")
+                log.warning(f"✗ Not found: {old_path}")
         
         if not old_paths:
-            logger.error("No old structure found to migrate!")
+            log.error("No old structure found to migrate!")
             return False
         
         # Check if destination directory exists (for custom paths)
         if self.is_custom_path:
             if not self.dest_dir.exists():
-                logger.info(f"Destination directory will be created: {self.dest_dir}")
+                log.info(f"Destination directory will be created: {self.dest_dir}")
                 try:
                     self.dest_dir.mkdir(parents=True, exist_ok=True)
-                    logger.info(f"✓ Created destination directory: {self.dest_dir}")
+                    log.info(f"✓ Created destination directory: {self.dest_dir}")
                 except Exception as e:
-                    logger.error(f"Failed to create destination directory: {e}")
+                    log.error(f"Failed to create destination directory: {e}")
                     return False
         
         # Check if new structure already exists in destination
         new_base = self.dest_dir / self.study_name
         if new_base.exists():
-            logger.warning(f"New structure already exists: {new_base}")
+            log.warning(f"New structure already exists: {new_base}")
             response = input("Do you want to continue anyway? (yes/no): ")
             if response.lower() != 'yes':
-                logger.info("Migration cancelled by user")
+                log.info("Migration cancelled by user")
                 return False
         
-        logger.info(f"✅ Validation complete: {len(old_paths)} paths ready for migration")
+        log.info(f"✅ Validation complete: {len(old_paths)} paths ready for migration")
         return True
     
     def create_new_structure(self) -> bool:
@@ -347,7 +350,7 @@ class DataMigrationManager:
         Returns:
             bool: True if structure created successfully
         """
-        logger.info("Creating new directory structure...")
+        log.info("Creating new directory structure...")
         
         new_dirs = [
             f'{self.study_name}/datasets',
@@ -359,18 +362,18 @@ class DataMigrationManager:
             full_path = self.dest_dir / dir_path
             
             if self.dry_run:
-                logger.info(f"[DRY RUN] Would create: {full_path}")
+                log.info(f"[DRY RUN] Would create: {full_path}")
                 continue
             
             try:
                 full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"✓ Created: {full_path}")
+                log.info(f"✓ Created: {full_path}")
                 self.migration_log.append(f"Created directory: {full_path}")
             except Exception as e:
-                logger.error(f"Failed to create {dir_path}: {e}")
+                log.error(f"Failed to create {dir_path}: {e}")
                 return False
         
-        logger.info("✅ New structure created")
+        log.info("✅ New structure created")
         return True
     
     def move_files(self) -> Tuple[int, int, List[str]]:
@@ -384,14 +387,14 @@ class DataMigrationManager:
         Returns:
             Tuple of (files_processed, files_failed, error_list)
         """
-        logger.info("Starting file migration...")
+        log.info("Starting file migration...")
         
         if self.is_custom_path:
-            logger.info(f"Custom path detected: Copying FROM {self.source_dir} TO {self.dest_dir}")
-            logger.info("Files will be COPIED (originals preserved at source)")
+            log.info(f"Custom path detected: Copying FROM {self.source_dir} TO {self.dest_dir}")
+            log.info("Files will be COPIED (originals preserved at source)")
         else:
-            logger.info(f"Default path: Reorganizing within {self.source_dir}")
-            logger.info("Files will be MOVED (originals deleted)")
+            log.info(f"Default path: Reorganizing within {self.source_dir}")
+            log.info("Files will be MOVED (originals deleted)")
         
         files_processed = 0
         files_failed = 0
@@ -402,14 +405,14 @@ class DataMigrationManager:
             dest = self.dest_dir / new_path
             
             if not source.exists():
-                logger.warning(f"Source not found, skipping: {source}")
+                log.warning(f"Source not found, skipping: {source}")
                 continue
             
             operation = "Copying" if self.is_custom_path else "Moving"
             if self.is_custom_path:
-                logger.info(f"{operation}: {source} → {dest}")
+                log.info(f"{operation}: {source} → {dest}")
             else:
-                logger.info(f"{operation}: {old_path} → {new_path}")
+                log.info(f"{operation}: {old_path} → {new_path}")
             
             # Get all files in source
             if source.is_file():
@@ -418,7 +421,7 @@ class DataMigrationManager:
                 files_to_process = list(source.rglob('*'))
                 files_to_process = [f for f in files_to_process if f.is_file()]
             
-            logger.info(f"Found {len(files_to_process)} files to {operation.lower()}")
+            log.info(f"Found {len(files_to_process)} files to {operation.lower()}")
             
             for file_path in files_to_process:
                 # Calculate relative path
@@ -426,7 +429,7 @@ class DataMigrationManager:
                 dest_file = dest / rel_path
                 
                 if self.dry_run:
-                    logger.debug(f"[DRY RUN] Would {operation.lower()}: {file_path.name}")
+                    log.debug(f"[DRY RUN] Would {operation.lower()}: {file_path.name}")
                     files_processed += 1
                     continue
                 
@@ -446,22 +449,22 @@ class DataMigrationManager:
                     files_processed += 1
                     
                     if files_processed % 10 == 0:
-                        logger.info(f"Progress: {files_processed} files {action.lower()}...")
+                        log.info(f"Progress: {files_processed} files {action.lower()}...")
                     
                     self.migration_log.append(f"{action}: {old_path}/{rel_path} → {new_path}/{rel_path}")
                     
                 except Exception as e:
                     files_failed += 1
                     error_msg = f"Failed to {operation.lower()} {file_path}: {e}"
-                    logger.error(error_msg)
+                    log.error(error_msg)
                     errors.append(error_msg)
         
         operation_past = "copied" if self.is_custom_path else "moved"
-        logger.info(f"✅ Migration complete: {files_processed} files {operation_past}, {files_failed} failed")
+        log.info(f"✅ Migration complete: {files_processed} files {operation_past}, {files_failed} failed")
         
         if self.is_custom_path:
-            logger.info(f"📁 Original files preserved at: {self.source_dir}")
-            logger.info(f"📁 New structure created at: {self.dest_dir}/{self.study_name}")
+            log.info(f"📁 Original files preserved at: {self.source_dir}")
+            log.info(f"📁 New structure created at: {self.dest_dir}/{self.study_name}")
         
         return files_processed, files_failed, errors
     
@@ -474,10 +477,10 @@ class DataMigrationManager:
         Returns:
             bool: True if validation passed
         """
-        logger.info("Validating migration...")
+        log.info("Validating migration...")
         
         if self.dry_run:
-            logger.info("[DRY RUN] Skipping validation")
+            log.info("[DRY RUN] Skipping validation")
             return True
         
         validation_passed = True
@@ -487,20 +490,20 @@ class DataMigrationManager:
             full_path = self.dest_dir / new_path
             
             if not full_path.exists():
-                logger.error(f"New path not found: {full_path}")
+                log.error(f"New path not found: {full_path}")
                 validation_passed = False
                 continue
             
             file_count = len(list(full_path.rglob('*')))
-            logger.info(f"✓ {full_path}: {file_count} items")
+            log.info(f"✓ {full_path}: {file_count} items")
             
             if file_count == 0:
-                logger.warning(f"Warning: {full_path} is empty")
+                log.warning(f"Warning: {full_path} is empty")
         
         if validation_passed:
-            logger.info("✅ Validation passed")
+            log.info("✅ Validation passed")
         else:
-            logger.error("❌ Validation failed")
+            log.error("❌ Validation failed")
         
         return validation_passed
     
@@ -517,7 +520,7 @@ class DataMigrationManager:
             bool: True if cleanup successful or skipped by user
         """
         if self.dry_run:
-            logger.info("[DRY RUN] Would prompt for cleanup")
+            log.info("[DRY RUN] Would prompt for cleanup")
             return True
         
         # STEP 1: Clean up old structure (applies to both default and custom paths)
@@ -525,7 +528,7 @@ class DataMigrationManager:
                                    for old_path in self.old_to_new.keys())
         
         if old_structure_exists:
-            logger.info("Cleaning up old directory structure...")
+            log.info("Cleaning up old directory structure...")
             
             print("\n" + "="*60)
             print("⚠️  CLEANUP STEP 1: Old Directory Structure")
@@ -556,23 +559,23 @@ class DataMigrationManager:
                         if full_path.is_dir():
                             remaining_items = list(full_path.rglob('*'))
                             if remaining_items:
-                                logger.warning(f"Directory not empty: {old_path} ({len(remaining_items)} items)")
+                                log.warning(f"Directory not empty: {old_path} ({len(remaining_items)} items)")
                         
                         if full_path.is_file():
                             full_path.unlink()
                         else:
                             shutil.rmtree(full_path)
                         
-                        logger.info(f"✓ Removed: {old_path}")
+                        log.info(f"✓ Removed: {old_path}")
                         self.migration_log.append(f"Removed old structure: {old_path}")
                         
                     except Exception as e:
-                        logger.error(f"Failed to remove {old_path}: {e}")
+                        log.error(f"Failed to remove {old_path}: {e}")
                         return False
                 
-                logger.info("✅ Old structure cleanup complete")
+                log.info("✅ Old structure cleanup complete")
             else:
-                logger.info("Old structure cleanup cancelled by user")
+                log.info("Old structure cleanup cancelled by user")
         
         # STEP 2: For custom paths only - ask to remove newly copied study folder
         if self.is_custom_path:
@@ -592,24 +595,24 @@ class DataMigrationManager:
                 if response.lower() == 'yes':
                     try:
                         shutil.rmtree(study_dir)
-                        logger.info(f"✓ Removed copied study folder: {self.study_name}")
+                        log.info(f"✓ Removed copied study folder: {self.study_name}")
                         self.migration_log.append(f"Removed copied study: {self.study_name}")
                         print(f"\n✅ Removed: {study_dir}")
                         print(f"✅ Original data preserved at: {self.source_dir}")
                     except Exception as e:
-                        logger.error(f"Failed to remove study folder: {e}")
+                        log.error(f"Failed to remove study folder: {e}")
                         return False
                 else:
-                    logger.info(f"Study folder '{self.study_name}' retained by user choice")
+                    log.info(f"Study folder '{self.study_name}' retained by user choice")
                     print(f"\n✅ Kept: {study_dir}")
         
-        logger.info("✅ Cleanup process complete")
+        log.info("✅ Cleanup process complete")
         return True
     
-    def save_migration_log(self):
+    def save_migration_log(self) -> None:
         """Save migration log to file."""
         if self.dry_run:
-            logger.info("[DRY RUN] Would save migration log")
+            log.info("[DRY RUN] Would save migration log")
             return
         
         log_file = self.dest_dir / 'migration_log.txt'
@@ -627,10 +630,10 @@ class DataMigrationManager:
                 for entry in self.migration_log:
                     f.write(f"{entry}\n")
             
-            logger.info(f"Migration log saved: {log_file}")
+            log.info(f"Migration log saved: {log_file}")
             
         except Exception as e:
-            logger.error(f"Failed to save migration log: {e}")
+            log.error(f"Failed to save migration log: {e}")
     
     def migrate(self) -> bool:
         """
@@ -647,53 +650,53 @@ class DataMigrationManager:
         Returns:
             bool: True if migration successful or already migrated
         """
-        logger.info("="*60)
-        logger.info("Starting Data Structure Migration")
-        logger.info("="*60)
+        log.info("="*60)
+        log.info("Starting Data Structure Migration")
+        log.info("="*60)
         
         if self.dry_run:
-            logger.info("🔍 DRY RUN MODE - No actual changes will be made")
+            log.info("🔍 DRY RUN MODE - No actual changes will be made")
         
         # Log file handling mode
         if self.is_custom_path:
-            logger.info("📂 Custom path mode: Files will be COPIED (originals preserved)")
+            log.info("📂 Custom path mode: Files will be COPIED (originals preserved)")
         else:
-            logger.info("📂 Default path mode: Files will be MOVED (originals deleted)")
+            log.info("📂 Default path mode: Files will be MOVED (originals deleted)")
         
         # Step 0: Check if already migrated to v0.3.0 format
         if self.is_already_migrated():
-            logger.info("="*60)
-            logger.info("✅ Data is already in v0.3.0 format!")
-            logger.info("="*60)
-            logger.info("No migration needed. Exiting.")
+            log.info("="*60)
+            log.info("✅ Data is already in v0.3.0 format!")
+            log.info("="*60)
+            log.info("No migration needed. Exiting.")
             return True
         
         # Step 1: Validate current structure
         if not self.validate_current_structure():
-            logger.error("❌ Validation failed. Migration aborted.")
+            log.error("❌ Validation failed. Migration aborted.")
             return False
         
         # Step 2: Create new structure
         if not self.create_new_structure():
-            logger.error("❌ Failed to create new structure. Migration aborted.")
+            log.error("❌ Failed to create new structure. Migration aborted.")
             return False
         
         # Step 3: Copy or Move files
         files_processed, files_failed, errors = self.move_files()
         
         if files_failed > 0:
-            logger.error(f"❌ {files_failed} files failed to process")
+            log.error(f"❌ {files_failed} files failed to process")
             for error in errors[:10]:  # Show first 10 errors
-                logger.error(f"  {error}")
+                log.error(f"  {error}")
             
             response = input("\nContinue despite errors? (yes/no): ")
             if response.lower() != 'yes':
-                logger.info("Migration aborted by user")
+                log.info("Migration aborted by user")
                 return False
         
         # Step 4: Validate migration
         if not self.validate_migration():
-            logger.error("❌ Migration validation failed")
+            log.error("❌ Migration validation failed")
             return False
         
         # Step 5: Cleanup (handles both custom and default paths appropriately)
@@ -706,26 +709,25 @@ class DataMigrationManager:
         # Mark migration as successful
         self.migration_success = True
         
-        logger.info("\n" + "="*60)
-        logger.info("✅ Migration Complete!")
-        logger.info("="*60)
-        logger.info(f"Files processed: {files_processed}")
-        logger.info(f"Files failed: {files_failed}")
+        log.info("\n" + "="*60)
+        log.info("✅ Migration Complete!")
+        log.info("="*60)
+        log.info(f"Files processed: {files_processed}")
+        log.info(f"Files failed: {files_failed}")
         
         if self.is_custom_path:
-            logger.info("📁 Original files: PRESERVED at source location")
-            logger.info(f"   Source: {self.source_dir}")
+            log.info("📁 Original files: PRESERVED at source location")
+            log.info(f"   Source: {self.source_dir}")
         else:
-            logger.info("📁 Original files: DELETED (moved to new structure)")
+            log.info("📁 Original files: DELETED (moved to new structure)")
         
-        logger.info("="*60)
+        log.info("="*60)
         
         return True
 
 
 def main():
     """Main entry point for migration script."""
-    import argparse
     
     parser = argparse.ArgumentParser(
         description='Migrate RePORTaLiN data structure to v0.3.0 organization',

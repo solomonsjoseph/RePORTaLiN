@@ -64,7 +64,7 @@ fi
 log_message "INFO" "Smart commit initiated with message: $COMMIT_MSG"
 
 # Check for unstaged changes
-if ! git diff --quiet ||  ! git diff --cached --quiet; then
+if ! git diff --quiet || ! git diff --cached --quiet; then
     echo -e "${BLUE}→ Analyzing commit message...${NC}"
     log_message "INFO" "Changes detected, proceeding with version bump"
     

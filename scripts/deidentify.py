@@ -30,7 +30,7 @@ Verbose Mode:
 
 See Also
 --------
-- :doc:`../user_guide/deidentification` - De-identification guide and examples
+- :doc:`../user_guide/deidentification` - De-identification guide
 - :doc:`../user_guide/country_regulations` - Country-specific regulations
 - :class:`DeidentificationEngine` - Core de-identification engine
 - :func:`deidentify_dataset` - Main de-identification function
@@ -43,6 +43,7 @@ import secrets
 import logging
 import sys
 import time
+import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Union
@@ -87,9 +88,46 @@ except ImportError:
     COUNTRY_REGULATIONS_AVAILABLE = False
     logging.warning("country_regulations module not available. Country-specific features disabled.")
 
-from scripts.utils import logging as log
+from scripts.utils import logging_system as log
 
 vlog = log.get_verbose_logger()
+
+# ============================================================================
+# Module-Level Constants
+# ============================================================================
+
+# Detection Pattern Priorities (higher = higher priority)
+DEFAULT_PATTERN_PRIORITY = 50      # Default priority for new patterns
+PRIORITY_ZIP_CODE = 55              # Priority for ZIP code patterns
+PRIORITY_LOW = 60                   # Low priority (dates)
+PRIORITY_DATE_TEXT_MONTH = 65       # Priority for text-based month date formats
+PRIORITY_MEDIUM_LOW = 70            # Medium-low priority (MRN alt, IP)
+PRIORITY_MEDIUM = 75                # Medium priority (Phone, URL)
+PRIORITY_MEDIUM_HIGH = 80           # Medium-high priority (MRN, Age>89)
+PRIORITY_HIGH = 85                  # High priority (Email, SSN alt, License)
+PRIORITY_HIGH_SSN = 90              # Highest priority (SSN primary)
+
+# Date Shifting Configuration
+DEFAULT_DATE_SHIFT_RANGE_DAYS = 365  # ±365 days
+
+# Country Defaults
+DEFAULT_COUNTRY_CODE = "IN"          # India
+
+# Cryptographic Constants
+CRYPTO_SALT_LENGTH = 32              # bytes for salt/seed generation
+HASH_ID_BYTES = 4                    # bytes for hash-based ID generation
+PSEUDONYM_ID_LENGTH = 6              # characters in generated pseudonym IDs
+
+# Validation Constants
+MAX_MONTH_VALUE = 12                 # Maximum valid month number
+HIPAA_AGE_THRESHOLD = 89             # HIPAA requires de-identification of ages > 89
+
+# Display/Logging Limits
+DEBUG_LOG_FILE_LIMIT = 10            # Number of files to show in debug logs
+VALIDATION_DISPLAY_LIMIT = 10        # Number of validation issues to display
+RECORD_PROGRESS_INTERVAL = 1000      # Log progress every N records
+CONSOLE_SEPARATOR_WIDTH = 70         # Width of console separator lines
+
 # ============================================================================
 # Enums and Constants
 # ============================================================================
@@ -124,10 +162,11 @@ class DetectionPattern:
     """PHI/PII detection pattern configuration."""
     phi_type: PHIType
     pattern: re.Pattern
-    priority: int = 50
+    priority: int = DEFAULT_PATTERN_PRIORITY
     description: str = ""
     
     def __post_init__(self):
+        """Validate and compile regex pattern if provided as string."""
         if isinstance(self.pattern, str):
             self.pattern = re.compile(self.pattern, re.IGNORECASE)
 
@@ -161,8 +200,8 @@ class DeidentificationConfig:
     
     # Date shifting
     enable_date_shifting: bool = True
-    date_shift_range_days: int = 365  # Shift dates by up to ±365 days
-    preserve_date_intervals: bool = True  # Keep time intervals consistent
+    date_shift_range_days: int = DEFAULT_DATE_SHIFT_RANGE_DAYS
+    preserve_date_intervals: bool = True
     
     # Security
     enable_encryption: bool = True
@@ -201,13 +240,13 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.SSN,
                 pattern=re.compile(r'\b\d{3}-\d{2}-\d{4}\b'),
-                priority=90,
+                priority=PRIORITY_HIGH_SSN,
                 description="SSN format: XXX-XX-XXXX"
             ),
             DetectionPattern(
                 phi_type=PHIType.SSN,
                 pattern=re.compile(r'\b\d{9}\b'),
-                priority=85,
+                priority=PRIORITY_HIGH,
                 description="SSN format: XXXXXXXXX"
             ),
             
@@ -215,13 +254,13 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.MRN,
                 pattern=re.compile(r'\b(?:MRN|Medical\s+Record\s+(?:Number|#)):\s*([A-Z0-9]{6,12})\b', re.IGNORECASE),
-                priority=80,
+                priority=PRIORITY_MEDIUM_HIGH,
                 description="Medical Record Number with label"
             ),
             DetectionPattern(
                 phi_type=PHIType.MRN,
                 pattern=re.compile(r'\b[A-Z]{2}\d{6,10}\b'),
-                priority=70,
+                priority=PRIORITY_MEDIUM_LOW,
                 description="MRN format: LLNNNNNN"
             ),
             
@@ -229,7 +268,7 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.PHONE,
                 pattern=re.compile(r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'),
-                priority=75,
+                priority=PRIORITY_MEDIUM,
                 description="US phone number"
             ),
             
@@ -237,7 +276,7 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.EMAIL,
                 pattern=re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
-                priority=85,
+                priority=PRIORITY_HIGH,
                 description="Email address"
             ),
             
@@ -247,19 +286,19 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:0?[1-9]|[12][0-9]|3[01])[/-](?:0?[1-9]|1[0-2])[/-](?:19|20)\d{2}\b'),
-                priority=60,
+                priority=PRIORITY_LOW,
                 description="Date format: DD/MM/YYYY or MM/DD/YYYY (slash-separated, country determines interpretation)"
             ),
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:19|20)\d{2}[/-](?:0?[1-9]|1[0-2])[/-](?:0?[1-9]|[12][0-9]|3[01])\b'),
-                priority=60,
+                priority=PRIORITY_LOW,
                 description="Date format: YYYY-MM-DD (ISO 8601)"
             ),
             DetectionPattern(
                 phi_type=PHIType.DATE,
                 pattern=re.compile(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(?:0?[1-9]|[12][0-9]|3[01]),?\s+(?:19|20)\d{2}\b', re.IGNORECASE),
-                priority=65,
+                priority=PRIORITY_DATE_TEXT_MONTH,
                 description="Date format: Month DD, YYYY (text month)"
             ),
             
@@ -267,7 +306,7 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.ADDRESS_ZIP,
                 pattern=re.compile(r'\b\d{5}(?:-\d{4})?\b'),
-                priority=55,
+                priority=PRIORITY_ZIP_CODE,
                 description="US ZIP code"
             ),
             
@@ -275,7 +314,7 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.IP_ADDRESS,
                 pattern=re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'),
-                priority=70,
+                priority=PRIORITY_MEDIUM_LOW,
                 description="IPv4 address"
             ),
             
@@ -283,7 +322,7 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.URL,
                 pattern=re.compile(r'https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&/=]*)', re.IGNORECASE),
-                priority=75,
+                priority=PRIORITY_MEDIUM,
                 description="HTTP/HTTPS URL"
             ),
             
@@ -291,8 +330,8 @@ class PatternLibrary:
             DetectionPattern(
                 phi_type=PHIType.AGE_OVER_89,
                 pattern=re.compile(r'\b(?:age|aged|Age|AGE)[\s:]+([9]\d|[1-9]\d{2,})\b'),
-                priority=80,
-                description="Age over 89 years"
+                priority=PRIORITY_MEDIUM_HIGH,
+                description=f"Age over {HIPAA_AGE_THRESHOLD} years"
             ),
         ]
         
@@ -310,6 +349,10 @@ class PatternLibrary:
             
         Returns:
             List of DetectionPattern objects for country-specific identifiers
+            
+        Raises:
+            ValueError: If invalid country codes provided
+            RuntimeError: If country regulations module failed to initialize
         """
         if not COUNTRY_REGULATIONS_AVAILABLE:
             logging.warning("Country regulations module not available")
@@ -318,10 +361,28 @@ class PatternLibrary:
         patterns = []
         
         try:
+            # Validate country codes if provided
+            if countries:
+                if not isinstance(countries, list):
+                    raise ValueError(f"countries must be a list, got {type(countries).__name__}")
+                if not all(isinstance(c, str) for c in countries):
+                    raise ValueError("All country codes must be strings")
+            
             manager = CountryRegulationManager(countries=countries)
+            
+            if not hasattr(manager, 'get_country_specific_fields'):
+                raise RuntimeError("CountryRegulationManager missing required method")
+            
             country_fields = manager.get_country_specific_fields()
             
+            if not isinstance(country_fields, (list, tuple)):
+                raise RuntimeError(f"Expected list from get_country_specific_fields, got {type(country_fields).__name__}")
+            
             for field in country_fields:
+                if not hasattr(field, 'compiled_pattern'):
+                    logging.warning(f"Field {getattr(field, 'name', 'unknown')} missing compiled_pattern, skipping")
+                    continue
+                    
                 if field.compiled_pattern:
                     # Map to appropriate PHIType
                     if "ssn" in field.name.lower() or "cpf" in field.name.lower() or \
@@ -333,10 +394,10 @@ class PatternLibrary:
                         priority = 88
                     elif any(x in field.name.lower() for x in ["passport", "id", "voter", "pan"]):
                         phi_type = PHIType.LICENSE_NUMBER
-                        priority = 85
+                        priority = PRIORITY_HIGH
                     else:
                         phi_type = PHIType.CUSTOM
-                        priority = 75
+                        priority = PRIORITY_MEDIUM
                     
                     patterns.append(DetectionPattern(
                         phi_type=phi_type,
@@ -346,8 +407,20 @@ class PatternLibrary:
                     ))
             
             logging.info(f"Loaded {len(patterns)} country-specific patterns")
+            
+        except ValueError as e:
+            logging.error(f"Invalid country codes provided: {e}")
+            raise
+        except ImportError as e:
+            logging.error(f"Failed to import CountryRegulationManager: {e}")
+            return []
+        except AttributeError as e:
+            logging.error(f"CountryRegulationManager API error: {e}")
+            raise RuntimeError(f"Country regulations module API incompatible: {e}")
         except Exception as e:
-            logging.error(f"Failed to load country-specific patterns: {e}")
+            logging.error(f"Unexpected error loading country-specific patterns: {e}", exc_info=True)
+            # Return empty list on unexpected errors to allow graceful degradation
+            return []
         
         return patterns
 
@@ -373,7 +446,7 @@ class PseudonymGenerator:
         Args:
             salt: Optional salt for hash function. If None, generates random salt.
         """
-        self.salt = salt or secrets.token_hex(32)
+        self.salt = salt or secrets.token_hex(CRYPTO_SALT_LENGTH)
         self._counter: Dict[PHIType, int] = defaultdict(int)
         self._cache: Dict[Tuple[PHIType, str], str] = {}
     
@@ -400,8 +473,8 @@ class PseudonymGenerator:
         hash_digest = hashlib.sha256(hash_input).digest()
         
         # Convert first 4 bytes to alphanumeric ID
-        id_bytes = hash_digest[:4]
-        id_value = base64.b32encode(id_bytes).decode('ascii').rstrip('=')[:6]
+        id_bytes = hash_digest[:HASH_ID_BYTES]
+        id_value = base64.b32encode(id_bytes).decode('ascii').rstrip('=')[:PSEUDONYM_ID_LENGTH]
         
         # Generate pseudonym from template
         pseudonym = template.format(id=id_value)
@@ -504,7 +577,7 @@ class DateShifter:
     - ISO 8601 date format standard
     """
     
-    def __init__(self, shift_range_days: int = 365, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = "US"):
+    def __init__(self, shift_range_days: int = DEFAULT_DATE_SHIFT_RANGE_DAYS, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = DEFAULT_COUNTRY_CODE):
         """
         Initialize date shifter with country-specific format interpretation.
         
@@ -534,7 +607,7 @@ class DateShifter:
         """
         self.shift_range_days = shift_range_days
         self.preserve_intervals = preserve_intervals
-        self.seed = seed or secrets.token_hex(16)
+        self.seed = seed or secrets.token_hex(CRYPTO_SALT_LENGTH // 2)  # 16 bytes = 32 hex chars
         self.country_code = country_code.upper()
         self._shift_offset: Optional[int] = None
         self._date_cache: Dict[str, str] = {}
@@ -550,7 +623,7 @@ class DateShifter:
         if self._shift_offset is None:
             # Generate deterministic offset from seed
             hash_digest = hashlib.sha256(self.seed.encode()).digest()
-            offset_int = int.from_bytes(hash_digest[:4], byteorder='big')
+            offset_int = int.from_bytes(hash_digest[:HASH_ID_BYTES], byteorder='big')
             self._shift_offset = (offset_int % (2 * self.shift_range_days + 1)) - self.shift_range_days
         return self._shift_offset
     
@@ -630,17 +703,17 @@ class DateShifter:
                         first_num = int(parts[0])
                         second_num = int(parts[1])
                         
-                        # CASE 1: First number > 12 → MUST be day (can't be month)
-                        if first_num > 12 and fmt in ["%m/%d/%Y", "%m-%d-%Y"]:
+                        # CASE 1: First number > MAX_MONTH_VALUE → MUST be day (can't be month)
+                        if first_num > MAX_MONTH_VALUE and fmt in ["%m/%d/%Y", "%m-%d-%Y"]:
                             # We're trying MM/DD but first number is >12 (impossible month!)
                             continue  # Skip this format, it's logically impossible
                         
-                        # CASE 2: Second number > 12 → MUST be day (can't be month)
-                        if second_num > 12 and fmt in ["%d/%m/%Y", "%d-%m-%Y"]:
+                        # CASE 2: Second number > MAX_MONTH_VALUE → MUST be day (can't be month)
+                        if second_num > MAX_MONTH_VALUE and fmt in ["%d/%m/%Y", "%d-%m-%Y"]:
                             # We're trying DD/MM but second number is >12 (impossible month!)
                             continue  # Skip this format, it's logically impossible
                         
-                        # CASE 3: Both numbers ≤ 12 → Ambiguous! Trust country preference
+                        # CASE 3: Both numbers ≤ MAX_MONTH_VALUE → Ambiguous! Trust country preference
                         # Since formats are ordered by country priority, first match = correct interpretation
                 
                 # If we reach here, the format is valid and logically consistent
@@ -709,105 +782,396 @@ class MappingStore:
         self._load_mappings()
     
     def _load_mappings(self) -> None:
-        """Load mappings from storage file."""
+        """
+        Load mappings from storage file.
+        
+        Raises:
+            ValueError: If file data is corrupted or invalid
+            RuntimeError: If file system errors occur
+        """
         if not self.storage_path.exists():
+            logging.debug(f"Mapping file not found at {self.storage_path}, starting with empty mappings")
             return
         
         try:
             with open(self.storage_path, 'rb') as f:
                 data = f.read()
             
+            if not data:
+                logging.warning(f"Mapping file {self.storage_path} is empty, starting with empty mappings")
+                return
+            
             # Decrypt if enabled
             if self.enable_encryption and self.cipher:
-                data = self.cipher.decrypt(data)
+                try:
+                    data = self.cipher.decrypt(data)
+                except Exception as e:
+                    logging.error(f"Failed to decrypt mappings: {e}")
+                    raise ValueError(f"Decryption failed - invalid key or corrupted file: {e}")
             
             # Parse JSON
-            self.mappings = json.loads(data.decode('utf-8'))
+            try:
+                decoded_data = data.decode('utf-8')
+                self.mappings = json.loads(decoded_data)
+            except UnicodeDecodeError as e:
+                logging.error(f"Failed to decode mappings data: {e}")
+                raise ValueError(f"Invalid UTF-8 data in mapping file: {e}")
+            except json.JSONDecodeError as e:
+                logging.error(f"Failed to parse JSON from mappings: {e}")
+                raise ValueError(f"Corrupted JSON in mapping file: {e}")
+            
+            # Validate structure
+            if not isinstance(self.mappings, dict):
+                raise ValueError(f"Expected dict from mappings file, got {type(self.mappings).__name__}")
+            
             logging.info(f"Loaded {len(self.mappings)} mappings from {self.storage_path}")
             
+        except (PermissionError, OSError) as e:
+            logging.error(f"File system error loading mappings: {e}")
+            raise RuntimeError(f"Cannot access mapping file {self.storage_path}: {e}")
+        except ValueError:
+            # Re-raise validation errors
+            raise
         except Exception as e:
-            logging.error(f"Failed to load mappings: {e}")
+            logging.error(f"Unexpected error loading mappings: {e}", exc_info=True)
             self.mappings = {}
+            raise RuntimeError(f"Failed to load mappings from {self.storage_path}: {e}")
     
     def save_mappings(self) -> None:
-        """Save mappings to storage file."""
+        """
+        Save mappings to storage file with atomic write operation.
+        
+        Raises:
+            ValueError: If mappings data is invalid
+            PermissionError: If storage path is not writable
+            OSError: If directory creation or file write fails
+            RuntimeError: If encryption or serialization fails
+        """
+        import tempfile
+        
+        # Validate mappings data
+        if not isinstance(self.mappings, dict):
+            raise ValueError(f"Mappings must be a dict, got {type(self.mappings).__name__}")
+        
+        logging.debug(f"Saving {len(self.mappings)} mappings to {self.storage_path}")
+        
         try:
-            # Ensure directory exists
-            self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            # Ensure directory exists and is writable
+            try:
+                self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+            except PermissionError as e:
+                raise PermissionError(f"Cannot create directory {self.storage_path.parent}: {e}")
+            except OSError as e:
+                raise OSError(f"Failed to create directory {self.storage_path.parent}: {e}")
+            
+            # Check parent directory is writable
+            if not os.access(self.storage_path.parent, os.W_OK):
+                raise PermissionError(f"Directory {self.storage_path.parent} is not writable")
             
             # Serialize to JSON
-            data = json.dumps(self.mappings, indent=2, ensure_ascii=False).encode('utf-8')
+            try:
+                data = json.dumps(self.mappings, indent=2, ensure_ascii=False).encode('utf-8')
+            except (TypeError, ValueError) as e:
+                raise RuntimeError(f"Failed to serialize mappings to JSON: {e}")
+            
+            logging.debug(f"Serialized {len(data)} bytes of mapping data")
             
             # Encrypt if enabled
             if self.enable_encryption and self.cipher:
-                data = self.cipher.encrypt(data)
+                try:
+                    encrypted_data = self.cipher.encrypt(data)
+                    logging.debug(f"Encrypted data: {len(data)} -> {len(encrypted_data)} bytes")
+                    data = encrypted_data
+                except Exception as e:
+                    raise RuntimeError(f"Encryption failed: {e}")
             
-            # Write to file
-            with open(self.storage_path, 'wb') as f:
-                f.write(data)
+            # Atomic write: write to temp file, then rename
+            temp_fd = None
+            temp_path = None
+            try:
+                # Create temp file in same directory to ensure same filesystem
+                temp_fd, temp_path = tempfile.mkstemp(
+                    dir=self.storage_path.parent,
+                    prefix='.tmp_mappings_',
+                    suffix='.enc' if self.enable_encryption else '.json'
+                )
+                
+                # Write data to temp file
+                try:
+                    os.write(temp_fd, data)
+                    os.fsync(temp_fd)  # Ensure data is written to disk
+                except OSError as e:
+                    raise OSError(f"Failed to write to temporary file {temp_path}: {e}")
+                finally:
+                    if temp_fd is not None:
+                        os.close(temp_fd)
+                
+                # Atomic rename (on POSIX systems, this is atomic even if target exists)
+                try:
+                    os.replace(temp_path, self.storage_path)
+                except OSError as e:
+                    raise OSError(f"Failed to rename {temp_path} to {self.storage_path}: {e}")
+                
+                encryption_status = "encrypted" if self.enable_encryption else "plaintext"
+                logging.info(
+                    f"Saved {len(self.mappings)} mappings to {self.storage_path} "
+                    f"({len(data)} bytes, {encryption_status})"
+                )
+                
+            except Exception:
+                # Clean up temp file on error
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.unlink(temp_path)
+                        logging.debug(f"Cleaned up temporary file {temp_path}")
+                    except OSError as cleanup_error:
+                        logging.warning(f"Failed to clean up temporary file {temp_path}: {cleanup_error}")
+                raise
             
-            logging.info(f"Saved {len(self.mappings)} mappings to {self.storage_path}")
-            
-        except Exception as e:
-            logging.error(f"Failed to save mappings: {e}")
+        except PermissionError as e:
+            logging.error(f"Permission denied saving mappings: {e}")
             raise
+        except OSError as e:
+            logging.error(f"File system error saving mappings: {e}")
+            raise
+        except RuntimeError as e:
+            logging.error(f"Operation failed saving mappings: {e}")
+            raise
+        except Exception as e:
+            logging.error(f"Unexpected error saving mappings: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to save mappings due to unexpected error: {e}")
     
     def add_mapping(self, original: str, pseudonym: str, phi_type: PHIType, metadata: Optional[Dict] = None) -> None:
         """
-        Add a mapping entry.
+        Add a mapping entry with validation.
         
         Args:
-            original: Original sensitive value
-            pseudonym: Pseudonymized value
-            phi_type: Type of PHI
-            metadata: Optional additional metadata
+            original: Original sensitive value (non-empty string)
+            pseudonym: Pseudonymized value (non-empty string)
+            phi_type: Type of PHI (PHIType enum)
+            metadata: Optional additional metadata (dict)
+        
+        Raises:
+            ValueError: If parameters are invalid
+            TypeError: If parameter types are incorrect
         """
+        # Validate input types
+        if not isinstance(original, str):
+            raise TypeError(f"original must be str, got {type(original).__name__}")
+        if not isinstance(pseudonym, str):
+            raise TypeError(f"pseudonym must be str, got {type(pseudonym).__name__}")
+        if not isinstance(phi_type, PHIType):
+            raise TypeError(f"phi_type must be PHIType enum, got {type(phi_type).__name__}")
+        
+        # Validate non-empty
+        if not original.strip():
+            raise ValueError("original cannot be empty or whitespace-only")
+        if not pseudonym.strip():
+            raise ValueError("pseudonym cannot be empty or whitespace-only")
+        
+        # Validate metadata if provided
+        if metadata is not None:
+            if not isinstance(metadata, dict):
+                raise TypeError(f"metadata must be dict, got {type(metadata).__name__}")
+            # Ensure metadata is JSON-serializable
+            try:
+                json.dumps(metadata)
+            except (TypeError, ValueError) as e:
+                raise ValueError(f"metadata must be JSON-serializable: {e}")
+        
         mapping_key = f"{phi_type.value}:{original}"
-        self.mappings[mapping_key] = {
-            "original": original,
-            "pseudonym": pseudonym,
-            "phi_type": phi_type.value,
-            "created_at": datetime.now().isoformat(),
-            "metadata": metadata or {}
-        }
+        
+        # Check for duplicate and log warning
+        if mapping_key in self.mappings:
+            existing = self.mappings[mapping_key]
+            if existing["pseudonym"] != pseudonym:
+                logging.warning(
+                    f"Overwriting existing mapping for {phi_type.value}:{original[:20]}... "
+                    f"(old: {existing['pseudonym'][:20]}..., new: {pseudonym[:20]}...)"
+                )
+        
+        try:
+            self.mappings[mapping_key] = {
+                "original": original,
+                "pseudonym": pseudonym,
+                "phi_type": phi_type.value,
+                "created_at": datetime.now().isoformat(),
+                "metadata": metadata or {}
+            }
+            
+            logging.debug(
+                f"Added mapping: {phi_type.value}:{original[:20]}... -> {pseudonym[:20]}..."
+            )
+            
+        except Exception as e:
+            logging.error(f"Failed to add mapping for {phi_type.value}: {e}")
+            raise RuntimeError(f"Failed to add mapping: {e}")
     
     def get_pseudonym(self, original: str, phi_type: PHIType) -> Optional[str]:
         """
-        Retrieve pseudonym for original value.
+        Retrieve pseudonym for original value with validation.
         
         Args:
-            original: Original value
-            phi_type: Type of PHI
+            original: Original value (non-empty string)
+            phi_type: Type of PHI (PHIType enum)
             
         Returns:
             Pseudonym if exists, None otherwise
+            
+        Raises:
+            TypeError: If parameter types are incorrect
+            ValueError: If parameters are invalid
         """
+        # Validate input types
+        if not isinstance(original, str):
+            raise TypeError(f"original must be str, got {type(original).__name__}")
+        if not isinstance(phi_type, PHIType):
+            raise TypeError(f"phi_type must be PHIType enum, got {type(phi_type).__name__}")
+        
+        # Validate non-empty
+        if not original.strip():
+            raise ValueError("original cannot be empty or whitespace-only")
+        
         mapping_key = f"{phi_type.value}:{original}"
-        mapping = self.mappings.get(mapping_key)
-        return mapping["pseudonym"] if mapping else None
+        
+        try:
+            mapping = self.mappings.get(mapping_key)
+            
+            if mapping is None:
+                logging.debug(f"No mapping found for {phi_type.value}:{original[:20]}...")
+                return None
+            
+            # Validate mapping structure
+            if not isinstance(mapping, dict):
+                logging.error(f"Invalid mapping structure for {mapping_key}: expected dict, got {type(mapping).__name__}")
+                return None
+            
+            if "pseudonym" not in mapping:
+                logging.error(f"Mapping for {mapping_key} missing 'pseudonym' key")
+                return None
+            
+            pseudonym = mapping["pseudonym"]
+            
+            # Validate pseudonym type
+            if not isinstance(pseudonym, str):
+                logging.error(f"Invalid pseudonym type for {mapping_key}: expected str, got {type(pseudonym).__name__}")
+                return None
+            
+            logging.debug(f"Retrieved mapping: {phi_type.value}:{original[:20]}... -> {pseudonym[:20]}...")
+            return pseudonym
+            
+        except Exception as e:
+            logging.error(f"Unexpected error retrieving pseudonym for {phi_type.value}:{original[:20]}...: {e}", exc_info=True)
+            return None
     
     def export_for_audit(self, output_path: Path, include_originals: bool = False) -> None:
         """
-        Export mappings for audit purposes.
+        Export mappings for audit purposes with atomic write.
         
         Args:
-            output_path: Path to export file
-            include_originals: Whether to include original values (dangerous!)
+            output_path: Path to export file (must be Path or valid path string)
+            include_originals: Whether to include original values (WARNING: security risk!)
+        
+        Raises:
+            TypeError: If output_path is not a valid path type
+            PermissionError: If export path is not writable
+            OSError: If directory creation or file write fails
+            RuntimeError: If JSON serialization fails
         """
+        import tempfile
+        
+        # Validate output_path
+        if isinstance(output_path, str):
+            output_path = Path(output_path)
+        elif not isinstance(output_path, Path):
+            raise TypeError(f"output_path must be Path or str, got {type(output_path).__name__}")
+        
         if include_originals:
             logging.warning("Exporting mappings with original values - ensure proper security!")
             export_data = self.mappings
         else:
-            # Export without original values
+            logging.info("Exporting mappings without original values (safe mode)")
             export_data = {
                 key: {k: v for k, v in mapping.items() if k != "original"}
                 for key, mapping in self.mappings.items()
             }
         
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(export_data, f, indent=2, ensure_ascii=False)
-        
-        logging.info(f"Exported mappings to {output_path}")
+        try:
+            # Ensure directory exists and is writable
+            try:
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+            except PermissionError as e:
+                raise PermissionError(f"Cannot create directory {output_path.parent}: {e}")
+            except OSError as e:
+                raise OSError(f"Failed to create directory {output_path.parent}: {e}")
+            
+            # Check parent directory is writable
+            if not os.access(output_path.parent, os.W_OK):
+                raise PermissionError(f"Directory {output_path.parent} is not writable")
+            
+            # Serialize to JSON
+            try:
+                json_data = json.dumps(export_data, indent=2, ensure_ascii=False)
+            except (TypeError, ValueError) as e:
+                raise RuntimeError(f"Failed to serialize mappings to JSON: {e}")
+            
+            logging.debug(f"Serialized {len(export_data)} mappings ({len(json_data)} bytes)")
+            
+            # Atomic write: write to temp file, then rename
+            temp_fd = None
+            temp_path = None
+            try:
+                # Create temp file in same directory
+                temp_fd, temp_path = tempfile.mkstemp(
+                    dir=output_path.parent,
+                    prefix='.tmp_audit_',
+                    suffix='.json'
+                )
+                
+                # Write data to temp file
+                try:
+                    os.write(temp_fd, json_data.encode('utf-8'))
+                    os.fsync(temp_fd)
+                except OSError as e:
+                    raise OSError(f"Failed to write to temporary file {temp_path}: {e}")
+                finally:
+                    if temp_fd is not None:
+                        os.close(temp_fd)
+                
+                # Atomic rename
+                try:
+                    os.replace(temp_path, output_path)
+                except OSError as e:
+                    raise OSError(f"Failed to rename {temp_path} to {output_path}: {e}")
+                
+                include_status = "WITH originals (SENSITIVE)" if include_originals else "without originals (safe)"
+                logging.info(
+                    f"Exported {len(export_data)} mappings to {output_path} "
+                    f"({len(json_data)} bytes, {include_status})"
+                )
+                
+            except Exception:
+                # Clean up temp file on error
+                if temp_path and os.path.exists(temp_path):
+                    try:
+                        os.unlink(temp_path)
+                        logging.debug(f"Cleaned up temporary file {temp_path}")
+                    except OSError as cleanup_error:
+                        logging.warning(f"Failed to clean up temporary file {temp_path}: {cleanup_error}")
+                raise
+            
+        except PermissionError as e:
+            logging.error(f"Permission denied exporting audit data: {e}")
+            raise
+        except OSError as e:
+            logging.error(f"File system error exporting audit data: {e}")
+            raise
+        except RuntimeError as e:
+            logging.error(f"Operation failed exporting audit data: {e}")
+            raise
+        except Exception as e:
+            logging.error(f"Unexpected error exporting audit data: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to export audit data due to unexpected error: {e}")
 
 
 # ============================================================================
@@ -828,180 +1192,323 @@ class DeidentificationEngine:
     
     def __init__(self, config: Optional[DeidentificationConfig] = None, mapping_store: Optional[MappingStore] = None):
         """
-        Initialize de-identification engine.
+        Initialize de-identification engine with comprehensive error handling.
         
         Args:
-            config: Configuration object
-            mapping_store: Optional mapping store (creates default if None)
+            config: Configuration object (DeidentificationConfig or None for defaults)
+            mapping_store: Optional mapping store (MappingStore instance or None)
+        
+        Raises:
+            TypeError: If config or mapping_store are invalid types
+            RuntimeError: If component initialization fails
         """
+        # Validate config parameter
+        if config is not None and not isinstance(config, DeidentificationConfig):
+            raise TypeError(f"config must be DeidentificationConfig or None, got {type(config).__name__}")
+        
+        # Validate mapping_store parameter
+        if mapping_store is not None and not isinstance(mapping_store, MappingStore):
+            raise TypeError(f"mapping_store must be MappingStore or None, got {type(mapping_store).__name__}")
+        
         self.config = config or DeidentificationConfig()
         
         # Setup logging first
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(self.config.log_level)
+        try:
+            self.logger = logging.getLogger(__name__)
+            self.logger.setLevel(self.config.log_level)
+            logging.debug("Initializing DeidentificationEngine...")
+        except Exception as e:
+            # Fallback to module-level logging if logger setup fails
+            logging.error(f"Failed to setup logger: {e}")
+            self.logger = logging.getLogger(__name__)
         
-        # Initialize components
-        self.patterns = PatternLibrary.get_default_patterns()
-        
-        # Add country-specific patterns if enabled
-        if self.config.enable_country_patterns and COUNTRY_REGULATIONS_AVAILABLE:
-            country_patterns = PatternLibrary.get_country_specific_patterns(self.config.countries)
-            self.patterns.extend(country_patterns)
-            # Re-sort by priority
-            self.patterns.sort(key=lambda p: p.priority, reverse=True)
-            self.logger.info(f"Loaded {len(country_patterns)} country-specific patterns for: "
-                           f"{self.config.countries or ['IN (default)']}")
-        
-        self.pseudonym_generator = PseudonymGenerator()
-        
-        # Get primary country for date format
-        primary_country = "IN"  # Default to India
-        if self.config.countries and len(self.config.countries) > 0:
-            primary_country = self.config.countries[0]
-        
-        self.date_shifter = DateShifter(
-            shift_range_days=self.config.date_shift_range_days,
-            preserve_intervals=self.config.preserve_date_intervals,
-            country_code=primary_country
-        ) if self.config.enable_date_shifting else None
-        
-        # Initialize mapping store
-        if mapping_store is None:
+        # Initialize components with error handling
+        try:
+            # Load default patterns
             try:
-                import config as project_config
-                # Store mappings in the deidentified directory for better organization (v0.3.0 API)
-                storage_path = Path(project_config.OUTPUT_DIR) / "deidentified" / "mappings" / "mappings.enc"
-            except (ImportError, AttributeError):
-                # Fallback to current directory if config not available
-                storage_path = Path.cwd() / "deidentification_mappings.enc"
+                self.patterns = PatternLibrary.get_default_patterns()
+                logging.debug(f"Loaded {len(self.patterns)} default detection patterns")
+            except Exception as e:
+                raise RuntimeError(f"Failed to load default patterns: {e}")
             
-            self.mapping_store = MappingStore(
-                storage_path=storage_path,
-                encryption_key=self.config.encryption_key,
-                enable_encryption=self.config.enable_encryption
+            # Add country-specific patterns if enabled
+            if self.config.enable_country_patterns:
+                if not COUNTRY_REGULATIONS_AVAILABLE:
+                    logging.warning(
+                        "Country-specific patterns requested but country_regulations module not available. "
+                        "Install country regulations support or disable enable_country_patterns."
+                    )
+                else:
+                    try:
+                        country_patterns = PatternLibrary.get_country_specific_patterns(self.config.countries)
+                        self.patterns.extend(country_patterns)
+                        # Re-sort by priority
+                        self.patterns.sort(key=lambda p: p.priority, reverse=True)
+                        countries_str = ", ".join(self.config.countries or [f'{DEFAULT_COUNTRY_CODE} (default)'])
+                        logging.info(
+                            f"Loaded {len(country_patterns)} country-specific patterns for: {countries_str}"
+                        )
+                    except Exception as e:
+                        logging.error(f"Failed to load country-specific patterns: {e}")
+                        # Continue with default patterns only
+            
+            # Initialize pseudonym generator
+            try:
+                self.pseudonym_generator = PseudonymGenerator()
+                logging.debug("Initialized pseudonym generator")
+            except Exception as e:
+                raise RuntimeError(f"Failed to initialize pseudonym generator: {e}")
+            
+            # Initialize date shifter
+            self.date_shifter = None
+            if self.config.enable_date_shifting:
+                try:
+                    # Get primary country for date format
+                    primary_country = DEFAULT_COUNTRY_CODE
+                    if self.config.countries and len(self.config.countries) > 0:
+                        primary_country = self.config.countries[0]
+                    
+                    self.date_shifter = DateShifter(
+                        shift_range_days=self.config.date_shift_range_days,
+                        preserve_intervals=self.config.preserve_date_intervals,
+                        country_code=primary_country
+                    )
+                    logging.debug(f"Initialized date shifter (country: {primary_country}, range: ±{self.config.date_shift_range_days} days)")
+                except Exception as e:
+                    logging.error(f"Failed to initialize date shifter: {e}")
+                    # Continue without date shifting
+                    self.date_shifter = None
+            
+            # Initialize mapping store
+            if mapping_store is None:
+                storage_path = None
+                try:
+                    import config as project_config
+                    # Store mappings in the deidentified directory
+                    storage_path = Path(project_config.OUTPUT_DIR) / "deidentified" / "mappings" / "mappings.enc"
+                    logging.debug(f"Using project config storage path: {storage_path}")
+                except (ImportError, AttributeError) as e:
+                    # Fallback to current directory if config not available
+                    storage_path = Path.cwd() / "deidentification_mappings.enc"
+                    logging.warning(f"Project config not available ({e}), using fallback path: {storage_path}")
+                except Exception as e:
+                    storage_path = Path.cwd() / "deidentification_mappings.enc"
+                    logging.error(f"Error loading project config: {e}, using fallback path: {storage_path}")
+                
+                try:
+                    self.mapping_store = MappingStore(
+                        storage_path=storage_path,
+                        encryption_key=self.config.encryption_key,
+                        enable_encryption=self.config.enable_encryption
+                    )
+                    encryption_status = "encrypted" if self.config.enable_encryption else "plaintext"
+                    logging.debug(f"Initialized mapping store ({encryption_status}): {storage_path}")
+                except Exception as e:
+                    raise RuntimeError(f"Failed to initialize mapping store: {e}")
+            else:
+                self.mapping_store = mapping_store
+                logging.debug("Using provided mapping store")
+            
+            # Initialize statistics
+            self.stats = {
+                "texts_processed": 0,
+                "detections_by_type": defaultdict(int),
+                "total_detections": 0,
+                "countries": self.config.countries or [f"{DEFAULT_COUNTRY_CODE} (default)"]
+            }
+            
+            logging.info(
+                f"DeidentificationEngine initialized successfully "
+                f"({len(self.patterns)} patterns, "
+                f"date_shifting={'enabled' if self.date_shifter else 'disabled'}, "
+                f"encryption={'enabled' if self.config.enable_encryption else 'disabled'})"
             )
-        else:
-            self.mapping_store = mapping_store
-        
-        # Statistics
-        self.stats = {
-            "texts_processed": 0,
-            "detections_by_type": defaultdict(int),
-            "total_detections": 0,
-            "countries": self.config.countries or ["IN (default)"]
-        }
+            
+        except RuntimeError:
+            # Re-raise RuntimeError as-is
+            raise
+        except Exception as e:
+            logging.error(f"Unexpected error initializing DeidentificationEngine: {e}", exc_info=True)
+            raise RuntimeError(f"Failed to initialize DeidentificationEngine: {e}")
     
     def deidentify_text(self, text: str, custom_patterns: Optional[List[DetectionPattern]] = None) -> str:
         """
-        De-identify a single text string.
+        De-identify a single text string with comprehensive error handling.
         
         Args:
-            text: Text to de-identify
-            custom_patterns: Optional additional patterns to use
+            text: Text to de-identify (str or None)
+            custom_patterns: Optional additional patterns (list of DetectionPattern or None)
             
         Returns:
             De-identified text with PHI/PII replaced by pseudonyms
+            
+        Raises:
+            TypeError: If text or custom_patterns are invalid types
+            ValueError: If text is too large (>1MB by default)
         """
-        if not text or not isinstance(text, str):
+        # Validate text input
+        if text is None:
+            return ""
+        
+        if not isinstance(text, str):
+            raise TypeError(f"text must be str or None, got {type(text).__name__}")
+        
+        if not text.strip():
             return text
         
-        # Combine patterns
-        all_patterns = self.patterns.copy()
-        if custom_patterns:
-            all_patterns.extend(custom_patterns)
-            all_patterns.sort(key=lambda p: p.priority, reverse=True)
-        
-        # Collect all matches with positions (avoid cascading replacement bug)
-        all_matches = []
-        
-        # Apply each pattern to ORIGINAL text
-        for pattern_def in all_patterns:
-            matches = pattern_def.pattern.finditer(text)
-            
-            for match in matches:
-                original_value = match.group(0)
-                phi_type = pattern_def.phi_type
-                start_pos = match.start()
-                end_pos = match.end()
-                
-                # Check if already mapped
-                pseudonym = self.mapping_store.get_pseudonym(original_value, phi_type)
-                
-                if pseudonym is None:
-                    # Generate new pseudonym
-                    if phi_type == PHIType.DATE and self.date_shifter:
-                        pseudonym = self.date_shifter.shift_date(original_value)
-                    else:
-                        template = self.config.pseudonym_templates.get(phi_type, "{id}")
-                        pseudonym = self.pseudonym_generator.generate(original_value, phi_type, template)
-                    
-                    # Store mapping
-                    self.mapping_store.add_mapping(
-                        original=original_value,
-                        pseudonym=pseudonym,
-                        phi_type=phi_type,
-                        metadata={"pattern": pattern_def.description}
-                    )
-                
-                # Store match for replacement
-                all_matches.append({
-                    "start": start_pos,
-                    "end": end_pos,
-                    "original": original_value,
-                    "pseudonym": pseudonym,
-                    "phi_type": phi_type,
-                    "priority": pattern_def.priority
-                })
-                
-                self.stats["detections_by_type"][phi_type.value] += 1
-                self.stats["total_detections"] += 1
-        
-        # Remove overlapping matches (keep highest priority)
-        # Sort by start position, then by priority (highest first)
-        all_matches.sort(key=lambda m: (m["start"], -m["priority"]))
-        
-        non_overlapping = []
-        for match in all_matches:
-            # Check if this match overlaps with any already selected
-            overlaps = False
-            for selected in non_overlapping:
-                if not (match["end"] <= selected["start"] or match["start"] >= selected["end"]):
-                    overlaps = True
-                    break
-            
-            if not overlaps:
-                non_overlapping.append(match)
-        
-        # Apply replacements in reverse order (to preserve positions)
-        non_overlapping.sort(key=lambda m: m["start"], reverse=True)
-        
-        deidentified_text = text
-        detections = []
-        
-        for match in non_overlapping:
-            # Replace using slice to avoid cascading replacement bug
-            replacement = f"[{match['pseudonym']}]"
-            deidentified_text = (
-                deidentified_text[:match["start"]] + 
-                replacement + 
-                deidentified_text[match["end"]:]
+        # Check text size (prevent performance issues)
+        MAX_TEXT_SIZE = 1_000_000  # 1MB
+        if len(text) > MAX_TEXT_SIZE:
+            logging.warning(
+                f"Large text detected ({len(text)} chars > {MAX_TEXT_SIZE}). "
+                f"Processing may be slow. Consider chunking."
             )
+        
+        # Validate custom_patterns
+        if custom_patterns is not None:
+            if not isinstance(custom_patterns, list):
+                raise TypeError(f"custom_patterns must be list or None, got {type(custom_patterns).__name__}")
+            if not all(isinstance(p, DetectionPattern) for p in custom_patterns):
+                raise TypeError("All items in custom_patterns must be DetectionPattern objects")
+        
+        try:
+            # Combine patterns
+            all_patterns = self.patterns.copy()
+            if custom_patterns:
+                all_patterns.extend(custom_patterns)
+                all_patterns.sort(key=lambda p: p.priority, reverse=True)
             
-            # Track detection
-            detections.append({
-                "phi_type": match["phi_type"].value,
-                "original": match["original"],
-                "pseudonym": match["pseudonym"],
-                "position": match["start"]
-            })
-        
-        self.stats["texts_processed"] += 1
-        
-        # Log detections
-        if self.config.log_detections and detections:
-            self.logger.debug(f"Detected {len(detections)} PHI/PII items: {[d['phi_type'] for d in detections]}")
-        
-        return deidentified_text
+            # Collect all matches with positions
+            all_matches = []
+            
+            # Apply each pattern to ORIGINAL text
+            for pattern_def in all_patterns:
+                try:
+                    matches = pattern_def.pattern.finditer(text)
+                    
+                    for match in matches:
+                        try:
+                            original_value = match.group(0)
+                            phi_type = pattern_def.phi_type
+                            start_pos = match.start()
+                            end_pos = match.end()
+                            
+                            # Check if already mapped
+                            try:
+                                pseudonym = self.mapping_store.get_pseudonym(original_value, phi_type)
+                            except Exception as e:
+                                logging.error(f"Error retrieving pseudonym for {phi_type.value}: {e}")
+                                pseudonym = None
+                            
+                            if pseudonym is None:
+                                # Generate new pseudonym
+                                try:
+                                    if phi_type == PHIType.DATE and self.date_shifter:
+                                        pseudonym = self.date_shifter.shift_date(original_value)
+                                    else:
+                                        template = self.config.pseudonym_templates.get(phi_type, "{id}")
+                                        pseudonym = self.pseudonym_generator.generate(original_value, phi_type, template)
+                                except Exception as e:
+                                    logging.error(f"Error generating pseudonym for {phi_type.value}: {e}")
+                                    # Fallback: use generic pseudonym
+                                    pseudonym = f"[{phi_type.value}_REDACTED_{hashlib.md5(original_value.encode()).hexdigest()[:8]}]"
+                                
+                                # Store mapping
+                                try:
+                                    self.mapping_store.add_mapping(
+                                        original=original_value,
+                                        pseudonym=pseudonym,
+                                        phi_type=phi_type,
+                                        metadata={"pattern": pattern_def.description}
+                                    )
+                                except Exception as e:
+                                    logging.error(f"Error storing mapping for {phi_type.value}: {e}")
+                                    # Continue anyway - pseudonym is already generated
+                            
+                            # Store match for replacement
+                            all_matches.append({
+                                "start": start_pos,
+                                "end": end_pos,
+                                "original": original_value,
+                                "pseudonym": pseudonym,
+                                "phi_type": phi_type,
+                                "priority": pattern_def.priority
+                            })
+                            
+                            try:
+                                self.stats["detections_by_type"][phi_type.value] += 1
+                                self.stats["total_detections"] += 1
+                            except Exception as e:
+                                logging.warning(f"Error updating statistics: {e}")
+                                
+                        except Exception as e:
+                            logging.error(f"Error processing match for pattern {pattern_def.description}: {e}")
+                            continue  # Skip this match, continue with others
+                            
+                except Exception as e:
+                    logging.error(f"Error applying pattern {pattern_def.description}: {e}")
+                    continue  # Skip this pattern, continue with others
+            
+            # Remove overlapping matches (keep highest priority)
+            all_matches.sort(key=lambda m: (m["start"], -m["priority"]))
+            
+            non_overlapping = []
+            for match in all_matches:
+                overlaps = False
+                for selected in non_overlapping:
+                    if not (match["end"] <= selected["start"] or match["start"] >= selected["end"]):
+                        overlaps = True
+                        break
+                
+                if not overlaps:
+                    non_overlapping.append(match)
+            
+            # Apply replacements in reverse order
+            non_overlapping.sort(key=lambda m: m["start"], reverse=True)
+            
+            deidentified_text = text
+            detections = []
+            
+            for match in non_overlapping:
+                try:
+                    # Replace using slice
+                    replacement = f"[{match['pseudonym']}]"
+                    deidentified_text = (
+                        deidentified_text[:match["start"]] + 
+                        replacement + 
+                        deidentified_text[match["end"]:]
+                    )
+                    
+                    # Track detection
+                    detections.append({
+                        "phi_type": match["phi_type"].value,
+                        "original": match["original"],
+                        "pseudonym": match["pseudonym"],
+                        "position": match["start"]
+                    })
+                except Exception as e:
+                    logging.error(f"Error applying replacement at position {match['start']}: {e}")
+                    continue  # Skip this replacement
+            
+            try:
+                self.stats["texts_processed"] += 1
+            except Exception as e:
+                logging.warning(f"Error updating text count: {e}")
+            
+            # Log detections
+            if self.config.log_detections and detections:
+                try:
+                    self.logger.debug(f"Detected {len(detections)} PHI/PII items: {[d['phi_type'] for d in detections]}")
+                except Exception as e:
+                    logging.warning(f"Error logging detections: {e}")
+            
+            return deidentified_text
+            
+        except Exception as e:
+            logging.error(f"Unexpected error in deidentify_text: {e}", exc_info=True)
+            # Return original text to avoid data loss, but log the error
+            logging.error("Returning original text due to de-identification failure")
+            return text
     
     def deidentify_record(self, record: Dict[str, Any], text_fields: Optional[List[str]] = None) -> Dict[str, Any]:
         """
@@ -1129,7 +1636,7 @@ def deidentify_dataset(
         return {"error": "No files found"}
     
     logging.info(f"Processing {len(jsonl_files)} files...")
-    logging.debug(f"Files to process: {[f.name for f in jsonl_files[:10]]}{'...' if len(jsonl_files) > 10 else ''}")
+    logging.debug(f"Files to process: {[f.name for f in jsonl_files[:DEBUG_LOG_FILE_LIMIT]]}{'...' if len(jsonl_files) > DEBUG_LOG_FILE_LIMIT else ''}")
     
     # Statistics tracking
     files_processed = 0
@@ -1174,7 +1681,7 @@ def deidentify_dataset(
                                     records_count += 1
                                     
                                     # Log progress for large files
-                                    if records_count % 1000 == 0:
+                                    if records_count % RECORD_PROGRESS_INTERVAL == 0:
                                         logging.debug(f"  Processed {records_count} records from {jsonl_file.name}")
                                         vlog.detail(f"Processed {records_count} records...")
                     
@@ -1355,8 +1862,13 @@ def validate_dataset(
 # CLI Interface
 # ============================================================================
 
-def main() -> None:
-    """Command-line interface for de-identification."""
+def main() -> int:
+    """
+    Command-line interface for de-identification.
+    
+    Returns:
+        int: Exit code (0 for success, 1 for error, 130 for user interruption)
+    """
     import argparse
     
     parser = argparse.ArgumentParser(
@@ -1387,108 +1899,127 @@ def main() -> None:
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # List countries if requested
-    if args.list_countries:
-        if COUNTRY_REGULATIONS_AVAILABLE:
-            from scripts.utils.country_regulations import get_all_supported_countries
-            print("\nSupported Countries and Regulations:")
-            print("=" * 70)
-            for code, name in get_all_supported_countries().items():
-                print(f"  {code}: {name}")
-            print("\nUsage Examples:")
-            print("  python -m scripts.deidentify --countries US IN --input-dir <dir> --output-dir <dir>")
-            print("  python -m scripts.deidentify --countries ALL --input-dir <dir> --output-dir <dir>")
-        else:
-            print("Country regulations module not available.")
-        return
+    try:
+        # List countries if requested
+        if args.list_countries:
+            if COUNTRY_REGULATIONS_AVAILABLE:
+                from scripts.utils.country_regulations import get_all_supported_countries
+                print("\nSupported Countries and Regulations:")
+                print("=" * CONSOLE_SEPARATOR_WIDTH)
+                for code, name in get_all_supported_countries().items():
+                    print(f"  {code}: {name}")
+                print("\nUsage:")
+                print("  python -m scripts.deidentify --countries US IN --input-dir <dir> --output-dir <dir>")
+                print("  python -m scripts.deidentify --countries ALL --input-dir <dir> --output-dir <dir>")
+            else:
+                print("Country regulations module not available.")
+            return 0
     
-    # Get default directories from config if not provided
-    input_dir = args.input_dir
-    output_dir = args.output_dir
-    
-    if not input_dir or not output_dir:
-        try:
-            import os
-            import config as project_config
-            if not input_dir:
-                # Auto-detect dataset directory from config (v0.3.0 API)
-                clean_dataset_dir = os.path.join(project_config.OUTPUT_DIR, "cleaned_datasets")
-                input_dir = os.path.join(clean_dataset_dir, "cleaned")
-                print(f"Using auto-detected input directory: {input_dir}")
-            if not output_dir:
-                # Use sensible default for output (v0.3.0 API)
-                output_dir = os.path.join(project_config.OUTPUT_DIR, "deidentified", project_config.STUDY_NAME)
-                print(f"Using default output directory: {output_dir}")
-        except (ImportError, AttributeError) as e:
-            if not input_dir or not output_dir:
-                parser.error("--input-dir and --output-dir are required (config.py not available for auto-detection)")
-    
-    # Parse countries
-    countries = None
-    if args.countries:
-        if "ALL" in [c.upper() for c in args.countries]:
-            countries = ["ALL"]
-        else:
-            countries = [c.upper() for c in args.countries]
-    
-    # Create config
-    deid_config = DeidentificationConfig(
-        enable_encryption=not args.no_encryption,
-        log_level=getattr(logging, args.log_level),
-        countries=countries,
-        enable_country_patterns=not args.no_country_patterns
-    )
-    
-    # Print configuration
-    print("\nDe-identification Configuration:")
-    print("=" * 70)
-    print(f"  Input Directory: {input_dir}")
-    print(f"  Output Directory: {output_dir}")
-    print(f"  Countries: {countries or ['IN (default)']}")
-    print(f"  Country-Specific Patterns: {'Enabled' if deid_config.enable_country_patterns else 'Disabled'}")
-    print(f"  Encryption: {'Enabled' if deid_config.enable_encryption else 'Disabled'}")
-    print(f"  Validation: {'Enabled' if args.validate else 'Disabled'}")
-    print("=" * 70)
-    
-    # Run de-identification
-    print(f"\nDe-identifying dataset...")
-    stats = deidentify_dataset(
-        input_dir=input_dir,
-        output_dir=output_dir,
-        text_fields=args.text_fields,
-        config=deid_config
-    )
-    
-    print(f"\nDe-identification Statistics:")
-    print("=" * 70)
-    print(f"  Texts processed: {stats.get('texts_processed', 0)}")
-    print(f"  Total detections: {stats.get('total_detections', 0)}")
-    print(f"  Countries: {', '.join(stats.get('countries', ['N/A']))}")
-    print(f"\n  Detections by type:")
-    for phi_type, count in sorted(stats.get('detections_by_type', {}).items()):
-        print(f"    {phi_type}: {count}")
-    
-    # Validate if requested
-    if args.validate:
-        print("\nValidating de-identified dataset...")
-        print("=" * 70)
-        validation = validate_dataset(output_dir, text_fields=args.text_fields)
-        print(f"  {validation['summary']}")
+        # Get default directories from config if not provided
+        input_dir = args.input_dir
+        output_dir = args.output_dir
         
-        if not validation['is_valid']:
-            print("\n  ⚠ Potential issues found:")
-            for issue in validation['potential_phi_found'][:10]:  # Show first 10
-                print(f"    {issue['file']}:{issue['line']} - {issue['field']}: {issue['issues']}")
+        if not input_dir or not output_dir:
+            try:
+                import os
+                import config as project_config
+                if not input_dir:
+                    # Auto-detect dataset directory from config (v0.3.0 API)
+                    clean_dataset_dir = os.path.join(project_config.OUTPUT_DIR, "cleaned_datasets")
+                    input_dir = os.path.join(clean_dataset_dir, "cleaned")
+                    print(f"Using auto-detected input directory: {input_dir}")
+                if not output_dir:
+                    # Use sensible default for output (v0.3.0 API)
+                    output_dir = os.path.join(project_config.OUTPUT_DIR, "deidentified", project_config.STUDY_NAME)
+                    print(f"Using default output directory: {output_dir}")
+            except (ImportError, AttributeError) as e:
+                if not input_dir or not output_dir:
+                    parser.error("--input-dir and --output-dir are required (config.py not available for auto-detection)")
+        
+        # Parse countries
+        countries = None
+        if args.countries:
+            if "ALL" in [c.upper() for c in args.countries]:
+                countries = ["ALL"]
+            else:
+                countries = [c.upper() for c in args.countries]
+        
+        # Create config
+        deid_config = DeidentificationConfig(
+            enable_encryption=not args.no_encryption,
+            log_level=getattr(logging, args.log_level),
+            countries=countries,
+            enable_country_patterns=not args.no_country_patterns
+        )
+        
+        # Print configuration
+        print("\nDe-identification Configuration:")
+        print("=" * CONSOLE_SEPARATOR_WIDTH)
+        print(f"  Input Directory: {input_dir}")
+        print(f"  Output Directory: {output_dir}")
+        print(f"  Countries: {countries or [f'{DEFAULT_COUNTRY_CODE} (default)']}")
+        print(f"  Country-Specific Patterns: {'Enabled' if deid_config.enable_country_patterns else 'Disabled'}")
+        print(f"  Encryption: {'Enabled' if deid_config.enable_encryption else 'Disabled'}")
+        print(f"  Validation: {'Enabled' if args.validate else 'Disabled'}")
+        print("=" * CONSOLE_SEPARATOR_WIDTH)
+        
+        # Run de-identification
+        print(f"\nDe-identifying dataset...")
+        stats = deidentify_dataset(
+            input_dir=input_dir,
+            output_dir=output_dir,
+            text_fields=args.text_fields,
+            config=deid_config
+        )
+        
+        print(f"\nDe-identification Statistics:")
+        print("=" * CONSOLE_SEPARATOR_WIDTH)
+        print(f"  Texts processed: {stats.get('texts_processed', 0)}")
+        print(f"  Total detections: {stats.get('total_detections', 0)}")
+        print(f"  Countries: {', '.join(stats.get('countries', ['N/A']))}")
+        print(f"\n  Detections by type:")
+        for phi_type, count in sorted(stats.get('detections_by_type', {}).items()):
+            print(f"    {phi_type}: {count}")
+        
+        # Validate if requested
+        if args.validate:
+            print("\nValidating de-identified dataset...")
+            print("=" * CONSOLE_SEPARATOR_WIDTH)
+            validation = validate_dataset(output_dir, text_fields=args.text_fields)
+            print(f"  {validation['summary']}")
             
-            if len(validation['potential_phi_found']) > 10:
-                print(f"    ... and {len(validation['potential_phi_found']) - 10} more issues")
-        else:
-            print("  ✓ No PHI/PII detected in de-identified data")
-    
-    print("\n✓ De-identification complete!")
-    print(f"  De-identified files: {output_dir}")
-    print(f"  Audit log: {output_dir}/_deidentification_audit.json")
+            if not validation['is_valid']:
+                print("\n  ⚠ Potential issues found:")
+                for issue in validation['potential_phi_found'][:VALIDATION_DISPLAY_LIMIT]:
+                    print(f"    {issue['file']}:{issue['line']} - {issue['field']}: {issue['issues']}")
+                
+                if len(validation['potential_phi_found']) > VALIDATION_DISPLAY_LIMIT:
+                    print(f"    ... and {len(validation['potential_phi_found']) - VALIDATION_DISPLAY_LIMIT} more issues")
+            else:
+                print("  ✓ No PHI/PII detected in de-identified data")
+        
+        print("\n✓ De-identification complete!")
+        print(f"  De-identified files: {output_dir}")
+        print(f"  Audit log: {output_dir}/_deidentification_audit.json")
+        
+        return 0
+        
+    except KeyboardInterrupt:
+        vlog.warning("\nDe-identification interrupted by user (Ctrl+C)")
+        print("\n\n⚠ De-identification interrupted by user. Exiting gracefully...")
+        return 130  # Standard exit code for SIGINT (Ctrl+C)
+        
+    except Exception as e:
+        vlog.error(
+            f"Unhandled exception during de-identification: {type(e).__name__}: {e}",
+            exc_info=True
+        )
+        print(f"\n\n❌ Error: De-identification failed with an unexpected error.")
+        print(f"   {type(e).__name__}: {e}")
+        print(f"   Please check the logs for detailed error information.")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main())

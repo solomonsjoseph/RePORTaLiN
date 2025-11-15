@@ -33,7 +33,6 @@ Version: 2.0.0 (smart migration with custom path support)
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Get project root directory

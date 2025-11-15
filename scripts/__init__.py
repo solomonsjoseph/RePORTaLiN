@@ -26,8 +26,8 @@ For more specialized functionality, import directly from submodules:
 - ``scripts.utils.country_regulations``: Privacy regulations (6 public functions)
 - ``scripts.utils.logging``: Enhanced logging (12 public functions)
 
-Usage Examples
---------------
+Usage
+-----
 
 Basic Pipeline
 ~~~~~~~~~~~~~~

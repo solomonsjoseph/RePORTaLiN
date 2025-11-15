@@ -38,12 +38,12 @@ Example:
 """
 
 import re
-import logging
 from typing import Dict, List, Optional, Any, Union
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 import json
+from scripts.utils import logging_system as log
 
 __all__ = [
     # Enums
@@ -54,8 +54,12 @@ __all__ = [
     'CountryRegulation',
     # Main Manager Class
     'CountryRegulationManager',
-    # Helper Function
+    # Helper Functions
     'get_common_fields',
+    # Utility Functions
+    'get_regulation_for_country',
+    'get_all_supported_countries',
+    'merge_regulations',
 ]
 
 # ============================================================================
@@ -1023,8 +1027,6 @@ class CountryRegulationManager:
             countries: List of country codes or 'ALL' for all countries.
                       If None, defaults to IN (India).
         """
-        self.logger = logging.getLogger(__name__)
-        
         # Parse countries
         if countries is None:
             self.country_codes = ["IN"]
@@ -1046,7 +1048,7 @@ class CountryRegulationManager:
         self.regulations: Dict[str, CountryRegulation] = {}
         for code in self.country_codes:
             self.regulations[code] = self._REGISTRY[code]()
-            self.logger.info(f"Loaded regulation for {code}: {self.regulations[code].regulation_acronym}")
+            log.info(f"Loaded regulation for {code}: {self.regulations[code].regulation_acronym}")
     
     @classmethod
     def get_supported_countries(cls) -> List[str]:
@@ -1182,7 +1184,7 @@ class CountryRegulationManager:
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(config, f, indent=2, ensure_ascii=False)
             
-            self.logger.info(f"Exported configuration to {output_path}")
+            log.info(f"Exported configuration to {output_path}")
             
         except (IOError, OSError) as e:
             raise IOError(f"Failed to export configuration to {output_path}: {e}") from e
@@ -1282,8 +1284,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    # Setup logging using centralized logging system
+    log.setup_logging(module_name=__name__, log_level='INFO')
     
     if args.list:
         print("\nSupported Countries:")
