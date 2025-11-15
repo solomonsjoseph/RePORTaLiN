@@ -64,7 +64,7 @@ See Also
 --------
 **User Documentation:**
 
-- :doc:`user_guide/quickstart` - Quick start guide with basic examples
+- :doc:`user_guide/quickstart` - Quick start guide
 - :doc:`user_guide/usage` - Advanced usage patterns and workflows
 - :doc:`user_guide/configuration` - Configuration and command-line options
 - :doc:`developer_guide/architecture` - Technical architecture details
@@ -84,7 +84,10 @@ from pathlib import Path
 from scripts.load_dictionary import load_study_dictionary
 from scripts.extract_data import extract_excel_to_jsonl
 from scripts.deidentify import deidentify_dataset, DeidentificationConfig
-from scripts.utils import logging as log
+from scripts.utils import logging_system as log
+# Vector database ingestion modules (v0.3.0)
+from scripts.vector_db.ingest_pdfs import ingest_pdfs_to_vectordb
+from scripts.vector_db.ingest_records import ingest_records_to_vectordb
 import config
 
 try:
@@ -137,13 +140,17 @@ def main() -> None:
         --skip-deidentification: Skip de-identification even if enabled
         --no-encryption: Disable encryption for de-identification mappings
         -c, --countries: Country codes (e.g., IN US ID BR) or ALL
-        -v, --verbose: Enable verbose (DEBUG level) logging
+        -v, --verbose: Enable verbose (DEBUG) logging (default: simple mode)
+    
+    Default Behavior:
+        - Simple logging mode (INFO level, minimal console output)
+        - Use --verbose flag for detailed DEBUG logging
     """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
         description='Clinical data processing pipeline with de-identification support.',
         epilog="""
-Examples:
+Usage:
   %(prog)s                              # Run complete pipeline
   %(prog)s --skip-dictionary            # Skip dictionary, run extraction
   %(prog)s --enable-deidentification    # Run pipeline with de-identification
@@ -168,9 +175,16 @@ For detailed documentation, see the Sphinx docs or README.md
     parser.add_argument('-c', '--countries', nargs='+', metavar='CODE',
                        help="Country codes (IN US ID BR etc.) or ALL. Default: IN")
     parser.add_argument('-v', '--verbose', action='store_true',
-                       help="Enable verbose (DEBUG) logging with detailed context")
-    parser.add_argument('--simple', action='store_true',
-                       help="Enable simple logging (INFO level, minimal details)")
+                       help="Enable verbose (DEBUG) logging with detailed context. "
+                            "Default: Simple mode (INFO level, minimal console output)")
+    
+    # Vector database arguments (v0.3.0)
+    parser.add_argument('--ingest-pdfs', action='store_true',
+                       help="Ingest all PDF forms to vector database")
+    parser.add_argument('--ingest-records', action='store_true',
+                       help="Ingest all JSONL records to vector database")
+    parser.add_argument('--dry-run', action='store_true',
+                       help="Test ingestion without writing to database (use with --ingest-pdfs)")
     
     # Enable shell completion if available
     if ARGCOMPLETE_AVAILABLE:
@@ -178,15 +192,17 @@ For detailed documentation, see the Sphinx docs or README.md
     
     args = parser.parse_args()
 
-    # Set log level based on flags: verbose (DEBUG) > default (INFO) > simple (INFO but less console output)
+    # Set log level and mode: Default = simple mode (INFO, minimal console)
+    # Only --verbose flag enables DEBUG mode with full console output
     if args.verbose:
         log_level = logging.DEBUG
-    elif args.simple:
-        log_level = logging.INFO
+        simple_mode = False  # Full verbose output to console
     else:
-        log_level = config.LOG_LEVEL
+        # DEFAULT: Simple mode (INFO level, minimal console output)
+        log_level = logging.INFO
+        simple_mode = True
     
-    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple)
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=simple_mode)
     log.info("Starting RePORTaLiN pipeline...")
     
     # Validate configuration (v0.3.0: raises exceptions on errors)
@@ -288,6 +304,17 @@ For detailed documentation, see the Sphinx docs or README.md
         log.info("--- Skipping Step 2: De-identification ---")
     else:
         log.info("--- De-identification disabled (use --enable-deidentification to enable) ---")
+
+    # Vector database ingestion (v0.3.0)
+    if args.ingest_pdfs:
+        run_step("Vector DB: Ingesting PDF Forms", 
+                lambda: ingest_pdfs_to_vectordb(
+                    study_name=config.STUDY_NAME,
+                    dry_run=args.dry_run
+                ))
+    
+    if args.ingest_records:
+        run_step("Vector DB: Ingesting JSONL Records", lambda: ingest_records_to_vectordb(study_name=config.STUDY_NAME))
 
     log.info("RePORTaLiN pipeline finished.")
 

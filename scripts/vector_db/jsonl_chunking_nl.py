@@ -1,0 +1,802 @@
+"""
+Text Chunking Strategies for Clinical Trial Data
+==================================================
+
+This module provides intelligent chunking strategies for clinical trial data,
+specifically designed for nested JSON structures from clinical forms. It preserves
+metadata and ensures chunks are semantically meaningful and appropriately sized
+for embedding models.
+
+Chunking Strategies:
+    1. Fixed-size: Split text into fixed token lengths with overlap
+    2. Semantic: Split on form fields/sections (preserves structure)
+    3. Hybrid: Combine semantic boundaries with max size limits
+
+Key Features:
+    - Token counting (tiktoken)
+    - Metadata preservation (form name, subject ID, fields)
+    - Multiple chunking strategies
+    - Configurable chunk size and overlap
+    - Handling of nested JSON structures
+
+Author: RePORTaLiN Development Team
+Date: November 2025
+"""
+
+import json
+import math
+import re
+from typing import List, Dict, Any, Optional, Union
+from pathlib import Path
+from dataclasses import dataclass, field
+
+import tiktoken
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from scripts.utils import logging_system as log
+
+logger = log.get_logger(__name__)
+vlog = log.get_verbose_logger()
+
+
+@dataclass
+class TextChunk:
+    """
+    Represents a chunk of text with associated metadata.
+    
+    Attributes:
+        text (str): The chunk text content
+        metadata (dict): Metadata about the chunk (form, subject, fields, etc.)
+        token_count (int): Number of tokens in the chunk
+        chunk_index (int): Index of chunk within document (0-based)
+        source_file (str): Original JSONL file name
+        chunk_strategy (str): Strategy used to create this chunk
+    
+    Example:
+        >>> from scripts.vector_db.jsonl_chunking_nl import TextChunk
+        >>> chunk = TextChunk(
+        ...     text="Patient has cough and fever",
+        ...     metadata={"form": "1A_ICScreening", "subject_id": "SUBJ_001"},
+        ...     token_count=7,
+        ...     chunk_index=0
+        ... )
+        >>> chunk.token_count
+        7
+    """
+    text: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    token_count: int = 0
+    chunk_index: int = 0
+    source_file: Optional[str] = None
+    chunk_strategy: str = "unknown"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert chunk to dictionary for serialization."""
+        return {
+            "text": self.text,
+            "metadata": self.metadata,
+            "token_count": self.token_count,
+            "chunk_index": self.chunk_index,
+            "source_file": self.source_file,
+            "chunk_strategy": self.chunk_strategy
+        }
+    
+    def __repr__(self) -> str:
+        """String representation of chunk."""
+        return (
+            f"TextChunk(tokens={self.token_count}, "
+            f"strategy='{self.chunk_strategy}', "
+            f"index={self.chunk_index})"
+        )
+
+
+class TextChunker:
+    """
+    Text chunking for clinical forms with multiple strategies.
+    
+    This class handles chunking of clinical form data (JSONL records) into
+    appropriately-sized pieces for embedding models. It preserves metadata
+    and supports multiple chunking strategies.
+    
+    Attributes:
+        chunk_size (int): Target chunk size in tokens
+        chunk_overlap (int): Overlap between chunks in tokens
+        strategy (str): Chunking strategy ('fixed', 'semantic', or 'hybrid')
+        encoding (tiktoken.Encoding): Tokenizer for counting tokens
+        
+    Example:
+        >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+        >>> chunker = TextChunker(chunk_size=512, chunk_overlap=50)
+        >>> record = {"form_name": "1A_ICScreening", "age": 45}
+        >>> chunks = chunker.chunk_record(record)
+        >>> len(chunks)
+        1
+    """
+    
+    def __init__(
+        self,
+        chunk_size: int = 1024,
+        chunk_overlap: int = 150,
+        strategy: str = "hybrid",
+        encoding_name: str = "cl100k_base"
+    ):
+        """
+        Initialize text chunker.
+        
+        Args:
+            chunk_size: Target chunk size in tokens. Default 1024 (optimized for clinical data).
+            chunk_overlap: Overlap between chunks in tokens. Default 150 (preserves context).
+            strategy: Default chunking strategy ('fixed', 'semantic', 'hybrid').
+            encoding_name: Tiktoken encoding name. Default 'cl100k_base' (GPT-3.5/4).
+        
+        Raises:
+            ValueError: If invalid strategy or parameters provided
+        """
+        if chunk_size <= 0:
+            raise ValueError(f"chunk_size must be positive, got {chunk_size}")
+        if chunk_overlap < 0 or chunk_overlap >= chunk_size:
+            raise ValueError(
+                f"chunk_overlap must be >= 0 and < chunk_size, "
+                f"got overlap={chunk_overlap}, size={chunk_size}"
+            )
+        if strategy not in ["fixed", "semantic", "hybrid"]:
+            raise ValueError(
+                f"Invalid strategy '{strategy}'. "
+                f"Must be 'fixed', 'semantic', or 'hybrid'"
+            )
+        
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.strategy = strategy
+        
+        # Initialize tokenizer
+        try:
+            self.encoding = tiktoken.get_encoding(encoding_name)
+        except Exception as e:
+            logger.error(f"Failed to load tiktoken encoding '{encoding_name}': {e}")
+            raise RuntimeError(f"Could not load tokenizer: {e}")
+        
+        # Initialize RecursiveCharacterTextSplitter for fixed/hybrid strategies
+        # Convert token counts to approximate character counts (rough estimate: 1 token ≈ 4 chars)
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size * 4,  # Approximate conversion
+            chunk_overlap=chunk_overlap * 4,
+            length_function=self.count_tokens,
+            separators=["\n\n", "\n", ". ", ", ", " ", ""]
+        )
+        
+        logger.info(
+            f"TextChunker initialized: size={chunk_size} tokens, "
+            f"overlap={chunk_overlap} tokens, strategy='{strategy}'"
+        )
+    
+    def count_tokens(self, text: str) -> int:
+        """
+        Count tokens in text using tiktoken.
+        
+        Args:
+            text: Text to count tokens for
+        
+        Returns:
+            Number of tokens
+        
+        Example:
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> chunker = TextChunker()
+            >>> count = chunker.count_tokens("Patient has TB symptoms")
+            >>> count
+            5
+        """
+        if not text:
+            return 0
+        return len(self.encoding.encode(text))
+    
+    def json_to_natural_language(
+        self,
+        record: Dict[str, Any],
+        include_entity_prefix: bool = True,
+        entity_id_fields: Optional[List[str]] = None
+    ) -> str:
+        """
+        Convert JSON record to natural language sentence.
+        
+        Transforms structured data into human-readable text suitable for embedding.
+        Works with ANY JSON structure - clinical, business, IoT, etc.
+        
+        Args:
+            record: Dictionary from JSONL file containing structured data
+            include_entity_prefix: Whether to include entity identifier prefix
+            entity_id_fields: Custom list of ID field names to try (if None, uses defaults)
+        
+        Returns:
+            Natural language sentence representing the record
+        
+        Examples:
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> chunker = TextChunker()
+            >>> 
+            >>> # Clinical data
+            >>> record = {"SUBJID": "10200001B", "HC_SMOKHX": "No, never", "IC_AGE": 45}
+            >>> chunker.json_to_natural_language(record)
+            'Patient 10200001B. Age: 45. Smoking history: No, never.'
+            >>> 
+            >>> # E-commerce data
+            >>> record = {"order_id": "ORD-123", "customer_name": "John Doe", "total": 99.99}
+            >>> chunker.json_to_natural_language(record)
+            'Order ORD-123. Customer name: John Doe. Total: 99.99.'
+            >>> 
+            >>> # IoT sensor data
+            >>> record = {"sensor_id": "TEMP-01", "temperature": 22.5, "humidity": 65}
+            >>> chunker.json_to_natural_language(record)
+            'Sensor TEMP-01. Temperature: 22.5. Humidity: 65.'
+        
+        .. versionadded:: 0.3.0
+           Generic JSON-to-NL converter for vector database integration.
+        """
+        if not record:
+            return ""
+        
+        sentences = []
+        
+        # Default ID field patterns (order matters - try most specific first)
+        default_id_fields = [
+            "SUBJID", "subject_id", "SubjID", "patient_id", "PatientID",
+            "order_id", "OrderID", "transaction_id", "TransactionID",
+            "sensor_id", "SensorID", "device_id", "DeviceID",
+            "user_id", "UserID", "customer_id", "CustomerID",
+            "record_id", "RecordID", "ID", "id", "_id"
+        ]
+        
+        id_fields_to_try = entity_id_fields or default_id_fields
+        
+        # Extract entity ID and determine entity type
+        entity_id = None
+        entity_type = "Record"  # Default
+        id_field_used = None
+        
+        for field_name in id_fields_to_try:
+            if field_name in record and record[field_name]:
+                entity_id = record[field_name]
+                id_field_used = field_name
+                
+                # Infer entity type from field name
+                field_lower = field_name.lower()
+                if "patient" in field_lower or "subj" in field_lower:
+                    entity_type = "Patient"
+                elif "order" in field_lower:
+                    entity_type = "Order"
+                elif "sensor" in field_lower or "device" in field_lower:
+                    entity_type = "Sensor"
+                elif "user" in field_lower or "customer" in field_lower:
+                    entity_type = "User"
+                elif "transaction" in field_lower:
+                    entity_type = "Transaction"
+                
+                break
+        
+        # Add entity identifier prefix if requested
+        if include_entity_prefix and entity_id:
+            sentences.append(f"{entity_type} {entity_id}")
+        
+        # Process each field
+        for key, value in record.items():
+            # Skip ID fields (already processed)
+            if id_field_used and key == id_field_used:
+                continue
+            
+            # Skip common metadata fields that don't add semantic value
+            if key.lower() in ["_id", "id", "recordid", "record_id", "index", "row_number"]:
+                continue
+            
+            # Skip empty/null values
+            if value is None or value == "":
+                continue
+            
+            # Skip very large text fields (truncate if needed)
+            if isinstance(value, str) and len(value) > 500:
+                value = value[:500] + "..."
+            
+            # Humanize field name
+            readable_key = self._humanize_field_name(key)
+            
+            # Handle different value types
+            # IMPORTANT: Check bool BEFORE int, since bool is a subclass of int
+            if isinstance(value, bool):
+                # Boolean values
+                sentences.append(f"{readable_key}: {'Yes' if value else 'No'}")
+            
+            elif isinstance(value, dict):
+                # Nested dictionary - recursively flatten
+                nested_text = self._flatten_dict_to_nl(value)
+                if nested_text:
+                    sentences.append(f"{readable_key}: {nested_text}")
+            
+            elif isinstance(value, list):
+                # List - join elements (limit to first 10 items)
+                if len(value) > 10:
+                    list_values = value[:10]
+                    list_text = ", ".join(str(v) for v in list_values if v) + "..."
+                else:
+                    list_text = ", ".join(str(v) for v in value if v)
+                
+                if list_text:
+                    sentences.append(f"{readable_key}: {list_text}")
+            
+            elif isinstance(value, (int, float)):
+                # Numeric values - format appropriately
+                # Check for NaN and infinity using math module
+                if isinstance(value, float) and math.isnan(value):
+                    # Handle NaN
+                    formatted_value = "Not Available"
+                elif isinstance(value, float) and math.isinf(value):
+                    # Handle infinity
+                    formatted_value = "Infinity" if value > 0 else "-Infinity"
+                elif isinstance(value, float):
+                    # Round floats to 2 decimal places for readability
+                    formatted_value = f"{value:.2f}" if value != int(value) else str(int(value))
+                else:
+                    # Integer values
+                    formatted_value = str(value)
+                sentences.append(f"{readable_key}: {formatted_value}")
+            
+            else:
+                # Simple value (string, etc.)
+                sentences.append(f"{readable_key}: {value}")
+        
+        # Join into coherent sentence
+        if not sentences:
+            return ""
+        
+        return ". ".join(sentences) + "."
+    
+    def _humanize_field_name(self, field_name: str) -> str:
+        """
+        Convert field names to readable format.
+        
+        Transforms abbreviated or technical field names into human-readable text.
+        Works with multiple naming conventions: snake_case, camelCase, PascalCase.
+        
+        Args:
+            field_name: Original field name (e.g., "HC_SMOKHX", "orderDate", "CustomerName")
+        
+        Returns:
+            Humanized field name (e.g., "Smoking history", "Order date", "Customer name")
+        
+        Examples:
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> chunker = TextChunker()
+            >>> 
+            >>> # Clinical abbreviations
+            >>> chunker._humanize_field_name("HC_SMOKHX")
+            'Smoking history'
+            >>> 
+            >>> # Snake case
+            >>> chunker._humanize_field_name("customer_email_address")
+            'Customer Email Address'
+            >>> 
+            >>> # Camel case
+            >>> chunker._humanize_field_name("orderTotalAmount")
+            'Order Total Amount'
+            >>> 
+            >>> # Pascal case
+            >>> chunker._humanize_field_name("DeviceSerialNumber")
+            'Device Serial Number'
+        
+        .. versionadded:: 0.3.0
+           Generic field name humanizer for any domain.
+        """
+        if not field_name:
+            return ""
+        
+        # Domain-specific abbreviation mappings (extensible)
+        # Clinical domain
+        clinical_abbrev = {
+            "HC_SMOKHX": "Smoking history",
+            "HC_MARISTAT": "Marital status",
+            "IC_AGE": "Age",
+            "IC_SEX": "Sex",
+            "IC_DOB": "Date of birth",
+            "TB_SYMPTOMS": "TB symptoms",
+            "TB_COUGH": "Cough",
+            "TB_FEVER": "Fever",
+            "TB_WEIGHT": "Weight",
+            "HIV_STATUS": "HIV status",
+            "LAB_RESULT": "Laboratory result",
+            "SPECIMEN_TYPE": "Specimen type",
+            "VISIT_DATE": "Visit date",
+            "ENROL_DATE": "Enrollment date",
+        }
+        
+        # Common abbreviations across domains
+        common_abbrev = {
+            "ID": "ID",
+            "URL": "URL",
+            "API": "API",
+            "HTTP": "HTTP",
+            "JSON": "JSON",
+            "XML": "XML",
+            "CSV": "CSV",
+            "PDF": "PDF",
+            "DOB": "Date of birth",
+            "SSN": "Social security number",
+            "ZIP": "ZIP code",
+            "QTY": "Quantity",
+            "AMT": "Amount",
+            "NUM": "Number",
+            "PCT": "Percentage",
+        }
+        
+        # Combine all abbreviation maps
+        abbrev_map = {**clinical_abbrev, **common_abbrev}
+        
+        # Check for exact match first
+        if field_name in abbrev_map:
+            return abbrev_map[field_name]
+        
+        # Check for prefix matches (for clinical fields like HC_SMOKHX_DATE)
+        for abbrev, readable in abbrev_map.items():
+            if field_name.startswith(abbrev + "_") or field_name.startswith(abbrev):
+                suffix = field_name[len(abbrev):].lstrip("_")
+                if suffix:
+                    suffix_readable = self._humanize_field_name(suffix)
+                    return f"{readable} {suffix_readable}".strip()
+                return readable
+        
+        # Handle different naming conventions
+        cleaned = field_name
+        
+        # Remove common technical prefixes (for clinical/domain-specific data)
+        for prefix in ["HC_", "IC_", "TB_", "LAB_", "HIV_", "SUBJ_", "tbl", "dim_", "fact_"]:
+            if cleaned.startswith(prefix):
+                cleaned = cleaned[len(prefix):]
+                break
+        
+        # Convert camelCase or PascalCase to spaces
+        # Insert space before uppercase letters that follow lowercase letters
+        cleaned = re.sub(r'([a-z])([A-Z])', r'\1 \2', cleaned)
+        
+        # Replace underscores with spaces
+        cleaned = cleaned.replace("_", " ")
+        
+        # Replace hyphens with spaces
+        cleaned = cleaned.replace("-", " ")
+        
+        # Remove multiple spaces
+        cleaned = re.sub(r'\s+', ' ', cleaned)
+        
+        # Title case (capitalize first letter of each word)
+        cleaned = cleaned.strip().title()
+        
+        # Preserve common acronyms in uppercase
+        words = cleaned.split()
+        result_words = []
+        for word in words:
+            word_upper = word.upper()
+            if word_upper in common_abbrev.values() or word_upper in ["ID", "URL", "API", "HTTP", "JSON", "XML", "CSV", "PDF", "ZIP", "SSN"]:
+                result_words.append(word_upper)
+            else:
+                result_words.append(word)
+        
+        return " ".join(result_words)
+    
+    def _flatten_dict_to_nl(self, d: Dict[str, Any], parent_key: str = "") -> str:
+        """
+        Recursively flatten nested dictionary to natural language.
+        
+        Args:
+            d: Dictionary to flatten
+            parent_key: Parent key for nested structure
+        
+        Returns:
+            Flattened natural language representation
+        
+        Example:
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> chunker = TextChunker()
+            >>> nested = {"symptoms": {"cough": "Yes", "fever": "No"}}
+            >>> chunker._flatten_dict_to_nl(nested)
+            'Symptoms: Cough: Yes. Fever: No'
+        
+        .. versionadded:: 0.3.0
+           Helper for JSON-to-NL conversion.
+        """
+        parts = []
+        
+        for key, value in d.items():
+            readable_key = self._humanize_field_name(key)
+            
+            if isinstance(value, dict):
+                nested = self._flatten_dict_to_nl(value, readable_key)
+                if nested:
+                    parts.append(nested)
+            
+            elif isinstance(value, list):
+                list_text = ", ".join(str(v) for v in value if v)
+                if list_text:
+                    parts.append(f"{readable_key}: {list_text}")
+            
+            elif value is not None and value != "":
+                parts.append(f"{readable_key}: {value}")
+        
+        return ". ".join(parts)
+    
+    def chunk_record(
+        self,
+        record: Dict[str, Any],
+        strategy: Optional[str] = None,
+        source_file: Optional[str] = None
+    ) -> List[TextChunk]:
+        """
+        Chunk a single JSONL record using specified strategy.
+        
+        Args:
+            record: Dictionary from JSONL file
+            strategy: Override default chunking strategy
+            source_file: Original file name (for metadata)
+        
+        Returns:
+            List of TextChunk objects
+        
+        Example:
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> record = {"form_name": "1A_ICScreening", "subject_id": "SUBJ_001"}
+            >>> chunker = TextChunker()
+            >>> chunks = chunker.chunk_record(record)
+            >>> len(chunks)
+            1
+        """
+        strategy = strategy or self.strategy
+        
+        # Extract metadata
+        metadata = {
+            "form_name": record.get("form_name", "unknown"),
+            "subject_id": record.get("subject_id", record.get("SubjID", "unknown")),
+            "source_file": source_file or "unknown"
+        }
+        
+        # Add any other ID fields
+        for id_field in ["record_id", "RecordID", "ID", "id"]:
+            if id_field in record:
+                metadata["record_id"] = record[id_field]
+                break
+        
+        # Convert record to text
+        text = self.json_to_natural_language(record)
+        
+        if not text:
+            logger.warning(f"Empty text after converting record: {metadata}")
+            return []
+        
+        # Apply chunking strategy
+        if strategy == "semantic":
+            chunks = self._chunk_semantic(text, metadata)
+        elif strategy == "fixed":
+            chunks = self._chunk_fixed(text, metadata)
+        else:  # hybrid
+            chunks = self._chunk_hybrid(text, metadata)
+        
+        vlog(
+            f"Chunked record from {metadata['form_name']} "
+            f"into {len(chunks)} chunks using '{strategy}' strategy"
+        )
+        
+        return chunks
+    
+    def _chunk_semantic(
+        self,
+        text: str,
+        metadata: Dict[str, Any]
+    ) -> List[TextChunk]:
+        """
+        Chunk text by semantic boundaries (sentences/fields).
+        
+        Preserves natural boundaries and doesn't split mid-sentence.
+        Each chunk is a complete semantic unit.
+        
+        Args:
+            text: Text to chunk
+            metadata: Metadata to attach to chunks
+        
+        Returns:
+            List of TextChunk objects
+        """
+        # Split on sentence boundaries (periods followed by space)
+        sentences = text.split(". ")
+        
+        chunks = []
+        current_chunk = ""
+        chunk_index = 0
+        
+        for sentence in sentences:
+            # Add period back if not at end
+            sentence = sentence.strip()
+            if sentence and not sentence.endswith("."):
+                sentence += "."
+            
+            # Check if adding this sentence would exceed chunk size
+            test_chunk = current_chunk + " " + sentence if current_chunk else sentence
+            token_count = self.count_tokens(test_chunk)
+            
+            if token_count <= self.chunk_size:
+                # Add to current chunk
+                current_chunk = test_chunk
+            else:
+                # Current chunk is full, save it and start new one
+                if current_chunk:
+                    chunks.append(TextChunk(
+                        text=current_chunk.strip(),
+                        metadata=metadata.copy(),
+                        token_count=self.count_tokens(current_chunk),
+                        chunk_index=chunk_index,
+                        source_file=metadata.get("source_file"),
+                        chunk_strategy="semantic"
+                    ))
+                    chunk_index += 1
+                
+                # Start new chunk with current sentence
+                current_chunk = sentence
+        
+        # Don't forget last chunk
+        if current_chunk:
+            chunks.append(TextChunk(
+                text=current_chunk.strip(),
+                metadata=metadata.copy(),
+                token_count=self.count_tokens(current_chunk),
+                chunk_index=chunk_index,
+                source_file=metadata.get("source_file"),
+                chunk_strategy="semantic"
+            ))
+        
+        return chunks
+    
+    def _chunk_fixed(
+        self,
+        text: str,
+        metadata: Dict[str, Any]
+    ) -> List[TextChunk]:
+        """
+        Chunk text with fixed size and overlap.
+        
+        Uses RecursiveCharacterTextSplitter for intelligent splitting
+        with overlap for context preservation.
+        
+        Args:
+            text: Text to chunk
+            metadata: Metadata to attach to chunks
+        
+        Returns:
+            List of TextChunk objects
+        """
+        # Use langchain's splitter
+        text_chunks = self.text_splitter.split_text(text)
+        
+        chunks = []
+        for idx, chunk_text in enumerate(text_chunks):
+            chunks.append(TextChunk(
+                text=chunk_text.strip(),
+                metadata=metadata.copy(),
+                token_count=self.count_tokens(chunk_text),
+                chunk_index=idx,
+                source_file=metadata.get("source_file"),
+                chunk_strategy="fixed"
+            ))
+        
+        return chunks
+    
+    def _chunk_hybrid(
+        self,
+        text: str,
+        metadata: Dict[str, Any]
+    ) -> List[TextChunk]:
+        """
+        Hybrid chunking: semantic boundaries with size limits.
+        
+        Tries to chunk by semantic boundaries (sentences), but enforces
+        maximum size limits by splitting long chunks.
+        
+        Args:
+            text: Text to chunk
+            metadata: Metadata to attach to chunks
+        
+        Returns:
+            List of TextChunk objects
+        """
+        # First try semantic chunking
+        semantic_chunks = self._chunk_semantic(text, metadata)
+        
+        # Check if any chunks are too large and need splitting
+        final_chunks = []
+        chunk_index = 0
+        
+        for chunk in semantic_chunks:
+            if chunk.token_count <= self.chunk_size:
+                # Chunk is fine, keep it
+                chunk.chunk_index = chunk_index
+                chunk.chunk_strategy = "hybrid"
+                final_chunks.append(chunk)
+                chunk_index += 1
+            else:
+                # Chunk is too large, split it with fixed strategy
+                vlog(
+                    f"Semantic chunk too large ({chunk.token_count} tokens), "
+                    f"splitting with fixed strategy"
+                )
+                sub_chunks = self._chunk_fixed(chunk.text, metadata)
+                for sub_chunk in sub_chunks:
+                    sub_chunk.chunk_index = chunk_index
+                    sub_chunk.chunk_strategy = "hybrid"
+                    final_chunks.append(sub_chunk)
+                    chunk_index += 1
+        
+        return final_chunks
+    
+    def chunk_jsonl_file(
+        self,
+        jsonl_path: Union[str, Path],
+        strategy: Optional[str] = None,
+        max_records: Optional[int] = None
+    ) -> List[TextChunk]:
+        """
+        Chunk all records from a JSONL file.
+        
+        Args:
+            jsonl_path: Path to JSONL file
+            strategy: Override default chunking strategy
+            max_records: Maximum records to process (for testing)
+        
+        Returns:
+            List of all chunks from all records
+        
+        Example:
+            >>> from pathlib import Path
+            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
+            >>> chunker = TextChunker()
+            >>> chunks = chunker.chunk_jsonl_file(
+            ...     Path("output/Indo-VAP/cleaned/1A_ICScreening.jsonl")
+            ... )
+            >>> len(chunks)
+            150
+        """
+        jsonl_path = Path(jsonl_path)
+        
+        if not jsonl_path.exists():
+            raise FileNotFoundError(f"JSONL file not found: {jsonl_path}")
+        
+        logger.info(f"Chunking JSONL file: {jsonl_path}")
+        
+        all_chunks = []
+        record_count = 0
+        
+        with open(jsonl_path, 'r', encoding='utf-8') as f:
+            for line_num, line in enumerate(f, 1):
+                if max_records and record_count >= max_records:
+                    logger.info(f"Reached max_records limit: {max_records}")
+                    break
+                
+                try:
+                    record = json.loads(line)
+                    chunks = self.chunk_record(
+                        record,
+                        strategy=strategy,
+                        source_file=jsonl_path.name
+                    )
+                    all_chunks.extend(chunks)
+                    record_count += 1
+                    
+                except json.JSONDecodeError as e:
+                    logger.error(
+                        f"JSON decode error in {jsonl_path} line {line_num}: {e}"
+                    )
+                    continue
+                except Exception as e:
+                    logger.error(
+                        f"Error chunking record in {jsonl_path} line {line_num}: {e}"
+                    )
+                    continue
+        
+        logger.info(
+            f"Chunked {record_count} records from {jsonl_path.name} "
+            f"into {len(all_chunks)} chunks"
+        )
+        
+        return all_chunks

@@ -71,9 +71,9 @@ Recent versions (see docs/sphinx/changelog.rst for complete history):
 - **0.0.12** (Oct 2025): Added verbose logging, auto-rebuild docs, VerboseLogger class
 - **0.0.11** (Oct 2025): Enhanced main.py with comprehensive docstring (162 lines)
 - **0.0.10** (Oct 2025): Enhanced scripts/utils/__init__.py package API
-- **0.0.9** (Oct 2025): Enhanced scripts/__init__.py with integration examples
+- **0.0.9** (Oct 2025): Enhanced scripts/__init__.py with integration workflows
 - **0.0.8** (Oct 2025): Enhanced load_dictionary.py with public API and algorithms
-- **0.0.7** (Oct 2025): Enhanced extract_data.py with type hints and examples
+- **0.0.7** (Oct 2025): Enhanced extract_data.py with type hints and documentation
 - **0.0.6** (Oct 2025): Enhanced deidentify.py with return type annotations
 - **0.0.5** (Oct 2025): Enhanced country_regulations.py with public API
 - **0.0.4** (Oct 2025): Enhanced logging.py with performance optimizations
@@ -85,8 +85,8 @@ See Also
 - :mod:`main` - Main pipeline entry point using this version
 - :mod:`config` - Configuration module using this version
 
-Examples
---------
+Usage
+-----
 Import and use the version string::
 
     from __version__ import __version__

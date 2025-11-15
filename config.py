@@ -41,6 +41,13 @@ __all__ = [
     'DATASETS_DIR', 'ANNOTATED_PDFS_DIR', 'DATA_DICTIONARY_DIR',
     # Output directories
     'DICTIONARY_EXCEL_FILE', 'DICTIONARY_JSON_OUTPUT_DIR',
+    # Vector database configuration
+    'VECTOR_DB_DIR', 'QDRANT_STORAGE_PATH',
+    'CHROMA_DB_PATH', 'PREFERRED_VECTOR_BACKEND',
+    'CHUNK_SIZE', 'CHUNK_OVERLAP', 'CHUNK_STRATEGY',
+    'EMBEDDING_MODEL', 'EMBEDDING_DIM', 'BATCH_SIZE',
+    'PDF_COLLECTION', 'JSONL_COLLECTION', 'JSONL_COLLECTION_CLEANED', 
+    'JSONL_COLLECTION_ORIGINAL', 'DEFAULT_SEARCH_LIMIT',
     # Configuration constants
     'LOG_LEVEL', 'LOG_NAME', 'DEFAULT_DATASET_NAME',
     # Public functions
@@ -89,17 +96,17 @@ def detect_study_name() -> str:
         - Falls back to DEFAULT_DATASET_NAME ("Indo-VAP") if no valid study found
         
     Examples:
-        >>> # data/Indo-VAP/datasets/ exists
-        >>> detect_study_name()
+        >>> import os
+        >>> study_name: str = detect_study_name()
+        >>> study_name  # str: 'Indo-VAP' or first valid study found
         'Indo-VAP'
         
-        >>> # data/Brazil-Study/datasets/ exists (alphabetically first)
+        >>> # Multiple studies - returns alphabetically first
         >>> detect_study_name()
         'Brazil-Study'
         
-        >>> # data/ is empty
-        >>> detect_study_name()
-        'Indo-VAP'
+        >>> # Integration example
+        >>> data_path = os.path.join("data", detect_study_name(), "datasets")
     
     .. versionadded:: 0.3.0
        Replaces get_dataset_folder() with simplified logic.
@@ -181,6 +188,65 @@ DICTIONARY_JSON_OUTPUT_DIR = os.path.join(OUTPUT_DIR, "data_dictionary_mappings"
 
 
 # ============================================================================
+# VECTOR DATABASE CONFIGURATION
+# ============================================================================
+
+VECTOR_DB_DIR = os.path.join(OUTPUT_DIR, "vector_db")
+"""Base directory for vector database storage."""
+
+QDRANT_STORAGE_PATH = os.path.join(VECTOR_DB_DIR, "qdrant_storage")
+"""Storage path for Qdrant vector database (fallback)."""
+
+CHROMA_DB_PATH = os.path.join(VECTOR_DB_DIR, "chroma_db")
+"""Storage path for ChromaDB vector database (primary)."""
+
+PREFERRED_VECTOR_BACKEND = None
+"""
+Preferred vector database backend: 'chromadb', 'qdrant', or None for auto-selection.
+Auto-selection tries ChromaDB first (primary), then Qdrant (fallback).
+"""
+
+# Chunking parameters (based on Pinecone best practices for document chunking)
+CHUNK_SIZE = 1024
+"""Target chunk size in tokens (optimal for clinical data based on analysis)."""
+
+CHUNK_OVERLAP = 150
+"""Overlap between chunks in tokens (preserves context across boundaries)."""
+
+CHUNK_STRATEGY = "document_structure"
+"""Chunking strategy: 'document_structure' for structure-based chunking."""
+
+# Embedding model configuration
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+"""Sentence transformer model for generating embeddings."""
+
+EMBEDDING_DIM = 384
+"""Dimension of embedding vectors (384 for all-MiniLM-L6-v2)."""
+
+BATCH_SIZE = 32
+"""Batch size for embedding generation."""
+
+# Collection names for two-collection architecture
+# Format: {STUDY_NAME}_{dataset_type} - preserves hierarchical study-based naming
+PDF_COLLECTION = f"{STUDY_NAME}_pdf_forms"
+"""Collection name for PDF form documents (study-based naming: {study_name}_pdf_forms)."""
+
+# JSONL collection names support both 'cleaned' and 'original' datasets
+JSONL_COLLECTION = f"{STUDY_NAME}_jsonl_records"
+"""Collection name for JSONL patient records (study-based naming: {study_name}_jsonl_records)."""
+
+JSONL_COLLECTION_CLEANED = f"{STUDY_NAME}_jsonl_records_cleaned"
+"""Collection name for cleaned JSONL records (study-based naming: {study_name}_jsonl_records_cleaned)."""
+
+JSONL_COLLECTION_ORIGINAL = f"{STUDY_NAME}_jsonl_records_original"
+"""Collection name for original JSONL records (study-based naming: {study_name}_jsonl_records_original)."""
+
+# Query parameters
+DEFAULT_SEARCH_LIMIT = 10
+"""Default number of results to return from vector search."""
+
+
+# ============================================================================
 # LOGGING CONFIGURATION
 # ============================================================================
 
@@ -204,6 +270,8 @@ def ensure_directories() -> None:
         - LOGS_DIR
         - TMP_DIR
         - DICTIONARY_JSON_OUTPUT_DIR
+        - VECTOR_DB_DIR
+        - QDRANT_STORAGE_PATH
     
     Note:
         This function creates output directories only. Input data directories
@@ -211,17 +279,21 @@ def ensure_directories() -> None:
         exist and are validated by validate_config().
     
     Examples:
+        >>> import os
         >>> ensure_directories()
-        >>> # All output directories now exist
+        >>> os.path.exists("output") and os.path.exists(".logs")
+        True
     
     .. versionchanged:: 0.3.0
-       Now creates OUTPUT_DIR, LOGS_DIR, and TMP_DIR instead of legacy paths.
+       Added vector database directories (VECTOR_DB_DIR, QDRANT_STORAGE_PATH).
     """
     directories = [
         OUTPUT_DIR,
         LOGS_DIR,
         TMP_DIR,
         DICTIONARY_JSON_OUTPUT_DIR,
+        VECTOR_DB_DIR,
+        QDRANT_STORAGE_PATH,
     ]
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
@@ -245,9 +317,10 @@ def validate_config() -> None:
     Examples:
         >>> try:
         ...     validate_config()
-        ...     print("Configuration is valid!")
+        ...     print("✓ Configuration valid")
         ... except FileNotFoundError as e:
-        ...     print(f"Configuration error: {e}")
+        ...     print(f"Error: {e}")
+        ✓ Configuration valid
     
     .. versionchanged:: 0.3.0
        Now raises exceptions instead of returning warnings. Validates new
