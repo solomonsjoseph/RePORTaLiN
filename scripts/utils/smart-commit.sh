@@ -3,6 +3,13 @@
 # Smart Commit - Git Commit with Automatic Version Bumping
 # =========================================================
 #
+# IMPORTANT: For VS Code Users
+# -----------------------------
+# If you use VS Code's Source Control panel, you DON'T need this script!
+# The pre-commit hook (.git/hooks/pre-commit) automatically handles version
+# bumping when you commit through VS Code. This script is only needed for
+# command-line commits where you want manual control over the version bump.
+#
 # This script automates version bumping based on conventional commits:
 #   - "feat:" or "Feat:" or "FEAT:"     → Minor bump (0.3.0 → 0.4.0)
 #   - "fix:" or "Fix:" or "FIX:"        → Patch bump (0.3.0 → 0.3.1)
@@ -13,6 +20,7 @@
 #   - Comprehensive error handling and validation
 #   - Detailed logging to .logs/smart_commit.log
 #   - Version validation before and after bump
+#   - Pre-stages __version__.py before committing (prevents pre-commit hook from running)
 #
 # Usage:
 #   ./scripts/utils/smart-commit.sh "feat: add new feature"
@@ -22,6 +30,16 @@
 # Or create a git alias:
 #   git config alias.sc '!bash scripts/utils/smart-commit.sh'
 #   git sc "feat: new feature"
+#
+# VS Code Users: Just use the Source Control panel!
+# --------------------------------------------------
+# The pre-commit hook automatically:
+#   1. Reads your commit message from VS Code
+#   2. Bumps the version based on message type
+#   3. Stages __version__.py
+#   4. Includes it in the same commit
+#
+# No manual intervention needed! ✨
 #
 
 set -e
