@@ -1,29 +1,4 @@
-"""
-JSONL Records Ingestion Module for Vector Database.
-
-This module handles ingestion of de-identified patient records (JSONL format)
-into the vector database. It converts structured JSON to natural language
-for optimal semantic search. Supports both 'cleaned' and 'original' datasets
-for comprehensive data coverage.
-
-Key Features:
-    - JSON-to-NL conversion (works with ANY domain, not just clinical)
-    - Generic field name humanization
-    - Automatic entity type detection (patient, order, sensor, etc.)
-    - Preserves original JSON in metadata
-    - Dual dataset support (cleaned and original)
-    - Progress tracking and error handling
-
-Collections:
-    - Target: {study_name}_jsonl_records_cleaned (processed data)
-    - Target: {study_name}_jsonl_records_original (complete data)
-    - Purpose: Structured search of patient data with fallback support
-    - Content: De-identified patient records (JSONL)
-
-Author: RePORTaLiN Development Team
-Date: November 2025
-Version: 0.3.1
-"""
+"""Ingest de-identified JSONL records into vector database."""
 
 import argparse
 import json
@@ -86,50 +61,7 @@ def ingest_records_to_vectordb(
     max_records_per_file: Optional[int] = None,
     dataset_type: str = "cleaned"
 ) -> int:
-    """
-    Ingest all JSONL records to vector database.
-    
-    Process:
-    1. Find all JSONL files in deidentified/{study_name}/{dataset_type}/
-    2. Convert each JSON record to natural language (generic, works with any data)
-    3. Embed NL sentences
-    4. Store with original JSON in metadata
-    
-    Args:
-        study_name: Name of the study (e.g., "Indo-VAP")
-        jsonl_dir: Directory containing JSONL files (defaults to auto-detect)
-        collection_name: Target collection name (defaults to auto-detect from dataset_type)
-        chunk_size: Chunk size in tokens (defaults to config.CHUNK_SIZE)
-        recreate_collection: If True, delete and recreate collection
-        max_records_per_file: Limit records per file (for testing, must be > 0)
-        dataset_type: Type of dataset - 'cleaned' or 'original' (default: 'cleaned')
-    
-    Returns:
-        Total number of records ingested
-    
-    Raises:
-        FileNotFoundError: If JSONL directory doesn't exist
-        ValueError: If max_records_per_file is invalid (≤ 0) or dataset_type is invalid
-        RuntimeError: If ingestion fails
-    
-    Example:
-        >>> from scripts.vector_db.ingest_records import ingest_records_to_vectordb
-        >>> # Ingest cleaned dataset
-        >>> count = ingest_records_to_vectordb(study_name="Indo-VAP", dataset_type="cleaned")
-        >>> print(f"Ingested {count} records")
-        Ingested 57017 records
-        
-        >>> # Ingest original dataset
-        >>> count = ingest_records_to_vectordb(study_name="Indo-VAP", dataset_type="original")
-        >>> print(f"Ingested {count} records")
-        Ingested 57017 records
-    
-    .. versionadded:: 0.3.0
-       Generic JSON-to-NL ingestion for vector database.
-    
-    .. versionchanged:: 0.3.1
-       Added dataset_type parameter to support both 'cleaned' and 'original' datasets.
-    """
+    """Ingest JSONL records from specified directory to vector database."""
     vlog("🔍 [INGEST] Entered ingest_records_to_vectordb() function")
     vlog(f"🔍 [INGEST] Parameters - study_name: {study_name}, dataset_type: {dataset_type}, recreate: {recreate_collection}")
     
@@ -347,20 +279,7 @@ def ingest_records_to_vectordb(
 
 
 def main() -> int:
-    """
-    CLI entry point for JSONL records ingestion.
-    
-    Provides command-line interface for ingesting de-identified patient
-    records (JSONL format) into the vector database.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure)
-    
-    Example:
-        >>> python -m scripts.vector_db.ingest_records --help
-        >>> python -m scripts.vector_db.ingest_records --recreate
-        >>> python -m scripts.vector_db.ingest_records --max-records 100
-    """
+    """CLI entry point for JSONL records ingestion."""
     
     vlog("🔍 [MAIN] Entered main() function")
     vlog(f"🔍 [MAIN] sys.argv: {sys.argv}")
@@ -368,24 +287,7 @@ def main() -> int:
     
     parser = argparse.ArgumentParser(
         description="Ingest de-identified JSONL records into vector database",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Ingest all cleaned JSONL records (default)
-  python -m scripts.vector_db.ingest_records
-  
-  # Ingest original JSONL records
-  python -m scripts.vector_db.ingest_records --dataset-type original
-  
-  # Recreate collection and ingest cleaned records
-  python -m scripts.vector_db.ingest_records --recreate --dataset-type cleaned
-  
-  # Limit records per file (for testing)
-  python -m scripts.vector_db.ingest_records --max-records 100
-  
-  # Custom JSONL directory
-  python -m scripts.vector_db.ingest_records --jsonl-dir /path/to/jsonl
-        """
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
     parser.add_argument(

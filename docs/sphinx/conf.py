@@ -1,27 +1,4 @@
-"""
-Sphinx Documentation Configuration
-===================================
-
-Configuration file for building RePORTaLiN documentation with Sphinx.
-
-This module configures the Sphinx documentation builder with:
-- ReStructuredText and Napoleon support (Google/NumPy docstrings)
-- Read the Docs theme with custom navigation
-- Auto-documentation from source code docstrings
-- Type hints rendering via sphinx-autodoc-typehints
-- Developer mode toggle for API documentation
-- Intersphinx linking to Python, pandas, and numpy docs
-
-Configuration Overview
-----------------------
-- **Project**: RePORTaLiN
-- **Theme**: sphinx_rtd_theme (Read the Docs)
-- **Extensions**: autodoc, viewcode, intersphinx, napoleon, typehints
-- **Developer Mode**: Configurable (includes/excludes API docs)
-
-For full Sphinx configuration options, see:
-https://www.sphinx-doc.org/en/master/usage/configuration.html
-"""
+"""Sphinx documentation configuration for RePORTaLiN."""
 import os
 import sys
 from typing import Dict, List, Tuple, Any

@@ -1,41 +1,5 @@
 #!/usr/bin/env python3
-"""
-Country-Specific Data Privacy Regulations Module
-=================================================
-
-Country-specific configurations for patient data de-identification
-according to different privacy regulations (HIPAA, GDPR, DPDPA, etc.).
-
-Supports: US, IN, ID, BR, PH, ZA, EU, GB, CA, AU, KE, NG, GH, UG
-
-.. warning::
-   This module provides reference data and validation patterns based on publicly
-   available privacy regulation information. It is intended as a development aid
-   and does not guarantee regulatory compliance. Organizations must conduct their
-   own legal review and compliance verification with qualified legal counsel.
-
-Example:
-    Basic usage::
-
-        from scripts.utils.country_regulations import CountryRegulationManager
-
-        # Load regulations for specific countries
-        manager = CountryRegulationManager(['US', 'IN'])
-        
-        # Get all data fields
-        fields = manager.get_all_data_fields()
-        
-        # Get detection patterns
-        patterns = manager.get_detection_patterns()
-        
-        # Export configuration
-        manager.export_configuration('regulations.json')
-
-    Load all countries::
-
-        manager = CountryRegulationManager('ALL')
-        supported = manager.get_supported_countries()
-"""
+"""Country-specific data privacy regulations for de-identification."""
 
 import re
 from typing import Dict, List, Optional, Any, Union
@@ -184,14 +148,7 @@ class CountryRegulation:
 # ============================================================================
 
 def get_common_fields() -> List[DataField]:
-    """
-    Get common data fields applicable to all countries.
-    
-    These are universal fields that apply across all privacy regulations.
-    
-    Returns:
-        List of common DataField objects
-    """
+    """Get common data fields applicable to all countries."""
     return [
         DataField(
             name="first_name",
@@ -991,15 +948,7 @@ def get_uganda_regulation() -> CountryRegulation:
 # ============================================================================
 
 class CountryRegulationManager:
-    """
-    Manages country-specific regulations and data fields.
-    
-    Supports:
-    - Loading regulations for one or more countries
-    - Merging fields from multiple countries
-    - Generating combined detection patterns
-    - Exporting configurations
-    """
+    """Manages country-specific regulations and data fields."""
     
     # Registry of all supported countries (private to prevent external modification)
     _REGISTRY: Dict[str, callable] = {
@@ -1020,13 +969,7 @@ class CountryRegulationManager:
     }
     
     def __init__(self, countries: Optional[Union[List[str], str]] = None):
-        """
-        Initialize regulation manager.
-        
-        Args:
-            countries: List of country codes or 'ALL' for all countries.
-                      If None, defaults to IN (India).
-        """
+        """Initialize regulation manager."""
         # Parse countries
         if countries is None:
             self.country_codes = ["IN"]
@@ -1057,15 +1000,7 @@ class CountryRegulationManager:
     
     @classmethod
     def get_country_info(cls, country_code: str) -> Dict[str, str]:
-        """
-        Get information about a country's regulation.
-        
-        Args:
-            country_code: ISO country code
-            
-        Returns:
-            Dictionary with country information
-        """
+        """Get information about a country's regulation."""
         if country_code.upper() not in cls._REGISTRY:
             raise ValueError(f"Unsupported country code: {country_code}")
         
@@ -1079,15 +1014,7 @@ class CountryRegulationManager:
         }
     
     def get_all_data_fields(self, include_common: bool = True) -> List[DataField]:
-        """
-        Get all data fields from all loaded countries.
-        
-        Args:
-            include_common: Whether to include common fields
-            
-        Returns:
-            Combined list of all unique data fields
-        """
+        """Get all data fields from all loaded countries."""
         fields_dict: Dict[str, DataField] = {}
         
         for regulation in self.regulations.values():
@@ -1105,15 +1032,7 @@ class CountryRegulationManager:
         return list(fields_dict.values())
     
     def get_country_specific_fields(self, country_code: Optional[str] = None) -> List[DataField]:
-        """
-        Get country-specific fields.
-        
-        Args:
-            country_code: Specific country code or None for all
-            
-        Returns:
-            List of country-specific fields
-        """
+        """Get country-specific fields."""
         fields = []
         
         if country_code:
@@ -1132,12 +1051,7 @@ class CountryRegulationManager:
                 if f.privacy_level in (PrivacyLevel.HIGH, PrivacyLevel.CRITICAL)]
     
     def get_detection_patterns(self) -> Dict[str, re.Pattern]:
-        """
-        Get all regex patterns for detecting country-specific identifiers.
-        
-        Returns:
-            Dictionary mapping field name to compiled regex pattern
-        """
+        """Get all regex patterns for detecting country-specific identifiers."""
         patterns = {}
         
         for field in self.get_all_data_fields():
@@ -1147,15 +1061,7 @@ class CountryRegulationManager:
         return patterns
     
     def export_configuration(self, output_path: Union[str, Path]) -> None:
-        """
-        Export current configuration to JSON file.
-        
-        Args:
-            output_path: Path to output file
-            
-        Raises:
-            IOError: If file cannot be written
-        """
+        """Export current configuration to JSON file."""
         try:
             config = {
                 "countries": self.country_codes,
@@ -1190,12 +1096,7 @@ class CountryRegulationManager:
             raise IOError(f"Failed to export configuration to {output_path}: {e}") from e
     
     def get_requirements_summary(self) -> Dict[str, List[str]]:
-        """
-        Get summary of all regulatory requirements.
-        
-        Returns:
-            Dictionary mapping country code to list of requirements
-        """
+        """Get summary of all regulatory requirements."""
         return {
             code: reg.requirements
             for code, reg in self.regulations.items()
@@ -1217,29 +1118,13 @@ class CountryRegulationManager:
 # ============================================================================
 
 def get_regulation_for_country(country_code: str) -> CountryRegulation:
-    """
-    Get regulation configuration for a specific country.
-    
-    Args:
-        country_code: ISO 3166-1 alpha-2 country code
-        
-    Returns:
-        CountryRegulation object
-        
-    Raises:
-        ValueError: If country code is not supported
-    """
+    """Get regulation configuration for a specific country."""
     manager = CountryRegulationManager(countries=[country_code])
     return manager.regulations[country_code.upper()]
 
 
 def get_all_supported_countries() -> Dict[str, str]:
-    """
-    Get all supported countries with their regulation names.
-    
-    Returns:
-        Dictionary mapping country code to regulation acronym
-    """
+    """Get all supported countries with their regulation names."""
     result = {}
     for code in CountryRegulationManager.get_supported_countries():
         info = CountryRegulationManager.get_country_info(code)
@@ -1248,15 +1133,7 @@ def get_all_supported_countries() -> Dict[str, str]:
 
 
 def merge_regulations(country_codes: List[str]) -> Dict[str, Any]:
-    """
-    Merge regulations from multiple countries.
-    
-    Args:
-        country_codes: List of country codes to merge
-        
-    Returns:
-        Dictionary with merged configuration
-    """
+    """Merge regulations from multiple countries."""
     manager = CountryRegulationManager(countries=country_codes)
     return {
         "countries": manager.country_codes,

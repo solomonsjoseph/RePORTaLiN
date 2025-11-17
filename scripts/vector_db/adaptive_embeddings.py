@@ -1,30 +1,4 @@
-"""
-Adaptive Hybrid Embedding System for Clinical Data.
-
-This module provides an intelligent embedding system that automatically selects
-the optimal embedding model based on query content. It uses domain-specific models
-for medical queries and general-purpose models for non-medical content.
-
-Key Features:
-    - Automatic medical vs. general content detection
-    - BioLORD-2023-C for medical/clinical queries (768 dims)
-    - all-MiniLM-L6-v2 for general queries (384 dims → padded to 768)
-    - Dimension standardization for Qdrant compatibility
-    - Batch processing support
-    - Model caching for performance
-    - Transparent model selection tracking
-
-Architecture:
-    Query → Medical Detection → Model Selection → Embedding Generation
-                                    ↓
-                        BioLORD (768) or MiniLM (384→768)
-                                    ↓
-                        Standardized 768-dim embedding + metadata
-
-Author: RePORTaLiN Development Team
-Date: November 2025
-Version: 1.0.0
-"""
+"""Adaptive embedding system with automatic medical/general model selection."""
 
 import time
 import warnings
@@ -80,21 +54,7 @@ MEDICAL_KEYWORD_THRESHOLD = 0.15  # 15% of tokens must be medical
 # ============================================================================
 
 class QueryType(Enum):
-    """
-    Classification of query content type.
-    
-    Attributes:
-        MEDICAL: Medical/clinical content (symptoms, diagnoses, procedures)
-        GENERAL: General content (demographics, IDs, dates)
-        MIXED: Contains both medical and general content
-        UNKNOWN: Unable to classify
-    
-    Example:
-        >>> from scripts.vector_db.adaptive_embeddings import QueryType
-        >>> query_type = QueryType.MEDICAL
-        >>> query_type.value
-        'medical'
-    """
+    """Query content classification types."""
     MEDICAL = "medical"
     GENERAL = "general"
     MIXED = "mixed"
@@ -102,23 +62,7 @@ class QueryType(Enum):
 
 
 class ModelType(Enum):
-    """
-    Available embedding model types for adaptive selection.
-    
-    This enum is used internally by AdaptiveEmbedder to track which model
-    type is selected for a given query. The actual model constants are
-    imported from embeddings.EmbeddingModel to avoid duplication.
-    
-    Attributes:
-        BIOLORD: BioLORD-2023-C (medical-optimized, 768 dims)
-        MINILM: all-MiniLM-L6-v2 (general-purpose, 384 dims)
-    
-    Example:
-        >>> from scripts.vector_db.adaptive_embeddings import ModelType
-        >>> model_type = ModelType.BIOLORD
-        >>> model_type.value
-        'FremyCompany/BioLORD-2023-C'
-    """
+    """Available embedding model types."""
     BIOLORD = MEDICAL_MODEL_ID
     MINILM = GENERAL_MODEL_ID
 
@@ -129,28 +73,7 @@ class ModelType(Enum):
 
 @dataclass
 class EmbeddingResult:
-    """
-    Result of embedding generation with metadata.
-    
-    Attributes:
-        embeddings (np.ndarray): Embedding vectors [n, 768]
-        model_used (List[str]): Model names used for each embedding
-        query_types (List[QueryType]): Detected query types
-        token_counts (List[int]): Token counts for each input
-        processing_time (float): Total processing time in seconds
-    
-    Example:
-        >>> from scripts.vector_db.adaptive_embeddings import EmbeddingResult
-        >>> result = EmbeddingResult(
-        ...     embeddings=np.array([[0.1, 0.2, ...]]),
-        ...     model_used=["BioLORD-2023-C"],
-        ...     query_types=[QueryType.MEDICAL],
-        ...     token_counts=[10],
-        ...     processing_time=0.5
-        ... )
-        >>> result.embeddings.shape
-        (1, 768)
-    """
+    """Embedding generation result with metadata."""
     embeddings: np.ndarray
     model_used: List[str] = field(default_factory=list)
     query_types: List[QueryType] = field(default_factory=list)
@@ -173,29 +96,7 @@ class EmbeddingResult:
 # ============================================================================
 
 class AdaptiveEmbedder:
-    """
-    Adaptive embedding system with automatic model selection.
-    
-    This class intelligently selects between medical-specific (BioLORD-2023-C)
-    and general-purpose (all-MiniLM-L6-v2) embedding models based on query content.
-    All embeddings are standardized to 768 dimensions for Qdrant compatibility.
-    
-    Attributes:
-        medical_model (SentenceTransformer): BioLORD-2023-C model
-        general_model (SentenceTransformer): all-MiniLM-L6-v2 model
-        medical_keywords (set): Medical terminology for detection
-        target_dim (int): Target embedding dimension (768)
-        batch_size (int): Batch size for encoding
-        
-    Example:
-        >>> from scripts.vector_db.adaptive_embeddings import AdaptiveEmbedder
-        >>> embedder = AdaptiveEmbedder()
-        >>> result = embedder.encode(["Patient has TB symptoms"])
-        >>> result.embeddings.shape
-        (1, 768)
-        >>> result.model_used[0]
-        'BioLORD-2023-C'
-    """
+    """Adaptive embedding system with automatic model selection."""
     
     def __init__(
         self,
@@ -207,22 +108,7 @@ class AdaptiveEmbedder:
         device: Optional[str] = None,
         show_progress: bool = False
     ):
-        """
-        Initialize adaptive embedder.
-        
-        Args:
-            medical_model: Hugging Face model ID for medical queries
-            general_model: Hugging Face model ID for general queries
-            medical_keywords: Custom medical keywords for detection
-            cache_dir: Directory to cache downloaded models
-            batch_size: Batch size for encoding
-            device: Device to use ('cuda', 'cpu', or None for auto)
-            show_progress: Show progress bar during encoding
-        
-        Raises:
-            ImportError: If sentence-transformers not installed
-            RuntimeError: If models fail to load
-        """
+        """Initialize adaptive embedder with medical and general models."""
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             raise ImportError(
                 "sentence-transformers is required. "
@@ -301,12 +187,7 @@ class AdaptiveEmbedder:
     
     
     def _get_default_medical_keywords(self) -> set:
-        """
-        Get default medical keywords for content detection.
-        
-        Returns:
-            set: Medical keywords in lowercase
-        """
+        """Get default medical keywords for content detection."""
         return {
             # Diseases and conditions
             "tuberculosis", "tb", "hiv", "aids", "pneumonia", "malaria",
@@ -342,27 +223,7 @@ class AdaptiveEmbedder:
         }
     
     def detect_query_type(self, text: str) -> Tuple[QueryType, float]:
-        """
-        Detect if text is medical, general, or mixed content.
-        
-        Uses keyword matching with configurable threshold to classify content.
-        Returns both the classification and the medical keyword ratio.
-        
-        Args:
-            text: Input text to classify
-        
-        Returns:
-            Tuple of (QueryType, medical_ratio)
-        
-        Example:
-            >>> from scripts.vector_db.adaptive_embeddings import AdaptiveEmbedder
-            >>> embedder = AdaptiveEmbedder()
-            >>> query_type, ratio = embedder.detect_query_type("Patient has TB")
-            >>> query_type
-            <QueryType.MEDICAL: 'medical'>
-            >>> ratio > 0.3
-            True
-        """
+        """Detect if text is medical, general, or mixed content."""
         if not text or not text.strip():
             return QueryType.UNKNOWN, 0.0
         
@@ -390,15 +251,7 @@ class AdaptiveEmbedder:
             return QueryType.GENERAL, medical_ratio
     
     def _pad_embedding(self, embedding: np.ndarray) -> np.ndarray:
-        """
-        Pad embedding to target dimension with zeros.
-        
-        Args:
-            embedding: Input embedding (e.g., [384])
-        
-        Returns:
-            Padded embedding [768]
-        """
+        """Pad embedding to target dimension with zeros."""
         current_dim = len(embedding)
         
         if current_dim == self.target_dim:
@@ -422,38 +275,7 @@ class AdaptiveEmbedder:
         show_progress: Optional[bool] = None,
         normalize_embeddings: bool = True
     ) -> EmbeddingResult:
-        """
-        Generate embeddings with adaptive model selection.
-        
-        Automatically detects content type and selects the optimal embedding model.
-        Medical content → BioLORD-2023-C (768 dims)
-        General content → all-MiniLM-L6-v2 (384 dims → padded to 768)
-        
-        Args:
-            texts: Single text or list of texts to encode
-            batch_size: Override default batch size
-            show_progress: Override default progress bar setting
-            normalize_embeddings: L2 normalize embeddings (recommended)
-        
-        Returns:
-            EmbeddingResult with standardized 768-dim embeddings and metadata
-        
-        Example:
-            >>> from scripts.vector_db.adaptive_embeddings import AdaptiveEmbedder
-            >>> embedder = AdaptiveEmbedder()
-            >>> 
-            >>> # Medical query
-            >>> result = embedder.encode("Patient has TB symptoms")
-            >>> result.embeddings.shape
-            (1, 768)
-            >>> result.model_used[0]
-            'BioLORD-2023-C'
-            >>> 
-            >>> # General query
-            >>> result = embedder.encode("Subject ID: 10200001")
-            >>> result.model_used[0]
-            'all-MiniLM-L6-v2'
-        """
+        """Generate embeddings with adaptive model selection."""
         start_time = time.time()
         
         # Handle single text input
@@ -557,36 +379,16 @@ class AdaptiveEmbedder:
         )
     
     def get_embedding_dimension(self) -> int:
-        """
-        Get the standardized embedding dimension.
-        
-        Returns:
-            int: Target dimension (768)
-        """
+        """Get the standardized embedding dimension."""
         return self.target_dim
     
     def add_medical_keywords(self, keywords: List[str]) -> None:
-        """
-        Add custom medical keywords for detection.
-        
-        Args:
-            keywords: List of medical keywords to add
-        
-        Example:
-            >>> from scripts.vector_db.adaptive_embeddings import AdaptiveEmbedder
-            >>> embedder = AdaptiveEmbedder()
-            >>> embedder.add_medical_keywords(["covid", "sars-cov-2"])
-        """
+        """Add custom medical keywords for detection."""
         self.medical_keywords.update(kw.lower() for kw in keywords)
         logger.info(f"Added {len(keywords)} medical keywords")
     
     def get_model_info(self) -> Dict[str, Any]:
-        """
-        Get information about loaded models.
-        
-        Returns:
-            Dictionary with model information
-        """
+        """Get information about loaded models."""
         return {
             "medical_model": {
                 "id": MEDICAL_MODEL_ID,
@@ -613,22 +415,7 @@ def create_adaptive_embedder(
     cache_dir: Optional[str] = None,
     **kwargs
 ) -> AdaptiveEmbedder:
-    """
-    Factory function to create an AdaptiveEmbedder instance.
-    
-    Args:
-        cache_dir: Directory to cache models (default: None)
-        **kwargs: Additional arguments passed to AdaptiveEmbedder
-    
-    Returns:
-        Configured AdaptiveEmbedder instance
-    
-    Example:
-        >>> from scripts.vector_db.adaptive_embeddings import create_adaptive_embedder
-        >>> embedder = create_adaptive_embedder(cache_dir="./model_cache")
-        >>> embedder.get_embedding_dimension()
-        768
-    """
+    """Factory function to create an AdaptiveEmbedder instance."""
     return AdaptiveEmbedder(cache_dir=cache_dir, **kwargs)
 
 

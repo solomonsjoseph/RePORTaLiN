@@ -1,25 +1,4 @@
-"""
-PDF Ingestion Module for Vector Database.
-
-This module handles ingestion of annotated clinical form PDFs into the
-vector database. It automatically detects document structure and creates
-semantic chunks for embedding.
-
-Key Features:
-    - Dynamic PDF structure detection (works with ANY PDF)
-    - Automatic form code and title extraction
-    - Structure-based chunking (1024 tokens)
-    - Rich metadata preservation
-    - Progress tracking and error handling
-
-Collection:
-    - Target: clinical_forms_pdf
-    - Purpose: Semantic search of form instructions and procedures
-    - Content: Annotated clinical forms (PDFs)
-
-Author: RePORTaLiN Development Team
-Date: November 2025
-"""
+"""PDF ingestion module for vector database."""
 
 import argparse
 import sys
@@ -90,45 +69,7 @@ def ingest_pdfs_to_vectordb(
     max_retries: int = 3,
     show_progress: bool = True
 ) -> int:
-    """
-    Ingest all PDF forms to vector database.
-    
-    Process:
-    1. Find all PDFs in annotated_pdfs/ directory
-    2. Automatically detect document structure (NO hardcoded profiles)
-    3. Chunk based on detected structure
-    4. Embed and store with rich metadata
-    
-    Args:
-        study_name: Name of the study (e.g., "Indo-VAP")
-        annotated_pdfs_dir: Directory containing PDFs (defaults to config.ANNOTATED_PDFS_DIR)
-        collection_name: Target collection name (defaults to config.PDF_COLLECTION)
-        chunk_size: Chunk size in tokens (defaults to config.CHUNK_SIZE)
-        recreate_collection: If True, delete and recreate collection
-        dry_run: If True, process PDFs but don't write to database
-        max_retries: Maximum retry attempts for failed PDFs (default: 3)
-        show_progress: Show progress bar if tqdm is available (default: True)
-    
-    Returns:
-        Total number of chunks ingested (or that would be ingested in dry-run mode)
-    
-    Raises:
-        FileNotFoundError: If PDF directory doesn't exist
-        RuntimeError: If ingestion fails
-    
-    Example:
-        >>> from scripts.vector_db.ingest_pdfs import ingest_pdfs_to_vectordb
-        >>> count = ingest_pdfs_to_vectordb(study_name="Indo-VAP")
-        >>> print(f"Ingested {count} chunks")
-        Ingested 450 chunks
-        
-        >>> # Dry run mode
-        >>> count = ingest_pdfs_to_vectordb(study_name="Indo-VAP", dry_run=True)
-        >>> print(f"Would ingest {count} chunks")
-    
-    .. versionadded:: 0.3.0
-       Dynamic PDF ingestion for vector database.
-    """
+    """Ingest all PDF forms to vector database."""
     vlog("🔍 [INGEST] Entered ingest_pdfs_to_vectordb() function")
     vlog(f"🔍 [INGEST] Parameters - study_name: {study_name}, recreate: {recreate_collection}, dry_run: {dry_run}")
     
@@ -356,20 +297,7 @@ def ingest_pdfs_to_vectordb(
 
 
 def main() -> int:
-    """
-    CLI entry point for PDF ingestion.
-    
-    Provides command-line interface for ingesting annotated PDF forms
-    into the vector database.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure)
-    
-    Example:
-        >>> python -m scripts.vector_db.ingest_pdfs --help
-        >>> python -m scripts.vector_db.ingest_pdfs --recreate
-        >>> python -m scripts.vector_db.ingest_pdfs --dry-run --study-name "Indo-VAP"
-    """
+    """CLI entry point for PDF ingestion."""
     vlog("🔍 [MAIN] Entered main() function")
     vlog(f"🔍 [MAIN] sys.argv: {sys.argv}")
     vlog(f"🔍 [MAIN] Current working directory: {Path.cwd()}")

@@ -1,23 +1,5 @@
 # config.py
-"""
-RePORTaLiN Configuration Module
-================================
-
-Centralized configuration management with dynamic study detection,
-standardized directory structure, and fail-fast validation.
-
-Version 0.3.0 - Major refactoring with breaking changes.
-
-.. module:: config
-   :synopsis: Configuration management for RePORTaLiN project
-
-.. moduleauthor:: RePORTaLiN Team
-
-.. versionchanged:: 0.3.0
-   Complete refactoring: removed legacy dataset detection, added dynamic study
-   detection, introduced standardized folder structure (datasets/, annotated_pdfs/, 
-   data_dictionary/). Removed backward compatibility.
-"""
+"""Centralized configuration with dynamic study detection and fail-fast validation."""
 import os
 import logging
 from typing import Optional
@@ -79,38 +61,7 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 # ============================================================================
 
 def detect_study_name() -> str:
-    """
-    Detect study name from data directory structure.
-    
-    Scans the data/ directory for subdirectories containing a valid study structure
-    (must have a datasets/ subdirectory). Returns the first valid study found
-    alphabetically, or falls back to DEFAULT_DATASET_NAME.
-    
-    Returns:
-        str: Name of the first valid study directory found, or DEFAULT_DATASET_NAME
-        
-    Note:
-        - Directories starting with '.' are excluded (hidden folders)
-        - System directories (.backup, .DS_Store) are excluded
-        - Returns first valid study alphabetically
-        - Falls back to DEFAULT_DATASET_NAME ("Indo-VAP") if no valid study found
-        
-    Examples:
-        >>> import os
-        >>> study_name: str = detect_study_name()
-        >>> study_name  # str: 'Indo-VAP' or first valid study found
-        'Indo-VAP'
-        
-        >>> # Multiple studies - returns alphabetically first
-        >>> detect_study_name()
-        'Brazil-Study'
-        
-        >>> # Integration example
-        >>> data_path = os.path.join("data", detect_study_name(), "datasets")
-    
-    .. versionadded:: 0.3.0
-       Replaces get_dataset_folder() with simplified logic.
-    """
+    """Detect study name from data directory structure."""
     if not os.path.exists(DATA_DIR):
         return DEFAULT_DATASET_NAME
     
@@ -262,31 +213,7 @@ LOG_NAME = "reportalin"
 # ============================================================================
 
 def ensure_directories() -> None:
-    """
-    Create necessary output directories if they don't exist.
-    
-    Creates:
-        - OUTPUT_DIR
-        - LOGS_DIR
-        - TMP_DIR
-        - DICTIONARY_JSON_OUTPUT_DIR
-        - VECTOR_DB_DIR
-        - QDRANT_STORAGE_PATH
-    
-    Note:
-        This function creates output directories only. Input data directories
-        (DATASETS_DIR, ANNOTATED_PDFS_DIR, DATA_DICTIONARY_DIR) must already
-        exist and are validated by validate_config().
-    
-    Examples:
-        >>> import os
-        >>> ensure_directories()
-        >>> os.path.exists("output") and os.path.exists(".logs")
-        True
-    
-    .. versionchanged:: 0.3.0
-       Added vector database directories (VECTOR_DB_DIR, QDRANT_STORAGE_PATH).
-    """
+    """Create necessary output directories if they don't exist."""
     directories = [
         OUTPUT_DIR,
         LOGS_DIR,
@@ -300,32 +227,7 @@ def ensure_directories() -> None:
 
 
 def validate_config() -> None:
-    """
-    Validate configuration and raise errors if critical paths are missing.
-    
-    Raises:
-        FileNotFoundError: If any required directory or file doesn't exist
-    
-    Validates:
-        - DATA_DIR exists
-        - STUDY_DATA_DIR exists
-        - DATASETS_DIR exists
-        - ANNOTATED_PDFS_DIR exists
-        - DATA_DICTIONARY_DIR exists
-        - DICTIONARY_EXCEL_FILE exists
-    
-    Examples:
-        >>> try:
-        ...     validate_config()
-        ...     print("✓ Configuration valid")
-        ... except FileNotFoundError as e:
-        ...     print(f"Error: {e}")
-        ✓ Configuration valid
-    
-    .. versionchanged:: 0.3.0
-       Now raises exceptions instead of returning warnings. Validates new
-       directory structure.
-    """
+    """Validate configuration and raise errors if critical paths are missing."""
     if not os.path.exists(DATA_DIR):
         raise FileNotFoundError(f"Data directory not found: {DATA_DIR}")
     

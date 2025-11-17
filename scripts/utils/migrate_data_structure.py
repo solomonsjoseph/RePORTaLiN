@@ -1,56 +1,5 @@
 #!/usr/bin/env python3
-"""
-Data Structure Migration Script for RePORTaLiN
-===============================================
-
-Migrates existing data structure to new v0.3.0 organization with dynamic study name detection.
-
-Old Structure (pre-v0.3.0):
-    data/
-    ├── dataset/[Study]_csv_files/
-    ├── Annotated_PDFs/Annotated CRFs - [Study]/
-    └── data_dictionary_and_mapping_specifications/
-
-New Structure (v0.3.0):
-    data/
-    └── [Study-NAME]/
-        ├── datasets/
-        ├── annotated_pdfs/
-        └── data_dictionary/
-
-Study Name Detection:
-    - Extracts from dataset folder (e.g., 'Indo-vap_csv_files' → 'Indo-VAP')
-    - Removes common suffixes (_csv_files, _files, etc.)
-    - Capitalizes parts after hyphen
-    - Defaults to 'ext_data' if name is unclear or generic
-
-Migration Behavior:
-    - **Skips migration if data is already in v0.3.0 format**
-    - **Only migrates custom/old structure data**
-    - **Default path**: Moves files (internal reorganization, originals deleted)
-    - **Custom path**: Copies files to project's data/ (preserves originals at source)
-    - **Cleanup (Custom path)**: Two-step process:
-        1. Remove old structure from project's data/ (if exists)
-        2. Remove newly copied study folder (optional, user confirms)
-    - **Cleanup (Default path)**: Remove old structure (user confirms)
-    - **No backups created** - not needed for custom paths (originals preserved)
-    - Validates all file operations
-    - Comprehensive logging to logs/
-    - Dry-run mode for safety
-
-Usage:
-    python3 migrate.py                    # Default path: moves files
-    python3 migrate.py --dry-run          # Test without changes
-    python3 migrate.py --data-dir /path   # Custom path: copies files, preserves originals
-
-⚠️  File Handling:
-   - Default path: Files are MOVED (originals deleted)
-   - Custom path: Files are COPIED (originals preserved)
-
-Author: RePORTaLiN Team
-Date: December 2025
-Version: 2.0.0 (smart migration with custom path support)
-"""
+"""Migrates data to v0.3.0 structure with study name detection."""
 
 import argparse
 import os
@@ -84,28 +33,7 @@ log.setup_logging(
 
 
 def extract_study_name(data_dir: Path) -> str:
-    """
-    Extract study name from dataset folder with intelligent fallback.
-    
-    Logic:
-    1. Look for dataset folder (e.g., 'dataset/Indo-vap_csv_files')
-    2. Remove common suffixes (_csv_files, _files, etc.)
-    3. Capitalize parts after hyphen (Indo-vap -> Indo-VAP)
-    4. Fallback to 'ext_data' if name is unclear or generic
-    
-    Args:
-        data_dir: Path to data directory
-        
-    Returns:
-        str: Extracted study name or 'ext_data' as fallback
-        
-    Examples:
-        >>> from pathlib import Path
-        >>> extract_study_name(Path('data'))  # str: with dataset/Indo-vap_csv_files
-        'Indo-VAP'
-        >>> extract_study_name(Path('data'))  # str: with dataset/data (generic)
-        'ext_data'
-    """
+    """Extract study name from dataset folder with intelligent fallback."""
     dataset_dir = data_dir / 'dataset'
     
     # Generic names that trigger fallback
@@ -150,32 +78,10 @@ def extract_study_name(data_dir: Path) -> str:
 
 
 class DataMigrationManager:
-    """
-    Manages migration of data structure from old to v0.3.0 format.
-    
-    Workflow:
-    1. Detect if already in new format (skip migration)
-    2. Validate old structure exists
-    3. Create new structure
-    4. Copy/Move files based on path type:
-       - Default path: Move files (internal reorganization)
-       - Custom path: Copy files (preserve originals)
-    5. Validate migration
-    6. Cleanup empty old directories (default path only)
-    
-    File Handling:
-    - **Default path** (data/): Files are moved, originals deleted
-    - **Custom path**: Files are copied, originals preserved at source
-    """
+    """Manages migration of data structure from old to v0.3.0 format."""
     
     def __init__(self, data_dir: Path = None, dry_run: bool = False):
-        """
-        Initialize migration manager.
-        
-        Args:
-            data_dir: Path to data directory (default: config.DATA_DIR)
-            dry_run: If True, only simulate migration without actual changes
-        """
+        """Initialize migration manager."""
         self.source_dir = Path(data_dir) if data_dir else Path(config.DATA_DIR)
         self.dry_run = dry_run
         self.migration_log = []
@@ -208,15 +114,7 @@ class DataMigrationManager:
         log.info(f"Migration Manager initialized (dry_run={dry_run}, custom_path={self.is_custom_path})")
     
     def _build_migration_mappings(self) -> Dict[str, str]:
-        """
-        Build migration mappings based on detected study name.
-        
-        For custom paths: Maps from source path to project data/ directory
-        For default path: Maps within same directory
-        
-        Returns:
-            Dict mapping old paths to new paths (relative to respective directories)
-        """
+        """Build migration mappings based on detected study name."""
         # Find actual subdirectories in dataset
         dataset_dir = self.source_dir / 'dataset'
         dataset_subdir = None
@@ -256,20 +154,7 @@ class DataMigrationManager:
         return mappings
     
     def is_already_migrated(self) -> bool:
-        """
-        Check if data is already in the new v0.3.0 structure format.
-        
-        The new format has:
-        - data/[Study-NAME]/datasets/
-        - data/[Study-NAME]/annotated_pdfs/
-        - data/[Study-NAME]/data_dictionary/
-        
-        For custom paths: Checks in project's data/ directory
-        For default path: Checks in same directory
-        
-        Returns:
-            bool: True if data is already in new format
-        """
+        """Check if data is already in the new v0.3.0 structure format."""
         # Check if study directory exists in destination
         study_dir = self.dest_dir / self.study_name
         
@@ -290,12 +175,7 @@ class DataMigrationManager:
         return False
     
     def validate_current_structure(self) -> bool:
-        """
-        Validate that current structure exists and can be migrated.
-        
-        Returns:
-            bool: True if structure is valid for migration
-        """
+        """Validate that current structure exists and can be migrated."""
         log.info("Validating current data structure...")
         
         if not self.source_dir.exists():
@@ -341,15 +221,7 @@ class DataMigrationManager:
         return True
     
     def create_new_structure(self) -> bool:
-        """
-        Create new directory structure based on detected study name.
-        
-        For custom paths: Creates in project data/ directory
-        For default path: Creates in same directory
-        
-        Returns:
-            bool: True if structure created successfully
-        """
+        """Create new directory structure based on detected study name."""
         log.info("Creating new directory structure...")
         
         new_dirs = [
@@ -377,16 +249,7 @@ class DataMigrationManager:
         return True
     
     def move_files(self) -> Tuple[int, int, List[str]]:
-        """
-        Copy or move files from old to new structure.
-        
-        Behavior:
-        - **Custom path**: Files are COPIED from custom path TO project data/ (originals preserved)
-        - **Default path**: Files are MOVED within data/ (originals deleted, internal reorganization)
-        
-        Returns:
-            Tuple of (files_processed, files_failed, error_list)
-        """
+        """Copy or move files from old to new structure."""
         log.info("Starting file migration...")
         
         if self.is_custom_path:
@@ -469,14 +332,7 @@ class DataMigrationManager:
         return files_processed, files_failed, errors
     
     def validate_migration(self) -> bool:
-        """
-        Validate that migration was successful.
-        
-        Checks new structure in destination directory.
-        
-        Returns:
-            bool: True if validation passed
-        """
+        """Validate that migration was successful."""
         log.info("Validating migration...")
         
         if self.dry_run:
@@ -508,17 +364,7 @@ class DataMigrationManager:
         return validation_passed
     
     def cleanup_old_structure(self) -> bool:
-        """
-        Remove old directory structure after files have been moved/copied.
-        
-        For default path: Asks to remove old structure (single step)
-        For custom path: Two-step cleanup process:
-            1. Ask to remove old structure from project's data/ (if exists)
-            2. Ask to remove newly copied study folder from project's data/
-        
-        Returns:
-            bool: True if cleanup successful or skipped by user
-        """
+        """Remove old directory structure after files have been moved/copied."""
         if self.dry_run:
             log.info("[DRY RUN] Would prompt for cleanup")
             return True
@@ -622,8 +468,7 @@ class DataMigrationManager:
                 f.write(f"Data Migration Log\n")
                 f.write(f"{'='*60}\n")
                 f.write(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                f.write(f"Study: {self.study_name}\n")
-                f.write(f"Version: 2.0.0 (no backup)\n\n")
+                f.write(f"Study: {self.study_name}\n\n")
                 
                 f.write("Migration Steps:\n")
                 f.write("-" * 60 + "\n")
@@ -636,20 +481,7 @@ class DataMigrationManager:
             log.error(f"Failed to save migration log: {e}")
     
     def migrate(self) -> bool:
-        """
-        Execute complete migration workflow.
-        
-        Workflow:
-        1. Check if already in new format → skip migration
-        2. Validate old structure exists
-        3. Create new structure
-        4. Copy/Move files based on path type
-        5. Validate migration
-        6. Cleanup empty old directories (default path only)
-        
-        Returns:
-            bool: True if migration successful or already migrated
-        """
+        """Execute complete migration workflow."""
         log.info("="*60)
         log.info("Starting Data Structure Migration")
         log.info("="*60)

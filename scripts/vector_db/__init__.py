@@ -1,43 +1,4 @@
-"""
-Vector Database Module for RePORTaLiN.
-
-This module provides functionality for:
-- Embedding generation from clinical text (single-model and adaptive multi-model)
-- Smart chunking strategies for clinical forms and PDFs
-- Vector database management (Qdrant)
-- Dual-DB architecture (cleaned + original datasets)
-- Semantic search with fallback logic
-- PDF processing and chunking for annotated clinical forms
-
-Modules:
-    embeddings: Embedding model wrapper and management (single-model)
-    adaptive_embeddings: Adaptive multi-model embedder with auto-selection
-    jsonl_chunking_nl: Text chunking strategies and JSON-to-NL converter for JSONL data
-    pdf_chunking: PDF extraction and chunking with metadata preservation
-    vector_store: Qdrant vector database interface
-    ingestion_pipeline: Full pipeline from JSONL/PDF to vector DB
-    search: Search interface with dual-DB fallback
-
-Example:
-    >>> from scripts.vector_db import VectorStore, EmbeddingModel, AdaptiveEmbedder, PDFChunker
-    >>> 
-    >>> # Single-model approach
-    >>> embedder = EmbeddingModel()
-    >>> vector_store = VectorStore(embedder)
-    >>> 
-    >>> # Adaptive multi-model approach (automatic medical/general detection)
-    >>> adaptive_embedder = AdaptiveEmbedder()
-    >>> result = adaptive_embedder.encode(["Patient has TB symptoms"])  # Uses BioLORD
-    >>> 
-    >>> # PDF chunking
-    >>> pdf_chunker = PDFChunker(chunk_size=512)
-    >>> 
-    >>> # Search with fallback
-    >>> results = vector_store.search("TB symptoms in index cases", use_fallback=True)
-"""
-
-__version__ = "1.0.0"
-__author__ = "RePORTaLiN Development Team"
+"""Vector database and embedding utilities."""
 
 # Lazy imports for performance
 def __getattr__(name):

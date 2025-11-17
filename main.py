@@ -1,81 +1,5 @@
 #!/usr/bin/env python3
-"""
-RePORTaLiN Main Pipeline
-========================
-
-Central entry point for the clinical data processing pipeline, orchestrating:
-- Data dictionary loading and validation
-- Excel to JSONL extraction with type conversion
-- PHI/PII de-identification with country-specific compliance
-
-This module provides a complete end-to-end pipeline with comprehensive error handling,
-progress tracking, and flexible configuration via command-line arguments.
-
-Public API
-----------
-Exports 2 main functions via ``__all__``:
-
-- ``main``: Main pipeline orchestrator
-- ``run_step``: Pipeline step executor with error handling
-
-Key Features
-------------
-- **Multi-Step Pipeline**: Dictionary → Extraction → De-identification
-- **Flexible Execution**: Skip individual steps or run complete pipeline
-- **Country Compliance**: Support for 14 countries (US, IN, ID, BR, etc.)
-- **Error Recovery**: Comprehensive error handling with detailed logging
-- **Version Tracking**: Built-in version management
-
-Pipeline Steps
---------------
-
-**Step 0: Data Dictionary Loading (Optional)**
-- Processes Excel data dictionary files
-- Splits multi-table sheets automatically
-- Outputs JSONL format with metadata
-
-**Step 1: Data Extraction (Default)**
-- Converts Excel files to JSONL format
-- Dual output: original and cleaned versions
-- Type conversion and validation
-- Progress tracking with real-time feedback
-
-**Step 2: De-identification (Opt-in)**
-- PHI/PII detection and pseudonymization
-- Country-specific regulations (HIPAA, GDPR, DPDPA, etc.)
-- Encrypted mapping storage
-- Date shifting with interval preservation
-
-Error Handling
---------------
-
-The pipeline uses comprehensive error handling:
-
-1. **Step-level Errors**: Each step is wrapped in try/except
-2. **Validation Errors**: Invalid results cause immediate exit
-3. **Logging**: All errors logged with full stack traces
-4. **Exit Codes**: Non-zero exit on any failure
-
-Return Codes:
-- 0: Success
-- 1: Pipeline failure (any step)
-
-See Also
---------
-**User Documentation:**
-
-- :doc:`user_guide/quickstart` - Quick start guide
-- :doc:`user_guide/usage` - Advanced usage patterns and workflows
-- :doc:`user_guide/configuration` - Configuration and command-line options
-- :doc:`developer_guide/architecture` - Technical architecture details
-
-**API Reference:**
-
-- :mod:`scripts.load_dictionary` - Data dictionary processing
-- :mod:`scripts.extract_data` - Data extraction
-- :mod:`scripts.deidentify` - De-identification
-- :mod:`config` - Configuration settings
-"""
+"""Clinical data processing pipeline for RePORTaLiN."""
 import argparse
 import logging
 import sys
@@ -101,16 +25,7 @@ from __version__ import __version__
 __all__ = ['main', 'run_step']
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
-    """
-    Execute pipeline step with error handling and logging.
-    
-    Args:
-        step_name: Name of the pipeline step
-        func: Callable function to execute
-        
-    Returns:
-        Result from the function, or exits with code 1 on error
-    """
+    """Execute pipeline step with error handling and logging."""
     try:
         log.info(f"--- {step_name} ---")
         result = func()
@@ -130,22 +45,7 @@ def run_step(step_name: str, func: Callable[[], Any]) -> Any:
         sys.exit(1)
 
 def main() -> None:
-    """
-    Main pipeline orchestrating dictionary loading, data extraction, and de-identification.
-    
-    Command-line Arguments:
-        --skip-dictionary: Skip data dictionary loading
-        --skip-extraction: Skip data extraction
-        --enable-deidentification: Enable de-identification (disabled by default)
-        --skip-deidentification: Skip de-identification even if enabled
-        --no-encryption: Disable encryption for de-identification mappings
-        -c, --countries: Country codes (e.g., IN US ID BR) or ALL
-        -v, --verbose: Enable verbose (DEBUG) logging (default: simple mode)
-    
-    Default Behavior:
-        - Simple logging mode (INFO level, minimal console output)
-        - Use --verbose flag for detailed DEBUG logging
-    """
+    """Main pipeline orchestrating dictionary loading, data extraction, and de-identification."""
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
         description='Clinical data processing pipeline with de-identification support.',

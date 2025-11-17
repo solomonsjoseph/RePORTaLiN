@@ -1,40 +1,5 @@
 #!/usr/bin/env python3
-"""
-De-identification and Pseudonymization Module
-==============================================
-
-Robust PHI/PII detection and replacement with encrypted mapping storage,
-country-specific compliance, and comprehensive validation.
-
-This module provides de-identification features designed to support HIPAA/GDPR compliance
-for medical datasets, supporting 14 countries with country-specific regulations, encrypted
-mapping storage, and comprehensive validation.
-
-**Note**: This module provides tools to assist with compliance but does not guarantee
-regulatory compliance. Users are responsible for validating that the de-identification
-meets their specific regulatory requirements.
-
-Key Features:
-    - PHI/PII detection using regex patterns (18+ identifier types)
-    - Country-specific regulations (14 countries: US, IN, ID, BR, etc.)
-    - Pseudonymization with deterministic hashing
-    - Date shifting with interval preservation
-    - Encrypted mapping storage
-    - Comprehensive validation
-    - Verbose logging: Detailed tree-view logs with timing (v0.0.12+)
-
-Verbose Mode:
-    When running with ``--verbose`` flag, detailed logs are generated including
-    file-by-file de-identification progress, record processing counts (every 1000 records),
-    per-file and overall timing, and validation results with issue tracking.
-
-See Also
---------
-- :doc:`../user_guide/deidentification` - De-identification guide
-- :doc:`../user_guide/country_regulations` - Country-specific regulations
-- :class:`DeidentificationEngine` - Core de-identification engine
-- :func:`deidentify_dataset` - Main de-identification function
-"""
+"""PHI/PII de-identification with country-specific compliance."""
 
 import re
 import json
@@ -229,12 +194,7 @@ class PatternLibrary:
     
     @staticmethod
     def get_default_patterns() -> List[DetectionPattern]:
-        """
-        Get default detection patterns for common PHI/PII types.
-        
-        Returns:
-            List of DetectionPattern objects sorted by priority.
-        """
+        """Get default detection patterns for common PHI/PII types."""
         patterns = [
             # SSN patterns (high priority)
             DetectionPattern(
@@ -341,19 +301,7 @@ class PatternLibrary:
     
     @staticmethod
     def get_country_specific_patterns(countries: Optional[List[str]] = None) -> List[DetectionPattern]:
-        """
-        Get country-specific detection patterns.
-        
-        Args:
-            countries: List of country codes or None for all
-            
-        Returns:
-            List of DetectionPattern objects for country-specific identifiers
-            
-        Raises:
-            ValueError: If invalid country codes provided
-            RuntimeError: If country regulations module failed to initialize
-        """
+        """Get country-specific detection patterns."""
         if not COUNTRY_REGULATIONS_AVAILABLE:
             logging.warning("Country regulations module not available")
             return []
@@ -430,38 +378,16 @@ class PatternLibrary:
 # ============================================================================
 
 class PseudonymGenerator:
-    """
-    Generates consistent, deterministic pseudonyms for PHI/PII.
-    
-    Uses cryptographic hashing to ensure:
-    - Same input always produces same pseudonym
-    - Different inputs produce different pseudonyms
-    - Pseudonyms are not reversible without the mapping table
-    """
+    """Generates consistent, deterministic pseudonyms for PHI/PII."""
     
     def __init__(self, salt: Optional[str] = None):
-        """
-        Initialize pseudonym generator.
-        
-        Args:
-            salt: Optional salt for hash function. If None, generates random salt.
-        """
+        """Initialize pseudonym generator."""
         self.salt = salt or secrets.token_hex(CRYPTO_SALT_LENGTH)
         self._counter: Dict[PHIType, int] = defaultdict(int)
         self._cache: Dict[Tuple[PHIType, str], str] = {}
     
     def generate(self, value: str, phi_type: PHIType, template: str) -> str:
-        """
-        Generate a pseudonym for a given value.
-        
-        Args:
-            value: The sensitive value to pseudonymize
-            phi_type: Type of PHI/PII
-            template: Template string with {id} placeholder
-            
-        Returns:
-            Pseudonymized value (e.g., "PATIENT-A4B8")
-        """
+        """Generate a pseudonym for a given value."""
         cache_key = (phi_type, value.lower())
         
         # Return cached pseudonym if exists
@@ -486,12 +412,7 @@ class PseudonymGenerator:
         return pseudonym
     
     def get_statistics(self) -> Dict[str, int]:
-        """
-        Get statistics on pseudonym generation.
-        
-        Returns:
-            Dictionary mapping PHI type to count of unique values
-        """
+        """Get statistics on pseudonym generation."""
         return {phi_type.value: count for phi_type, count in self._counter.items()}
 
 
@@ -500,111 +421,10 @@ class PseudonymGenerator:
 # ============================================================================
 
 class DateShifter:
-    """
-    Consistent date shifting with intelligent multi-format parsing.
-    
-    Shifts all dates by a consistent offset while maintaining:
-    - Relative time intervals between dates
-    - Original date format (ISO 8601, DD/MM/YYYY, MM/DD/YYYY, hyphen/dot-separated)
-    - Country-specific format priority for consistent interpretation
-    
-    Supported formats (auto-detected):
-    - YYYY-MM-DD (ISO 8601) - Always tried first (unambiguous)
-    - DD/MM/YYYY or MM/DD/YYYY (slash-separated) - Country-specific priority
-    - DD-MM-YYYY or MM-DD-YYYY (hyphen-separated) - Country-specific priority
-    - DD.MM.YYYY (dot-separated, European)
-    
-    Date Interpretation Strategy
-    ----------------------------
-    The shifter uses a three-tier strategy to handle date ambiguity:
-    
-    1. **Unambiguous Formats (ISO 8601)**: Always tried first
-       - Example: "2020-01-15" is always January 15, 2020 regardless of country
-       
-    2. **Country-Specific Preference**: For ambiguous dates
-       - India (IN): "08/09/2020" interpreted as DD/MM → September 8, 2020
-       - USA (US): "08/09/2020" interpreted as MM/DD → August 9, 2020
-       
-    3. **Smart Validation**: Reject logically impossible formats
-       - "13/05/2020" can only be DD/MM (no 13th month)
-       - "05/25/2020" can only be MM/DD (no 25th month)
-    
-    Ambiguous Date Handling
-    -----------------------
-    For dates where both day and month are ≤ 12 (e.g., 12/12/2012, 08/09/2020):
-    
-    - **Consistency Guarantee**: All dates from the same country use the same format
-    - **Country Setting**: The country_code parameter determines interpretation
-    - **Transparency**: Users know upfront how dates will be interpreted
-    
-    Examples:
-        Basic usage::
-        
-            >>> shifter = DateShifter(country_code="IN")
-            >>> shifter.shift_date("2019-01-11")  # ISO format
-            '2018-04-13'  # Shifted by offset, format preserved
-            
-        Ambiguous dates (country-specific)::
-        
-            >>> shifter_india = DateShifter(country_code="IN")
-            >>> shifter_india.shift_date("08/09/2020")  # DD/MM for India
-            '18/12/2019'  # September 8, 2020 → shifted
-            
-            >>> shifter_usa = DateShifter(country_code="US")
-            >>> shifter_usa.shift_date("08/09/2020")  # MM/DD for USA
-            '28/11/2019'  # August 9, 2020 → shifted
-            
-        Symmetric dates (country preference)::
-        
-            >>> shifter = DateShifter(country_code="IN")
-            >>> shifter.shift_date("12/12/2012")  # Ambiguous!
-            '02/03/2012'  # Interpreted as DD/MM (India preference)
-            
-        Unambiguous dates (validation)::
-        
-            >>> shifter = DateShifter(country_code="IN")
-            >>> shifter.shift_date("13/05/2020")  # Must be DD/MM
-            '23/08/2019'  # May 13, 2020 → shifted (13 > 12, can't be month)
-    
-    Country Format Reference
-    ------------------------
-    - **DD/MM/YYYY countries**: IN, ID, BR, ZA, EU, GB, AU, KE, NG, GH, UG
-    - **MM/DD/YYYY countries**: US, PH, CA
-    
-    See Also
-    --------
-    - HIPAA date shifting requirements for de-identification
-    - ISO 8601 date format standard
-    """
+    """Consistent date shifting with intelligent multi-format parsing."""
     
     def __init__(self, shift_range_days: int = DEFAULT_DATE_SHIFT_RANGE_DAYS, preserve_intervals: bool = True, seed: Optional[str] = None, country_code: str = DEFAULT_COUNTRY_CODE):
-        """
-        Initialize date shifter with country-specific format interpretation.
-        
-        Args:
-            shift_range_days: Maximum days to shift (±), default 365
-            preserve_intervals: If True, all dates shift by same offset (recommended for consistency)
-            seed: Optional seed for deterministic shift generation (same seed = same shift)
-            country_code: Country code determining date format priority for ambiguous dates
-                         - "IN", "ID", "BR", "ZA", "EU", "GB", "AU", "KE", "NG", "GH", "UG": DD/MM/YYYY
-                         - "US", "PH", "CA": MM/DD/YYYY
-                         - Default: "US"
-        
-        Note:
-            The country_code setting ensures consistent interpretation of ambiguous dates
-            (e.g., "08/09/2020" or "12/12/2012"). All dates from the same country will use
-            the same format rules. ISO 8601 dates (YYYY-MM-DD) are always unambiguous and
-            parse correctly regardless of country_code.
-            
-        Examples:
-            >>> # India dataset - interpret slash dates as DD/MM
-            >>> shifter_in = DateShifter(country_code="IN")
-            >>> shifter_in.shift_date("08/09/2020")  # September 8, 2020
-            
-            >>> # USA dataset - interpret slash dates as MM/DD  
-            >>> shifter_us = DateShifter(country_code="US")
-            >>> shifter_us.shift_date("08/09/2020")  # August 9, 2020
-        """
+        """Initialize date shifter with country-specific format interpretation."""
         self.shift_range_days = shift_range_days
         self.preserve_intervals = preserve_intervals
         self.seed = seed or secrets.token_hex(CRYPTO_SALT_LENGTH // 2)  # 16 bytes = 32 hex chars
@@ -628,34 +448,7 @@ class DateShifter:
         return self._shift_offset
     
     def shift_date(self, date_str: str, date_format: Optional[str] = None) -> str:
-        """
-        Shift a date string by consistent offset with intelligent format detection.
-        
-        The algorithm prioritizes unambiguous formats (ISO 8601) and uses country-specific
-        format preferences for ambiguous dates. This ensures consistency for dates like
-        12/12/2012 or 08/09/2020 which could be interpreted multiple ways.
-        
-        Args:
-            date_str: Date string to shift (e.g., "2019-01-11", "04/09/2014", "12/12/2012")
-            date_format: Specific format to use (auto-detected if None)
-            
-        Returns:
-            Shifted date in same format as input
-            
-        Examples:
-            >>> shifter = DateShifter(country_code="IN")
-            >>> shifter.shift_date("2019-01-11")
-            '2018-04-13'  # ISO format preserved
-            >>> shifter.shift_date("04/09/2014")
-            '14/12/2013'  # DD/MM/YYYY format (India interprets as Sep 4)
-            >>> shifter.shift_date("12/12/2012")
-            '02/03/2012'  # DD/MM/YYYY format (country preference trusted)
-        
-        Note:
-            For ambiguous dates where both numbers are ≤ 12 (e.g., 12/12/2012, 08/09/2020),
-            the country-specific format is used consistently based on the country_code setting.
-            This ensures all dates from the same country are interpreted with the same rules.
-        """
+        """Shift a date string by consistent offset with intelligent format detection."""
         if date_str in self._date_cache:
             return self._date_cache[date_str]
         
@@ -747,25 +540,10 @@ class DateShifter:
 # ============================================================================
 
 class MappingStore:
-    """
-    Secure storage for PHI to pseudonym mappings.
-    
-    Features:
-    - Encrypted storage using Fernet (symmetric encryption)
-    - Separate key management
-    - JSON serialization
-    - Audit logging
-    """
+    """Secure storage for PHI to pseudonym mappings."""
     
     def __init__(self, storage_path: Path, encryption_key: Optional[bytes] = None, enable_encryption: bool = True):
-        """
-        Initialize mapping store.
-        
-        Args:
-            storage_path: Path to store mapping file
-            encryption_key: Encryption key (generates new if None)
-            enable_encryption: Whether to encrypt mappings
-        """
+        """Initialize mapping store."""
         self.storage_path = Path(storage_path)
         self.enable_encryption = enable_encryption and CRYPTO_AVAILABLE
         
@@ -782,13 +560,7 @@ class MappingStore:
         self._load_mappings()
     
     def _load_mappings(self) -> None:
-        """
-        Load mappings from storage file.
-        
-        Raises:
-            ValueError: If file data is corrupted or invalid
-            RuntimeError: If file system errors occur
-        """
+        """Load mappings from storage file."""
         if not self.storage_path.exists():
             logging.debug(f"Mapping file not found at {self.storage_path}, starting with empty mappings")
             return
@@ -838,15 +610,7 @@ class MappingStore:
             raise RuntimeError(f"Failed to load mappings from {self.storage_path}: {e}")
     
     def save_mappings(self) -> None:
-        """
-        Save mappings to storage file with atomic write operation.
-        
-        Raises:
-            ValueError: If mappings data is invalid
-            PermissionError: If storage path is not writable
-            OSError: If directory creation or file write fails
-            RuntimeError: If encryption or serialization fails
-        """
+        """Save mappings to storage file with atomic write operation."""
         import tempfile
         
         # Validate mappings data
@@ -942,19 +706,7 @@ class MappingStore:
             raise RuntimeError(f"Failed to save mappings due to unexpected error: {e}")
     
     def add_mapping(self, original: str, pseudonym: str, phi_type: PHIType, metadata: Optional[Dict] = None) -> None:
-        """
-        Add a mapping entry with validation.
-        
-        Args:
-            original: Original sensitive value (non-empty string)
-            pseudonym: Pseudonymized value (non-empty string)
-            phi_type: Type of PHI (PHIType enum)
-            metadata: Optional additional metadata (dict)
-        
-        Raises:
-            ValueError: If parameters are invalid
-            TypeError: If parameter types are incorrect
-        """
+        """Add a mapping entry with validation."""
         # Validate input types
         if not isinstance(original, str):
             raise TypeError(f"original must be str, got {type(original).__name__}")
@@ -1008,20 +760,7 @@ class MappingStore:
             raise RuntimeError(f"Failed to add mapping: {e}")
     
     def get_pseudonym(self, original: str, phi_type: PHIType) -> Optional[str]:
-        """
-        Retrieve pseudonym for original value with validation.
-        
-        Args:
-            original: Original value (non-empty string)
-            phi_type: Type of PHI (PHIType enum)
-            
-        Returns:
-            Pseudonym if exists, None otherwise
-            
-        Raises:
-            TypeError: If parameter types are incorrect
-            ValueError: If parameters are invalid
-        """
+        """Retrieve pseudonym for original value with validation."""
         # Validate input types
         if not isinstance(original, str):
             raise TypeError(f"original must be str, got {type(original).__name__}")
@@ -1065,19 +804,7 @@ class MappingStore:
             return None
     
     def export_for_audit(self, output_path: Path, include_originals: bool = False) -> None:
-        """
-        Export mappings for audit purposes with atomic write.
-        
-        Args:
-            output_path: Path to export file (must be Path or valid path string)
-            include_originals: Whether to include original values (WARNING: security risk!)
-        
-        Raises:
-            TypeError: If output_path is not a valid path type
-            PermissionError: If export path is not writable
-            OSError: If directory creation or file write fails
-            RuntimeError: If JSON serialization fails
-        """
+        """Export mappings for audit purposes with atomic write."""
         import tempfile
         
         # Validate output_path
@@ -1179,29 +906,10 @@ class MappingStore:
 # ============================================================================
 
 class DeidentificationEngine:
-    """
-    Main engine for PHI/PII detection and de-identification.
-    
-    Orchestrates the entire de-identification process:
-    1. Detects PHI/PII using patterns and optional NER
-    2. Generates consistent pseudonyms
-    3. Replaces sensitive data with pseudonyms
-    4. Stores mappings securely
-    5. Validates results
-    """
+    """Main engine for PHI/PII detection and de-identification."""
     
     def __init__(self, config: Optional[DeidentificationConfig] = None, mapping_store: Optional[MappingStore] = None):
-        """
-        Initialize de-identification engine with comprehensive error handling.
-        
-        Args:
-            config: Configuration object (DeidentificationConfig or None for defaults)
-            mapping_store: Optional mapping store (MappingStore instance or None)
-        
-        Raises:
-            TypeError: If config or mapping_store are invalid types
-            RuntimeError: If component initialization fails
-        """
+        """Initialize de-identification engine with comprehensive error handling."""
         # Validate config parameter
         if config is not None and not isinstance(config, DeidentificationConfig):
             raise TypeError(f"config must be DeidentificationConfig or None, got {type(config).__name__}")
@@ -1332,20 +1040,7 @@ class DeidentificationEngine:
             raise RuntimeError(f"Failed to initialize DeidentificationEngine: {e}")
     
     def deidentify_text(self, text: str, custom_patterns: Optional[List[DetectionPattern]] = None) -> str:
-        """
-        De-identify a single text string with comprehensive error handling.
-        
-        Args:
-            text: Text to de-identify (str or None)
-            custom_patterns: Optional additional patterns (list of DetectionPattern or None)
-            
-        Returns:
-            De-identified text with PHI/PII replaced by pseudonyms
-            
-        Raises:
-            TypeError: If text or custom_patterns are invalid types
-            ValueError: If text is too large (>1MB by default)
-        """
+        """De-identify a single text string with comprehensive error handling."""
         # Validate text input
         if text is None:
             return ""
@@ -1511,16 +1206,7 @@ class DeidentificationEngine:
             return text
     
     def deidentify_record(self, record: Dict[str, Any], text_fields: Optional[List[str]] = None) -> Dict[str, Any]:
-        """
-        De-identify a dictionary record (e.g., from JSONL).
-        
-        Args:
-            record: Dictionary containing data
-            text_fields: List of field names to de-identify (all string fields if None)
-            
-        Returns:
-            De-identified record
-        """
+        """De-identify a dictionary record (e.g., from JSONL)."""
         deidentified = record.copy()
         
         # Determine fields to process
@@ -1539,12 +1225,7 @@ class DeidentificationEngine:
         self.mapping_store.save_mappings()
     
     def get_statistics(self) -> Dict[str, Any]:
-        """
-        Get de-identification statistics.
-        
-        Returns:
-            Dictionary with processing statistics
-        """
+        """Get de-identification statistics."""
         return {
             **self.stats,
             "pseudonym_stats": self.pseudonym_generator.get_statistics(),
@@ -1552,16 +1233,7 @@ class DeidentificationEngine:
         }
     
     def validate_deidentification(self, text: str, strict: bool = True) -> Tuple[bool, List[str]]:
-        """
-        Validate that no PHI remains in de-identified text.
-        
-        Args:
-            text: De-identified text to validate
-            strict: If True, any detection is considered a failure
-            
-        Returns:
-            Tuple of (is_valid, list of potential PHI found)
-        """
+        """Validate that no PHI remains in de-identified text."""
         potential_phi = []
         
         # Check against all patterns
@@ -1593,24 +1265,7 @@ def deidentify_dataset(
     file_pattern: str = "*.jsonl",
     process_subdirs: bool = True
 ) -> Dict[str, Any]:
-    """
-    Batch de-identification of JSONL dataset files.
-    
-    Processes JSONL files while maintaining directory structure. If the input
-    directory contains subdirectories (e.g., 'original/', 'cleaned/'), the same
-    structure will be replicated in the output directory.
-    
-    Args:
-        input_dir: Directory containing JSONL files (may have subdirectories)
-        output_dir: Directory to write de-identified files (maintains structure)
-        text_fields: List of field names to de-identify (all string fields if None)
-        config: De-identification configuration
-        file_pattern: Glob pattern for files to process
-        process_subdirs: If True, recursively process subdirectories
-        
-    Returns:
-        Dictionary with processing statistics
-    """
+    """Batch de-identification of JSONL dataset files."""
     overall_start = time.time()
     input_path = Path(input_dir)
     output_path = Path(output_dir)
@@ -1751,17 +1406,7 @@ def validate_dataset(
     file_pattern: str = "*.jsonl",
     text_fields: Optional[List[str]] = None
 ) -> Dict[str, Any]:
-    """
-    Validate that no PHI remains in de-identified dataset.
-    
-    Args:
-        dataset_dir: Directory containing de-identified JSONL files
-        file_pattern: Glob pattern for files to validate
-        text_fields: List of field names to validate
-        
-    Returns:
-        Dictionary with validation results
-    """
+    """Validate that no PHI remains in de-identified dataset."""
     overall_start = time.time()
     dataset_path = Path(dataset_dir)
     engine = DeidentificationEngine()
@@ -1863,12 +1508,7 @@ def validate_dataset(
 # ============================================================================
 
 def main() -> int:
-    """
-    Command-line interface for de-identification.
-    
-    Returns:
-        int: Exit code (0 for success, 1 for error, 130 for user interruption)
-    """
+    """Command-line interface for de-identification."""
     import argparse
     
     parser = argparse.ArgumentParser(

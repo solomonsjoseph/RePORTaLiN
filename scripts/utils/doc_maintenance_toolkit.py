@@ -1,73 +1,5 @@
 #!/usr/bin/env python3
-"""
-Documentation Maintenance Toolkit - Consolidated Quality & Build System
-========================================================================
-
-**For Developers:**
-
-This module consolidates all documentation checking, building, and maintenance
-functionality into one comprehensive, unified tool. It replaces three separate
-scripts while preserving all original functionality.
-
-Consolidates:
-    - check_docs_style.sh (Style compliance checking)
-    - check_documentation_quality.py (Comprehensive quality analysis)
-    - doc_maintenance_commands.sh (Build and utility functions)
-
-Does NOT include:
-    - smart_commit.sh (Git operations remain separate)
-
-Modes:
-    style    - Quick style compliance check (fast, for pre-commit hooks)
-    quality  - Comprehensive quality analysis (quarterly maintenance)
-    build    - Build and verify Sphinx documentation
-    full     - Run all checks and build documentation
-
-Usage Examples:
-    # Quick style compliance check
-    python doc_maintenance_toolkit.py --mode style
-    
-    # Comprehensive quality check
-    python doc_maintenance_toolkit.py --mode quality
-    
-    # Build documentation
-    python doc_maintenance_toolkit.py --mode build
-    
-    # Build and open in browser
-    python doc_maintenance_toolkit.py --mode build --open
-    
-    # Full maintenance suite
-    python doc_maintenance_toolkit.py --mode full
-    
-    # Quiet mode (errors only)
-    python doc_maintenance_toolkit.py --mode style --quiet
-    
-    # Verbose mode (detailed output)
-    python doc_maintenance_toolkit.py --mode quality --verbose
-
-Exit Codes:
-    0 - All checks passed successfully
-    1 - Warnings found (non-critical issues)
-    2 - Errors found (must be fixed)
-
-Logging:
-    All operations logged to .logs/ directory:
-    - style mode:   .logs/doc_style_check.log
-    - quality mode: .logs/doc_quality_check.log
-    - build mode:   .logs/doc_build.log
-    - full mode:    .logs/doc_full_maintenance.log
-
-Author: RePORTaLiN Development Team
-Version: 1.0.0
-Last Updated: October 30, 2025
-License: MIT
-
-Security:
-    - Input validation on all file paths
-    - No arbitrary code execution
-    - Safe subprocess handling
-    - Proper error handling and logging
-"""
+"""Documentation maintenance toolkit for style checking, quality analysis, and building."""
 
 # Standard library imports
 # CRITICAL: Import standard logging before local modules to avoid shadowing
@@ -104,11 +36,7 @@ except ImportError:
 
 # Terminal colors for output (matching bash scripts)
 class Colors:
-    """ANSI color codes for terminal output.
-    
-    Provides the same color-coded output as the original bash scripts
-    for consistency and user familiarity.
-    """
+    """ANSI color codes for terminal output."""
     RED = '\033[0;31m'
     GREEN = '\033[0;32m'
     YELLOW = '\033[1;33m'
@@ -138,15 +66,7 @@ class Colors:
 
 @dataclass
 class QualityIssue:
-    """Represents a documentation quality issue.
-    
-    Attributes:
-        severity: Issue severity level ('info', 'warning', 'error')
-        category: Issue category (e.g., 'style_compliance', 'version_reference')
-        file_path: Relative path to the file with the issue
-        line_number: Line number where issue occurs (0 if not applicable)
-        message: Human-readable description of the issue
-    """
+    """Represents a documentation quality issue."""
     severity: str
     category: str
     file_path: str
@@ -155,38 +75,16 @@ class QualityIssue:
 
 
 class MaintenanceLogger:
-    """Centralized logging system for all maintenance operations.
-    
-    Provides consistent logging across all maintenance operations with
-    proper file handling, formatting, and log rotation support.
-    
-    All logs are saved to the .logs/ directory in the repository root.
-    
-    Attributes:
-        log_dir: Path to the .logs directory
-        _loggers: Cache of created logger instances
-    """
+    """Centralized logging system for all maintenance operations."""
     
     def __init__(self, repo_root: Path):
-        """Initialize the logging system.
-        
-        Args:
-            repo_root: Path to repository root directory
-        """
+        """Initialize the logging system."""
         self.log_dir = repo_root / '.logs'
         self.log_dir.mkdir(exist_ok=True)
         self._loggers: Dict[str, std_logging.Logger] = {}
     
     def get_logger(self, name: str, log_file: Optional[str] = None) -> std_logging.Logger:
-        """Get or create a logger for a specific operation.
-        
-        Args:
-            name: Logger name (typically module or operation name)
-            log_file: Optional specific log file name (defaults to name.log)
-        
-        Returns:
-            Configured logger instance
-        """
+        """Get or create a logger for a specific operation."""
         if name in self._loggers:
             return self._loggers[name]
         
@@ -222,25 +120,10 @@ class MaintenanceLogger:
 
 
 class StyleChecker:
-    """Documentation style compliance checker.
-    
-    Checks documentation files for compliance with the project's style guide:
-    - User guide files must start with "**For Users:**"
-    - Developer guide files must start with "**For Developers:**"
-    - User guide files should not contain technical jargon
-    - Sphinx builds must complete without warnings or errors
-    
-    This class replicates functionality from check_docs_style.sh.
-    """
+    """Documentation style compliance checker."""
     
     def __init__(self, docs_root: Path, logger: std_logging.Logger, quiet: bool = False):
-        """Initialize the style checker.
-        
-        Args:
-            docs_root: Path to docs/sphinx directory
-            logger: Logger instance for this checker
-            quiet: If True, suppress non-error output
-        """
+        """Initialize the style checker."""
         self.docs_root = docs_root
         self.logger = logger
         self.quiet = quiet
@@ -265,11 +148,7 @@ class StyleChecker:
         ]
     
     def check_user_guide_headers(self) -> List[str]:
-        """Check user guide files for required headers.
-        
-        Returns:
-            List of files missing the required header
-        """
+        """Check user guide files for required headers."""
         if not self.quiet:
             print(Colors.blue("Checking User Guide Files..."))
             print("─" * 64)
@@ -306,11 +185,7 @@ class StyleChecker:
         return missing_headers
     
     def check_developer_guide_headers(self) -> List[str]:
-        """Check developer guide files for required headers.
-        
-        Returns:
-            List of files missing the required header
-        """
+        """Check developer guide files for required headers."""
         if not self.quiet:
             print()
             print(Colors.blue("Checking Developer Guide Files..."))
@@ -348,11 +223,7 @@ class StyleChecker:
         return missing_headers
     
     def check_technical_jargon(self) -> Dict[str, List[str]]:
-        """Check user guide for technical jargon.
-        
-        Returns:
-            Dictionary mapping file names to list of found jargon terms
-        """
+        """Check user guide for technical jargon."""
         if not self.quiet:
             print()
             print(Colors.blue("Checking for Technical Jargon in User Guide..."))
@@ -396,11 +267,7 @@ class StyleChecker:
         return jargon_found
     
     def check_sphinx_build(self) -> Tuple[int, str]:
-        """Run Sphinx build and check for warnings/errors.
-        
-        Returns:
-            Tuple of (exit_code, output)
-        """
+        """Run Sphinx build and check for warnings/errors."""
         if not self.quiet:
             print()
             print(Colors.blue("Checking Sphinx Build..."))
@@ -460,11 +327,7 @@ class StyleChecker:
             return (1, str(e))
     
     def run_all_checks(self) -> int:
-        """Run all style compliance checks.
-        
-        Returns:
-            Exit code (0=success, 1=failure)
-        """
+        """Run all style compliance checks."""
         if not self.quiet:
             print(Colors.blue("╔══════════════════════════════════════════════════════════════╗"))
             print(Colors.blue("║        Documentation Style Compliance Checker                ║"))
@@ -511,29 +374,11 @@ class StyleChecker:
 
 
 class QualityChecker:
-    """Comprehensive documentation quality analyzer.
-    
-    Performs deep analysis of documentation quality including:
-    - Outdated version references
-    - File size analysis
-    - Redundant content detection
-    - Broken cross-references
-    - Outdated date references
-    
-    This class replicates and enhances functionality from
-    check_documentation_quality.py.
-    """
+    """Comprehensive documentation quality analyzer."""
     
     def __init__(self, docs_root: Path, logger: std_logging.Logger, 
                  quick_mode: bool = False, verbose: bool = False):
-        """Initialize the quality checker.
-        
-        Args:
-            docs_root: Path to docs/sphinx directory
-            logger: Logger instance for this checker
-            quick_mode: If True, run only basic checks
-            verbose: If True, provide detailed output
-        """
+        """Initialize the quality checker."""
         self.docs_root = docs_root
         self.logger = logger
         self.quick_mode = quick_mode
@@ -549,15 +394,7 @@ class QualityChecker:
     
     def add_issue(self, severity: str, category: str, file_path: str,
                   line_number: int, message: str) -> None:
-        """Add a quality issue to the tracking list.
-        
-        Args:
-            severity: Issue severity ('info', 'warning', 'error')
-            category: Issue category
-            file_path: File where issue was found
-            line_number: Line number (0 if not applicable)
-            message: Description of the issue
-        """
+        """Add a quality issue to the tracking list."""
         issue = QualityIssue(
             severity=severity,
             category=category,
@@ -774,16 +611,7 @@ class QualityChecker:
                 self.logger.error(f"Error reading {rst_file}: {e}")
     
     def check_style_compliance(self) -> None:
-        """Check for style compliance issues.
-        
-        Verifies that documentation files have the required headers:
-        - User guide files must start with "**For Users:**"
-        - Developer guide files must start with "**For Developers:**"
-        
-        This check ensures consistency with the project's documentation
-        style guide and matches the original check_documentation_quality.py
-        behavior.
-        """
+        """Check for style compliance issues."""
         print("✨ Checking style compliance...")
         self.logger.info("Starting style compliance check...")
         
@@ -827,11 +655,7 @@ class QualityChecker:
                     self.logger.error(f"Error reading {rst_file}: {e}")
     
     def generate_report(self) -> int:
-        """Generate and print the quality check report.
-        
-        Returns:
-            Exit code (0=success, 1=warnings, 2=errors)
-        """
+        """Generate and print the quality check report."""
         print("\n" + "="*80)
         print("📋 DOCUMENTATION QUALITY REPORT")
         print("="*80)
@@ -892,11 +716,7 @@ class QualityChecker:
             return 0
     
     def run_all_checks(self) -> int:
-        """Run all quality checks.
-        
-        Returns:
-            Exit code (0=success, 1=warnings, 2=errors)
-        """
+        """Run all quality checks."""
         print("🚀 Starting Documentation Quality Check\n")
         self.logger.info("="*80)
         self.logger.info(f"Documentation Quality Check v{__version__} - Starting")
@@ -929,36 +749,16 @@ class QualityChecker:
 
 
 class DocumentationBuilder:
-    """Documentation building and verification system.
-    
-    Handles Sphinx documentation building with proper error handling
-    and verification. Supports clean builds, incremental builds, and
-    opening built documentation in the browser.
-    
-    This class replicates functionality from doc_maintenance_commands.sh.
-    """
+    """Documentation building and verification system."""
     
     def __init__(self, docs_root: Path, logger: std_logging.Logger, quiet: bool = False):
-        """Initialize the documentation builder.
-        
-        Args:
-            docs_root: Path to docs/sphinx directory
-            logger: Logger instance for this builder
-            quiet: If True, suppress non-error output
-        """
+        """Initialize the documentation builder."""
         self.docs_root = docs_root
         self.logger = logger
         self.quiet = quiet
     
     def build_docs(self, clean: bool = True) -> bool:
-        """Build Sphinx documentation.
-        
-        Args:
-            clean: If True, run 'make clean' before building
-        
-        Returns:
-            True if build succeeded, False otherwise
-        """
+        """Build Sphinx documentation."""
         if not self.quiet:
             print("📚 Building Documentation...")
         
@@ -1023,11 +823,7 @@ class DocumentationBuilder:
             return False
     
     def open_docs(self) -> bool:
-        """Open built documentation in the default browser.
-        
-        Returns:
-            True if successful, False otherwise
-        """
+        """Open built documentation in the default browser."""
         html_file = self.docs_root / '_build' / 'html' / 'index.html'
         
         if not html_file.exists():
@@ -1060,19 +856,10 @@ class DocumentationBuilder:
 
 
 class MaintenanceRunner:
-    """Main orchestrator for all documentation maintenance operations.
-    
-    Coordinates all maintenance tools and provides a unified interface
-    for running different maintenance modes.
-    """
+    """Main orchestrator for all documentation maintenance operations."""
     
     def __init__(self, repo_root: Path, args: argparse.Namespace):
-        """Initialize the maintenance runner.
-        
-        Args:
-            repo_root: Path to repository root
-            args: Parsed command-line arguments
-        """
+        """Initialize the maintenance runner."""
         self.repo_root = repo_root
         self.docs_root = repo_root / 'docs' / 'sphinx'
         self.args = args
@@ -1091,11 +878,7 @@ class MaintenanceRunner:
         self.logger = self.log_system.get_logger('doc_maintenance', log_file)
     
     def run_style_check(self) -> int:
-        """Run style compliance check.
-        
-        Returns:
-            Exit code
-        """
+        """Run style compliance check."""
         checker = StyleChecker(
             self.docs_root,
             self.logger,
@@ -1104,11 +887,7 @@ class MaintenanceRunner:
         return checker.run_all_checks()
     
     def run_quality_check(self) -> int:
-        """Run comprehensive quality check.
-        
-        Returns:
-            Exit code
-        """
+        """Run comprehensive quality check."""
         checker = QualityChecker(
             self.docs_root,
             self.logger,
@@ -1118,11 +897,7 @@ class MaintenanceRunner:
         return checker.run_all_checks()
     
     def run_build(self) -> int:
-        """Run documentation build.
-        
-        Returns:
-            Exit code
-        """
+        """Run documentation build."""
         builder = DocumentationBuilder(
             self.docs_root,
             self.logger,
@@ -1137,11 +912,7 @@ class MaintenanceRunner:
         return 0 if success else 1
     
     def run_full_maintenance(self) -> int:
-        """Run full maintenance suite.
-        
-        Returns:
-            Exit code (worst of all checks)
-        """
+        """Run full maintenance suite."""
         print(Colors.blue("╔══════════════════════════════════════════════════════════════╗"))
         print(Colors.blue("║        Full Documentation Maintenance Suite                  ║"))
         print(Colors.blue("╚══════════════════════════════════════════════════════════════╝"))
@@ -1192,11 +963,7 @@ class MaintenanceRunner:
 
 
 def parse_arguments() -> argparse.Namespace:
-    """Parse command-line arguments.
-    
-    Returns:
-        Parsed arguments
-    """
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(
         description='Documentation Maintenance Toolkit - Unified quality & build system',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -1262,11 +1029,7 @@ For more information, see the documentation or run with --help.
 
 
 def main() -> int:
-    """Main entry point.
-    
-    Returns:
-        Exit code
-    """
+    """Main entry point."""
     # Parse arguments
     args = parse_arguments()
     

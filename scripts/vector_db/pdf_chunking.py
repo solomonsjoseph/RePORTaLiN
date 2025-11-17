@@ -1,26 +1,4 @@
-"""
-PDF Chunking and Processing for Annotated Clinical Forms.
-
-This module provides intelligent chunking strategies for annotated PDFs of clinical
-trial forms. It extracts text, preserves metadata (filename, page numbers, folder structure),
-and chunks content appropriately for embedding models.
-
-Key Features:
-    - Multi-library PDF extraction (pypdf, pdfplumber with fallback)
-    - Page-level and section-level chunking
-    - Metadata preservation (filename, page, folder path)
-    - Integration with existing TextChunker for consistent token counting
-    - Support for annotated clinical forms with structured extraction
-    - Robust error handling and logging
-
-Folder Structure Preservation:
-    - Original folder paths are preserved in metadata
-    - Example: data/Indo-VAP/annotated_pdfs/1A Index Case Screening v1.0.pdf
-    - Metadata includes: {"folder": "Indo-VAP/annotated_pdfs", "filename": "1A Index...pdf"}
-
-Author: RePORTaLiN Development Team
-Date: January 2025
-"""
+"""PDF chunking and processing for annotated documents."""
 
 import re
 from typing import List, Dict, Any, Optional, Tuple
@@ -55,33 +33,7 @@ vlog = log.get_verbose_logger()
 
 @dataclass
 class PDFChunk(TextChunk):
-    """
-    Extends TextChunk with PDF-specific metadata.
-    
-    Attributes:
-        text (str): The chunk text content
-        metadata (dict): Metadata about the chunk
-        token_count (int): Number of tokens in the chunk
-        chunk_index (int): Index of chunk within document
-        source_file (str): Original PDF file name
-        chunk_strategy (str): Strategy used to create this chunk
-        page_number (int): Page number in PDF (1-based)
-        folder_path (str): Relative folder path (e.g., "Indo-VAP/annotated_pdfs")
-        form_code (str): Extracted form code (e.g., "1A", "2B", "95")
-        form_title (str): Extracted form title
-    
-    Example:
-        >>> from scripts.vector_db.pdf_chunking import PDFChunk
-        >>> chunk = PDFChunk(
-        ...     text="Index Case Screening Form...",
-        ...     metadata={"folder": "Indo-VAP/annotated_pdfs"},
-        ...     page_number=1,
-        ...     form_code="1A",
-        ...     form_title="Index Case Screening"
-        ... )
-        >>> chunk.form_code
-        '1A'
-    """
+    """PDF chunk with page and form metadata."""
     page_number: int = 1
     folder_path: str = ""
     form_code: str = ""
@@ -100,29 +52,7 @@ class PDFChunk(TextChunk):
 
 
 class PDFChunker:
-    """
-    PDF chunking for annotated clinical forms with metadata preservation.
-    
-    This class handles extraction and chunking of PDF documents, specifically
-    designed for annotated clinical trial forms. It preserves folder structure,
-    extracts form metadata, and creates appropriately-sized chunks.
-    
-    Attributes:
-        text_chunker (TextChunker): Underlying text chunker for token counting
-        chunk_size (int): Target chunk size in tokens
-        chunk_overlap (int): Overlap between chunks in tokens
-        extraction_method (str): PDF extraction method ('pypdf', 'pdfplumber', 'auto')
-        preserve_page_boundaries (bool): Whether to keep page boundaries intact
-        
-    Example:
-        >>> from pathlib import Path
-        >>> from scripts.vector_db.pdf_chunking import PDFChunker
-        >>> pdf_chunker = PDFChunker(chunk_size=512, chunk_overlap=50)
-        >>> pdf_path = Path("data/Indo-VAP/annotated_pdfs/1A Index Case Screening v1.0.pdf")
-        >>> chunks = pdf_chunker.chunk_pdf(pdf_path, base_path=Path("data"))
-        >>> len(chunks) > 0
-        True
-    """
+    """PDF chunking for annotated documents with metadata preservation."""
     
     # Pre-compiled regex patterns for performance
     _PATTERN_WHITESPACE = re.compile(r' +')
@@ -142,21 +72,7 @@ class PDFChunker:
         encoding_name: str = "cl100k_base",
         verbose: bool = False
     ):
-        """
-        Initialize PDF chunker.
-        
-        Args:
-            chunk_size: Target chunk size in tokens. Default 1024 (optimized for clinical data).
-            chunk_overlap: Overlap between chunks in tokens. Default 150 (preserves context).
-            extraction_method: PDF extraction method ('pypdf', 'pdfplumber', 'auto').
-            preserve_page_boundaries: Keep chunks within page boundaries. Default True.
-            encoding_name: Tiktoken encoding name. Default 'cl100k_base'.
-            verbose: Enable verbose debugging output. Default False.
-        
-        Raises:
-            RuntimeError: If no PDF extraction libraries are available
-            ValueError: If invalid extraction method specified
-        """
+        """Initialize PDF chunker."""
         if extraction_method not in ["pypdf", "pdfplumber", "auto"]:
             raise ValueError(
                 f"Invalid extraction_method '{extraction_method}'. "
@@ -207,18 +123,7 @@ class PDFChunker:
         )
     
     def extract_text_pypdf(self, pdf_path: Path) -> List[Tuple[int, str]]:
-        """
-        Extract text from PDF using pypdf.
-        
-        Args:
-            pdf_path: Path to PDF file
-        
-        Returns:
-            List of (page_number, text) tuples (1-based page numbers)
-        
-        Raises:
-            Exception: If PDF extraction fails
-        """
+        """Extract text from PDF using pypdf."""
         if not PYPDF_AVAILABLE:
             raise RuntimeError("pypdf not available")
         
@@ -251,21 +156,7 @@ class PDFChunker:
             raise
     
     def extract_text_pdfplumber(self, pdf_path: Path) -> List[Tuple[int, str]]:
-        """
-        Extract text from PDF using pdfplumber.
-        
-        pdfplumber provides better text extraction for complex layouts
-        and preserves more formatting information.
-        
-        Args:
-            pdf_path: Path to PDF file
-        
-        Returns:
-            List of (page_number, text) tuples (1-based page numbers)
-        
-        Raises:
-            Exception: If PDF extraction fails
-        """
+        """Extract text from PDF using pdfplumber."""
         if not PDFPLUMBER_AVAILABLE:
             raise RuntimeError("pdfplumber not available")
         
@@ -293,30 +184,7 @@ class PDFChunker:
             raise
     
     def extract_text(self, pdf_path: Path) -> List[Tuple[int, str]]:
-        """
-        Extract text from PDF using configured extraction method.
-        
-        Automatically dispatches to pypdf or pdfplumber based on the extraction_method
-        setting. This is the primary entry point for PDF text extraction.
-        
-        Args:
-            pdf_path: Path to PDF file
-        
-        Returns:
-            List of (page_number, text) tuples (1-based page numbers)
-        
-        Raises:
-            RuntimeError: If extraction method not available
-            Exception: If PDF extraction fails
-        
-        Example:
-            >>> from pathlib import Path
-            >>> from scripts.vector_db.pdf_chunking import PDFChunker
-            >>> chunker = PDFChunker(extraction_method="auto")
-            >>> pages = chunker.extract_text(Path("data/sample.pdf"))
-            >>> isinstance(pages, list)
-            True
-        """
+        """Extract text from PDF using configured extraction method."""
         if self.extraction_method == "pypdf":
             return self.extract_text_pypdf(pdf_path)
         elif self.extraction_method == "pdfplumber":
@@ -332,28 +200,7 @@ class PDFChunker:
         pdf_path: Path,
         table_settings: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
-        """
-        Extract structured tables from PDF using pdfplumber.
-        
-        This method extracts tables from clinical trial PDFs, preserving structure
-        and metadata for each table.
-        
-        Args:
-            pdf_path: Path to PDF file
-            table_settings: Optional pdfplumber table extraction settings
-        
-        Returns:
-            List of table dictionaries with metadata:
-                - page_number: Page where table was found
-                - table_index: Index of table on the page
-                - data: 2D list of table cells
-                - source_file: PDF filename
-        
-        Example:
-            >>> tables = chunker.extract_tables(pdf_path)
-            >>> tables[0]['data']
-            [['Header1', 'Header2'], ['Value1', 'Value2']]
-        """
+        """Extract structured tables from PDF using pdfplumber."""
         if not PDFPLUMBER_AVAILABLE:
             logger.warning("pdfplumber not available. Cannot extract tables.")
             return []
@@ -396,23 +243,7 @@ class PDFChunker:
             return []
     
     def extract_form_fields(self, pdf_path: Path) -> Dict[str, Any]:
-        """
-        Extract PDF AcroForm field values from annotated clinical forms.
-        
-        Extracts fillable form fields (text inputs, checkboxes, etc.) from
-        PDF documents using pdfplumber and pdfminer internals.
-        
-        Args:
-            pdf_path: Path to PDF file
-        
-        Returns:
-            Dictionary mapping field names to their values
-        
-        Example:
-            >>> fields = chunker.extract_form_fields(pdf_path)
-            >>> fields.get('patient_name')
-            'John Doe'
-        """
+        """Extract PDF AcroForm field values from annotated documents."""
         if not PDFPLUMBER_AVAILABLE:
             logger.warning("pdfplumber not available. Cannot extract form fields.")
             return {}
@@ -479,25 +310,7 @@ class PDFChunker:
             return {}
     
     def enrich_metadata(self, pdf_path: Path, base_metadata: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Enrich chunk metadata with PDF-level information.
-        
-        Adds PDF document metadata (author, creation date, etc.) to improve
-        RAG retrieval accuracy.
-        
-        Args:
-            pdf_path: Path to PDF file
-            base_metadata: Existing metadata dictionary to enrich
-        
-        Returns:
-            Enriched metadata dictionary
-        
-        Example:
-            >>> metadata = {}
-            >>> enriched = chunker.enrich_metadata(pdf_path, metadata)
-            >>> enriched.get('Author')
-            'Clinical Research Team'
-        """
+        """Enrich chunk metadata with PDF document properties."""
         if not PDFPLUMBER_AVAILABLE:
             logger.warning("pdfplumber not available. Cannot enrich metadata.")
             return base_metadata
@@ -519,25 +332,7 @@ class PDFChunker:
             return base_metadata
     
     def validate_chunks(self, chunks: List[PDFChunk]) -> Dict[str, Any]:
-        """
-        Validate chunk quality and return metrics.
-        
-        Analyzes chunks to ensure they are well-formed, semantic, and suitable
-        for RAG embedding.
-        
-        Args:
-            chunks: List of PDFChunk objects to validate
-        
-        Returns:
-            Dictionary of validation metrics
-        
-        Example:
-            >>> metrics = chunker.validate_chunks(chunks)
-            >>> metrics['total_chunks']
-            15
-            >>> metrics['avg_token_count']
-            512.3
-        """
+        """Validate chunk quality and return metrics."""
         if not chunks:
             return {
                 "total_chunks": 0,
@@ -580,12 +375,7 @@ class PDFChunker:
         return metrics
     
     def _log_chunking_stats(self, chunks: List[PDFChunk]) -> None:
-        """
-        Log detailed chunking statistics in verbose mode.
-        
-        Args:
-            chunks: List of PDFChunk objects
-        """
+        """Log detailed chunking statistics in verbose mode."""
         if not chunks or not self.verbose:
             return
         
@@ -609,18 +399,7 @@ class PDFChunker:
         vlog("=" * 60)
     
     def _clean_extracted_text(self, text: str) -> str:
-        """
-        Clean up extracted PDF text.
-        
-        Removes excessive whitespace, normalizes line breaks, and cleans
-        common PDF extraction artifacts.
-        
-        Args:
-            text: Raw extracted text
-        
-        Returns:
-            Cleaned text
-        """
+        """Clean up extracted PDF text."""
         if not text:
             return ""
         
@@ -645,40 +424,7 @@ class PDFChunker:
         text: str, 
         filename: Optional[str] = None
     ) -> Dict[str, Any]:
-        """
-        Automatically detect document structure from text and filename.
-        
-        Detects headers, sections, and form metadata without hardcoded profiles.
-        This replaces the old hardcoded form profile approach for dynamic PDF handling.
-        
-        Args:
-            text: Extracted PDF text
-            filename: Optional PDF filename (for fallback form code extraction)
-        
-        Returns:
-            Dictionary with detected structure:
-                - form_code: Extracted form code (e.g., "1A", "2B")
-                - form_title: Extracted form title
-                - sections: List of detected sections
-                - has_numbered_sections: Whether roman numeral sections found
-                - has_lettered_sections: Whether lettered sections found
-        
-        Example:
-            >>> from scripts.vector_db.pdf_chunking import PDFChunker
-            >>> chunker = PDFChunker()
-            >>> text = "1A Index Case Screening\\n\\nI. DEMOGRAPHICS\\nAge: 45\\n\\nII. MEDICAL HISTORY"
-            >>> structure = chunker._detect_document_structure(text)
-            >>> structure['form_code']
-            '1A'
-            >>> len(structure['sections'])
-            2
-        
-        .. versionadded:: 0.3.0
-           Dynamic structure detection replaces hardcoded form profiles.
-        
-        .. versionchanged:: 0.3.1
-           Added filename parameter for fallback form code extraction.
-        """
+        """Detect document structure from text and filename."""
         structure = {
             "form_code": None,
             "form_title": None,
@@ -788,31 +534,7 @@ class PDFChunker:
         folder_path: str,
         source_file: str
     ) -> List[PDFChunk]:
-        """
-        Chunk text based on detected document structure.
-        
-        Uses automatically detected sections to create semantic chunks.
-        Falls back to fixed-size chunking if no structure detected.
-        
-        Args:
-            text: Text to chunk
-            structure: Detected document structure
-            page_number: Page number
-            base_metadata: Base metadata for chunks
-            folder_path: Folder path
-            source_file: Source file name
-        
-        Returns:
-            List of PDFChunk objects
-        
-        Strategy:
-            1. If sections detected → chunk at section boundaries
-            2. Otherwise → use fixed-size chunking (1024 tokens)
-            3. Preserve section titles in metadata
-        
-        .. versionadded:: 0.3.0
-           Structure-based chunking for dynamic PDF handling.
-        """
+        """Chunk text based on detected document structure."""
         chunks = []
         form_code = structure.get("form_code", "")
         form_title = structure.get("form_title", "")
@@ -910,26 +632,7 @@ class PDFChunker:
         chunk_index: int,
         base_metadata: Dict[str, Any]
     ) -> PDFChunk:
-        """
-        Create a PDFChunk with all metadata.
-        
-        Args:
-            text: Chunk text
-            section_title: Section title (if detected)
-            form_code: Form code
-            form_title: Form title
-            page_number: Page number
-            folder_path: Folder path
-            source_file: Source file name
-            chunk_index: Chunk index
-            base_metadata: Base metadata
-        
-        Returns:
-            PDFChunk object
-        
-        .. versionadded:: 0.3.0
-           Helper method for chunk creation.
-        """
+        """Create a PDFChunk with all metadata."""
         token_count = self.text_chunker.count_tokens(text)
         
         # Create chunk metadata
@@ -959,30 +662,7 @@ class PDFChunker:
         base_path: Optional[Path] = None,
         metadata: Optional[Dict[str, Any]] = None
     ) -> List[PDFChunk]:
-        """
-        Extract and chunk a PDF file.
-        
-        Extracts text from PDF, preserves folder structure and metadata,
-        and creates appropriately-sized chunks for embedding.
-        
-        Args:
-            pdf_path: Path to PDF file
-            base_path: Base path for computing relative folder path. If None,
-                      uses parent directory of pdf_path.
-            metadata: Optional additional metadata to include in all chunks
-        
-        Returns:
-            List of PDFChunk objects
-        
-        Example:
-            >>> from pathlib import Path
-            >>> from scripts.vector_db.pdf_chunking import PDFChunker
-            >>> chunker = PDFChunker()
-            >>> pdf_path = Path("data/Indo-VAP/annotated_pdfs/1A Index Case Screening v1.0.pdf")
-            >>> chunks = chunker.chunk_pdf(pdf_path, base_path=Path("data"))
-            >>> chunks[0].folder_path
-            'Indo-VAP/annotated_pdfs'
-        """
+        """Extract and chunk a PDF file."""
         if not pdf_path.exists():
             raise FileNotFoundError(f"PDF not found: {pdf_path}")
         
@@ -1126,34 +806,7 @@ class PDFChunker:
         recursive: bool = True,
         pattern: str = "*.pdf"
     ) -> Dict[str, List[PDFChunk]]:
-        """
-        Chunk all PDFs in a directory.
-        
-        Processes all PDF files in a directory and returns chunks organized
-        by filename. Preserves folder structure in metadata.
-        
-        Args:
-            directory: Directory containing PDFs
-            base_path: Base path for computing relative folder paths
-            recursive: Search subdirectories recursively. Default True.
-            pattern: File pattern to match. Default "*.pdf".
-        
-        Returns:
-            Dictionary mapping PDF filename to list of chunks
-        
-        Example:
-            >>> from pathlib import Path
-            >>> from scripts.vector_db.pdf_chunking import PDFChunker
-            >>> chunker = PDFChunker()
-            >>> base_dir = Path("data/Indo-VAP/annotated_pdfs")
-            >>> chunks_by_file = chunker.chunk_pdf_directory(
-            ...     base_dir, 
-            ...     base_path=Path("data"),
-            ...     recursive=False
-            ... )
-            >>> len(chunks_by_file) > 0
-            True
-        """
+        """Chunk all PDFs in a directory."""
         if not directory.exists():
             raise FileNotFoundError(f"Directory not found: {directory}")
         

@@ -1,55 +1,4 @@
-"""
-Data Dictionary Loader Module
-==============================
-
-Processes data dictionary Excel files, intelligently splitting sheets into multiple 
-tables based on structural boundaries and saving in JSONL format.
-
-This module provides intelligent table detection and extraction from complex Excel
-layouts, automatically handling multi-table sheets, "ignore below" markers, and
-duplicate column naming.
-
-Public API
-----------
-The module exports 2 main functions via ``__all__``:
-
-- ``load_study_dictionary``: High-level function to process dictionary files
-- ``process_excel_file``: Low-level function for custom processing workflows
-
-Key Features
-------------
-- **Multi-table Detection**: Automatically splits sheets with multiple tables
-- **Boundary Detection**: Uses empty rows/columns to identify table boundaries
-- **"Ignore Below" Support**: Handles special markers to segregate extra tables
-- **Duplicate Column Handling**: Automatically deduplicates column names
-- **Progress Tracking**: Real-time progress bars
-- **Verbose Logging**: Detailed tree-view logs with timing (v0.0.12+)
-- **Metadata Injection**: Adds ``__sheet__`` and ``__table__`` fields
-
-Verbose Mode
-------------
-When running with ``--verbose`` flag, detailed logs are generated including
-sheet-by-sheet processing, table detection results (rows/columns), "ignore below"
-marker detection, and timing for sheets, tables, and overall processing.
-
-Table Detection Algorithm
--------------------------
-The module uses a sophisticated algorithm to detect tables:
-
-1. Identify horizontal strips (separated by empty rows)
-2. Within each strip, identify vertical sections (separated by empty columns)
-3. Extract each non-empty section as a separate table
-4. Deduplicate column names by appending numeric suffixes
-5. Check for "ignore below" markers and segregate subsequent tables
-6. Add metadata fields and save to JSONL
-
-See Also
---------
-- :doc:`../user_guide/usage` - Usage and detailed tutorials
-- :func:`load_study_dictionary` - High-level dictionary processing function
-- :func:`process_excel_file` - Low-level custom processing
-- :mod:`scripts.extract_data` - For dataset extraction
-"""
+"""Data dictionary loader with multi-table detection and JSONL export."""
 
 __all__ = ['load_study_dictionary', 'process_excel_file']
 
@@ -72,15 +21,7 @@ METADATA_SHEET_KEY = "__sheet__"
 METADATA_TABLE_KEY = "__table__"
 
 def _deduplicate_columns(columns) -> List[str]:
-    """
-    Make column names unique by appending numeric suffixes to duplicates.
-    
-    Args:
-        columns: List of column names (may contain duplicates or NaN values)
-        
-    Returns:
-        List of unique column names with numeric suffixes where needed
-    """
+    """Make column names unique by appending numeric suffixes to duplicates."""
     new_cols, counts = [], {}
     for col in columns:
         col_str = str(col) if pd.notna(col) else UNNAMED_COLUMN_PREFIX
@@ -93,24 +34,7 @@ def _deduplicate_columns(columns) -> List[str]:
     return new_cols
 
 def _split_sheet_into_tables(df: pd.DataFrame) -> List[pd.DataFrame]:
-    """
-    Split DataFrame into multiple tables based on empty row/column boundaries.
-    
-    This function uses empty rows and columns as natural boundaries to detect and
-    extract separate tables from a complex Excel sheet layout.
-    
-    Args:
-        df: DataFrame to split into separate tables
-        
-    Returns:
-        List of DataFrames, each representing a detected table. Returns empty list
-        if the input DataFrame is empty or if structural errors occur during processing.
-    
-    Note:
-        - Handles KeyError and IndexError gracefully by returning empty list
-        - Logs detailed debug information for troubleshooting
-        - Empty DataFrames are filtered out from results
-    """
+    """Split DataFrame into multiple tables based on empty row/column boundaries."""
     try:
         if df.empty:
             log.debug("Received empty DataFrame, returning empty table list")
@@ -150,29 +74,7 @@ def _split_sheet_into_tables(df: pd.DataFrame) -> List[pd.DataFrame]:
         return []
 
 def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, output_dir: str) -> None:
-    """
-    Process detected tables, apply filters, add metadata, and save to JSONL files.
-    
-    This function handles the complete workflow of processing tables including:
-    - Creating output directories (with error handling)
-    - Detecting "ignore below" markers and segregating extra tables to 'extras' subdirectory
-    - Deduplicating column names
-    - Adding metadata fields (__sheet__ and __table__)
-    - Writing JSONL files with comprehensive error handling
-    
-    Args:
-        all_tables: List of DataFrames representing detected tables
-        sheet_name: Name of the Excel sheet being processed
-        output_dir: Directory where JSONL files will be saved
-    
-    Note:
-        - Gracefully handles directory creation failures (OSError, PermissionError)
-        - Continues processing remaining tables if individual table errors occur
-        - Validates table row counts before processing to prevent IndexError
-        - Handles file write errors (IOError, OSError, PermissionError) without stopping
-        - Skips empty tables and existing files automatically
-        - Uses verbose logging when enabled for detailed progress tracking
-    """
+    """Process detected tables, apply filters, add metadata, and save to JSONL files."""
     folder_name = "".join(c for c in sheet_name if c.isalnum() or c in "._- ").strip()
     sheet_dir = os.path.join(output_dir, folder_name)
     
@@ -266,30 +168,7 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
             vlog.timing("Table processing time", table_elapsed)
 
 def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = True) -> bool:
-    """
-    Extract all tables from an Excel file and save as JSONL files.
-    
-    This function orchestrates the complete Excel processing workflow with robust
-    error handling and progress tracking. Uses a context manager for safe Excel
-    file handling with automatic resource cleanup.
-    
-    Args:
-        excel_path: Path to the Excel file to process
-        output_dir: Directory where output JSONL files will be saved
-        preserve_na: If True, preserve empty cells as None; if False, use pandas defaults
-        
-    Returns:
-        True if all sheets processed successfully without errors, False if any errors
-        occurred during processing (file read failures, sheet processing errors, etc.)
-    
-    Note:
-        - Uses context manager (with statement) for safe Excel file resource handling
-        - Continues processing remaining sheets even if individual sheets fail
-        - Provides progress bars (tqdm) and verbose logging when enabled
-        - Creates output directory automatically if it doesn't exist
-        - Does not raise exceptions; returns False on errors instead
-        - Tracks overall success state and logs final status
-    """
+    """Extract all tables from an Excel file and save as JSONL files."""
     overall_start = time.time()
     
     log.info(f"Processing: '{excel_path}'")
@@ -356,23 +235,7 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
 def load_study_dictionary(file_path: Optional[str] = None, 
                          json_output_dir: Optional[str] = None, 
                          preserve_na: bool = True) -> bool:
-    """
-    Load and process study data dictionary from Excel to JSONL format.
-    
-    This is the primary high-level interface for dictionary processing. It wraps
-    :func:`process_excel_file` with default configuration values from the config module.
-    
-    Args:
-        file_path: Path to Excel file (defaults to config.DICTIONARY_EXCEL_FILE)
-        json_output_dir: Output directory (defaults to config.DICTIONARY_JSON_OUTPUT_DIR)
-        preserve_na: If True, preserve empty cells as None; if False, use pandas defaults
-        
-    Returns:
-        True if all sheets processed successfully, False if any errors occurred
-    
-    See Also:
-        :func:`process_excel_file` - Lower-level processing function for custom workflows
-    """
+    """Load and process study data dictionary from Excel to JSONL format."""
     success = process_excel_file(
         excel_path=file_path or config.DICTIONARY_EXCEL_FILE,
         output_dir=json_output_dir or config.DICTIONARY_JSON_OUTPUT_DIR,

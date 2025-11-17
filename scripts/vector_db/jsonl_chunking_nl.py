@@ -1,27 +1,4 @@
-"""
-Text Chunking Strategies for Clinical Trial Data
-==================================================
-
-This module provides intelligent chunking strategies for clinical trial data,
-specifically designed for nested JSON structures from clinical forms. It preserves
-metadata and ensures chunks are semantically meaningful and appropriately sized
-for embedding models.
-
-Chunking Strategies:
-    1. Fixed-size: Split text into fixed token lengths with overlap
-    2. Semantic: Split on form fields/sections (preserves structure)
-    3. Hybrid: Combine semantic boundaries with max size limits
-
-Key Features:
-    - Token counting (tiktoken)
-    - Metadata preservation (form name, subject ID, fields)
-    - Multiple chunking strategies
-    - Configurable chunk size and overlap
-    - Handling of nested JSON structures
-
-Author: RePORTaLiN Development Team
-Date: November 2025
-"""
+"""Text chunking strategies for JSONL records."""
 
 import json
 import math
@@ -41,28 +18,7 @@ vlog = log.get_verbose_logger()
 
 @dataclass
 class TextChunk:
-    """
-    Represents a chunk of text with associated metadata.
-    
-    Attributes:
-        text (str): The chunk text content
-        metadata (dict): Metadata about the chunk (form, subject, fields, etc.)
-        token_count (int): Number of tokens in the chunk
-        chunk_index (int): Index of chunk within document (0-based)
-        source_file (str): Original JSONL file name
-        chunk_strategy (str): Strategy used to create this chunk
-    
-    Example:
-        >>> from scripts.vector_db.jsonl_chunking_nl import TextChunk
-        >>> chunk = TextChunk(
-        ...     text="Patient has cough and fever",
-        ...     metadata={"form": "1A_ICScreening", "subject_id": "SUBJ_001"},
-        ...     token_count=7,
-        ...     chunk_index=0
-        ... )
-        >>> chunk.token_count
-        7
-    """
+    """Text chunk with metadata."""
     text: str
     metadata: Dict[str, Any] = field(default_factory=dict)
     token_count: int = 0
@@ -91,27 +47,7 @@ class TextChunk:
 
 
 class TextChunker:
-    """
-    Text chunking for clinical forms with multiple strategies.
-    
-    This class handles chunking of clinical form data (JSONL records) into
-    appropriately-sized pieces for embedding models. It preserves metadata
-    and supports multiple chunking strategies.
-    
-    Attributes:
-        chunk_size (int): Target chunk size in tokens
-        chunk_overlap (int): Overlap between chunks in tokens
-        strategy (str): Chunking strategy ('fixed', 'semantic', or 'hybrid')
-        encoding (tiktoken.Encoding): Tokenizer for counting tokens
-        
-    Example:
-        >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-        >>> chunker = TextChunker(chunk_size=512, chunk_overlap=50)
-        >>> record = {"form_name": "1A_ICScreening", "age": 45}
-        >>> chunks = chunker.chunk_record(record)
-        >>> len(chunks)
-        1
-    """
+    """Text chunking for JSONL records with multiple strategies."""
     
     def __init__(
         self,
@@ -120,18 +56,7 @@ class TextChunker:
         strategy: str = "hybrid",
         encoding_name: str = "cl100k_base"
     ):
-        """
-        Initialize text chunker.
-        
-        Args:
-            chunk_size: Target chunk size in tokens. Default 1024 (optimized for clinical data).
-            chunk_overlap: Overlap between chunks in tokens. Default 150 (preserves context).
-            strategy: Default chunking strategy ('fixed', 'semantic', 'hybrid').
-            encoding_name: Tiktoken encoding name. Default 'cl100k_base' (GPT-3.5/4).
-        
-        Raises:
-            ValueError: If invalid strategy or parameters provided
-        """
+        """Initialize text chunker with specified parameters."""
         if chunk_size <= 0:
             raise ValueError(f"chunk_size must be positive, got {chunk_size}")
         if chunk_overlap < 0 or chunk_overlap >= chunk_size:
@@ -171,22 +96,7 @@ class TextChunker:
         )
     
     def count_tokens(self, text: str) -> int:
-        """
-        Count tokens in text using tiktoken.
-        
-        Args:
-            text: Text to count tokens for
-        
-        Returns:
-            Number of tokens
-        
-        Example:
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> chunker = TextChunker()
-            >>> count = chunker.count_tokens("Patient has TB symptoms")
-            >>> count
-            5
-        """
+        """Count tokens in text using tiktoken."""
         if not text:
             return 0
         return len(self.encoding.encode(text))
@@ -197,42 +107,7 @@ class TextChunker:
         include_entity_prefix: bool = True,
         entity_id_fields: Optional[List[str]] = None
     ) -> str:
-        """
-        Convert JSON record to natural language sentence.
-        
-        Transforms structured data into human-readable text suitable for embedding.
-        Works with ANY JSON structure - clinical, business, IoT, etc.
-        
-        Args:
-            record: Dictionary from JSONL file containing structured data
-            include_entity_prefix: Whether to include entity identifier prefix
-            entity_id_fields: Custom list of ID field names to try (if None, uses defaults)
-        
-        Returns:
-            Natural language sentence representing the record
-        
-        Examples:
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> chunker = TextChunker()
-            >>> 
-            >>> # Clinical data
-            >>> record = {"SUBJID": "10200001B", "HC_SMOKHX": "No, never", "IC_AGE": 45}
-            >>> chunker.json_to_natural_language(record)
-            'Patient 10200001B. Age: 45. Smoking history: No, never.'
-            >>> 
-            >>> # E-commerce data
-            >>> record = {"order_id": "ORD-123", "customer_name": "John Doe", "total": 99.99}
-            >>> chunker.json_to_natural_language(record)
-            'Order ORD-123. Customer name: John Doe. Total: 99.99.'
-            >>> 
-            >>> # IoT sensor data
-            >>> record = {"sensor_id": "TEMP-01", "temperature": 22.5, "humidity": 65}
-            >>> chunker.json_to_natural_language(record)
-            'Sensor TEMP-01. Temperature: 22.5. Humidity: 65.'
-        
-        .. versionadded:: 0.3.0
-           Generic JSON-to-NL converter for vector database integration.
-        """
+        """Convert JSON record to natural language sentence."""
         if not record:
             return ""
         
@@ -350,41 +225,7 @@ class TextChunker:
         return ". ".join(sentences) + "."
     
     def _humanize_field_name(self, field_name: str) -> str:
-        """
-        Convert field names to readable format.
-        
-        Transforms abbreviated or technical field names into human-readable text.
-        Works with multiple naming conventions: snake_case, camelCase, PascalCase.
-        
-        Args:
-            field_name: Original field name (e.g., "HC_SMOKHX", "orderDate", "CustomerName")
-        
-        Returns:
-            Humanized field name (e.g., "Smoking history", "Order date", "Customer name")
-        
-        Examples:
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> chunker = TextChunker()
-            >>> 
-            >>> # Clinical abbreviations
-            >>> chunker._humanize_field_name("HC_SMOKHX")
-            'Smoking history'
-            >>> 
-            >>> # Snake case
-            >>> chunker._humanize_field_name("customer_email_address")
-            'Customer Email Address'
-            >>> 
-            >>> # Camel case
-            >>> chunker._humanize_field_name("orderTotalAmount")
-            'Order Total Amount'
-            >>> 
-            >>> # Pascal case
-            >>> chunker._humanize_field_name("DeviceSerialNumber")
-            'Device Serial Number'
-        
-        .. versionadded:: 0.3.0
-           Generic field name humanizer for any domain.
-        """
+        """Convert field names to readable format."""
         if not field_name:
             return ""
         
@@ -480,26 +321,7 @@ class TextChunker:
         return " ".join(result_words)
     
     def _flatten_dict_to_nl(self, d: Dict[str, Any], parent_key: str = "") -> str:
-        """
-        Recursively flatten nested dictionary to natural language.
-        
-        Args:
-            d: Dictionary to flatten
-            parent_key: Parent key for nested structure
-        
-        Returns:
-            Flattened natural language representation
-        
-        Example:
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> chunker = TextChunker()
-            >>> nested = {"symptoms": {"cough": "Yes", "fever": "No"}}
-            >>> chunker._flatten_dict_to_nl(nested)
-            'Symptoms: Cough: Yes. Fever: No'
-        
-        .. versionadded:: 0.3.0
-           Helper for JSON-to-NL conversion.
-        """
+        """Recursively flatten nested dictionary to natural language."""
         parts = []
         
         for key, value in d.items():
@@ -526,25 +348,7 @@ class TextChunker:
         strategy: Optional[str] = None,
         source_file: Optional[str] = None
     ) -> List[TextChunk]:
-        """
-        Chunk a single JSONL record using specified strategy.
-        
-        Args:
-            record: Dictionary from JSONL file
-            strategy: Override default chunking strategy
-            source_file: Original file name (for metadata)
-        
-        Returns:
-            List of TextChunk objects
-        
-        Example:
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> record = {"form_name": "1A_ICScreening", "subject_id": "SUBJ_001"}
-            >>> chunker = TextChunker()
-            >>> chunks = chunker.chunk_record(record)
-            >>> len(chunks)
-            1
-        """
+        """Chunk a single JSONL record using specified strategy."""
         strategy = strategy or self.strategy
         
         # Extract metadata
@@ -587,19 +391,7 @@ class TextChunker:
         text: str,
         metadata: Dict[str, Any]
     ) -> List[TextChunk]:
-        """
-        Chunk text by semantic boundaries (sentences/fields).
-        
-        Preserves natural boundaries and doesn't split mid-sentence.
-        Each chunk is a complete semantic unit.
-        
-        Args:
-            text: Text to chunk
-            metadata: Metadata to attach to chunks
-        
-        Returns:
-            List of TextChunk objects
-        """
+        """Chunk text by semantic boundaries preserving sentence structure."""
         # Split on sentence boundaries (periods followed by space)
         sentences = text.split(". ")
         
@@ -654,19 +446,7 @@ class TextChunker:
         text: str,
         metadata: Dict[str, Any]
     ) -> List[TextChunk]:
-        """
-        Chunk text with fixed size and overlap.
-        
-        Uses RecursiveCharacterTextSplitter for intelligent splitting
-        with overlap for context preservation.
-        
-        Args:
-            text: Text to chunk
-            metadata: Metadata to attach to chunks
-        
-        Returns:
-            List of TextChunk objects
-        """
+        """Chunk text with fixed size and overlap using RecursiveCharacterTextSplitter."""
         # Use langchain's splitter
         text_chunks = self.text_splitter.split_text(text)
         
@@ -688,19 +468,7 @@ class TextChunker:
         text: str,
         metadata: Dict[str, Any]
     ) -> List[TextChunk]:
-        """
-        Hybrid chunking: semantic boundaries with size limits.
-        
-        Tries to chunk by semantic boundaries (sentences), but enforces
-        maximum size limits by splitting long chunks.
-        
-        Args:
-            text: Text to chunk
-            metadata: Metadata to attach to chunks
-        
-        Returns:
-            List of TextChunk objects
-        """
+        """Hybrid chunking combining semantic boundaries with size limits."""
         # First try semantic chunking
         semantic_chunks = self._chunk_semantic(text, metadata)
         
@@ -736,27 +504,7 @@ class TextChunker:
         strategy: Optional[str] = None,
         max_records: Optional[int] = None
     ) -> List[TextChunk]:
-        """
-        Chunk all records from a JSONL file.
-        
-        Args:
-            jsonl_path: Path to JSONL file
-            strategy: Override default chunking strategy
-            max_records: Maximum records to process (for testing)
-        
-        Returns:
-            List of all chunks from all records
-        
-        Example:
-            >>> from pathlib import Path
-            >>> from scripts.vector_db.jsonl_chunking_nl import TextChunker
-            >>> chunker = TextChunker()
-            >>> chunks = chunker.chunk_jsonl_file(
-            ...     Path("output/Indo-VAP/cleaned/1A_ICScreening.jsonl")
-            ... )
-            >>> len(chunks)
-            150
-        """
+        """Chunk all records from a JSONL file."""
         jsonl_path = Path(jsonl_path)
         
         if not jsonl_path.exists():

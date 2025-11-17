@@ -1,113 +1,4 @@
-"""
-Enhanced Centralized Logging Module
-====================================
-
-Production-grade logging system with organized folder structure, log rotation,
-exception handling, and comprehensive monitoring capabilities.
-
-New in v0.1.0 (Enhanced):
-- Organized log folder structure by pipeline stage
-- Automatic log rotation with size limits
-- Enhanced exception logging with full stack traces
-- Thread/Process ID tracking
-- Environment variable configuration
-- Structured logging (JSON) support
-- Performance timing decorators
-- Error handling decorators
-
-Log Folder Structure
--------------------
-Default Mode (verbose=False):
-.logs/
-└── RePORTaLiN/
-    └── reportalin_YYYYMMDD_HHMMSS.log    # Single main log file
-
-Verbose Mode (verbose=True):
-.logs/
-└── RePORTaLiN/
-    ├── data_cleaning_and_processing/   # Data pipeline logs
-    │   ├── extract_data_YYYYMMDD_HHMMSS.log
-    │   ├── load_dictionary_YYYYMMDD_HHMMSS.log
-    │   └── deidentify_YYYYMMDD_HHMMSS.log
-    │
-    ├── RAG/
-    │   └── data_ingestion/              # RAG ingestion logs
-    │       ├── pdf_chunking_YYYYMMDD_HHMMSS.log
-    │       ├── embeddings_YYYYMMDD_HHMMSS.log
-    │       └── ingest_pdfs_YYYYMMDD_HHMMSS.log
-    │
-    └── main/                            # Main application logs
-        └── reportalin_main_YYYYMMDD_HHMMSS.log
-
-Key Features
-------------
-- **Organized Structure**: Logs organized by pipeline stage and module
-- **Auto Rotation**: Automatic log rotation (10MB per file, 10 backups)
-- **Log Cleanup**: Automatic cleanup of old log files by age or count
-- **Exception Tracking**: Full stack traces with exc_info
-- **Thread Safety**: Thread/Process IDs in all logs
-- **Custom SUCCESS Level**: Between INFO and WARNING
-- **Dual Output**: File (detailed) and Console (clean)
-- **Environment Config**: LOG_LEVEL, LOG_DIR, LOG_FORMAT support
-- **Performance Tracking**: @log_time decorator for automatic timing
-- **Error Handling**: @log_errors decorator for automatic exception logging
-- **Structured Logging**: Optional JSON output for monitoring tools
-
-Log Levels
-----------
-- DEBUG (10): Detailed debugging information
-- INFO (20): General informational messages
-- SUCCESS (25): Custom level for successful operations
-- WARNING (30): Warning messages
-- ERROR (40): Error messages
-- CRITICAL (50): Critical errors
-
-Usage Examples
--------------
-Basic usage (default mode - single log file):
-    >>> from scripts.utils import logging_system as log
-    >>> log.setup_logging()
-    >>> log.info("Processing started")
-    >>> log.success("Processing completed")
-
-Verbose mode (organized folder structure):
-    >>> log.setup_logging(module_name='scripts.vector_db.embeddings', verbose=True)
-    >>> log.info("Creating embeddings...")
-
-Module-specific logger:
-    >>> logger = log.get_logger(__name__)
-    >>> logger.info("Module-specific message")
-
-Error handling with decorator:
-    >>> @log.log_errors()
-    >>> def process_file(filename):
-    ...     # Automatically logs exceptions with stack trace
-    ...     with open(filename) as f:
-    ...         data = f.read()
-
-Performance timing:
-    >>> @log.log_time()
-    >>> def expensive_operation():
-    ...     # Automatically logs execution time
-    ...     time.sleep(2)
-
-Context manager for timing:
-    >>> with log.log_execution_time("Database query"):
-    ...     results = db.query("SELECT * FROM table")
-
-Cleanup old log files:
-    >>> # Delete files older than 7 days
-    >>> stats = log.cleanup_old_logs(max_age_days=7)
-    >>> print(f"Deleted {stats['files_deleted']} files, freed {stats['bytes_freed']} bytes")
-    
-    >>> # Keep only 10 most recent files
-    >>> stats = log.cleanup_old_logs(max_files=10, dry_run=True)  # Preview mode
-
-See Also
---------
-- User Guide: docs/sphinx/user_guide/usage.rst
-- Developer Guide: docs/sphinx/developer_guide/architecture.rst
-"""
+"""Enhanced centralized logging module with organized folder structure."""
 
 import functools
 import json
@@ -230,15 +121,7 @@ class JSONFormatter(logging.Formatter):
 
 
 def _get_log_category(module_name: str) -> str:
-    """
-    Determine log category (folder) based on module name.
-    
-    Args:
-        module_name: Python module name (e.g., 'scripts.extract_data')
-    
-    Returns:
-        Log category path (e.g., 'data_cleaning_and_processing')
-    """
+    """Determine log category (folder) based on module name."""
     # Check exact match first
     if module_name in MODULE_CATEGORY_MAP:
         return MODULE_CATEGORY_MAP[module_name]
@@ -253,18 +136,7 @@ def _get_log_category(module_name: str) -> str:
 
 
 def _get_log_directory(category: str, base_dir: Optional[Path] = None, use_category: bool = True) -> Path:
-    """
-    Get the log directory path for a given category.
-    
-    Args:
-        category: Log category (e.g., 'data_cleaning_and_processing')
-        base_dir: Base log directory (default: .logs/RePORTaLiN)
-        use_category: If True, use category-based folder structure (verbose mode).
-                     If False, use single main directory (default mode).
-    
-    Returns:
-        Path to log directory
-    """
+    """Get the log directory path for a given category."""
     if base_dir is None:
         # Get base directory from environment or use default
         logs_root = os.getenv('LOG_DIR', '.logs')
@@ -286,49 +158,7 @@ def setup_logging(
     max_bytes: int = 10 * 1024 * 1024,  # 10MB
     backup_count: int = 10
 ) -> logging.Logger:
-    """
-    Set up centralized logging with organized folder structure and rotation.
-    
-    Args:
-        module_name: Module name for category detection (default: '__main__')
-        log_level: Logging level ('DEBUG', 'INFO', etc.). 
-                  Falls back to LOG_LEVEL env var, then INFO
-        simple_mode: If True, minimal console output (SUCCESS/ERROR/CRITICAL only)
-        verbose: If True, use organized folder structure by module (verbose mode).
-                If False, use single main log file (default mode).
-        json_format: If True, use JSON formatting for file logs
-        max_bytes: Maximum size per log file before rotation (default: 10MB)
-        backup_count: Number of backup log files to keep (default: 10)
-    
-    Returns:
-        Configured logger instance
-        
-    Environment Variables:
-        LOG_LEVEL: Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        LOG_DIR: Set custom log directory (default: .logs)
-        LOG_FORMAT: Set log format (text or json)
-        LOG_VERBOSE: Set verbose mode (true/false) for organized folder structure
-    
-    Logging Modes:
-        Default Mode (verbose=False):
-            - Single log file: .logs/RePORTaLiN/reportalin_YYYYMMDD_HHMMSS.log
-            - All modules log to same file
-            - Simple and clean for production
-        
-        Verbose Mode (verbose=True):
-            - Organized folder structure by module
-            - Example: .logs/RePORTaLiN/RAG/data_ingestion/embeddings_YYYYMMDD_HHMMSS.log
-            - Useful for debugging and development
-    
-    Note:
-        This function is idempotent - calling it multiple times returns
-        the same logger instance. Use reset_logging() to reconfigure.
-    
-    Examples:
-        >>> setup_logging()  # Default configuration
-        >>> setup_logging(module_name='scripts.extract_data', log_level='DEBUG')
-        >>> setup_logging(json_format=True)  # JSON output
-    """
+    """Set up centralized logging with organized folder structure and rotation."""
     global _logger, _log_file_path
     
     # Fast path: return existing logger without lock
@@ -441,12 +271,7 @@ def setup_logging(
 
 
 def reset_logging() -> None:
-    """
-    Reset logging configuration.
-    
-    Use this to reconfigure logging with different parameters.
-    Closes all handlers and resets global state.
-    """
+    """Reset logging configuration."""
     global _logger, _log_file_path
     
     if _logger is not None:
@@ -464,24 +289,7 @@ def setup_logger(
     simple_mode: bool = False,
     verbose: bool = False
 ) -> logging.Logger:
-    """
-    Legacy function name for backward compatibility.
-    
-    This function maintains compatibility with code using the old API.
-    New code should use setup_logging() instead.
-    
-    Args:
-        name: Logger name (mapped to module_name)
-        log_level: Logging level as integer (e.g., logging.INFO)
-        simple_mode: If True, minimal console output
-        verbose: If True, use organized folder structure (verbose mode)
-    
-    Returns:
-        Configured logger instance
-    
-    Note:
-        This is a compatibility wrapper. Use setup_logging() for new code.
-    """
+    """Legacy function name for backward compatibility."""
     # Convert numeric log level to string
     level_name = logging.getLevelName(log_level)
     
@@ -498,24 +306,7 @@ def setup_logger(
 
 def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance.
-    
-    Args:
-        name: Logger name (typically __name__ for module-specific logging)
-    
-    Returns:
-        Logger instance
-    
-    Note:
-        If name is provided, returns a child logger of the root 'reportalin' logger.
-        This allows module-specific logging while maintaining centralized configuration.
-        
-        For backward compatibility, calling without a name returns the root logger.
-    
-    Examples:
-        >>> logger = get_logger(__name__)  # Module-specific logger
-        >>> logger = get_logger()  # Root logger (backward compatible)
-    """
+    Get a logger instance."""
     if _logger is None:
         setup_logging()
     
@@ -539,68 +330,7 @@ def cleanup_old_logs(
     recursive: bool = True,
     pattern: str = "*.log"
 ) -> Dict[str, Any]:
-    """
-    Clean up old log files from the log directory.
-    
-    Removes log files based on age (days) or count (keep N most recent files).
-    At least one of max_age_days or max_files must be specified.
-    
-    Args:
-        max_age_days: Delete files older than this many days (optional)
-        max_files: Keep only this many most recent files (optional)
-        log_dir: Log directory to clean (default: .logs/RePORTaLiN)
-        dry_run: If True, report what would be deleted without actually deleting
-        recursive: If True, search subdirectories recursively
-        pattern: File pattern to match (default: "*.log")
-    
-    Returns:
-        Dictionary with cleanup statistics:
-        {
-            'files_scanned': int,      # Total log files found
-            'files_deleted': int,      # Files actually deleted
-            'files_skipped': int,      # Files skipped (active, locked, errors)
-            'bytes_freed': int,        # Total bytes freed
-            'dry_run': bool,           # Whether this was a dry run
-            'deleted_files': List[str] # Paths of deleted files (if dry_run or deleted)
-        }
-    
-    Raises:
-        ValueError: If neither max_age_days nor max_files is specified
-        PermissionError: If cleanup cannot proceed due to permissions
-    
-    Safety Features:
-        - Skips currently active log file (_log_file_path)
-        - Skips locked files (in use by other processes)
-        - Handles permission errors gracefully
-        - Logs all operations
-    
-    Examples:
-        >>> # Delete files older than 7 days
-        >>> stats = cleanup_old_logs(max_age_days=7)
-        >>> print(f"Deleted {stats['files_deleted']} files")
-        
-        >>> # Keep only 10 most recent files
-        >>> stats = cleanup_old_logs(max_files=10)
-        
-        >>> # Preview what would be deleted (dry run)
-        >>> stats = cleanup_old_logs(max_age_days=30, dry_run=True)
-        >>> for file in stats['deleted_files']:
-        ...     print(f"Would delete: {file}")
-        
-        >>> # Clean specific directory
-        >>> from pathlib import Path
-        >>> stats = cleanup_old_logs(
-        ...     max_age_days=7,
-        ...     log_dir=Path('.logs/old_logs'),
-        ...     recursive=False
-        ... )
-    
-    Note:
-        - If both max_age_days and max_files are specified, files are deleted
-          if they meet EITHER criterion
-        - Files are sorted by modification time (newest first) when using max_files
-        - The currently active log file is never deleted
-    """
+    """Clean up old log files from the log directory."""
     # Validation
     if max_age_days is None and max_files is None:
         raise ValueError("At least one of max_age_days or max_files must be specified")
@@ -781,24 +511,7 @@ def success(msg: str, *args: Any, **kwargs: Any) -> None:
 
 
 def exception(msg: str, *args: Any, include_log_path: bool = True, **kwargs: Any) -> None:
-    """
-    Log an exception with full stack trace.
-    
-    This should be called from an exception handler.
-    Automatically includes exc_info for stack trace.
-    
-    Args:
-        msg: Error message
-        *args: Format arguments
-        include_log_path: Whether to include log file path in message
-        **kwargs: Additional logging parameters
-    
-    Example:
-        >>> try:
-        ...     risky_operation()
-        ... except Exception as e:
-        ...     exception(f"Operation failed: {e}")
-    """
+    """Log an exception with full stack trace."""
     kwargs.setdefault('exc_info', True)
     get_logger().error(_append_log_path(msg, include_log_path), *args, **kwargs)
 
@@ -818,27 +531,7 @@ logging.Logger.success = _success_method  # type: ignore[attr-defined]
 # ============================================================================
 
 def log_errors(logger_name: Optional[str] = None, reraise: bool = True):
-    """
-    Decorator to automatically log exceptions with full stack trace.
-    
-    Args:
-        logger_name: Logger name to use (default: function's module)
-        reraise: Whether to re-raise the exception (default: True)
-    
-    Returns:
-        Decorated function
-    
-    Example:
-        >>> @log_errors()
-        >>> def process_file(filename):
-        ...     with open(filename) as f:
-        ...         return f.read()
-        
-        >>> @log_errors(reraise=False)
-        >>> def optional_task():
-        ...     # Logs error but doesn't crash program
-        ...     risky_operation()
-    """
+    """Decorator to automatically log exceptions with full stack trace."""
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -858,24 +551,7 @@ def log_errors(logger_name: Optional[str] = None, reraise: bool = True):
 
 
 def log_time(logger_name: Optional[str] = None, level: int = logging.INFO):
-    """
-    Decorator to automatically log function execution time.
-    
-    Args:
-        logger_name: Logger name to use (default: function's module)
-        level: Log level for timing message (default: INFO)
-    
-    Returns:
-        Decorated function
-    
-    Example:
-        >>> @log_time()
-        >>> def expensive_operation():
-        ...     time.sleep(2)
-        ...     return "Done"
-        
-        Output: "expensive_operation completed in 2.00s"
-    """
+    """Decorator to automatically log function execution time."""
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -902,22 +578,7 @@ def log_time(logger_name: Optional[str] = None, level: int = logging.INFO):
 
 @contextmanager
 def log_execution_time(operation_name: str, logger_name: Optional[str] = None):
-    """
-    Context manager to log execution time of a code block.
-    
-    Args:
-        operation_name: Name of the operation being timed
-        logger_name: Logger name to use (default: root logger)
-    
-    Yields:
-        None
-    
-    Example:
-        >>> with log_execution_time("Database query"):
-        ...     results = db.query("SELECT * FROM large_table")
-        
-        Output: "Database query completed in 1.23s"
-    """
+    """Context manager to log execution time of a code block."""
     logger = get_logger(logger_name)
     start_time = time.time()
     try:
@@ -938,18 +599,7 @@ def log_execution_time(operation_name: str, logger_name: Optional[str] = None):
 # ============================================================================
 
 class VerboseLogger:
-    """
-    Centralized verbose logging for detailed output in DEBUG mode.
-    
-    Provides formatted tree-view output for file processing, step execution,
-    and operation timing. Only logs when logger is in DEBUG mode.
-    
-    Usage:
-        vlog = VerboseLogger(logging_module)
-        with vlog.file_processing("file.xlsx", total_records=412):
-            with vlog.step("Processing step"):
-                vlog.detail("Details here")
-    """
+    """Centralized verbose logging for detailed output in DEBUG mode."""
     
     def __init__(self, logger_module: types.ModuleType) -> None:
         """Initialize with logger module."""

@@ -1,34 +1,4 @@
-"""
-Vector Store Management with ChromaDB (Primary) and Qdrant (Fallback).
-
-This module provides an abstracted vector database interface that uses ChromaDB
-as the primary backend with automatic fallback to Qdrant for production workloads.
-
-Architecture:
-    - VectorStoreBackend: Abstract base class defining interface
-    - ChromaDBBackend: ChromaDB implementation (primary)
-    - QdrantBackend: Qdrant implementation (fallback)
-    - VectorStore: Unified interface with automatic backend selection
-
-Key Features:
-    - Automatic backend selection based on availability
-    - Seamless fallback from ChromaDB to Qdrant
-    - Identical API regardless of backend
-    - Collection management mirroring folder structure
-    - Dual-database architecture (cleaned + original)
-    - Metadata-rich vector points
-    - CRUD operations with error handling
-
-Collection Naming:
-    Format: {study_name}_{dataset_type}
-    Examples:
-        - Indo-VAP_cleaned
-        - Indo-VAP_original
-
-Author: RePORTaLiN Development Team
-Date: January 2025
-Version: 0.3.0
-"""
+"""Vector store management with ChromaDB and Qdrant backends."""
 
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union, Tuple
@@ -63,16 +33,7 @@ class BackendType(Enum):
 
 @dataclass
 class SearchResult:
-    """
-    Represents a single search result from vector database.
-    
-    Attributes:
-        id (str): Unique point ID in vector database
-        score (float): Similarity score (0 to 1)
-        text (str): The chunk text
-        metadata (dict): Associated metadata (form, subject, etc.)
-        collection_name (str): Source collection name
-    """
+    """Search result from vector database with score and metadata."""
     id: str
     score: float
     text: str
@@ -90,15 +51,7 @@ class SearchResult:
 
 @dataclass
 class StudyDataset:
-    """
-    Represents a study dataset (e.g., Indo-VAP cleaned data).
-    
-    Attributes:
-        study_name (str): Name of the study (e.g., "Indo-VAP")
-        dataset_type (str): Type of dataset ("cleaned" or "original")
-        path (Path): Filesystem path to JSONL files
-        collection_name (str): Collection name
-    """
+    """Study dataset with collection name and path."""
     study_name: str
     dataset_type: str
     path: Path
@@ -115,33 +68,7 @@ class StudyDataset:
 # ============================================================================
 
 def _validate_embedder(embedder: Any) -> None:
-    """
-    Validate that embedder implements required interface.
-    
-    Args:
-        embedder: Object to validate
-    
-    Raises:
-        TypeError: If embedder doesn't implement required interface
-        ValueError: If embedder has invalid configuration
-    
-    Note:
-        Required interface:
-        - encode(text: str) -> np.ndarray (method)
-        - embedding_dim: int (property, must be positive)
-    
-    Example:
-        >>> from scripts.vector_db.embeddings import EmbeddingModel
-        >>> embedder = EmbeddingModel()
-        >>> _validate_embedder(embedder)  # Passes silently
-        >>> _validate_embedder("invalid")  # Raises TypeError
-        Traceback (most recent call last):
-            ...
-        TypeError: Embedder must implement 'encode' method. Got type: str
-    
-    .. versionadded:: 0.3.0
-       Added for AdaptiveEmbedder support.
-    """
+    """Validate that embedder implements required interface."""
     if not hasattr(embedder, 'encode'):
         raise TypeError(
             f"Embedder must implement 'encode' method. "
@@ -176,31 +103,7 @@ def _validate_embedder(embedder: Any) -> None:
 
 
 def _translate_filters_for_chromadb(metadata_filters: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Translate generic metadata filters to ChromaDB where clause format.
-    
-    Args:
-        metadata_filters: Generic filter dict with field-value pairs
-            Examples:
-                {"form_code": "1A"}
-                {"subject_id": "TB001", "form_code": "1A"}
-    
-    Returns:
-        ChromaDB-compatible where clause
-    
-    Example:
-        >>> _translate_filters_for_chromadb({"form_code": "1A"})
-        {'form_code': '1A'}
-        >>> _translate_filters_for_chromadb({"form_code": "1A", "subject_id": "TB001"})
-        {'form_code': '1A', 'subject_id': 'TB001'}
-    
-    Note:
-        ChromaDB uses simple dict format for where clauses.
-        For complex queries, use $and, $or, $in operators.
-    
-    .. versionadded:: 0.3.1
-       Added for metadata filtering support.
-    """
+    """Translate generic metadata filters to ChromaDB where clause format."""
     # ChromaDB uses simple dict format - just return as is for basic equality
     # For more complex queries, ChromaDB supports:
     # - $and, $or, $not operators
@@ -210,29 +113,7 @@ def _translate_filters_for_chromadb(metadata_filters: Dict[str, Any]) -> Dict[st
 
 
 def _translate_filters_for_qdrant(metadata_filters: Dict[str, Any]):
-    """
-    Translate generic metadata filters to Qdrant Filter format.
-    
-    Args:
-        metadata_filters: Generic filter dict with field-value pairs
-            Examples:
-                {"form_code": "1A"}
-                {"subject_id": "TB001", "form_code": "1A"}
-    
-    Returns:
-        Qdrant Filter object with 'must' conditions
-    
-    Example:
-        >>> filter = _translate_filters_for_qdrant({"form_code": "1A"})
-        >>> # Returns: Filter(must=[FieldCondition(key="form_code", match=MatchValue(value="1A"))])
-    
-    Note:
-        Qdrant uses Filter objects with must/should/must_not clauses.
-        This function creates simple 'must' (AND) conditions.
-    
-    .. versionadded:: 0.3.1
-       Added for metadata filtering support.
-    """
+    """Translate generic metadata filters to Qdrant Filter format."""
     try:
         from qdrant_client.models import Filter, FieldCondition, MatchValue
     except ImportError:
@@ -257,62 +138,26 @@ def _translate_filters_for_qdrant(metadata_filters: Dict[str, Any]):
 # ============================================================================
 
 class VectorStoreBackend(ABC):
-    """
-    Abstract base class for vector database backends.
-    
-    Defines the interface that all backend implementations must follow.
-    Concrete implementations: ChromaDBBackend, QdrantBackend.
-    """
+    """Abstract base class for vector database backends."""
     
     @abstractmethod
     def __init__(self, embedder: Union[EmbeddingModel, AdaptiveEmbedder], **kwargs):
-        """
-        Initialize backend with embedder.
-        
-        Args:
-            embedder: Embedding model instance (EmbeddingModel or AdaptiveEmbedder)
-            **kwargs: Backend-specific initialization parameters
-        """
+        """Initialize backend with embedder."""
         pass
     
     @abstractmethod
     def collection_exists(self, collection_name: str) -> bool:
-        """
-        Check if collection exists.
-        
-        Args:
-            collection_name: Name of the collection to check
-        
-        Returns:
-            True if collection exists, False otherwise
-        """
+        """Check if collection exists."""
         pass
     
     @abstractmethod
     def create_collection(self, collection_name: str, recreate: bool = False) -> str:
-        """
-        Create a collection.
-        
-        Args:
-            collection_name: Name of the collection to create
-            recreate: If True, delete and recreate existing collection
-        
-        Returns:
-            Collection name
-        """
+        """Create a collection."""
         pass
     
     @abstractmethod
     def delete_collection(self, collection_name: str) -> bool:
-        """
-        Delete a collection.
-        
-        Args:
-            collection_name: Name of the collection to delete
-        
-        Returns:
-            True if deletion succeeded, False otherwise
-        """
+        """Delete a collection."""
         pass
     
     @abstractmethod
@@ -323,18 +168,7 @@ class VectorStoreBackend(ABC):
         embeddings: List[List[float]],
         payloads: List[Dict[str, Any]]
     ) -> int:
-        """
-        Upsert points to collection.
-        
-        Args:
-            collection_name: Target collection name
-            ids: List of unique point IDs
-            embeddings: List of embedding vectors (each a list of floats)
-            payloads: List of metadata dictionaries for each point
-        
-        Returns:
-            Number of points successfully upserted
-        """
+        """Upsert points to collection."""
         pass
     
     @abstractmethod
@@ -346,43 +180,18 @@ class VectorStoreBackend(ABC):
         score_threshold: float = 0.5,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[SearchResult]:
-        """
-        Search collection.
-        
-        Args:
-            collection_name: Collection to search
-            query_embedding: Query vector as numpy array
-            limit: Maximum number of results to return
-            score_threshold: Minimum similarity score (0 to 1)
-            filters: Optional metadata filters (backend-specific format)
-        
-        Returns:
-            List of SearchResult objects, sorted by score (descending)
-        """
+        """Search collection."""
         pass
     
     @abstractmethod
     def get_collection_info(self, collection_name: str) -> Dict[str, Any]:
-        """
-        Get collection information.
-        
-        Args:
-            collection_name: Name of the collection
-        
-        Returns:
-            Dictionary with collection metadata (points_count, backend, etc.)
-        """
+        """Get collection information."""
         pass
     
     @property
     @abstractmethod
     def backend_type(self) -> BackendType:
-        """
-        Return backend type.
-        
-        Returns:
-            BackendType enum value (CHROMADB or QDRANT)
-        """
+        """Return backend type."""
         pass
 
 
@@ -391,27 +200,7 @@ class VectorStoreBackend(ABC):
 # ============================================================================
 
 class ChromaDBBackend(VectorStoreBackend):
-    """
-    ChromaDB vector database backend.
-    
-    Uses ChromaDB's PersistentClient for local storage with automatic
-    embedding and indexing. Optimized for development and small to
-    medium-scale deployments.
-    
-    Features:
-        - Pure Python implementation
-        - Automatic persistence
-        - Simple setup (no server required)
-        - Cosine similarity distance
-        - Metadata filtering
-    
-    Example:
-        >>> from scripts.vector_db.embeddings import EmbeddingModel
-        >>> embedder = EmbeddingModel()
-        >>> backend = ChromaDBBackend(embedder, persist_directory="./chroma_db")
-        >>> backend.create_collection("test_collection")
-        'test_collection'
-    """
+    """ChromaDB vector database backend for local storage."""
     
     def __init__(
         self,
@@ -419,23 +208,7 @@ class ChromaDBBackend(VectorStoreBackend):
         persist_directory: Path,
         **kwargs
     ):
-        """
-        Initialize ChromaDB backend.
-        
-        Args:
-            embedder: Embedding model instance
-            persist_directory: Directory for persistent storage (required)
-            **kwargs: Additional ChromaDB client settings
-        
-        Raises:
-            ImportError: If chromadb is not installed
-            ValueError: If persist_directory is not provided
-            RuntimeError: If client initialization fails
-        
-        Note:
-            persist_directory must be explicitly provided to ensure proper
-            directory separation between backends. No fallback to config is used.
-        """
+        """Initialize ChromaDB backend."""
         try:
             import chromadb
             from chromadb.config import Settings as ChromaSettings
@@ -490,16 +263,7 @@ class ChromaDBBackend(VectorStoreBackend):
             return False
     
     def create_collection(self, collection_name: str, recreate: bool = False) -> str:
-        """
-        Create a ChromaDB collection.
-        
-        Args:
-            collection_name: Name of collection
-            recreate: Delete and recreate if exists
-        
-        Returns:
-            Collection name
-        """
+        """Create a ChromaDB collection."""
         try:
             exists = self.collection_exists(collection_name)
             
@@ -546,18 +310,7 @@ class ChromaDBBackend(VectorStoreBackend):
         embeddings: List[List[float]],
         payloads: List[Dict[str, Any]]
     ) -> int:
-        """
-        Upsert points to ChromaDB collection.
-        
-        Args:
-            collection_name: Target collection
-            ids: List of unique IDs
-            embeddings: List of embedding vectors
-            payloads: List of metadata dicts
-        
-        Returns:
-            Number of points upserted
-        """
+        """Upsert points to ChromaDB collection."""
         try:
             collection = self.client.get_collection(collection_name)
             
@@ -601,19 +354,7 @@ class ChromaDBBackend(VectorStoreBackend):
         score_threshold: float = 0.5,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[SearchResult]:
-        """
-        Search ChromaDB collection.
-        
-        Args:
-            collection_name: Collection to search
-            query_embedding: Query vector
-            limit: Maximum results
-            score_threshold: Minimum similarity score
-            filters: Metadata filters (ChromaDB format: {"key": "value"})
-        
-        Returns:
-            List of SearchResult objects
-        """
+        """Search ChromaDB collection."""
         try:
             collection = self.client.get_collection(collection_name)
             
@@ -693,25 +434,7 @@ class ChromaDBBackend(VectorStoreBackend):
 # ============================================================================
 
 class QdrantBackend(VectorStoreBackend):
-    """
-    Qdrant vector database backend.
-    
-    Uses Qdrant client for production-ready vector storage with
-    advanced features like filtering, hybrid search, and cloud deployment.
-    
-    Features:
-        - High performance for large-scale deployments
-        - Advanced filtering capabilities
-        - Support for cloud and self-hosted deployments
-        - Optimized for production workloads
-    
-    Example:
-        >>> from scripts.vector_db.embeddings import EmbeddingModel
-        >>> embedder = EmbeddingModel()
-        >>> backend = QdrantBackend(embedder, storage_path="./qdrant_db")
-        >>> backend.create_collection("test_collection")
-        'test_collection'
-    """
+    """Qdrant vector database backend for production workloads."""
     
     def __init__(
         self,
@@ -722,26 +445,7 @@ class QdrantBackend(VectorStoreBackend):
         use_memory: bool = False,
         **kwargs
     ):
-        """
-        Initialize Qdrant backend.
-        
-        Args:
-            embedder: Embedding model instance
-            storage_path: Path for local storage (required when not using memory)
-            host: Qdrant server host (server mode)
-            port: Qdrant server port (server mode)
-            use_memory: Use in-memory storage (for testing)
-            **kwargs: Additional Qdrant client settings
-        
-        Raises:
-            ImportError: If qdrant-client is not installed
-            ValueError: If storage_path is not provided when not using memory
-            RuntimeError: If client initialization fails
-        
-        Note:
-            storage_path must be explicitly provided (when not using memory) to ensure
-            proper directory separation between backends. No fallback to config is used.
-        """
+        """Initialize Qdrant backend."""
         try:
             from qdrant_client import QdrantClient
             from qdrant_client.models import VectorParams, Distance
@@ -805,16 +509,7 @@ class QdrantBackend(VectorStoreBackend):
             return False
     
     def create_collection(self, collection_name: str, recreate: bool = False) -> str:
-        """
-        Create a Qdrant collection.
-        
-        Args:
-            collection_name: Name of collection
-            recreate: Delete and recreate if exists
-        
-        Returns:
-            Collection name
-        """
+        """Create a Qdrant collection."""
         try:
             exists = self.collection_exists(collection_name)
             
@@ -861,18 +556,7 @@ class QdrantBackend(VectorStoreBackend):
         embeddings: List[List[float]],
         payloads: List[Dict[str, Any]]
     ) -> int:
-        """
-        Upsert points to Qdrant collection.
-        
-        Args:
-            collection_name: Target collection
-            ids: List of unique IDs
-            embeddings: List of embedding vectors
-            payloads: List of metadata dicts
-        
-        Returns:
-            Number of points upserted
-        """
+        """Upsert points to Qdrant collection."""
         try:
             points = []
             for point_id, embedding, payload in zip(ids, embeddings, payloads):
@@ -898,19 +582,7 @@ class QdrantBackend(VectorStoreBackend):
         score_threshold: float = 0.5,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[SearchResult]:
-        """
-        Search Qdrant collection.
-        
-        Args:
-            collection_name: Collection to search
-            query_embedding: Query vector
-            limit: Maximum results
-            score_threshold: Minimum similarity score
-            filters: Metadata filters (Qdrant format)
-        
-        Returns:
-            List of SearchResult objects
-        """
+        """Search Qdrant collection."""
         try:
             # Build filters if provided
             filter_obj = None
@@ -981,38 +653,7 @@ class QdrantBackend(VectorStoreBackend):
 # ============================================================================
 
 class VectorStore:
-    """
-    Unified vector store interface with automatic backend selection.
-    
-    Automatically selects ChromaDB as primary backend with fallback to Qdrant
-    based on availability and configuration. Provides a consistent API regardless
-    of the underlying backend.
-    
-    Backend Selection Logic:
-        1. Try ChromaDB (if available and not disabled)
-        2. Fallback to Qdrant (if ChromaDB unavailable or workload requires it)
-        3. Raise error if neither backend available
-    
-    Attributes:
-        backend: Active backend instance (ChromaDBBackend or QdrantBackend)
-        backend_type: Type of active backend
-        embedder: Embedding model instance
-        embedding_dim: Dimension of embeddings
-    
-    Example (Automatic Selection):
-        >>> from scripts.vector_db import EmbeddingModel, VectorStore
-        >>> embedder = EmbeddingModel()
-        >>> vs = VectorStore(embedder)  # Auto-selects ChromaDB
-        >>> vs.backend_type
-        <BackendType.CHROMADB: 'chromadb'>
-    
-    Example (Force Qdrant):
-        >>> from scripts.vector_db import EmbeddingModel, VectorStore
-        >>> embedder = EmbeddingModel()
-        >>> vs = VectorStore(embedder, prefer_backend="qdrant")
-        >>> vs.backend_type
-        <BackendType.QDRANT: 'qdrant'>
-    """
+    """Unified vector store interface with automatic backend selection."""
     
     def __init__(
         self,
@@ -1023,20 +664,7 @@ class VectorStore:
         use_memory: bool = False,
         **backend_kwargs
     ):
-        """
-        Initialize vector store with automatic backend selection.
-        
-        Args:
-            embedder: Embedding model instance
-            storage_path: Storage path (backend-specific subdirs created)
-            output_dir: Output directory for study discovery
-            prefer_backend: Force specific backend ("chromadb" or "qdrant")
-            use_memory: Use in-memory storage (for testing)
-            **backend_kwargs: Additional backend-specific settings
-        
-        Raises:
-            RuntimeError: If no backend is available
-        """
+        """Initialize vector store with automatic backend selection."""
         _validate_embedder(embedder)
         
         self.embedder = embedder
@@ -1075,29 +703,7 @@ class VectorStore:
         use_memory: bool = False,
         **kwargs
     ) -> VectorStoreBackend:
-        """
-        Select vector database backend based on availability and preference.
-        
-        Args:
-            embedder: Embedding model
-            storage_path: Base storage path (must be provided)
-            prefer_backend: Preferred backend ("chromadb" or "qdrant")
-            use_memory: Use in-memory storage
-            **kwargs: Backend-specific kwargs
-        
-        Returns:
-            Initialized backend instance
-        
-        Raises:
-            ValueError: If storage_path is not provided
-            RuntimeError: If no backend is available
-        
-        Note:
-            This method ensures proper directory separation by always providing
-            explicit paths to backends. Each backend creates its own subdirectory:
-            - ChromaDB: storage_path/chroma_db/
-            - Qdrant: storage_path/qdrant_storage/
-        """
+        """Select vector database backend based on availability and preference."""
         # Validate storage_path is provided
         if not storage_path:
             raise ValueError(
@@ -1189,17 +795,7 @@ class VectorStore:
         dataset_type: str,
         recreate: bool = False
     ) -> str:
-        """
-        Create a collection for a study dataset.
-        
-        Args:
-            study_name: Study name (e.g., "Indo-VAP")
-            dataset_type: Dataset type ("cleaned" or "original")
-            recreate: Delete and recreate if exists
-        
-        Returns:
-            Collection name
-        """
+        """Create a collection for a study dataset."""
         collection_name = self.get_collection_name(study_name, dataset_type)
         return self.backend.create_collection(collection_name, recreate=recreate)
     
@@ -1212,31 +808,11 @@ class VectorStore:
         return self.backend.get_collection_info(collection_name)
     
     def get_collection_name(self, study_name: str, dataset_type: str) -> str:
-        """
-        Generate collection name from study and dataset type.
-        
-        Args:
-            study_name: Study name (e.g., "Indo-VAP")
-            dataset_type: Dataset type (e.g., "cleaned", "original")
-        
-        Returns:
-            Collection name (e.g., "Indo-VAP_cleaned")
-        """
+        """Generate collection name from study and dataset type."""
         return f"{study_name}_{dataset_type}"
     
     def discover_studies(self) -> List[StudyDataset]:
-        """
-        Discover all studies and datasets from output directory.
-        
-        Scans the output directory for study folders and identifies
-        available datasets (cleaned/original) with JSONL files.
-        
-        Returns:
-            List of StudyDataset objects representing discovered datasets
-        
-        Note:
-            Skips special directories: vector_db, deidentified, data_dictionary_mappings
-        """
+        """Discover all studies and datasets from output directory."""
         studies = []
         
         if not self.output_dir.exists():
@@ -1284,19 +860,7 @@ class VectorStore:
         score_threshold: float = 0.5,
         filters: Optional[Dict[str, Any]] = None
     ) -> List[SearchResult]:
-        """
-        Search collection for similar vectors.
-        
-        Args:
-            collection_name: Collection to search
-            query: Query text
-            limit: Maximum results to return
-            score_threshold: Minimum similarity score (0 to 1)
-            filters: Metadata filters
-        
-        Returns:
-            List of SearchResult objects, sorted by score (descending)
-        """
+        """Search collection for similar vectors."""
         # Check if collection exists
         if not self.collection_exists(collection_name):
             logger.warning(f"Collection not found: {collection_name}")
@@ -1322,56 +886,7 @@ class VectorStore:
         limit: int = 10,
         score_threshold: float = 0.5
     ) -> List[SearchResult]:
-        """
-        Search with metadata filtering (backend-agnostic).
-        
-        This method provides a unified interface for metadata filtering across
-        different vector database backends (ChromaDB, Qdrant). It automatically
-        translates the generic filter format to the backend-specific format.
-        
-        Args:
-            collection_name: Collection to search
-            query: Query text
-            metadata_filters: Metadata filters as simple key-value pairs
-                Examples:
-                    {"form_code": "1A"}
-                    {"subject_id": "TB001"}
-                    {"form_code": "1A", "section_title": "Medical History"}
-            limit: Maximum results to return
-            score_threshold: Minimum similarity score (0 to 1)
-        
-        Returns:
-            List of SearchResult objects matching filters, sorted by score
-        
-        Example:
-            >>> from scripts.vector_db import EmbeddingModel, VectorStore
-            >>> embedder = EmbeddingModel()
-            >>> vs = VectorStore(embedder)
-            >>> # Search for TB symptoms only in Form 1A
-            >>> results = vs.search_with_filters(
-            ...     collection_name="Indo-VAP_cleaned",
-            ...     query="TB symptoms cough fever",
-            ...     metadata_filters={"form_code": "1A"}
-            ... )
-            >>> # Search within specific form section
-            >>> results = vs.search_with_filters(
-            ...     collection_name="Indo-VAP_cleaned",
-            ...     query="medical history",
-            ...     metadata_filters={
-            ...         "form_code": "1A",
-            ...         "section_title": "Medical History"
-            ...     }
-            ... )
-        
-        Note:
-            The metadata_filters are automatically translated to the appropriate
-            format for the active backend:
-            - ChromaDB: Uses simple dict format
-            - Qdrant: Uses Filter objects with FieldCondition
-        
-        .. versionadded:: 0.3.1
-           Added metadata filtering support with backend translation.
-        """
+        """Search with metadata filtering."""
         # Translate filters for active backend
         if self.backend_type == BackendType.CHROMADB:
             backend_filters = _translate_filters_for_chromadb(metadata_filters)
@@ -1399,52 +914,7 @@ class VectorStore:
         limit: int = 10,
         score_threshold: float = 0.5
     ) -> List[SearchResult]:
-        """
-        Convenience method: Search within a specific clinical form.
-        
-        This is a helper method that simplifies searching within a specific
-        form by automatically building the collection name and filter.
-        
-        Args:
-            study_name: Study name (e.g., "Indo-VAP")
-            form_code: Form code to filter by (e.g., "1A", "2B", "95")
-            query: Query text
-            dataset_type: Dataset type ("cleaned" or "original"), default "cleaned"
-            limit: Maximum results to return
-            score_threshold: Minimum similarity score (0 to 1)
-        
-        Returns:
-            List of SearchResult objects from the specified form
-        
-        Example:
-            >>> from scripts.vector_db import EmbeddingModel, VectorStore
-            >>> embedder = EmbeddingModel()
-            >>> vs = VectorStore(embedder)
-            >>> # Search for TB symptoms only in Form 1A (Index Case Screening)
-            >>> results = vs.search_by_form(
-            ...     study_name="Indo-VAP",
-            ...     form_code="1A",
-            ...     query="TB symptoms cough fever night sweats"
-            ... )
-            >>> # Search in Serious Adverse Event form (Form 95)
-            >>> results = vs.search_by_form(
-            ...     study_name="Indo-VAP",
-            ...     form_code="95",
-            ...     query="adverse reaction"
-            ... )
-        
-        Note:
-            This method is equivalent to:
-                collection_name = vs.get_collection_name(study_name, dataset_type)
-                results = vs.search_with_filters(
-                    collection_name,
-                    query,
-                    metadata_filters={"form_code": form_code}
-                )
-        
-        .. versionadded:: 0.3.1
-           Convenience method for form-specific searches.
-        """
+        """Search within a specific clinical form."""
         collection_name = self.get_collection_name(study_name, dataset_type)
         return self.search_with_filters(
             collection_name=collection_name,
@@ -1463,56 +933,7 @@ class VectorStore:
         limit: int = 10,
         score_threshold: float = 0.5
     ) -> List[SearchResult]:
-        """
-        Convenience method: Search within a specific subject's data.
-        
-        This helper method simplifies searching for information about a specific
-        study participant by automatically filtering on subject_id.
-        
-        Args:
-            study_name: Study name (e.g., "Indo-VAP")
-            subject_id: Subject/participant ID to filter by (e.g., "TB001")
-            query: Query text
-            dataset_type: Dataset type ("cleaned" or "original"), default "cleaned"
-            limit: Maximum results to return
-            score_threshold: Minimum similarity score (0 to 1)
-        
-        Returns:
-            List of SearchResult objects for the specified subject
-        
-        Example:
-            >>> from scripts.vector_db import EmbeddingModel, VectorStore
-            >>> embedder = EmbeddingModel()
-            >>> vs = VectorStore(embedder)
-            >>> # Find all baseline data for subject TB001
-            >>> results = vs.search_by_subject(
-            ...     study_name="Indo-VAP",
-            ...     subject_id="TB001",
-            ...     query="baseline assessment symptoms"
-            ... )
-            >>> # Find follow-up visits for subject TB002
-            >>> results = vs.search_by_subject(
-            ...     study_name="Indo-VAP",
-            ...     subject_id="TB002",
-            ...     query="follow-up visit"
-            ... )
-        
-        Note:
-            This method is equivalent to:
-                collection_name = vs.get_collection_name(study_name, dataset_type)
-                results = vs.search_with_filters(
-                    collection_name,
-                    query,
-                    metadata_filters={"subject_id": subject_id}
-                )
-        
-        Use Case:
-            Perfect for patient-centric queries where you need to retrieve
-            all data for a specific participant across all forms and visits.
-        
-        .. versionadded:: 0.3.1
-           Convenience method for subject-specific searches.
-        """
+        """Search within a specific subject's data."""
         collection_name = self.get_collection_name(study_name, dataset_type)
         return self.search_with_filters(
             collection_name=collection_name,
@@ -1534,23 +955,7 @@ class VectorStore:
         min_results_for_fallback: int = 3,
         filters: Optional[Dict[str, Any]] = None
     ) -> Tuple[List[SearchResult], Dict[str, Any]]:
-        """
-        Search with automatic fallback from primary to fallback dataset.
-        
-        Args:
-            query: Query text
-            study_name: Study name
-            primary_dataset: Primary dataset type (default "cleaned")
-            fallback_dataset: Fallback dataset type (default "original")
-            use_fallback: Enable fallback to secondary dataset
-            limit: Maximum results to return
-            score_threshold: Minimum similarity score
-            min_results_for_fallback: Trigger fallback if fewer results
-            filters: Metadata filters
-        
-        Returns:
-            Tuple of (results, search_info)
-        """
+        """Search with automatic fallback from primary to fallback dataset."""
         search_info = {
             "query": query,
             "study_name": study_name,
@@ -1617,17 +1022,7 @@ class VectorStore:
         collection_name: str,
         batch_size: int = 100
     ) -> int:
-        """
-        Ingest PDF chunks to collection.
-        
-        Args:
-            pdf_chunks: List of PDFChunk objects
-            collection_name: Target collection name
-            batch_size: Batch size for uploads
-        
-        Returns:
-            Number of chunks ingested
-        """
+        """Ingest PDF chunks to collection."""
         if not pdf_chunks:
             logger.warning("No PDF chunks to ingest")
             return 0
@@ -1702,17 +1097,7 @@ class VectorStore:
         collection_name: str,
         batch_size: int = 100
     ) -> int:
-        """
-        Ingest JSONL chunks to collection.
-        
-        Args:
-            jsonl_chunks: List of TextChunk objects
-            collection_name: Target collection name
-            batch_size: Batch size for uploads
-        
-        Returns:
-            Number of chunks ingested
-        """
+        """Ingest JSONL chunks to collection."""
         if not jsonl_chunks:
             logger.warning("No JSONL chunks to ingest")
             return 0

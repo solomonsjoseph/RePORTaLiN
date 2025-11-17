@@ -1,35 +1,4 @@
-"""
-LLM Adapters Package for RePORTaLiN
-====================================
-
-This package provides pluggable LLM adapters for different AI providers.
-Users must provide their own API keys - RePORTaLiN does NOT include
-any built-in LLM functionality.
-
-Supported Providers:
---------------------
-- OpenAI (ChatGPT, GPT-4, GPT-3.5)
-- Anthropic (Claude 3.5, Claude 3)
-- Google (Gemini 1.5 Pro)
-- Ollama (Local open-source models)
-- Custom (OpenAI-compatible APIs)
-
-Usage:
-------
-    from scripts.llm import get_adapter
-    
-    # Get adapter based on .env configuration
-    adapter = await get_adapter()
-    
-    # Generate response
-    response = await adapter.generate(
-        prompt="What is pneumonia?",
-        max_tokens=512
-    )
-
-Author: RePORTaLiN Team
-Date: January 12, 2025
-"""
+"""LLM adapters package for AI provider integration."""
 
 from typing import Optional
 import logging
@@ -56,25 +25,7 @@ async def get_adapter(
     provider: Optional[str] = None,
     **kwargs
 ) -> BaseLLMAdapter:
-    """
-    Get an LLM adapter based on configuration.
-    
-    Args:
-        provider: Provider name (openai, anthropic, google, ollama, custom)
-                 If None, will read from LLM_PROVIDER environment variable
-        **kwargs: Additional arguments passed to adapter constructor
-        
-    Returns:
-        Configured LLM adapter instance
-        
-    Raises:
-        ValueError: If provider is invalid or not configured
-        ImportError: If required dependencies are not installed
-        
-    Example:
-        >>> adapter = await get_adapter(provider="openai")
-        >>> response = await adapter.generate("Hello!")
-    """
+    """Get an LLM adapter based on configuration."""
     # Get provider from environment if not specified
     if provider is None:
         provider = os.getenv("LLM_PROVIDER", "").lower()
@@ -122,12 +73,7 @@ async def get_adapter(
 
 
 def list_available_providers() -> list[str]:
-    """
-    List all available LLM providers.
-    
-    Returns:
-        List of provider names
-    """
+    """List all available LLM providers."""
     return [p.value for p in LLMProvider]
 
 
