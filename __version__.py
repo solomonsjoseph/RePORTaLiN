@@ -78,7 +78,7 @@ See Also:
 
 import re
 
-__version__: str = "0.9.1"
+__version__: str = "0.9.2"
 """Canonical version string following semantic versioning (MAJOR.MINOR.PATCH).
 
 This is the single source of truth for RePORTaLiN's version. Update this when

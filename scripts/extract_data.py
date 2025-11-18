@@ -570,7 +570,7 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
         ['SUBJID', 'AGE', 'AGE_1']
         
     Notes:
-        - Pattern matched: r'^(.+?)_?(\d+)$' (e.g., SUBJID2, NAME_3, AGE1)
+        - Pattern matched: r'^(.+?)_?(\\d+)$' (e.g., SUBJID2, NAME_3, AGE1)
         - Columns removed if: entirely null OR 100% identical to base column
         - NaN-to-NaN comparisons handled correctly (both NaN → considered equal)
         - Comparison failures → column kept for safety

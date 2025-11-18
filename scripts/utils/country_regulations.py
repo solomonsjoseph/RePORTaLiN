@@ -269,7 +269,7 @@ class DataField:
             ...     field_type=DataFieldType.IDENTIFIER,
             ...     privacy_level=PrivacyLevel.CRITICAL,
             ...     required=False,
-            ...     pattern=r'^\d{3}-\d{2}-\d{4}$',
+            ...     pattern=r'^\\d{3}-\\d{2}-\\d{4}$',
             ...     description="US Social Security Number",
             ...     examples=["123-45-6789"],
             ...     country_specific=True
@@ -403,7 +403,7 @@ class CountryRegulation:
             ...             display_name="Social Security Number",
             ...             field_type=DataFieldType.IDENTIFIER,
             ...             privacy_level=PrivacyLevel.CRITICAL,
-            ...             pattern=r'^\d{3}-\d{2}-\d{4}$',
+            ...             pattern=r'^\\d{3}-\\d{2}-\\d{4}$',
             ...             country_specific=True
             ...         )
             ...     ],
