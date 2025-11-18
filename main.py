@@ -1,5 +1,65 @@
 #!/usr/bin/env python3
-"""Clinical data processing pipeline for RePORTaLiN."""
+"""Clinical data processing pipeline for RePORTaLiN.
+
+This module provides the main entry point for the RePORTaLiN (Report India) 
+clinical study data processing pipeline. It orchestrates a multi-step workflow
+that transforms raw Excel datasets into clean, structured, and optionally 
+de-identified JSONL records suitable for analysis and vector database ingestion.
+
+The pipeline consists of the following stages:
+    1. **Dictionary Loading (Step 0):** Parse and validate the data dictionary
+       Excel file to understand field definitions, types, and constraints.
+    2. **Data Extraction (Step 1):** Convert Excel datasets to JSONL format,
+       applying validation rules and creating both original and cleaned outputs.
+    3. **De-identification (Step 2):** Optional PHI/PII removal using country-
+       specific regex patterns, encryption, and date-shifting techniques.
+    4. **Vector DB Ingestion (Optional):** Embed PDF forms and JSONL records
+       into a vector database for semantic search capabilities.
+
+Architecture:
+    The pipeline follows a fail-fast philosophy. Each step is wrapped in error
+    handling via `run_step()`, which logs progress and exits immediately on 
+    failure. Configuration is centralized in `config.py`, and all operations
+    are logged to both console and `.logs/` directory.
+
+Security:
+    - De-identification uses Fernet encryption (AES-128) for mapping storage
+    - Date shifting applies consistent random offsets per patient
+    - Country-specific patterns (Aadhaar, SSN, etc.) are validated via regex
+    - All encryption keys are managed securely in `config.py`
+
+Usage:
+    Run the complete pipeline:
+        $ python main.py
+    
+    Skip dictionary loading and enable de-identification:
+        $ python main.py --skip-dictionary --enable-deidentification
+    
+    Process multiple countries with verbose logging:
+        $ python main.py -c IN US BR --verbose
+    
+    Ingest PDFs to vector database (dry run):
+        $ python main.py --ingest-pdfs --dry-run
+
+Example:
+    >>> # Basic pipeline execution (requires data setup)
+    >>> # This is a conceptual example - actual execution requires data files
+    >>> import sys
+    >>> sys.argv = ['main.py', '--version']
+    >>> # Would display: RePORTaLiN <version>
+
+Notes:
+    - Requires Python 3.13+ for compatibility with dependencies
+    - All data paths are configured in `config.py`
+    - Shell completion available if `argcomplete` is installed
+    - See README.md and Sphinx docs for detailed setup instructions
+
+See Also:
+    config.py: Central configuration and path management
+    scripts.load_dictionary: Data dictionary parsing logic
+    scripts.extract_data: Excel to JSONL conversion
+    scripts.deidentify: PHI/PII de-identification engine
+"""
 import argparse
 import logging
 import sys
@@ -25,7 +85,71 @@ from __version__ import __version__
 __all__ = ['main', 'run_step']
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
-    """Execute pipeline step with error handling and logging."""
+    """Execute a pipeline step with comprehensive error handling and logging.
+    
+    This function wraps individual pipeline steps to provide consistent error
+    handling, logging, and exit behavior. It acts as the pipeline's safety net,
+    ensuring that any failure in a step is caught, logged, and results in a
+    clean exit with a non-zero status code.
+    
+    The function supports multiple failure modes:
+    - Boolean `False` return values indicate step failure
+    - Dict results with an 'errors' key indicate partial failure
+    - Uncaught exceptions are logged with full stack traces
+    
+    All steps are logged with clear start/success/failure messages to both
+    console and log files (see `config.LOG_NAME` for log file location).
+    
+    Args:
+        step_name (str): Human-readable name of the pipeline step (e.g., 
+            "Step 1: Extracting Raw Data to JSONL"). Used in log messages
+            and error reporting.
+        func (Callable[[], Any]): Zero-argument callable that executes the
+            actual step logic. This should be a lambda or function reference
+            that performs the work and returns a result or raises an exception.
+    
+    Returns:
+        Any: The return value from `func()` if successful. Return type depends
+            on the specific step being executed (e.g., dict with statistics,
+            bool for success/failure, or None).
+    
+    Raises:
+        SystemExit: Always raised on failure (exit code 1). This terminates
+            the entire pipeline to prevent cascading errors from invalid data.
+            Reasons for exit:
+            - `func()` returns `False`
+            - `func()` returns a dict with non-empty 'errors' list
+            - `func()` raises any exception
+    
+    Example:
+        >>> import logging
+        >>> from scripts.utils import logging_system as log
+        >>> log.setup_logger(name='test', log_level=logging.INFO, simple_mode=True)
+        >>> # Successful step
+        >>> def successful_task():
+        ...     return {'processed': 100, 'errors': []}
+        >>> result = run_step("Test Task", successful_task)
+        >>> result['processed']
+        100
+        >>> # Failing step (returns False)
+        >>> def failing_task():
+        ...     return False
+        >>> try:
+        ...     run_step("Failing Task", failing_task)
+        ... except SystemExit as e:
+        ...     print(f"Exit code: {e.code}")
+        Exit code: 1
+    
+    Notes:
+        - This function uses `sys.exit(1)` rather than raising exceptions to
+          ensure clean termination visible to shell scripts and CI/CD systems.
+        - Stack traces are logged via `exc_info=True` for debugging.
+        - Success messages use `log.success()` for visual distinction in logs.
+    
+    See Also:
+        main: Orchestrates all pipeline steps using this wrapper
+        config.LOG_NAME: Configures the log file name
+    """
     try:
         log.info(f"--- {step_name} ---")
         result = func()
@@ -45,7 +169,100 @@ def run_step(step_name: str, func: Callable[[], Any]) -> Any:
         sys.exit(1)
 
 def main() -> None:
-    """Main pipeline orchestrating dictionary loading, data extraction, and de-identification."""
+    """Orchestrate the complete clinical data processing pipeline.
+    
+    This is the main entry point for the RePORTaLiN pipeline. It parses command-
+    line arguments, configures logging, validates the environment, and executes
+    the multi-step workflow to process clinical study data from raw Excel files
+    to clean, structured, and optionally de-identified JSONL records.
+    
+    The function implements a sequential pipeline with optional step skipping:
+    
+    **Step 0 - Dictionary Loading:**
+        Parses the data dictionary Excel file to extract field definitions,
+        data types, validation rules, and metadata. Outputs structured JSON
+        for downstream validation. (Skip with `--skip-dictionary`)
+    
+    **Step 1 - Data Extraction:**
+        Converts Excel datasets to JSONL format, applying validation rules
+        and creating both 'original/' (raw) and 'cleaned/' (validated) outputs.
+        (Skip with `--skip-extraction`)
+    
+    **Step 2 - De-identification (Optional):**
+        Removes PHI/PII using country-specific regex patterns, applies date
+        shifting, and encrypts mapping files. Enabled with 
+        `--enable-deidentification` flag. (Skip with `--skip-deidentification`)
+    
+    **Vector DB Ingestion (Optional):**
+        Embeds PDF forms and/or JSONL records into a vector database for
+        semantic search. Enabled with `--ingest-pdfs` or `--ingest-records`.
+    
+    Configuration and Validation:
+        - All paths, study names, and settings are loaded from `config.py`
+        - Configuration validation runs before any processing starts
+        - Required directories are created automatically if missing
+        - Logging is configured based on `--verbose` flag (default: simple mode)
+    
+    Command-Line Interface:
+        The function accepts numerous CLI arguments for fine-grained control:
+        
+        **Workflow Control:**
+            --skip-dictionary           Skip Step 0
+            --skip-extraction           Skip Step 1
+            --skip-deidentification     Skip Step 2
+            --enable-deidentification   Enable PHI/PII removal
+        
+        **De-identification Options:**
+            -c, --countries CODE [CODE ...]  Process specific countries (IN US BR)
+                                             or ALL for all patterns
+            --no-encryption             Disable mapping encryption (testing only)
+        
+        **Vector Database:**
+            --ingest-pdfs               Embed PDF forms to vector DB
+            --ingest-records            Embed JSONL records to vector DB
+            --dry-run                   Test ingestion without writing
+        
+        **Logging:**
+            -v, --verbose               Enable DEBUG logging with full output
+            --version                   Show version and exit
+    
+    Returns:
+        None: This function orchestrates the pipeline but does not return a
+            value. It exits with code 0 on success or code 1 on failure.
+    
+    Raises:
+        SystemExit: Always raised on failure (exit code 1). Reasons include:
+            - Configuration validation failure (missing directories)
+            - Any step failure (logged via `run_step()`)
+            - Uncaught exceptions in argument parsing or setup
+        FileNotFoundError: Caught and converted to SystemExit if required
+            directories are missing (data/<study>/datasets/, etc.)
+    
+    Example:
+        >>> # Simulate command-line execution (conceptual - requires data setup)
+        >>> import sys
+        >>> # Show version
+        >>> sys.argv = ['main.py', '--version']
+        >>> # Would display version and exit
+        >>> 
+        >>> # Run with verbose logging (requires actual data files)
+        >>> # sys.argv = ['main.py', '--verbose']
+        >>> # main()  # Would execute full pipeline with DEBUG logging
+    
+    Notes:
+        - Default logging: Simple mode (INFO level, minimal console output)
+        - Verbose mode (`-v`): DEBUG level with full context and stack traces
+        - All operations are logged to `.logs/<LOG_NAME>.log`
+        - Shell completion available if `argcomplete` package is installed
+        - De-identification is opt-in and disabled by default for safety
+    
+    See Also:
+        run_step: Wrapper for individual pipeline steps with error handling
+        config.validate_config: Validates directory structure and settings
+        scripts.load_dictionary.load_study_dictionary: Step 0 implementation
+        scripts.extract_data.extract_excel_to_jsonl: Step 1 implementation
+        scripts.deidentify.deidentify_dataset: Step 2 implementation
+    """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
         description='Clinical data processing pipeline with de-identification support.',

@@ -1,5 +1,74 @@
 #!/usr/bin/env python3
-"""Data migration wrapper script for v0.3.0 structure."""
+"""Data migration wrapper script for RePORTaLiN v0.3.0 directory structure.
+
+This module serves as the command-line entry point for migrating existing
+RePORTaLiN data from older directory structures to the v0.3.0 standardized
+layout. It acts as a thin wrapper around the actual migration logic in
+`scripts.utils.migrate_data_structure`, providing proper path setup and
+a user-friendly interface.
+
+Migration Purpose:
+    Version 0.3.0 introduced a new directory structure with explicit
+    separation of original and cleaned datasets:
+    
+    **Old Structure (pre-v0.3.0)**::
+        output/{STUDY_NAME}/*.jsonl  # Mixed original and cleaned files
+    
+    **New Structure (v0.3.0+)**::
+        output/{STUDY_NAME}/original/*.jsonl  # Raw extraction output
+        output/{STUDY_NAME}/cleaned/*.jsonl   # Validated/cleaned records
+    
+    This migration script automatically reorganizes files into the new
+    structure without data loss, preserving all original files.
+
+Why This Wrapper Exists:
+    - **Path Setup**: Ensures the project root is in `sys.path` for imports
+    - **User Experience**: Provides clear banner and progress feedback
+    - **Isolation**: Separates CLI concerns from core migration logic
+    - **Testability**: Core logic in migrate_data_structure.py can be tested
+      independently of CLI wrapper
+
+Usage:
+    Run from project root:
+        $ python migrate.py
+    
+    Or make executable and run directly:
+        $ chmod +x migrate.py
+        $ ./migrate.py
+    
+    The script will:
+        1. Display migration banner and project root
+        2. Detect existing data structure
+        3. Create new directory structure (original/, cleaned/)
+        4. Move files to appropriate directories
+        5. Provide summary of migration results
+
+Example:
+    >>> # This script is meant to be run from command line, not imported
+    >>> # Conceptual example of what happens when executed:
+    >>> # $ python migrate.py
+    >>> # ============================================================
+    >>> # RePORTaLiN Data Structure Migration
+    >>> # ============================================================
+    >>> # Project Root: /path/to/RePORTaLiN
+    >>> # ============================================================
+    >>> # 
+    >>> # Migrating output/Indo-VAP/...
+    >>> # ✓ Created output/Indo-VAP/original/
+    >>> # ✓ Created output/Indo-VAP/cleaned/
+    >>> # ✓ Moved 50 files successfully
+
+Notes:
+    - Safe to run multiple times (idempotent operation)
+    - Does not delete original files unless explicitly configured
+    - See scripts.utils.migrate_data_structure for core logic
+    - Only modifies output/ directory, never touches data/ directory
+    - Creates backup before migration (configurable)
+
+See Also:
+    scripts.utils.migrate_data_structure: Core migration implementation
+    config.py: Directory structure configuration
+"""
 
 import sys
 from pathlib import Path

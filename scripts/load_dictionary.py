@@ -1,4 +1,58 @@
-"""Data dictionary loader with multi-table detection and JSONL export."""
+"""Data dictionary loader with multi-table detection and JSONL export.
+
+This module processes study data dictionaries from Excel files, detecting multiple
+tables within sheets and exporting them as JSONL files for downstream processing.
+It implements intelligent table boundary detection, column deduplication, and
+metadata enrichment.
+
+Architecture:
+    The module implements a three-stage pipeline:
+    1. Sheet Loading: Read Excel sheets with configurable NA handling
+    2. Table Detection: Split sheets into tables using empty row/column boundaries
+    3. Export: Save tables as JSONL with metadata for provenance tracking
+
+Key Features:
+    - Multi-table detection within single Excel sheets
+    - Column name deduplication for unnamed/duplicate columns
+    - "Ignore below" marker support for separating main/extra tables
+    - Metadata injection (__sheet__, __table__) for data lineage
+    - Robust error handling with detailed logging
+    - Progress tracking with tqdm and verbose logging
+
+Table Detection Algorithm:
+    Tables are detected by finding contiguous non-empty regions:
+    1. Identify horizontal strips (separated by fully empty rows)
+    2. Within each strip, find vertical segments (separated by fully empty columns)
+    3. Extract each segment as a separate table with its own header row
+    4. Filter empty tables and apply header deduplication
+
+Typical Usage:
+    # Using defaults from config
+    >>> from scripts.load_dictionary import load_study_dictionary
+    >>> success = load_study_dictionary()
+    
+    # Custom paths
+    >>> success = load_study_dictionary(
+    ...     file_path='data/custom_dictionary.xlsx',
+    ...     json_output_dir='output/dictionaries'
+    ... )
+    
+    # Process with pandas NA handling
+    >>> success = load_study_dictionary(preserve_na=False)
+
+Dependencies:
+    - pandas: Excel parsing and DataFrame operations
+    - tqdm: Progress visualization
+    - scripts.utils.logging_system: Centralized logging
+    - config: Default paths and settings
+
+Notes:
+    - The "ignore below" marker allows separating supplementary tables
+    - Tables after the marker are saved to an "extras" subdirectory
+    - Each table gets metadata fields for traceability
+    - File overwrites are prevented; existing files are skipped
+    - All errors are logged but processing continues for other tables
+"""
 
 __all__ = ['load_study_dictionary', 'process_excel_file']
 
@@ -21,7 +75,28 @@ METADATA_SHEET_KEY = "__sheet__"
 METADATA_TABLE_KEY = "__table__"
 
 def _deduplicate_columns(columns) -> List[str]:
-    """Make column names unique by appending numeric suffixes to duplicates."""
+    """Make column names unique by appending numeric suffixes to duplicates.
+    
+    This function handles duplicate column names (common in Excel with merged cells
+    or unnamed columns) by appending _1, _2, etc. to subsequent occurrences. It also
+    converts NaN/null values to "Unnamed" prefix.
+    
+    Args:
+        columns: Iterable of column names (can include None/NaN values).
+    
+    Returns:
+        List of unique column names with numeric suffixes for duplicates.
+        
+    Example:
+        >>> cols = ['Name', 'Name', 'Age', None, 'Name']
+        >>> _deduplicate_columns(cols)
+        ['Name', 'Name_1', 'Age', 'Unnamed', 'Name_2']
+        
+    Notes:
+        - First occurrence keeps original name
+        - Subsequent duplicates get _1, _2, ... suffixes
+        - None/NaN values become "Unnamed" (or "Unnamed_1", etc.)
+    """
     new_cols, counts = [], {}
     for col in columns:
         col_str = str(col) if pd.notna(col) else UNNAMED_COLUMN_PREFIX
@@ -34,7 +109,41 @@ def _deduplicate_columns(columns) -> List[str]:
     return new_cols
 
 def _split_sheet_into_tables(df: pd.DataFrame) -> List[pd.DataFrame]:
-    """Split DataFrame into multiple tables based on empty row/column boundaries."""
+    """Split DataFrame into multiple tables based on empty row/column boundaries.
+    
+    This implements a two-stage boundary detection algorithm:
+    1. Find horizontal strips: contiguous row groups separated by fully empty rows
+    2. Within each strip, find vertical segments separated by fully empty columns
+    
+    Each segment represents a separate table that can be independently processed.
+    This handles Excel sheets with multiple tables laid out side-by-side or stacked.
+    
+    Args:
+        df: Input DataFrame from Excel sheet (may contain multiple tables).
+    
+    Returns:
+        List of DataFrames, each representing a detected table. Empty list if
+        no tables found or if input is empty.
+        
+    Example:
+        >>> # Sheet with two side-by-side tables
+        >>> df = pd.DataFrame({
+        ...     'A': [1, 2], 'B': [3, 4], 'C': [None, None], 'D': [5, 6]
+        ... })
+        >>> tables = _split_sheet_into_tables(df)
+        >>> len(tables)
+        2
+        
+    Raises:
+        Does not raise exceptions; errors are logged and empty list returned.
+        
+    Notes:
+        - Empty rows/columns are used as table boundaries
+        - Tables with all-null data are filtered out
+        - Row indices are reset for each table
+        - Handles KeyError, IndexError, and general exceptions gracefully
+        - All errors logged at ERROR level with debug traceback
+    """
     try:
         if df.empty:
             log.debug("Received empty DataFrame, returning empty table list")
@@ -74,7 +183,44 @@ def _split_sheet_into_tables(df: pd.DataFrame) -> List[pd.DataFrame]:
         return []
 
 def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, output_dir: str) -> None:
-    """Process detected tables, apply filters, add metadata, and save to JSONL files."""
+    """Process detected tables, apply filters, add metadata, and save to JSONL files.
+    
+    For each table in the input list:
+    1. Create sheet-specific output directory
+    2. Check for "ignore below" marker (separates main/extra tables)
+    3. Extract and deduplicate column headers from first row
+    4. Add metadata fields (__sheet__, __table__) for provenance
+    5. Save as JSONL file (one JSON object per line)
+    
+    Tables marked as "extra" (after ignore marker) are saved to an "extras"
+    subdirectory for supplementary data not part of the main dictionary.
+    
+    Args:
+        all_tables: List of DataFrames detected from a single sheet.
+        sheet_name: Name of the source Excel sheet (used for directory/metadata).
+        output_dir: Base directory for output files.
+    
+    Returns:
+        None. Files are written to disk; errors logged but processing continues.
+        
+    Side Effects:
+        - Creates directories: {output_dir}/{sheet_name}/ and possibly .../extras/
+        - Writes JSONL files: {sheet_name}_table_{N}.jsonl
+        - Logs progress, warnings, and errors via logging_system
+        - Updates verbose logger with metrics and timing
+        
+    Example:
+        >>> tables = [pd.DataFrame({'A': [1, 2]}), pd.DataFrame({'B': [3, 4]})]
+        >>> _process_and_save_tables(tables, 'MySheet', 'output/')
+        # Creates: output/MySheet/MySheet_table_1.jsonl, MySheet_table_2.jsonl
+        
+    Notes:
+        - Existing files are skipped (no overwrite)
+        - Empty tables after header extraction are skipped
+        - "ignore below" marker triggers extras mode for all subsequent tables
+        - Each table gets unique metadata for data lineage tracking
+        - All I/O errors are caught and logged; processing continues
+    """
     folder_name = "".join(c for c in sheet_name if c.isalnum() or c in "._- ").strip()
     sheet_dir = os.path.join(output_dir, folder_name)
     
@@ -168,7 +314,59 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
             vlog.timing("Table processing time", table_elapsed)
 
 def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = True) -> bool:
-    """Extract all tables from an Excel file and save as JSONL files."""
+    """Extract all tables from an Excel file and save as JSONL files.
+    
+    This is the main processing function that orchestrates the complete pipeline:
+    1. Load Excel file and enumerate all sheets
+    2. For each sheet, detect embedded tables using boundary analysis
+    3. Process and export each table with metadata enrichment
+    4. Track progress with tqdm and log detailed metrics
+    
+    Args:
+        excel_path: Path to input Excel file (.xlsx or .xls).
+        output_dir: Directory where JSONL files will be created.
+        preserve_na: If True, only empty strings treated as NA; if False,
+            use pandas defaults (None, NaN, 'NA', etc. all become NaN).
+            Default is True to preserve literal 'NA' values in data.
+    
+    Returns:
+        True if all sheets processed successfully, False if any errors occurred.
+        Processing continues even after errors; partial results are saved.
+        
+    Example:
+        >>> # Process with default NA handling
+        >>> success = process_excel_file(
+        ...     'data/dictionary.xlsx',
+        ...     'output/dictionary_tables'
+        ... )
+        >>> if success:
+        ...     print("All sheets processed successfully")
+        
+        >>> # Use pandas default NA values
+        >>> success = process_excel_file(
+        ...     'data/dictionary.xlsx',
+        ...     'output/dictionary_tables',
+        ...     preserve_na=False
+        ... )
+        
+    Raises:
+        Does not raise exceptions; all errors are caught, logged, and False returned.
+        
+    Side Effects:
+        - Creates output_dir and subdirectories as needed
+        - Writes JSONL files for each detected table
+        - Displays progress bar in stdout (via tqdm)
+        - Logs to configured logger at multiple levels (INFO, ERROR, DEBUG)
+        - Measures and logs timing metrics via verbose logger
+        
+    Notes:
+        - Each sheet can contain multiple tables (side-by-side or stacked)
+        - Tables are auto-detected using empty row/column boundaries
+        - First row of each table is treated as header
+        - Empty sheets/tables are skipped with INFO message
+        - File I/O errors are logged but don't stop processing
+        - Progress bar format: name | ██████ | N/M [elapsed<remaining]
+    """
     overall_start = time.time()
     
     log.info(f"Processing: '{excel_path}'")
@@ -235,7 +433,48 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
 def load_study_dictionary(file_path: Optional[str] = None, 
                          json_output_dir: Optional[str] = None, 
                          preserve_na: bool = True) -> bool:
-    """Load and process study data dictionary from Excel to JSONL format."""
+    """Load and process study data dictionary from Excel to JSONL format.
+    
+    This is the primary public API for loading data dictionaries. It wraps
+    process_excel_file() with configuration defaults from config.py, allowing
+    simple zero-argument calls for standard usage.
+    
+    Args:
+        file_path: Path to Excel dictionary file. If None, uses
+            config.DICTIONARY_EXCEL_FILE. Default is None.
+        json_output_dir: Output directory for JSONL files. If None, uses
+            config.DICTIONARY_JSON_OUTPUT_DIR. Default is None.
+        preserve_na: Controls NA value handling. If True, only empty strings
+            are treated as NA; literal 'NA' strings are preserved. If False,
+            pandas default NA values apply. Default is True.
+    
+    Returns:
+        True if processing completed successfully for all sheets, False if
+        any errors occurred. Partial results may still be saved on failure.
+        
+    Example:
+        >>> # Use defaults from config.py
+        >>> from scripts.load_dictionary import load_study_dictionary
+        >>> success = load_study_dictionary()
+        >>> if success:
+        ...     print("Dictionary loaded successfully")
+        
+        >>> # Custom paths
+        >>> success = load_study_dictionary(
+        ...     file_path='data/custom_dict.xlsx',
+        ...     json_output_dir='output/custom'
+        ... )
+        
+        >>> # Preserve literal 'NA' strings in data
+        >>> success = load_study_dictionary(preserve_na=True)
+        
+    Notes:
+        - This is the recommended entry point for dictionary loading
+        - Falls back to config defaults for unspecified paths
+        - Suitable for both interactive use and CLI scripts
+        - See process_excel_file() for detailed processing behavior
+        - Main script usage at bottom demonstrates standalone execution
+    """
     success = process_excel_file(
         excel_path=file_path or config.DICTIONARY_EXCEL_FILE,
         output_dir=json_output_dir or config.DICTIONARY_JSON_OUTPUT_DIR,

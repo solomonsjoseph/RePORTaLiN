@@ -1,5 +1,130 @@
 #!/usr/bin/env python3
-"""Migrates data to v0.3.0 structure with study name detection."""
+"""Data structure migration utility for RePORTaLiN v0.3.0 organization.
+
+Automates migration from legacy flat directory structure to v0.3.0's study-based
+organization with intelligent study name detection and dual-mode file handling.
+
+**Migration Overview:**
+
+This utility performs comprehensive data structure migration with:
+
+1. **Intelligent Study Detection**: Auto-detects study name from dataset folder
+   names with fallback logic for generic names (e.g., "dataset" → "ext_data").
+
+2. **Dual-Mode Operation**:
+   - **Custom Path Mode**: Copies files FROM external source TO project data/
+     (preserves originals at source)
+   - **Default Path Mode**: Reorganizes files WITHIN project data/ directory
+     (moves files, deletes originals)
+
+3. **Safe Migration Workflow**:
+   - Pre-migration validation (checks existing structure)
+   - Dry-run mode for testing without changes
+   - Post-migration validation (verifies file counts)
+   - Optional cleanup with user confirmation
+   - Migration log generation for audit trail
+
+**Old Structure (Pre-v0.3.0):**
+```
+data/
+├── dataset/
+│   └── Indo-VAP_csv_files/  # Study-specific folder
+│       ├── 1A_ICScreening.xlsx
+│       └── ...
+├── Annotated_PDFs/
+│   └── annotated_pdfs/      # PDFs folder
+│       ├── 1A Index Case Screening v1.0.pdf
+│       └── ...
+└── data_dictionary_and_mapping_specifications/
+    └── RePORT_DEB_to_Tables_mapping.xlsx
+```
+
+**New Structure (v0.3.0):**
+```
+data/
+└── Indo-VAP/                # Detected study name
+    ├── datasets/            # Standardized folder names
+    │   ├── 1A_ICScreening.xlsx
+    │   └── ...
+    ├── annotated_pdfs/
+    │   ├── 1A Index Case Screening v1.0.pdf
+    │   └── ...
+    └── data_dictionary/
+        └── RePORT_DEB_to_Tables_mapping.xlsx
+```
+
+**Study Name Detection Algorithm:**
+
+1. Scans `data/dataset/` for first subdirectory
+2. Removes common suffixes (_csv_files, _files, _data, _dataset, _excel)
+3. Capitalizes parts after hyphens (Indo-vap → Indo-VAP)
+4. Falls back to 'ext_data' for generic names (dataset, data, files)
+5. Falls back to 'ext_data' if no subdirectory found
+
+**Migration Modes:**
+
+**Custom Path Mode** (--data-dir=/external/path):
+- Copies files FROM external source TO project data/
+- Preserves originals at source location
+- Creates new study folder in project data/
+- Use case: Importing data from external drive/network share
+
+**Default Path Mode** (no --data-dir):
+- Reorganizes files WITHIN project data/ directory
+- Moves files (deletes originals after copy)
+- Use case: Upgrading existing project data structure
+
+**Safety Features:**
+
+- Dry-run mode (--dry-run) for testing without changes
+- Pre-migration validation checks structure exists
+- Detects if already migrated (skips redundant work)
+- User confirmation prompts for destructive operations
+- Optional cleanup with separate confirmation
+- Comprehensive migration log file
+- Error tracking with continue/abort options
+
+**Usage Examples:**
+
+Test migration without changes:
+    >>> # From command line:
+    >>> # python3 migrate_data_structure.py --dry-run
+
+Import from external source (preserves originals):
+    >>> # python3 migrate_data_structure.py --data-dir=/Volumes/ExternalDrive/data
+
+Reorganize existing data (moves files):
+    >>> # python3 migrate_data_structure.py
+
+Programmatic usage:
+    >>> from pathlib import Path
+    >>> from scripts.utils.migrate_data_structure import DataMigrationManager
+    >>> manager = DataMigrationManager(data_dir=Path('/custom/path'), dry_run=True)
+    >>> success = manager.migrate()  # doctest: +SKIP
+    >>> if success:  # doctest: +SKIP
+    ...     print(f"Migrated to {manager.study_name}/ structure")
+
+**Exit Codes:**
+- 0: Migration successful
+- 1: Migration failed or user cancelled
+
+**Dependencies:**
+- config module for default DATA_DIR
+- scripts.utils.logging_system for comprehensive logging
+- Standard library: argparse, os, shutil, sys, pathlib, datetime
+
+**Warning:**
+Default path mode MOVES files (deletes originals). Ensure external backups
+exist before running. Custom path mode is safer as it preserves originals.
+
+**Note:**
+Migration is idempotent - detects if already migrated and skips redundant work.
+Safe to run multiple times.
+
+See Also:
+    config.py: DATA_DIR configuration and study detection
+    main.py: Uses migrated data structure for pipeline execution
+"""
 
 import argparse
 import os
@@ -33,7 +158,57 @@ log.setup_logging(
 
 
 def extract_study_name(data_dir: Path) -> str:
-    """Extract study name from dataset folder with intelligent fallback."""
+    """Extract study name from dataset folder with intelligent fallback logic.
+    
+    Implements multi-stage study name detection algorithm:
+    
+    1. **Locate Dataset**: Scans data_dir/dataset/ for subdirectories
+    2. **Extract Name**: Uses first subdirectory name as base
+    3. **Clean Suffixes**: Removes common suffixes (_csv_files, _files, _data, etc.)
+    4. **Capitalize**: Capitalizes parts after hyphens (indo-vap → Indo-VAP)
+    5. **Validate**: Checks length (>=2 chars) and rejects generic names
+    6. **Fallback**: Returns 'ext_data' if detection fails or name is generic
+    
+    This ensures consistent, meaningful study identifiers for the v0.3.0
+    directory structure while handling edge cases gracefully.
+    
+    Args:
+        data_dir: Path to data directory containing dataset/ subdirectory.
+            Expected structure: data_dir/dataset/StudyName_csv_files/
+    
+    Returns:
+        Detected study name (cleaned and capitalized) or 'ext_data' fallback.
+        Examples: "Indo-VAP", "TB-TRIAL", "ext_data"
+    
+    Side Effects:
+        - Logs warnings if dataset directory not found or empty
+        - Logs info for detected folder and extracted study name
+    
+    Example:
+        >>> from pathlib import Path
+        >>> # Case 1: Well-formed study name
+        >>> data_dir = Path('/path/to/data')
+        >>> # Assume dataset/Indo-VAP_csv_files/ exists
+        >>> name = extract_study_name(data_dir)  # doctest: +SKIP
+        >>> print(name)  # doctest: +SKIP
+        'Indo-VAP'
+        
+        >>> # Case 2: Generic name triggers fallback
+        >>> # Assume dataset/dataset/ exists (generic)
+        >>> name = extract_study_name(data_dir)  # doctest: +SKIP
+        >>> print(name)  # doctest: +SKIP
+        'ext_data'
+        
+        >>> # Case 3: Missing dataset directory
+        >>> empty_dir = Path('/tmp/empty')
+        >>> name = extract_study_name(empty_dir)  # doctest: +SKIP
+        >>> print(name)  # doctest: +SKIP
+        'ext_data'
+    
+    Note:
+        Generic names that trigger fallback: 'dataset', 'data', 'files',
+        'csv', 'excel', 'raw'. This prevents meaningless study identifiers.
+    """
     dataset_dir = data_dir / 'dataset'
     
     # Generic names that trigger fallback
@@ -78,10 +253,115 @@ def extract_study_name(data_dir: Path) -> str:
 
 
 class DataMigrationManager:
-    """Manages migration of data structure from old to v0.3.0 format."""
+    """Manages migration of data structure from legacy to v0.3.0 format.
+    
+    Orchestrates complete migration workflow with dual-mode operation for
+    custom (external) vs default (in-place) data paths. Provides safe,
+    validated migration with dry-run testing, error handling, and audit logging.
+    
+    **Key Features:**
+    
+    1. **Dual-Mode Operation**:
+       - **Custom Path**: Copies FROM external source TO project data/
+         (preserves originals, --data-dir=/external/path)
+       - **Default Path**: Reorganizes WITHIN project data/ directory
+         (moves files, deletes originals after copy)
+    
+    2. **Intelligent Detection**:
+       - Auto-detects study name from dataset folder structure
+       - Builds dynamic migration mappings based on actual folders
+       - Detects if already migrated (idempotent operation)
+    
+    3. **Safety Mechanisms**:
+       - Dry-run mode for testing without file operations
+       - Pre-migration structure validation
+       - Post-migration file count verification
+       - User confirmation for destructive operations
+       - Comprehensive error tracking and logging
+    
+    4. **Migration Workflow**:
+       - Validate current structure exists
+       - Create new study-based directory hierarchy
+       - Copy or move files with progress tracking
+       - Validate migration success
+       - Optional cleanup with confirmation
+       - Generate migration log for audit trail
+    
+    **Attributes:**
+        source_dir: Path to source data directory (custom or default)
+        dest_dir: Path to destination data directory (always project data/)
+        dry_run: If True, simulate operations without file changes
+        migration_log: List of operation descriptions for audit log
+        migration_success: Boolean flag indicating if migration completed
+        is_custom_path: True if using custom (external) source path
+        study_name: Auto-detected study identifier (e.g., "Indo-VAP")
+        old_to_new: Dictionary mapping old paths to new paths
+    
+    **Migration Mappings Example:**
+        Old structure → New structure:
+        - dataset/Indo-VAP_csv_files/ → Indo-VAP/datasets/
+        - Annotated_PDFs/annotated_pdfs/ → Indo-VAP/annotated_pdfs/
+        - data_dictionary_and_mapping_specifications/ → Indo-VAP/data_dictionary/
+    
+    Example:
+        >>> from pathlib import Path
+        >>> # Dry-run test with default path
+        >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+        >>> success = manager.migrate()  # doctest: +SKIP
+        >>> print(f"Study: {manager.study_name}")  # doctest: +SKIP
+        
+        >>> # Import from external source (preserves originals)
+        >>> manager = DataMigrationManager(
+        ...     data_dir=Path('/Volumes/ExternalDrive/data'),
+        ...     dry_run=False
+        ... )  # doctest: +SKIP
+        >>> success = manager.migrate()  # doctest: +SKIP
+        >>> if success:  # doctest: +SKIP
+        ...     print(f"Imported {manager.study_name} study")
+    
+    Note:
+        Default path mode is DESTRUCTIVE (deletes originals after move).
+        Custom path mode is SAFE (copies files, preserves originals).
+        Always test with --dry-run first!
+    """
     
     def __init__(self, data_dir: Path = None, dry_run: bool = False):
-        """Initialize migration manager."""
+        """Initialize migration manager with path detection and configuration.
+        
+        Automatically determines operation mode (custom vs default path),
+        detects study name, and builds migration mappings from actual
+        directory structure.
+        
+        Args:
+            data_dir: Optional custom source data directory path. If provided,
+                files will be COPIED from this location to project data/.
+                If None, uses config.DATA_DIR and files will be MOVED
+                (deleted after copy).
+            dry_run: If True, simulate all operations without actual file
+                changes. Useful for testing migration before execution.
+        
+        Side Effects:
+            - Logs initialization details (paths, mode, study name)
+            - Calls extract_study_name() to detect study identifier
+            - Builds migration mappings from actual directory structure
+        
+        Example:
+            >>> from pathlib import Path
+            >>> # Default mode (reorganize within project data/)
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> manager.is_custom_path  # doctest: +SKIP
+            False
+            
+            >>> # Custom mode (import from external source)
+            >>> manager = DataMigrationManager(
+            ...     data_dir=Path('/external/data'),
+            ...     dry_run=False
+            ... )  # doctest: +SKIP
+            >>> manager.is_custom_path  # doctest: +SKIP
+            True
+            >>> manager.source_dir  # doctest: +SKIP
+            PosixPath('/external/data')
+        """
         self.source_dir = Path(data_dir) if data_dir else Path(config.DATA_DIR)
         self.dry_run = dry_run
         self.migration_log = []
@@ -114,7 +394,41 @@ class DataMigrationManager:
         log.info(f"Migration Manager initialized (dry_run={dry_run}, custom_path={self.is_custom_path})")
     
     def _build_migration_mappings(self) -> Dict[str, str]:
-        """Build migration mappings based on detected study name."""
+        """Build migration path mappings based on detected study name and actual folders.
+        
+        Scans source directory for actual subdirectories and constructs mapping
+        dictionary from old structure paths to new v0.3.0 paths. Handles variable
+        folder names (e.g., "Indo-VAP_csv_files" vs "TB-Trial_excel_files").
+        
+        Mapping logic:
+        - dataset/<study>_files/ → <study_name>/datasets/
+        - Annotated_PDFs/<pdfs>/ → <study_name>/annotated_pdfs/
+        - data_dictionary_and_mapping_specifications/ → <study_name>/data_dictionary/
+        
+        Returns:
+            Dictionary mapping old relative paths to new relative paths.
+            Keys are relative to source_dir, values relative to dest_dir.
+            Example: {'dataset/Indo-VAP_csv_files': 'Indo-VAP/datasets'}
+        
+        Side Effects:
+            - Logs number of mappings built
+            - Logs each mapping (old → new path)
+            - Differentiates logging for custom vs default path modes
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> mappings = manager._build_migration_mappings()  # doctest: +SKIP
+            >>> for old, new in mappings.items():  # doctest: +SKIP
+            ...     print(f"{old} → {new}")
+            dataset/Indo-VAP_csv_files → Indo-VAP/datasets
+            Annotated_PDFs/annotated_pdfs → Indo-VAP/annotated_pdfs
+            data_dictionary_and_mapping_specifications → Indo-VAP/data_dictionary
+        
+        Note:
+            Only creates mappings for directories that actually exist in source.
+            Missing directories are skipped (allows partial migrations).
+        """
         # Find actual subdirectories in dataset
         dataset_dir = self.source_dir / 'dataset'
         dataset_subdir = None
@@ -154,7 +468,36 @@ class DataMigrationManager:
         return mappings
     
     def is_already_migrated(self) -> bool:
-        """Check if data is already in the new v0.3.0 structure format."""
+        """Check if data is already in v0.3.0 structure format.
+        
+        Detects if migration has already been performed by checking for
+        new structure subdirectories (datasets/, annotated_pdfs/,
+        data_dictionary/) under study name folder in destination.
+        
+        This makes migration idempotent - safe to run multiple times without
+        duplicate operations.
+        
+        Returns:
+            True if data already migrated to v0.3.0 format, False otherwise.
+        
+        Side Effects:
+            - Logs success message if already migrated
+            - No file system modifications
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> # Before migration
+            >>> if not manager.is_already_migrated():  # doctest: +SKIP
+            ...     print("Need to migrate")
+            >>> # After migration
+            >>> if manager.is_already_migrated():  # doctest: +SKIP
+            ...     print("Already in v0.3.0 format, skipping")
+        
+        Note:
+            Checks for ALL three subdirectories (datasets/, annotated_pdfs/,
+            data_dictionary/). Partial migration is considered incomplete.
+        """
         # Check if study directory exists in destination
         study_dir = self.dest_dir / self.study_name
         
@@ -175,7 +518,39 @@ class DataMigrationManager:
         return False
     
     def validate_current_structure(self) -> bool:
-        """Validate that current structure exists and can be migrated."""
+        """Validate that current structure exists and can be migrated.
+        
+        Performs comprehensive pre-migration validation:
+        1. Checks source directory exists
+        2. Verifies at least one old structure path found
+        3. Creates destination directory if needed (custom path mode)
+        4. Warns if new structure already exists
+        5. Prompts user for confirmation if conflicts detected
+        
+        Returns:
+            True if structure valid and ready for migration, False otherwise.
+        
+        Side Effects:
+            - Logs validation progress and results
+            - May create destination directory (custom path mode)
+            - Prompts user for confirmation if new structure exists
+            - Logs file counts for each found path
+        
+        Raises:
+            No exceptions raised; returns False on validation failures.
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> if manager.validate_current_structure():  # doctest: +SKIP
+            ...     print("Structure valid, proceeding with migration")
+            ... else:
+            ...     print("Validation failed, aborting")
+        
+        Note:
+            Interactive - may prompt user for input if conflicts detected.
+            Returns False if user chooses not to continue.
+        """
         log.info("Validating current data structure...")
         
         if not self.source_dir.exists():
@@ -221,7 +596,31 @@ class DataMigrationManager:
         return True
     
     def create_new_structure(self) -> bool:
-        """Create new directory structure based on detected study name."""
+        """Create new v0.3.0 directory structure based on detected study name.
+        
+        Creates three-tier directory hierarchy:
+        - <study_name>/datasets/        # For Excel/CSV data files
+        - <study_name>/annotated_pdfs/  # For annotated PDF forms
+        - <study_name>/data_dictionary/ # For mapping specifications
+        
+        Returns:
+            True if all directories created successfully, False on any failure.
+        
+        Side Effects:
+            - Creates directories in dest_dir (unless dry_run=True)
+            - Logs creation status for each directory
+            - Appends operations to migration_log
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> if manager.create_new_structure():  # doctest: +SKIP
+            ...     print(f"Created structure for {manager.study_name}")
+        
+        Note:
+            Uses mkdir(parents=True, exist_ok=True) - safe to call multiple
+            times. Dry-run mode logs what would be created without changes.
+        """
         log.info("Creating new directory structure...")
         
         new_dirs = [
@@ -249,7 +648,58 @@ class DataMigrationManager:
         return True
     
     def move_files(self) -> Tuple[int, int, List[str]]:
-        """Copy or move files from old to new structure."""
+        """Copy or move files from old to new structure based on operation mode.
+        
+        Performs bulk file operations with mode-specific behavior:
+        
+        **Custom Path Mode** (is_custom_path=True):
+        - COPIES files from source to destination
+        - Preserves originals at source location
+        - Uses shutil.copy2 (preserves metadata)
+        
+        **Default Path Mode** (is_custom_path=False):
+        - MOVES files from old to new paths
+        - DELETES originals after move (destructive!)
+        - Uses shutil.move
+        
+        For each old→new mapping:
+        1. Recursively finds all files in old path
+        2. Calculates relative paths for reorganization
+        3. Creates destination directories as needed
+        4. Copies or moves each file with error handling
+        5. Logs progress every 10 files
+        6. Tracks successes, failures, and error messages
+        
+        Returns:
+            Tuple of (files_processed, files_failed, error_messages):
+                - files_processed: Count of successfully copied/moved files
+                - files_failed: Count of files that failed to process
+                - error_messages: List of error descriptions for failures
+        
+        Side Effects:
+            - Creates directories in dest_dir
+            - Copies or moves files (unless dry_run=True)
+            - Logs progress and completion status
+            - Appends operations to migration_log
+            - Updates file system (potentially destructive in default mode)
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=False)  # doctest: +SKIP
+            >>> success_count, fail_count, errors = manager.move_files()  # doctest: +SKIP
+            >>> print(f"Processed: {success_count}, Failed: {fail_count}")  # doctest: +SKIP
+            >>> if fail_count > 0:  # doctest: +SKIP
+            ...     for error in errors[:5]:  # Show first 5 errors
+            ...         print(f"  Error: {error}")
+        
+        Warning:
+            Default mode is DESTRUCTIVE - deletes original files after move.
+            Custom mode is SAFE - preserves originals. Test with dry_run first!
+        
+        Note:
+            Preserves directory structure within each mapping. For example,
+            if source has subdirectories, they're recreated in destination.
+        """
         log.info("Starting file migration...")
         
         if self.is_custom_path:
@@ -332,7 +782,36 @@ class DataMigrationManager:
         return files_processed, files_failed, errors
     
     def validate_migration(self) -> bool:
-        """Validate that migration was successful."""
+        """Validate that migration was successful by checking file counts.
+        
+        Post-migration validation ensures data integrity:
+        1. Verifies all new structure paths exist in destination
+        2. Counts files in each new path
+        3. Logs file counts for audit trail
+        4. Warns if any paths are empty (potential issue)
+        
+        Returns:
+            True if all new paths exist (regardless of counts), False if
+            any expected path is missing.
+        
+        Side Effects:
+            - Logs validation progress and results
+            - Logs file counts for each migrated path
+            - Logs warnings for empty directories
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=False)  # doctest: +SKIP
+            >>> # After running move_files()
+            >>> if manager.validate_migration():  # doctest: +SKIP
+            ...     print("Migration validated successfully")
+            ... else:
+            ...     print("Validation failed - check logs")
+        
+        Note:
+            Dry-run mode skips validation (returns True immediately).
+            Empty directories trigger warnings but not failures.
+        """
         log.info("Validating migration...")
         
         if self.dry_run:
@@ -364,7 +843,51 @@ class DataMigrationManager:
         return validation_passed
     
     def cleanup_old_structure(self) -> bool:
-        """Remove old directory structure after files have been moved/copied."""
+        """Remove old directory structure after successful migration.
+        
+        Two-stage cleanup process with user confirmation at each stage:
+        
+        **Stage 1: Old Directory Structure Cleanup** (Both modes):
+        - Prompts user to remove old structure directories
+        - Checks if directories empty (should be after moves)
+        - Warns if non-empty directories found
+        - Removes old structure paths (dataset/, Annotated_PDFs/, etc.)
+        
+        **Stage 2: Copied Study Folder Cleanup** (Custom path mode only):
+        - Prompts to remove newly copied study folder from project data/
+        - Confirms originals preserved at source location
+        - Only applies if is_custom_path=True
+        - Use case: Verify migration without keeping duplicate in project
+        
+        Interactive prompts ensure user control over destructive operations.
+        
+        Returns:
+            True if cleanup completed successfully or user cancelled,
+            False only on errors during file removal.
+        
+        Side Effects:
+            - Prompts user for confirmation (interactive)
+            - Removes directories if confirmed (destructive!)
+            - Logs cleanup operations
+            - Appends operations to migration_log
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=False)  # doctest: +SKIP
+            >>> # After successful migration
+            >>> if manager.cleanup_old_structure():  # doctest: +SKIP
+            ...     print("Cleanup completed")
+            ... else:
+            ...     print("Cleanup failed")
+        
+        Warning:
+            Destructive operation - removes directories permanently.
+            Dry-run mode skips cleanup (logs what would be prompted).
+        
+        Note:
+            User can decline cleanup - old structure preserved if desired.
+            Useful for manual verification before permanent cleanup.
+        """
         if self.dry_run:
             log.info("[DRY RUN] Would prompt for cleanup")
             return True
@@ -456,7 +979,33 @@ class DataMigrationManager:
         return True
     
     def save_migration_log(self) -> None:
-        """Save migration log to file."""
+        """Save migration operation log to file for audit trail.
+        
+        Creates migration_log.txt in destination directory with:
+        - Timestamp
+        - Study name
+        - List of all operations performed (creates, copies, moves, removes)
+        
+        Log file serves as permanent record of migration for troubleshooting
+        and compliance auditing.
+        
+        Side Effects:
+            - Creates migration_log.txt in dest_dir (unless dry_run=True)
+            - Logs save status
+            - Overwrites existing log file if present
+        
+        Example:
+            >>> from pathlib import Path
+            >>> manager = DataMigrationManager(dry_run=False)  # doctest: +SKIP
+            >>> # After running migration
+            >>> manager.save_migration_log()  # doctest: +SKIP
+            >>> # Check log file
+            >>> log_path = manager.dest_dir / 'migration_log.txt'  # doctest: +SKIP
+            >>> print(f"Log saved to: {log_path}")  # doctest: +SKIP
+        
+        Note:
+            Dry-run mode skips log creation (logs what would be saved).
+        """
         if self.dry_run:
             log.info("[DRY RUN] Would save migration log")
             return
@@ -481,7 +1030,56 @@ class DataMigrationManager:
             log.error(f"Failed to save migration log: {e}")
     
     def migrate(self) -> bool:
-        """Execute complete migration workflow."""
+        """Execute complete migration workflow from validation to cleanup.
+        
+        Orchestrates full migration process:
+        
+        **Step 0**: Check if already migrated (idempotent)
+        **Step 1**: Validate current structure exists
+        **Step 2**: Create new directory structure
+        **Step 3**: Copy or move files (mode-dependent)
+        **Step 4**: Validate migration success
+        **Step 5**: Optional cleanup with user confirmation
+        **Step 6**: Save migration log
+        
+        Provides comprehensive logging at each step with clear success/failure
+        indicators. Handles errors gracefully with user prompts for recovery.
+        
+        Returns:
+            True if migration completed successfully, False on any failure
+            or user cancellation.
+        
+        Side Effects:
+            - Executes all migration operations (unless dry_run=True)
+            - Logs comprehensive progress and results
+            - May prompt user for decisions (cleanup, error recovery)
+            - Updates migration_success flag
+            - Creates/modifies file system structure
+        
+        Raises:
+            No exceptions raised; all errors handled internally with logging.
+        
+        Example:
+            >>> from pathlib import Path
+            >>> # Test migration with dry-run
+            >>> manager = DataMigrationManager(dry_run=True)  # doctest: +SKIP
+            >>> if manager.migrate():  # doctest: +SKIP
+            ...     print(f"Dry-run successful for {manager.study_name}")
+            
+            >>> # Execute actual migration
+            >>> manager = DataMigrationManager(dry_run=False)  # doctest: +SKIP
+            >>> success = manager.migrate()  # doctest: +SKIP
+            >>> if success:  # doctest: +SKIP
+            ...     print(f"Migrated {manager.study_name} successfully")
+            ...     print(f"  Files processed: {manager.migration_log}")
+            ... else:
+            ...     print("Migration failed - check logs")
+        
+        Note:
+            Idempotent - safe to run multiple times. Detects existing v0.3.0
+            structure and skips redundant work. Dry-run mode recommended for
+            testing before actual migration.
+        """
         log.info("="*60)
         log.info("Starting Data Structure Migration")
         log.info("="*60)
@@ -559,7 +1157,61 @@ class DataMigrationManager:
 
 
 def main():
-    """Main entry point for migration script."""
+    """Main entry point for data migration CLI.
+    
+    Provides command-line interface for data structure migration with:
+    - Argument parsing (--dry-run, --data-dir)
+    - Safety warnings for destructive operations
+    - User confirmation prompts
+    - Migration manager initialization and execution
+    - Exit code reporting for shell scripting
+    
+    **Command-Line Arguments:**
+        --dry-run: Simulate migration without making changes (recommended first)
+        --data-dir: Path to custom source data directory (optional)
+    
+    **Safety Features:**
+    - Displays WARNING about no backup creation
+    - Explains file operations (move vs copy)
+    - Requires explicit 'yes' confirmation for actual migration
+    - Dry-run mode available for risk-free testing
+    
+    **Exit Codes:**
+    - 0: Migration successful
+    - 1: Migration failed or user cancelled
+    
+    Side Effects:
+        - Parses sys.argv for command-line arguments
+        - Prompts user for confirmation (unless dry-run)
+        - Creates DataMigrationManager and runs migration
+        - Prints status messages to console
+        - Calls sys.exit() with appropriate code
+    
+    Example:
+        >>> # From command line:
+        >>> # Test migration first (safe, no changes)
+        >>> # python3 migrate_data_structure.py --dry-run
+        >>>
+        >>> # Import from external source (preserves originals)
+        >>> # python3 migrate_data_structure.py --data-dir=/Volumes/ExternalDrive/data
+        >>>
+        >>> # Reorganize existing data (destructive - moves files)
+        >>> # python3 migrate_data_structure.py
+        >>>
+        >>> # Programmatic usage:
+        >>> import sys
+        >>> sys.argv = ['migrate_data_structure.py', '--dry-run']
+        >>> # main()  # Would execute migration in dry-run mode
+    
+    Warning:
+        Default mode (no --data-dir) MOVES files and DELETES originals.
+        Ensure external backups exist before running. Always test with
+        --dry-run first!
+    
+    Note:
+        Interactive - prompts for user confirmation unless --dry-run used.
+        Safe to run multiple times - detects if already migrated.
+    """
     
     parser = argparse.ArgumentParser(
         description='Migrate RePORTaLiN data structure to v0.3.0 organization',

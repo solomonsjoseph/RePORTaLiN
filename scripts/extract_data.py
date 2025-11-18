@@ -1,5 +1,76 @@
 #!/usr/bin/env python3
-"""Excel to JSONL data extraction with type conversion and validation."""
+"""Excel to JSONL data extraction with type conversion and validation.
+
+This module extracts research data from Excel files (.xlsx) and converts them to
+JSONL (JSON Lines) format for efficient downstream processing. It produces two
+versions of each dataset: 'original' (unmodified) and 'cleaned' (duplicate columns
+removed), ensuring data integrity while optimizing for analysis.
+
+Architecture:
+    The extraction pipeline implements a three-stage process:
+    1. Discovery: Recursively find all Excel files in datasets directory
+    2. Conversion: Read Excel → DataFrame → JSONL with type safety
+    3. Cleaning: Detect and remove duplicate columns in cleaned version
+
+Key Features:
+    - **Dual Output**: Creates both original and cleaned JSONL files
+    - **Type Safety**: Converts pandas/numpy types to JSON-serializable Python types
+    - **Duplicate Detection**: Identifies duplicate columns (e.g., SUBJID2, NAME_3)
+    - **File Integrity**: Validates existing files before skipping
+    - **Empty Handling**: Preserves column metadata even for empty DataFrames
+    - **Error Resilience**: Continues processing on row-level errors
+
+Type Conversion Logic:
+    The module handles these type conversions:
+    - pandas.NA, numpy.nan → None (JSON null)
+    - numpy.int64, numpy.float64 → Python int, float
+    - numpy.inf, -numpy.inf → None (JSON can't represent infinity)
+    - pandas.Timestamp, datetime → ISO 8601 string
+    - All other types preserved as-is
+
+Duplicate Column Detection:
+    Columns are flagged as duplicates if:
+    - Name matches pattern: base_name + optional '_' + digits (e.g., SUBJID2, AGE_1)
+    - Base column exists (e.g., SUBJID for SUBJID2)
+    - Content is 100% identical OR entirely null
+    
+    Columns are KEPT if they have any differing values from the base column.
+
+Output Structure:
+    {OUTPUT_DIR}/{STUDY_NAME}/
+        ├── original/          # Unmodified data with all columns
+        │   ├── file1.jsonl
+        │   └── file2.jsonl
+        └── cleaned/           # Duplicate columns removed
+            ├── file1.jsonl
+            └── file2.jsonl
+
+Typical Usage:
+    # Using defaults from config
+    >>> from scripts.extract_data import extract_excel_to_jsonl
+    >>> result = extract_excel_to_jsonl()
+    >>> print(f"Processed {result['total_records']} records")
+    
+    # Standalone script execution
+    $ python scripts/extract_data.py
+    Found 50 Excel files to process...
+    Processing files: 100%|██████| 50/50 [00:30<00:00]
+    ✓ 10,000 total records processed
+
+Dependencies:
+    - pandas: Excel reading and DataFrame operations
+    - numpy: Type checking and NaN handling
+    - tqdm: Progress visualization
+    - scripts.utils.logging_system: Centralized logging
+    - config: Study-specific paths and settings
+
+Notes:
+    - Uses openpyxl engine for .xlsx files (xlrd deprecated for .xlsx)
+    - Empty DataFrames with columns → metadata-only record with column structure
+    - File integrity checks prevent partial/corrupted overwrites
+    - All infinity values converted to None for valid JSON
+    - Progress tracked with tqdm and verbose logging for observability
+"""
 import os
 import sys
 import json
@@ -120,7 +191,37 @@ __all__ = [
 ]
 
 def clean_record_for_json(record: dict) -> dict:
-    """Convert pandas record to JSON-serializable types."""
+    """Convert pandas record to JSON-serializable types.
+    
+    This function transforms a DataFrame row (as dict) into a JSON-safe format by
+    converting pandas/numpy types to Python native types. It handles edge cases
+    like infinity, NaN, and datetime objects that aren't natively JSON-serializable.
+    
+    Args:
+        record: Dictionary from DataFrame row (typically from row.to_dict()).
+            May contain pandas/numpy types like np.int64, pd.Timestamp, etc.
+    
+    Returns:
+        Dictionary with all values converted to JSON-serializable Python types:
+            - pd.NA, np.nan → None
+            - np.integer, np.floating → int, float
+            - np.inf, -np.inf → None (JSON can't represent infinity)
+            - pd.Timestamp, datetime → str (ISO 8601 format)
+            - Other types preserved as-is
+    
+    Example:
+        >>> import pandas as pd
+        >>> import numpy as np
+        >>> record = {'age': np.int64(25), 'score': np.inf, 'date': pd.Timestamp('2023-01-01')}
+        >>> clean_record_for_json(record)
+        {'age': 25, 'score': None, 'date': '2023-01-01 00:00:00'}
+        
+    Notes:
+        - Infinity values are converted to None (JSON spec doesn't support ±Infinity)
+        - All NaN values (pandas.NA, numpy.nan) become JSON null (None)
+        - Dates are converted to strings (ISO 8601 format by default)
+        - Used before every json.dumps() call to ensure no TypeErrors
+    """
     cleaned = {}
     for key, value in record.items():
         if pd.isna(value):
@@ -146,7 +247,32 @@ def clean_record_for_json(record: dict) -> dict:
     return cleaned
 
 def find_excel_files(directory: str) -> List[Path]:
-    """Find all Excel files (.xlsx) in the specified directory."""
+    """Find all Excel files (.xlsx) in the specified directory.
+    
+    Recursively searches for Excel files matching the .xlsx extension pattern.
+    Validates directory existence and accessibility before searching.
+    
+    Args:
+        directory: Path to directory to search (can be relative or absolute).
+    
+    Returns:
+        List of Path objects for found Excel files. Empty list if no files found,
+        directory doesn't exist, or errors occur during search.
+        
+    Example:
+        >>> files = find_excel_files('data/Indo-VAP/datasets')
+        >>> len(files)
+        50
+        >>> files[0].name
+        '1A_ICScreening.xlsx'
+        
+    Notes:
+        - Returns empty list (not error) if directory doesn't exist
+        - Validates path is actually a directory before searching
+        - Uses glob pattern from EXCEL_FILE_EXTENSION constant (*.xlsx)
+        - All errors caught and logged; function never raises exceptions
+        - Results include recursive subdirectories if they exist
+    """
     try:
         dir_path = Path(directory)
         
@@ -175,11 +301,79 @@ def find_excel_files(directory: str) -> List[Path]:
         return []
 
 def is_dataframe_empty(df: pd.DataFrame) -> bool:
-    """Check if DataFrame is completely empty (no rows AND no columns)."""
+    """Check if DataFrame is completely empty (no rows AND no columns).
+    
+    This differs from pandas' df.empty which returns True for DataFrames with
+    columns but no rows. This function only returns True if BOTH rows and
+    columns are absent.
+    
+    Args:
+        df: DataFrame to check for emptiness.
+    
+    Returns:
+        True if DataFrame has zero rows AND zero columns, False otherwise.
+        
+    Example:
+        >>> df_no_data = pd.DataFrame()
+        >>> is_dataframe_empty(df_no_data)
+        True
+        
+        >>> df_with_cols = pd.DataFrame(columns=['A', 'B'])
+        >>> is_dataframe_empty(df_with_cols)
+        False
+        
+    Notes:
+        - DataFrames with columns but no rows are NOT considered empty
+        - Such DataFrames are saved as metadata records with column structure
+        - This allows preserving schema information from empty Excel files
+    """
     return len(df.columns) == 0 and len(df) == 0
 
 def convert_dataframe_to_jsonl(df: pd.DataFrame, output_file: Path, source_filename: str) -> int:
-    """Convert DataFrame to JSONL format, handling empty DataFrames with column metadata."""
+    """Convert DataFrame to JSONL format, handling empty DataFrames with column metadata.
+    
+    Writes one JSON object per line (JSONL format) to the output file. Each record
+    includes a source_file field for provenance tracking. Empty DataFrames (with
+    columns but no data) are saved as a single metadata record preserving schema.
+    
+    Args:
+        df: DataFrame to convert (may be empty but have columns).
+        output_file: Path where JSONL file will be written.
+        source_filename: Original Excel filename (for provenance tracking).
+    
+    Returns:
+        Number of records written to file. Returns 1 for metadata-only records.
+        
+    Raises:
+        IOError: If file cannot be opened or written.
+        OSError: If filesystem errors occur during write.
+        TypeError: If a record cannot be JSON-serialized (propagated after logging).
+        ValueError: If JSON serialization fails for other reasons.
+        
+    Example:
+        >>> df = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
+        >>> count = convert_dataframe_to_jsonl(df, Path('output.jsonl'), 'test.xlsx')
+        >>> count
+        2
+        
+        >>> # Empty DataFrame with columns → metadata record
+        >>> empty_df = pd.DataFrame(columns=['ID', 'Name'])
+        >>> count = convert_dataframe_to_jsonl(empty_df, Path('meta.jsonl'), 'empty.xlsx')
+        >>> count
+        1
+        
+    Side Effects:
+        - Creates/overwrites output_file
+        - Logs warnings for rows that fail JSON serialization (but continues)
+        - Updates verbose logger with metrics and warnings
+        
+    Notes:
+        - Empty DataFrames (rows=0, cols>0) → single metadata record with schema
+        - Metadata records have _metadata field with type, columns, and note
+        - Rows with serialization errors are skipped (logged as warnings)
+        - All records include source_file field for data lineage
+        - Uses UTF-8 encoding and ensure_ascii=False for international characters
+    """
     try:
         with open(output_file, 'w', encoding=FILE_ENCODING) as f:
             # Handle empty DataFrames with column structure
@@ -245,7 +439,49 @@ def convert_dataframe_to_jsonl(df: pd.DataFrame, output_file: Path, source_filen
 
 
 def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Optional[str]]:
-    """Process a single Excel file to JSONL format, creating both original and cleaned versions."""
+    """Process a single Excel file to JSONL format, creating both original and cleaned versions.
+    
+    This function orchestrates the complete processing pipeline for one Excel file:
+    1. Create output directory structure (original/ and cleaned/ subdirs)
+    2. Load Excel file into DataFrame with openpyxl engine
+    3. Save original version (all columns preserved)
+    4. Clean duplicate columns using pattern matching + content comparison
+    5. Save cleaned version (duplicates removed)
+    
+    Args:
+        excel_file: Path to the Excel file to process (.xlsx).
+        output_dir: Base output directory (subdirs created automatically).
+    
+    Returns:
+        Tuple of (success, record_count, error_message):
+            - success: True if processing completed, False on any error
+            - record_count: Number of records in original version (0 on error)
+            - error_message: Error description if failed, None if successful
+            
+    Example:
+        >>> from pathlib import Path
+        >>> success, count, error = process_excel_file(
+        ...     Path('data/1A_ICScreening.xlsx'),
+        ...     'output/Indo-VAP'
+        ... )
+        >>> if success:
+        ...     print(f"Processed {count} records")
+        Processed 150 records
+        
+    Side Effects:
+        - Creates output_dir/original/ and output_dir/cleaned/ directories
+        - Writes two JSONL files: {filename}.jsonl in each directory
+        - Logs progress, metrics, and timing via logging_system
+        - Prints status to stdout via tqdm.write()
+        
+    Notes:
+        - Empty DataFrames (no rows or columns) are skipped
+        - Empty with columns → metadata-only record is created
+        - Uses openpyxl engine for .xlsx (xlrd deprecated)
+        - Duplicate detection: columns ending with _N or N compared to base
+        - All errors caught; never raises exceptions to caller
+        - Processing time logged via verbose logger
+    """
     start_time = time.time()
     try:
         # Create separate directories for original and cleaned files
@@ -306,7 +542,42 @@ def process_excel_file(excel_file: Path, output_dir: str) -> Tuple[bool, int, Op
         return False, 0, error_msg
 
 def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Remove duplicate columns ending with numeric suffixes (e.g., SUBJID2, SUBJID3)."""
+    """Remove duplicate columns ending with numeric suffixes (e.g., SUBJID2, SUBJID3).
+    
+    This function implements intelligent duplicate detection:
+    1. Identify columns matching pattern: base_name + optional '_' + digits
+    2. Check if base column exists (e.g., SUBJID for SUBJID2)
+    3. Compare content: remove if 100% identical OR entirely null
+    4. Keep columns that have ANY differing values (even 1 row difference)
+    
+    This preserves intentional duplicate columns that contain different data.
+    
+    Args:
+        df: DataFrame potentially containing duplicate columns.
+    
+    Returns:
+        New DataFrame with duplicate columns removed. Original DataFrame unchanged.
+        
+    Example:
+        >>> df = pd.DataFrame({
+        ...     'SUBJID': [1, 2, 3],
+        ...     'SUBJID2': [1, 2, 3],  # Identical → removed
+        ...     'AGE': [25, 30, 35],
+        ...     'AGE_1': [25, 30, 36]  # Different → kept
+        ... })
+        >>> cleaned = clean_duplicate_columns(df)
+        >>> list(cleaned.columns)
+        ['SUBJID', 'AGE', 'AGE_1']
+        
+    Notes:
+        - Pattern matched: r'^(.+?)_?(\d+)$' (e.g., SUBJID2, NAME_3, AGE1)
+        - Columns removed if: entirely null OR 100% identical to base column
+        - NaN-to-NaN comparisons handled correctly (both NaN → considered equal)
+        - Comparison failures → column kept for safety
+        - Removal reasons logged for each column (null vs. identical)
+        - Returns copy; original DataFrame unmodified
+        - If base column doesn't exist, numbered column is kept
+    """
     columns_to_keep = []
     columns_to_remove = []
     removal_reasons = {}  # Track why each column was removed
@@ -376,7 +647,32 @@ def clean_duplicate_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df[columns_to_keep].copy()
 
 def check_file_integrity(file_path: Path) -> bool:
-    """Check if JSONL file is valid and readable."""
+    """Check if JSONL file is valid and readable.
+    
+    Performs three validation checks:
+    1. File exists and is not empty (size > 0)
+    2. First line is valid JSON
+    3. First line parses to a non-empty dictionary
+    
+    Args:
+        file_path: Path to JSONL file to validate.
+    
+    Returns:
+        True if file is valid and readable, False otherwise.
+        
+    Example:
+        >>> from pathlib import Path
+        >>> valid = check_file_integrity(Path('output/file.jsonl'))
+        >>> if valid:
+        ...     print("File is valid, skipping reprocessing")
+        
+    Notes:
+        - Only validates first line (not entire file) for performance
+        - Returns False for: missing files, empty files, corrupt JSON
+        - Used to skip reprocessing existing valid files
+        - Catches all I/O and JSON errors; never raises exceptions
+        - Empty files (size=0) are considered invalid
+    """
     try:
         if not file_path.exists() or file_path.stat().st_size == 0:
             return False
@@ -392,7 +688,56 @@ def check_file_integrity(file_path: Path) -> bool:
 
 
 def extract_excel_to_jsonl() -> Dict[str, Any]:
-    """Extract all Excel files from dataset directory, creating original and cleaned JSONL versions."""
+    """Extract all Excel files from dataset directory, creating original and cleaned JSONL versions.
+    
+    This is the main orchestration function that processes all Excel files in the
+    configured datasets directory. It creates two versions of each dataset:
+    - original/: Unmodified data with all columns
+    - cleaned/: Duplicate columns removed
+    
+    The function validates configuration, discovers files, processes each file,
+    tracks progress, and returns comprehensive results.
+    
+    Returns:
+        Dictionary with extraction results:
+            - 'files_found': Total Excel files discovered (int)
+            - 'files_created': Number of JSONL files successfully created (int)
+            - 'files_skipped': Files skipped (valid output already exists) (int)
+            - 'total_records': Total data records processed (int)
+            - 'errors': List of error messages (List[str])
+            - 'processing_time': Total elapsed time in seconds (float)
+    
+    Example:
+        >>> from scripts.extract_data import extract_excel_to_jsonl
+        >>> result = extract_excel_to_jsonl()
+        Found 50 Excel files to process...
+        Processing files: 100%|██████| 50/50 [00:30<00:00]
+        ✓ 10,000 total records processed
+        
+        >>> print(f"Created {result['files_created']} files")
+        Created 50 files
+        >>> print(f"Processed {result['total_records']} records")
+        Processed 10,000 records
+        
+    Side Effects:
+        - Creates {OUTPUT_DIR}/{STUDY_NAME}/original/ directory
+        - Creates {OUTPUT_DIR}/{STUDY_NAME}/cleaned/ directory
+        - Writes JSONL files for each Excel file (2 versions per file)
+        - Prints progress to stdout via tqdm and print statements
+        - Logs extensively via logging_system (INFO, DEBUG, ERROR levels)
+        - Updates verbose logger with metrics and timing
+        
+    Notes:
+        - Requires config.DATASETS_DIR, config.OUTPUT_DIR, config.STUDY_NAME
+        - Returns error dict with 0 counts if configuration invalid
+        - Validates file integrity before skipping (prevents using corrupt files)
+        - Corrupted existing files trigger reprocessing with warning
+        - Continues processing on individual file errors (resilient)
+        - Empty directories return success with 0 files found
+        - Progress tracked with tqdm progress bar
+        - Total processing time included in results
+        - Suitable for batch processing hundreds of files
+    """
     overall_start = time.time()
     
     # Validate required configuration

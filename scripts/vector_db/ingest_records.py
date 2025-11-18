@@ -1,4 +1,149 @@
-"""Ingest de-identified JSONL records into vector database."""
+"""JSONL record ingestion pipeline for vector database with adaptive chunking.
+
+Orchestrates end-to-end JSONL record ingestion workflow: discovers de-identified
+research data files, extracts natural language text via TextChunker, generates
+embeddings, and uploads to vector database. Designed for clinical research datasets
+(cleaned or original) with automatic collection management, progress tracking, and
+comprehensive error reporting.
+
+**Pipeline Architecture:**
+```
+JSONL Files → TextChunker → Chunks → EmbeddingModel → Vectors → VectorStore
+                ↓             ↓          ↓                ↓           ↓
+           Parse JSON    Extract NL   Generate         Standardize  Qdrant/Chroma
+           records       text fields  embeddings       dimensions   persistence
+```
+
+**Key Features:**
+- **Dual Dataset Support**: Handles both 'cleaned' and 'original' de-identified data
+- **Natural Language Extraction**: Intelligent text field detection and chunking
+- **Batch Processing**: Configurable batch sizes for memory-efficient embedding
+- **Collection Auto-Selection**: Automatic collection based on dataset type
+- **Progress Tracking**: Per-file and overall progress reporting
+- **Record Limiting**: Optional max_records_per_file for testing/sampling
+- **Performance Metrics**: Tracks processing time, records/file, chunks/record
+
+**Processing Workflow:**
+
+1. **Discovery**: Scan jsonl_dir for *.jsonl files
+2. **Validation**: Verify directory exists, validate dataset type
+3. **Initialization**: Load TextChunker, EmbeddingModel, VectorStore
+4. **Extraction**: Parse each JSONL file, extract natural language fields
+5. **Chunking**: Break long text fields into chunks (respecting token limits)
+6. **Embedding**: Generate vectors for all chunks (batch processing)
+7. **Ingestion**: Upload embeddings + metadata to vector store
+8. **Reporting**: Log performance metrics and summary statistics
+
+**Dataset Types:**
+
+- **cleaned**: De-identified data with PHI removed, structured fields preserved
+  - Collection: config.JSONL_COLLECTION_CLEANED (e.g., 'Indo-VAP_records_cleaned')
+  - Source: output/deidentified/{study_name}/cleaned/
+  - Use case: Production semantic search, safer sharing
+
+- **original**: De-identified data preserving original structure/terminology  
+  - Collection: config.JSONL_COLLECTION_ORIGINAL (e.g., 'Indo-VAP_records_original')
+  - Source: output/deidentified/{study_name}/original/
+  - Use case: Full-fidelity research, complete record preservation
+
+**Performance Characteristics:**
+
+Typical performance (CPU, default settings):
+- **Parsing**: ~100-500 records/second (varies by record complexity)
+- **Chunking**: ~0.1-0.5 seconds per record (depends on text length)
+- **Embedding**: ~0.1-0.5 seconds per chunk (batch size, model speed)
+- **Upload**: ~0.05-0.2 seconds per chunk (network/disk I/O)
+
+For 10 files (~10,000 records, ~50,000 chunks):
+- Total time: ~10-20 minutes (CPU)
+- GPU acceleration: ~3-5x faster for embedding
+
+**Usage Patterns:**
+
+Basic ingestion (cleaned data, default settings):
+    >>> from scripts.vector_db.ingest_records import ingest_records_to_vectordb
+    >>> # Ingest all cleaned JSONL files
+    >>> count = ingest_records_to_vectordb(
+    ...     study_name='Indo-VAP',
+    ...     dataset_type='cleaned'
+    ... )  # doctest: +SKIP
+    >>> print(f"Ingested {count} chunks")  # doctest: +SKIP
+
+Custom configuration:
+    >>> from pathlib import Path
+    >>> count = ingest_records_to_vectordb(
+    ...     study_name='Indo-VAP',
+    ...     jsonl_dir=Path('/data/deidentified/Indo-VAP/cleaned'),
+    ...     collection_name='my_records_collection',
+    ...     chunk_size=512,
+    ...     recreate_collection=True,
+    ...     max_records_per_file=100,  # Limit for testing
+    ...     dataset_type='cleaned'
+    ... )  # doctest: +SKIP
+
+Original dataset ingestion:
+    >>> # Ingest original (non-cleaned) de-identified data
+    >>> count = ingest_records_to_vectordb(
+    ...     study_name='Indo-VAP',
+    ...     dataset_type='original'
+    ... )  # doctest: +SKIP
+
+CLI usage:
+    ```bash
+    # Basic ingestion (cleaned data)
+    python -m scripts.vector_db.ingest_records
+    
+    # Original dataset
+    python -m scripts.vector_db.ingest_records --dataset-type original
+    
+    # Recreate collection and ingest
+    python -m scripts.vector_db.ingest_records --recreate
+    
+    # Test with limited records
+    python -m scripts.vector_db.ingest_records --max-records 100 --verbose
+    
+    # Custom directory
+    python -m scripts.vector_db.ingest_records --jsonl-dir /path/to/jsonl
+    ```
+
+**Dependencies:**
+- TextChunker: Extracts natural language text from JSONL (jsonl_chunking_nl.py)
+- EmbeddingModel: Generates text embeddings (embeddings.py)
+- VectorStore: Manages vector database operations (vector_store.py)
+- config: Global configuration (paths, model names, chunk sizes)
+
+**Error Handling:**
+- FileNotFoundError: JSONL directory doesn't exist
+- ValueError: Invalid dataset_type (must be 'cleaned' or 'original')
+- JSONDecodeError: Malformed JSONL files (logged, skipped)
+- TextChunker errors: Text extraction failures (logged per-file)
+- Embedding errors: Model loading failures (fatal, not retried)
+- VectorStore errors: Connection issues, schema mismatches (fatal)
+
+**Configuration:**
+
+Uses config.py defaults (overrideable via arguments):
+- OUTPUT_DIR: Base output directory for de-identified data
+- JSONL_COLLECTION_CLEANED: Collection name for cleaned records
+- JSONL_COLLECTION_ORIGINAL: Collection name for original records
+- CHUNK_SIZE: Chunk size in tokens (default: 500)
+- CHUNK_OVERLAP: Overlap between chunks (default: 50)
+- BATCH_SIZE: Embedding batch size (default: 32)
+- EMBEDDING_MODEL: Model identifier (default: all-MiniLM-L6-v2)
+- VECTOR_DB_DIR: Vector database storage path
+
+See Also:
+    jsonl_chunking_nl.py: Natural language text extraction from JSONL
+    embeddings.py: Embedding model wrapper
+    vector_store.py: Vector database abstraction
+    ingest_pdfs.py: Parallel module for ingesting PDF forms
+
+Note:
+    First run downloads embedding model (~100-500MB) from Hugging Face Hub.
+    Subsequent runs use local cache. Collection recreation deletes existing
+    data—use with caution in production. max_records_per_file useful for
+    testing but doesn't stop at exact limit (processes full files).
+"""
 
 import argparse
 import json
@@ -61,7 +206,137 @@ def ingest_records_to_vectordb(
     max_records_per_file: Optional[int] = None,
     dataset_type: str = "cleaned"
 ) -> int:
-    """Ingest JSONL records from specified directory to vector database."""
+    """Ingest de-identified JSONL records from directory to vector database.
+    
+    Orchestrates end-to-end JSONL record ingestion workflow:
+    1. Discovers all *.jsonl files in specified directory
+    2. Parses JSON records line-by-line (JSONL format)
+    3. Converts structured JSON to natural language text via TextChunker
+    4. Generates embeddings for all text chunks (batch processing)
+    5. Uploads embeddings + metadata to vector database
+    6. Returns total count of successfully ingested records
+    
+    Designed for clinical research datasets with support for both 'cleaned'
+    and 'original' de-identified data types. Automatically selects appropriate
+    collection based on dataset_type, handles progress tracking, and provides
+    comprehensive error reporting for each file/record.
+    
+    Args:
+        study_name (str, optional): Study identifier for collection naming and
+            directory resolution. Used to construct default jsonl_dir if not
+            provided. Default: "Indo-VAP".
+        jsonl_dir (Optional[Path], optional): Directory containing *.jsonl files
+            to ingest. If None, auto-resolves to:
+            {OUTPUT_DIR}/deidentified/{study_name}/{dataset_type}/
+            Must exist or raises FileNotFoundError. Default: None (auto-detect).
+        collection_name (Optional[str], optional): Target vector database collection.
+            If None, auto-selects based on dataset_type:
+            - 'cleaned' → config.JSONL_COLLECTION_CLEANED
+            - 'original' → config.JSONL_COLLECTION_ORIGINAL
+            Default: None (auto-detect from dataset_type).
+        chunk_size (Optional[int], optional): Maximum tokens per text chunk.
+            Affects granularity of semantic search. Smaller chunks = more precise
+            results but more storage. If None, uses config.CHUNK_SIZE (500).
+            Default: None (uses config default).
+        recreate_collection (bool, optional): If True, deletes existing collection
+            before ingestion. WARNING: Destroys all existing data in collection.
+            Use with caution in production. Default: False.
+        max_records_per_file (Optional[int], optional): Limit records processed
+            per JSONL file. Useful for testing/sampling. None = process all records.
+            Must be positive integer if provided. Default: None (no limit).
+        dataset_type (str, optional): Type of de-identified dataset to ingest.
+            Must be 'cleaned' or 'original'. Determines default collection and
+            directory path. 'cleaned' = PHI-removed data, 'original' = full-fidelity
+            de-identified data. Default: "cleaned".
+    
+    Returns:
+        int: Total number of records successfully ingested to vector database.
+            Includes all chunks across all processed JSONL files. Returns 0 if
+            no JSONL files found or all processing failed.
+    
+    Raises:
+        ValueError: If dataset_type not in ['cleaned', 'original'], or if
+            max_records_per_file <= 0.
+        FileNotFoundError: If jsonl_dir does not exist. Suggests running
+            de-identification first: `python main.py --deidentify`.
+        RuntimeError: If TextChunker, EmbeddingModel, or VectorStore initialization
+            fails, or if any fatal error occurs during ingestion pipeline.
+        JSONDecodeError: If JSONL file contains malformed JSON (logged per-line,
+            processing continues).
+        IOError: If JSONL files cannot be read (logged per-file, processing continues).
+    
+    Example:
+        Basic ingestion (cleaned data, defaults):
+            >>> from scripts.vector_db.ingest_records import ingest_records_to_vectordb
+            >>> # Ingest all cleaned JSONL files from default directory
+            >>> count = ingest_records_to_vectordb(
+            ...     study_name='Indo-VAP',
+            ...     dataset_type='cleaned'
+            ... )  # doctest: +SKIP
+            >>> print(f"Ingested {count} records")  # doctest: +SKIP
+            Ingested 5234 records
+        
+        Custom directory and collection:
+            >>> from pathlib import Path
+            >>> count = ingest_records_to_vectordb(
+            ...     study_name='Indo-VAP',
+            ...     jsonl_dir=Path('/data/custom/jsonl'),
+            ...     collection_name='my_custom_collection',
+            ...     chunk_size=512,
+            ...     dataset_type='cleaned'
+            ... )  # doctest: +SKIP
+        
+        Testing with record limits:
+            >>> # Ingest max 100 records per file for testing
+            >>> count = ingest_records_to_vectordb(
+            ...     study_name='Indo-VAP',
+            ...     max_records_per_file=100,
+            ...     dataset_type='cleaned'
+            ... )  # doctest: +SKIP
+        
+        Original dataset ingestion with collection recreation:
+            >>> # Ingest original (non-cleaned) de-identified data
+            >>> # WARNING: recreate_collection=True deletes existing data!
+            >>> count = ingest_records_to_vectordb(
+            ...     study_name='Indo-VAP',
+            ...     dataset_type='original',
+            ...     recreate_collection=True
+            ... )  # doctest: +SKIP
+    
+    Side Effects:
+        - Creates vector database collection if it doesn't exist
+        - If recreate_collection=True, deletes existing collection data
+        - Writes embeddings + metadata to vector database (persistent disk storage)
+        - Logs progress/errors to console and log files (via logging_system)
+        - Downloads embedding model on first run (~100-500MB to cache)
+    
+    Performance:
+        Typical processing rates (CPU, default settings):
+        - Parsing: ~100-500 records/second
+        - NL conversion: ~0.1-0.5s per record
+        - Embedding: ~0.1-0.5s per chunk (batch size dependent)
+        - Upload: ~0.05-0.2s per chunk
+        
+        For 10 files (~10,000 records, ~50,000 chunks):
+        - Total time: ~10-20 minutes (CPU)
+        - GPU acceleration: ~3-5x faster
+    
+    Note:
+        - JSON-to-NL conversion extracts only natural language fields (text, names,
+          dates, etc.), excluding purely numeric/categorical data
+        - Each record becomes a single TextChunk with original JSON in metadata
+        - Subject IDs extracted from SUBJID/subject_id/SubjID fields for metadata
+        - Malformed JSON lines are logged and skipped (non-fatal)
+        - Empty NL text (all numeric fields) results in skipped records
+        - Collection name must match VectorStore.get_collection_name() pattern
+        - max_records_per_file doesn't stop at exact limit (processes full files)
+    
+    See Also:
+        jsonl_chunking_nl.TextChunker: Natural language text extraction from JSON
+        embeddings.EmbeddingModel: Embedding model wrapper
+        vector_store.VectorStore: Vector database operations
+        main(): CLI entry point for this function
+    """
     vlog("🔍 [INGEST] Entered ingest_records_to_vectordb() function")
     vlog(f"🔍 [INGEST] Parameters - study_name: {study_name}, dataset_type: {dataset_type}, recreate: {recreate_collection}")
     
@@ -279,7 +554,148 @@ def ingest_records_to_vectordb(
 
 
 def main() -> int:
-    """CLI entry point for JSONL records ingestion."""
+    """CLI entry point for de-identified JSONL records ingestion to vector database.
+    
+    Provides command-line interface for ingest_records_to_vectordb() with argument
+    parsing, logging configuration, and error handling. Supports all core functionality:
+    study selection, dataset type (cleaned/original), custom directories/collections,
+    chunk size configuration, collection recreation, record limiting for testing,
+    and verbose debug logging.
+    
+    **Command-line Arguments:**
+    
+    --study-name STUDY:
+        Study identifier for collection naming and directory resolution.
+        Default: config.STUDY_NAME (typically 'Indo-VAP')
+    
+    --dataset-type {cleaned,original}:
+        Type of de-identified dataset to ingest:
+        - 'cleaned': PHI-removed data, structured fields preserved
+        - 'original': Full-fidelity de-identified data
+        Default: 'cleaned'
+    
+    --jsonl-dir PATH:
+        Directory containing *.jsonl files to ingest. If not provided,
+        auto-resolves to: {OUTPUT_DIR}/deidentified/{study_name}/{dataset_type}/
+    
+    --collection-name NAME:
+        Target vector database collection. If not provided, auto-selects
+        based on --dataset-type (JSONL_COLLECTION_CLEANED or _ORIGINAL)
+    
+    --chunk-size SIZE:
+        Maximum tokens per text chunk. Affects semantic search granularity.
+        Default: config.CHUNK_SIZE (typically 500)
+    
+    --recreate:
+        Recreate collection (deletes existing data). WARNING: Destructive operation!
+        Use with caution in production environments.
+    
+    --max-records N:
+        Maximum records to process per JSONL file. Useful for testing/sampling.
+        Must be positive integer. Default: None (process all records)
+    
+    --verbose:
+        Enable verbose debug logging. Shows detailed trace of all operations,
+        imports, and internal state. Equivalent to --log-level DEBUG.
+    
+    --log-level {DEBUG,INFO,WARNING,ERROR}:
+        Logging verbosity level. Default: INFO
+    
+    Returns:
+        int: Exit code for CLI:
+            - 0: Success (all records ingested)
+            - 1: Failure (FileNotFoundError, ValueError, or any exception)
+    
+    Raises:
+        FileNotFoundError: If JSONL directory doesn't exist (exit code 1)
+        ValueError: If invalid parameters (dataset_type, max_records) (exit code 1)
+        Exception: Any fatal error during ingestion pipeline (exit code 1)
+    
+    Example:
+        Basic ingestion (cleaned data, defaults):
+            ```bash
+            # Ingest all cleaned JSONL files from default directory
+            python -m scripts.vector_db.ingest_records
+            
+            # Output:
+            # ================================================================================
+            # STARTING JSONL RECORDS INGESTION TO VECTOR DATABASE
+            # ================================================================================
+            # Study: Indo-VAP
+            # Dataset Type: cleaned
+            # JSONL Directory: output/deidentified/Indo-VAP/cleaned
+            # Collection: Indo-VAP_records_cleaned
+            # ...
+            # ✅ JSONL INGESTION COMPLETED
+            #    - JSONL files processed: 10
+            #    - Records ingested: 5234
+            # ================================================================================
+            ```
+        
+        Original dataset with custom settings:
+            ```bash
+            # Ingest original data with custom chunk size
+            python -m scripts.vector_db.ingest_records \
+                --dataset-type original \
+                --chunk-size 512 \
+                --verbose
+            ```
+        
+        Recreate collection and limit records for testing:
+            ```bash
+            # WARNING: --recreate deletes existing data!
+            python -m scripts.vector_db.ingest_records \
+                --recreate \
+                --max-records 100 \
+                --verbose
+            ```
+        
+        Custom directory and collection:
+            ```bash
+            # Ingest from custom directory to custom collection
+            python -m scripts.vector_db.ingest_records \
+                --jsonl-dir /path/to/custom/jsonl \
+                --collection-name my_custom_collection
+            ```
+        
+        Handle errors gracefully:
+            ```bash
+            # Missing directory error (exit code 1)
+            python -m scripts.vector_db.ingest_records --jsonl-dir /nonexistent
+            # Output:
+            # ❌ [MAIN] File not found error: JSONL directory not found: /nonexistent
+            # Run de-identification first: python main.py --deidentify
+            # Exit code: 1
+            ```
+    
+    Side Effects:
+        - Resets and reconfigures logging system (log.reset_logging, log.setup_logging)
+        - Creates vector database collection if it doesn't exist
+        - If --recreate, deletes existing collection data (destructive!)
+        - Writes embeddings + metadata to vector database (persistent storage)
+        - Logs all operations to console and log files
+        - Downloads embedding model on first run (~100-500MB)
+    
+    Performance:
+        Identical to ingest_records_to_vectordb(). Typical processing:
+        - 10 files (~10,000 records): ~10-20 minutes (CPU)
+        - GPU acceleration: ~3-5x faster
+        - Use --max-records for quick testing without full ingestion
+    
+    Note:
+        - Logging configuration: --verbose sets DEBUG level, overrides --log-level
+        - log.reset_logging() called to allow reconfiguration after module imports
+        - Exit code 0 = success, 1 = any error (FileNotFoundError, ValueError, Exception)
+        - --max-records applies per-file, not total (doesn't stop at exact limit)
+        - Collection name validation: warns if mismatch with VectorStore pattern
+        - Auto-detection of collection/directory based on --dataset-type
+    
+    See Also:
+        ingest_records_to_vectordb(): Core ingestion function (called by this CLI)
+        jsonl_chunking_nl.TextChunker: Natural language extraction from JSON
+        embeddings.EmbeddingModel: Embedding generation
+        vector_store.VectorStore: Vector database operations
+    """
     
     vlog("🔍 [MAIN] Entered main() function")
     vlog(f"🔍 [MAIN] sys.argv: {sys.argv}")
