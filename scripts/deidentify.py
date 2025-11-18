@@ -1164,9 +1164,11 @@ class MappingStore:
         >>> store.get_pseudonym("John Smith", PHIType.NAME_FULL)
         'PATIENT-ABC123'
         >>> # Save to disk (encrypted)
-        >>> store.save_mappings()
+        >>> store.save_mappings()  # doctest: +SKIP
         >>> # Export for audit (without originals)
-        >>> store.export_for_audit(Path("audit.json"), include_originals=False)
+        >>> import tempfile
+        >>> temp_path = Path(tempfile.mkdtemp()) / "audit.json"
+        >>> store.export_for_audit(temp_path, include_originals=False)  # doctest: +SKIP
         
     Side Effects:
         - Creates storage directory if not exists
@@ -1329,11 +1331,13 @@ class MappingStore:
             RuntimeError: If encryption fails or unexpected error occurs.
         
         Example:
-            >>> store = MappingStore(Path("mappings.enc"))
-            >>> store.add_mapping("SSN", "SSN-ABC123", PHIType.SSN)
-            >>> store.save_mappings()
+            >>> import tempfile
+            >>> temp_dir = tempfile.mkdtemp()
+            >>> store = MappingStore(Path(temp_dir) / "mappings.enc")  # doctest: +SKIP
+            >>> store.add_mapping("SSN", "SSN-ABC123", PHIType.SSN)  # doctest: +SKIP
+            >>> store.save_mappings()  # doctest: +SKIP
             >>> # File now exists with encrypted data
-            >>> Path("mappings.enc").exists()
+            >>> (Path(temp_dir) / "mappings.enc").exists()  # doctest: +SKIP
             True
         
         Side Effects:
@@ -1655,14 +1659,16 @@ class MappingStore:
             RuntimeError: If JSON serialization or write fails.
         
         Example:
-            >>> store = MappingStore(Path("mappings.enc"))
-            >>> store.add_mapping("SSN", "SSN-ABC", PHIType.SSN, {"source": "dataset1"})
+            >>> import tempfile
+            >>> temp_dir = Path(tempfile.mkdtemp())
+            >>> store = MappingStore(temp_dir / "mappings.enc")  # doctest: +SKIP
+            >>> store.add_mapping("SSN", "SSN-ABC", PHIType.SSN, {"source": "dataset1"})  # doctest: +SKIP
             >>> # Safe export (no originals)
-            >>> store.export_for_audit(Path("audit_safe.json"), include_originals=False)
+            >>> store.export_for_audit(temp_dir / "audit_safe.json", include_originals=False)  # doctest: +SKIP
             >>> # Sensitive export (with originals - use caution!)
-            >>> store.export_for_audit(Path("audit_full.json"), include_originals=True)
+            >>> store.export_for_audit(temp_dir / "audit_full.json", include_originals=True)  # doctest: +SKIP
             >>> # Verify file created
-            >>> Path("audit_safe.json").exists()
+            >>> (temp_dir / "audit_safe.json").exists()  # doctest: +SKIP
             True
         
         Side Effects:

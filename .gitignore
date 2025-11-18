@@ -148,6 +148,18 @@ docs/sphinx/_templates/
 docs/_build/
 site/
 
+# Doctest artifacts (files created during sphinx doctest runs)
+# These should only be created in temp directories, never in project root
+us_hipaa.json
+app.json
+output.jsonl
+meta.jsonl
+audit*.json
+mappings*.enc
+mappings*.json
+*_test.json
+*_test.jsonl
+
 # ============================================================================
 # 9. Security & Secrets (CRITICAL - DO NOT COMMIT)
 # ============================================================================

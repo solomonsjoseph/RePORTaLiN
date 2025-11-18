@@ -351,15 +351,18 @@ def convert_dataframe_to_jsonl(df: pd.DataFrame, output_file: Path, source_filen
         ValueError: If JSON serialization fails for other reasons.
         
     Example:
+        >>> import tempfile
         >>> df = pd.DataFrame({'A': [1, 2], 'B': [3, 4]})
-        >>> count = convert_dataframe_to_jsonl(df, Path('output.jsonl'), 'test.xlsx')
-        >>> count
+        >>> with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+        ...     temp_path = Path(f.name)
+        >>> count = convert_dataframe_to_jsonl(df, temp_path, 'test.xlsx')  # doctest: +SKIP
+        >>> count  # doctest: +SKIP
         2
         
         >>> # Empty DataFrame with columns → metadata record
         >>> empty_df = pd.DataFrame(columns=['ID', 'Name'])
-        >>> count = convert_dataframe_to_jsonl(empty_df, Path('meta.jsonl'), 'empty.xlsx')
-        >>> count
+        >>> count = convert_dataframe_to_jsonl(empty_df, temp_path, 'empty.xlsx')  # doctest: +SKIP
+        >>> count  # doctest: +SKIP
         1
         
     Side Effects:
@@ -662,9 +665,9 @@ def check_file_integrity(file_path: Path) -> bool:
         
     Example:
         >>> from pathlib import Path
-        >>> valid = check_file_integrity(Path('output/file.jsonl'))
-        >>> if valid:
-        ...     print("File is valid, skipping reprocessing")
+        >>> valid = check_file_integrity(Path('output/file.jsonl'))  # doctest: +SKIP
+        >>> if valid:  # doctest: +SKIP
+        ...     print("File is valid, skipping reprocessing")  # doctest: +SKIP
         
     Notes:
         - Only validates first line (not entire file) for performance

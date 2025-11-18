@@ -36,6 +36,7 @@ extensions: List[str] = [
     'sphinx.ext.viewcode',         # Add links to source code
     'sphinx.ext.intersphinx',      # Link to other project docs
     'sphinx.ext.napoleon',         # Support for Google/NumPy docstrings
+    'sphinx.ext.doctest',          # Test code snippets in docstrings
     'sphinx_autodoc_typehints',    # Render type hints in docs
 ]
 

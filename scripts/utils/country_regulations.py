@@ -509,9 +509,11 @@ class CountryRegulation:
             'HIPAA'
             >>> len(reg_dict['specific_fields'])
             3
-            >>> # Export to JSON file
-            >>> with open('us_hipaa.json', 'w') as f:
+            >>> # Export to JSON file (use temp directory for actual file operations)
+            >>> import tempfile
+            >>> with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=True) as f:
             ...     json.dump(reg_dict, f, indent=2)
+            ...     f.flush()  # Ensure data is written
         
         Note:
             Enum values are converted to their string representations
