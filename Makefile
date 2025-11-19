@@ -16,6 +16,7 @@ GREEN := \033[0;32m
 YELLOW := \033[0;33m
 BLUE := \033[0;34m
 CYAN := \033[0;36m
+ORANGE := \033[38;5;208m
 NC := \033[0m # No Color
 
 # Detect Python command (python3 preferred, fallback to python)
@@ -50,7 +51,7 @@ else
 	BROWSER := echo "Please manually open:"
 endif
 
-.PHONY: help install clean clean-all clean-logs clean-tmp clean-results clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain docs docs-open docs-watch docs-help docs-check test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
+.PHONY: help install clean clean-all clean-all-force clean-all-execute clean-logs clean-tmp clean-output clean-docs run run-verbose run-deidentify run-deidentify-verbose run-deidentify-plain ingest-pdfs ingest-pdfs-verbose ingest-records ingest-records-verbose ingest-records-cleaned ingest-records-cleaned-verbose ingest-records-original ingest-records-original-verbose ingest-all ingest-all-verbose ingest-all-datasets ingest-all-datasets-verbose clean-vector-db docs docs-open docs-watch docs-help docs-check test venv check-python version bump-patch bump-minor bump-major show-version lint format status commit
 
 help:
 	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
@@ -75,6 +76,21 @@ help:
 	@echo "  make run-deidentify           - Run pipeline WITH de-identification (simple logging)"
 	@echo "  make run-deidentify-plain     - Run pipeline WITH de-identification (NO encryption)"
 	@echo ""
+	@echo "$(ORANGE)Data Ingestion-RAG:$(NC)"
+	@echo "  make ingest-pdfs              - Ingest PDF forms into vector database"
+	@echo "  make ingest-records           - Ingest JSONL records (cleaned dataset, default)"
+	@echo "  make ingest-records-cleaned   - Ingest cleaned JSONL records explicitly"
+	@echo "  make ingest-records-original  - Ingest original JSONL records"
+	@echo "  make ingest-all               - Ingest PDFs + cleaned JSONL records"
+	@echo "  make ingest-all-datasets      - Ingest PDFs + both cleaned & original JSONL"
+	@echo "  make ingest-pdfs-verbose      - Ingest PDFs with VERBOSE (DEBUG) logging"
+	@echo "  make ingest-records-verbose   - Ingest cleaned JSONL with VERBOSE logging"
+	@echo "  make ingest-records-cleaned-verbose    - Ingest cleaned JSONL with VERBOSE logging"
+	@echo "  make ingest-records-original-verbose   - Ingest original JSONL with VERBOSE logging"
+	@echo "  make ingest-all-verbose       - Ingest PDFs + cleaned JSONL with VERBOSE logging"
+	@echo "  make ingest-all-datasets-verbose       - Ingest all datasets with VERBOSE logging"
+	@echo "  make clean-vector-db          - Remove vector database storage"
+	@echo ""
 	@echo "$(GREEN)Development:$(NC)"
 	@echo "  make test                     - Run tests (if available)"
 	@echo "  make lint                     - Check code style (if ruff/flake8 installed)"
@@ -84,7 +100,8 @@ help:
 	@echo "$(YELLOW)Logging Modes (For Developers):$(NC)"
 	@echo "  make run-verbose              - Run with VERBOSE (DEBUG) logging - detailed context in .logs/"
 	@echo "  make run-deidentify-verbose   - Run de-identification + VERBOSE logging"
-	@echo "  Note: Simple logging is default for 'make run-deidentify' (INFO level, minimal output)"
+	@echo "  Note: Simple logging (INFO level, minimal console) is DEFAULT for all commands"
+	@echo "        Use -verbose targets for detailed DEBUG output"
 	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
 	@echo "  make docs                     - Build Sphinx HTML documentation"
@@ -99,7 +116,7 @@ help:
 	@echo "  make clean                    - Remove Python cache files"
 	@echo "  make clean-logs               - Remove log files"
 	@echo "  make clean-tmp                - Remove tmp files (analysis/reports)"
-	@echo "  make clean-results            - Remove generated results"
+	@echo "  make clean-output             - Remove generated output files"
 	@echo "  make clean-docs               - Remove documentation build files"
 	@echo "  make clean-all                - Remove ALL generated files (including tmp)"
 	@echo ""
@@ -203,8 +220,8 @@ run-verbose:
 run-deidentify:
 	@echo "$(BLUE)Running RePORTaLiN pipeline WITH de-identification (encrypted)...$(NC)"
 	@echo "$(YELLOW)Note: Encryption is enabled by default for security$(NC)"
-	@echo "$(YELLOW)      Simple logging mode (INFO level, no debug details)$(NC)"
-	@$(PYTHON_CMD) main.py --enable-deidentification --simple
+	@echo "$(YELLOW)      Simple logging mode (INFO level, minimal console output)$(NC)"
+	@$(PYTHON_CMD) main.py --enable-deidentification
 	@echo "$(GREEN)✓ Pipeline completed$(NC)"
 
 run-deidentify-verbose:
@@ -224,6 +241,152 @@ run-deidentify-plain:
 	@$(PYTHON_CMD) main.py --enable-deidentification --no-encryption
 	@echo "$(GREEN)✓ Pipeline completed$(NC)"
 
+# Vector database ingestion commands
+ingest-pdfs:
+	@echo "$(BLUE)Ingesting PDF forms into vector database...$(NC)"
+	@echo "$(YELLOW)Collection: clinical_forms_pdf$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_pdfs
+	@echo "$(GREEN)✓ PDF ingestion completed$(NC)"
+
+ingest-pdfs-verbose:
+	@echo "$(BLUE)Ingesting PDF forms with VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Collection: clinical_forms_pdf$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_pdfs --verbose
+	@echo "$(GREEN)✓ PDF ingestion completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
+
+ingest-records:
+	@echo "$(BLUE)Ingesting JSONL patient records (cleaned dataset)...$(NC)"
+	@echo "$(YELLOW)Dataset Type: cleaned$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_cleaned$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type cleaned
+	@echo "$(GREEN)✓ JSONL (cleaned) ingestion completed$(NC)"
+
+ingest-records-verbose:
+	@echo "$(BLUE)Ingesting JSONL patient records (cleaned) with VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Dataset Type: cleaned$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_cleaned$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type cleaned --verbose
+	@echo "$(GREEN)✓ JSONL (cleaned) ingestion completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
+
+ingest-records-cleaned:
+	@echo "$(BLUE)Ingesting JSONL patient records (cleaned dataset)...$(NC)"
+	@echo "$(YELLOW)Dataset Type: cleaned$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_cleaned$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type cleaned
+	@echo "$(GREEN)✓ JSONL (cleaned) ingestion completed$(NC)"
+
+ingest-records-cleaned-verbose:
+	@echo "$(BLUE)Ingesting JSONL patient records (cleaned) with VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Dataset Type: cleaned$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_cleaned$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type cleaned --verbose
+	@echo "$(GREEN)✓ JSONL (cleaned) ingestion completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
+
+ingest-records-original:
+	@echo "$(BLUE)Ingesting JSONL patient records (original dataset)...$(NC)"
+	@echo "$(YELLOW)Dataset Type: original$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_original$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type original
+	@echo "$(GREEN)✓ JSONL (original) ingestion completed$(NC)"
+
+ingest-records-original-verbose:
+	@echo "$(BLUE)Ingesting JSONL patient records (original) with VERBOSE logging...$(NC)"
+	@echo "$(YELLOW)Dataset Type: original$(NC)"
+	@echo "$(YELLOW)Collection: Indo-VAP_jsonl_records_original$(NC)"
+	@echo "$(YELLOW)Output: output/vector_db/$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(PYTHON_CMD) -m scripts.vector_db.ingest_records --dataset-type original --verbose
+	@echo "$(GREEN)✓ JSONL (original) ingestion completed$(NC)"
+	@echo "$(YELLOW)Check log file in .logs/ for detailed output$(NC)"
+
+ingest-all:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)   Ingesting PDFs + Cleaned JSONL Records     $(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@$(MAKE) ingest-pdfs
+	@echo ""
+	@$(MAKE) ingest-records-cleaned
+	@echo ""
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ All document ingestion completed!$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+
+ingest-all-verbose:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)   Ingesting PDFs + Cleaned JSONL with VERBOSE$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(MAKE) ingest-pdfs-verbose
+	@echo ""
+	@$(MAKE) ingest-records-cleaned-verbose
+	@echo ""
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ All document ingestion completed!$(NC)"
+	@echo "$(GREEN)Check log file in .logs/ for detailed output$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+
+ingest-all-datasets:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)   Ingesting All Datasets (PDFs + Both JSONL) $(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@$(MAKE) ingest-pdfs
+	@echo ""
+	@$(MAKE) ingest-records-cleaned
+	@echo ""
+	@$(MAKE) ingest-records-original
+	@echo ""
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ All datasets ingestion completed!$(NC)"
+	@echo "$(GREEN)  - PDFs ingested$(NC)"
+	@echo "$(GREEN)  - Cleaned JSONL records ingested$(NC)"
+	@echo "$(GREEN)  - Original JSONL records ingested$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+
+ingest-all-datasets-verbose:
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)   Ingesting All Datasets with VERBOSE Logging$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════$(NC)"
+	@echo "$(YELLOW)Note: Detailed DEBUG output will be saved to log file$(NC)"
+	@$(MAKE) ingest-pdfs-verbose
+	@echo ""
+	@$(MAKE) ingest-records-cleaned-verbose
+	@echo ""
+	@$(MAKE) ingest-records-original-verbose
+	@echo ""
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+	@echo "$(GREEN)✓ All datasets ingestion completed!$(NC)"
+	@echo "$(GREEN)  - PDFs ingested$(NC)"
+	@echo "$(GREEN)  - Cleaned JSONL records ingested$(NC)"
+	@echo "$(GREEN)  - Original JSONL records ingested$(NC)"
+	@echo "$(GREEN)Check log file in .logs/ for detailed output$(NC)"
+	@echo "$(GREEN)═══════════════════════════════════════════════$(NC)"
+
+clean-vector-db:
+	@echo "$(RED)WARNING: This will delete the entire vector database!$(NC)"
+	@printf "Continue? [y/N]: "; \
+	read -r response; \
+	response=$$(echo "$$response" | tr '[:upper:]' '[:lower:]'); \
+	if [ "$$response" = "y" ] || [ "$$response" = "yes" ]; then \
+		echo "$(BLUE)Removing vector database storage...$(NC)"; \
+		rm -rf output/vector_db/; \
+		echo "$(GREEN)✓ Vector database cleaned$(NC)"; \
+	else \
+		echo "$(YELLOW)Clean cancelled.$(NC)"; \
+	fi
+
 # Cleaning commands
 clean:
 	@echo "$(BLUE)Cleaning up Python cache files...$(NC)"
@@ -240,23 +403,39 @@ clean-logs:
 
 clean-tmp:
 	@echo "$(BLUE)Cleaning temp files (analysis and reports)...$(NC)"
-	@rm -rf tmp/*.rst tmp/*.log tmp/*.txt 2>/dev/null || true
+	# TODO : Remove even hidden files in tmp/ like .*
+	@rm -rf tmp/* tmp/.* 2>/dev/null || true
 	@echo "$(GREEN)✓ Temp files cleaned$(NC)"
 
-clean-results:
-	@echo "$(RED)WARNING: This will delete all generated results!$(NC)"
+clean-output:
+	@echo "$(RED)WARNING: This will delete all generated output files!$(NC)"
 	@printf "Press Enter to continue or Ctrl+C to cancel..." && read confirm
-	@rm -rf results/
-	@echo "$(GREEN)✓ Results cleaned$(NC)"
+	@rm -rf output/
+	@echo "$(GREEN)✓ Output files cleaned$(NC)"
 
 clean-docs:
 	@echo "$(BLUE)Cleaning documentation build files...$(NC)"
 	@rm -rf docs/sphinx/_build/
 	@echo "$(GREEN)✓ Documentation build files cleaned$(NC)"
 
+# Interactive clean-all with user confirmation
 clean-all:
-	@echo "$(RED)WARNING: This will delete cache, logs, results, tmp files, and documentation builds!$(NC)"
-	@printf "Press Enter to continue or Ctrl+C to cancel..." && read confirm
+	@echo "$(RED)WARNING: This will delete cache, logs, output, tmp files, and documentation builds!$(NC)"
+	@printf "Continue? [Y/n]: "; \
+	read -r response; \
+	response=$$(echo "$$response" | tr '[:upper:]' '[:lower:]'); \
+	if [ -z "$$response" ] || [ "$$response" = "y" ] || [ "$$response" = "yes" ]; then \
+		$(MAKE) clean-all-execute; \
+	else \
+		echo "$(YELLOW)Clean cancelled.$(NC)"; \
+	fi
+
+# Non-interactive clean-all for automation (CI/CD, scripts)
+clean-all-force:
+	@$(MAKE) clean-all-execute
+
+# Internal target: actual cleanup logic
+clean-all-execute:
 	@echo "$(BLUE)Cleaning up Python cache files...$(NC)"
 	@find . -type d -name "__pycache__" -not -path "./.venv/*" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
@@ -267,13 +446,13 @@ clean-all:
 	@rm -rf .logs/
 	@echo "$(GREEN)✓ Log files cleaned$(NC)"
 	@echo "$(BLUE)Cleaning temp files...$(NC)"
-	@rm -rf tmp/* 2>/dev/null || true
+	@rm -rf tmp/* tmp/.* 2>/dev/null || true
 	@echo "$(GREEN)✓ Temp files cleaned$(NC)"
 	@echo "$(BLUE)Cleaning documentation build files...$(NC)"
 	@rm -rf docs/sphinx/_build/
 	@echo "$(GREEN)✓ Documentation build files cleaned$(NC)"
-	@echo "$(BLUE)Cleaning results...$(NC)"
-	@rm -rf results/
+	@echo "$(BLUE)Cleaning output...$(NC)"
+	@rm -rf output/
 	@echo "$(GREEN)✓ All generated files cleaned$(NC)"
 
 # Testing commands
@@ -323,7 +502,7 @@ status:
 	@echo "$(GREEN)Project Structure:$(NC)"
 	@echo "  Data Dictionary: $$([ -f 'data/data_dictionary_and_mapping_specifications/RePORT_DEB_to_Tables_mapping.xlsx' ] && echo '$(GREEN)✓$(NC)' || echo '$(RED)✗$(NC)')"
 	@echo "  Dataset Files: $$([ -d 'data/dataset' ] && find data/dataset -name '*.xlsx' 2>/dev/null | wc -l | xargs) files"
-	@echo "  Results: $$([ -d 'results' ] && echo '$(GREEN)✓ Exists$(NC)' || echo '$(YELLOW)⚠ Not generated yet$(NC)')"
+	@echo "  Output: $$([ -d 'output' ] && echo '$(GREEN)✓ Exists$(NC)' || echo '$(YELLOW)⚠ Not generated yet$(NC)')"
 	@echo ""
 	@echo "$(GREEN)Documentation:$(NC)"
 	@echo "  Sphinx Docs: $$([ -f 'docs/sphinx/_build/html/index.html' ] && echo '$(GREEN)✓ Built$(NC)' || echo '$(YELLOW)⚠ Not built (run: make docs)$(NC)')"
@@ -357,12 +536,12 @@ docs-watch:
 # Check documentation style compliance (quick, for daily use)
 docs-check:
 	@echo "$(BLUE)Checking documentation style compliance...$(NC)"
-	@if [ -f "scripts/utils/check_docs_style.sh" ]; then \
-		bash scripts/utils/check_docs_style.sh; \
+	@if [ -f "scripts/utils/doc_maintenance_toolkit.py" ]; then \
+		$(PYTHON_CMD) scripts/utils/doc_maintenance_toolkit.py --mode style; \
 		echo "$(GREEN)✓ Documentation compliance check complete$(NC)"; \
 	else \
-		echo "$(RED)✗ Documentation style checker not found$(NC)"; \
-		echo "$(YELLOW)Expected at: scripts/utils/check_docs_style.sh$(NC)"; \
+		echo "$(RED)✗ Documentation maintenance toolkit not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/doc_maintenance_toolkit.py$(NC)"; \
 		exit 1; \
 	fi
 
@@ -370,12 +549,12 @@ docs-check:
 docs-quality:
 	@echo "$(BLUE)Running comprehensive documentation quality check...$(NC)"
 	@echo "$(YELLOW)This performs deep analysis and may take 30-60 seconds$(NC)"
-	@if [ -f "scripts/utils/check_documentation_quality.py" ]; then \
-		$(PYTHON_CMD) scripts/utils/check_documentation_quality.py; \
+	@if [ -f "scripts/utils/doc_maintenance_toolkit.py" ]; then \
+		$(PYTHON_CMD) scripts/utils/doc_maintenance_toolkit.py --mode quality; \
 		echo "$(GREEN)✓ Documentation quality check complete$(NC)"; \
 	else \
-		echo "$(RED)✗ Documentation quality checker not found$(NC)"; \
-		echo "$(YELLOW)Expected at: scripts/utils/check_documentation_quality.py$(NC)"; \
+		echo "$(RED)✗ Documentation maintenance toolkit not found$(NC)"; \
+		echo "$(YELLOW)Expected at: scripts/utils/doc_maintenance_toolkit.py$(NC)"; \
 		exit 1; \
 	fi
 

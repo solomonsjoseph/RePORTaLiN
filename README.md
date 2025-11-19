@@ -18,7 +18,6 @@ A robust data processing pipeline for clinical research data with advanced de-id
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
 - [Documentation](#documentation)
-- [Usage Examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [Requirements](#requirements)
 - [Contributing](#contributing)
@@ -53,6 +52,14 @@ RePORTaLiN is a comprehensive data processing system designed for handling sensi
 - **Progress tracking** with real-time feedback
 - **Duplicate detection** and intelligent column handling
 - **Type conversion** with validation and error handling
+
+### 🔍 Vector Database & Semantic Search
+- **PDF ingestion**: Index annotated clinical forms with automatic structure detection
+- **JSONL ingestion**: Convert clinical records to natural language for semantic search
+- **Two-collection architecture**: Separate collections for forms (`clinical_forms`) and records (`clinical_records`)
+- **Dynamic chunking**: Context-aware chunking with automatic document structure detection
+- **Qdrant storage**: Local vector database with sentence-transformer embeddings (all-MiniLM-L6-v2)
+- **Batch processing**: Efficient ingestion with progress tracking and error recovery
 
 ### 🔧 Robust Configuration
 - **Enhanced error handling** - Gracefully handles missing directories and files
@@ -117,6 +124,199 @@ make run-verbose            # Verbose logging (DEBUG level)
 make run-deidentify-verbose # De-identification + verbose logging
 ```
 
+### Vector Database Usage
+
+The vector database enables semantic search over clinical forms and patient records using a two-collection architecture with separate indexes for PDFs and JSONL data.
+
+#### Quick Start
+
+```bash
+# Ingest PDF forms (creates clinical_forms collection)
+python3 main.py --ingest-pdfs
+
+# Ingest JSONL records (creates clinical_records collection)
+python3 main.py --ingest-records
+
+# Ingest both collections
+python3 main.py --ingest-pdfs --ingest-records
+```
+
+#### Configuration
+
+Vector database settings in `config.py`:
+
+```python
+# Qdrant server
+QDRANT_HOST = "localhost"
+QDRANT_PORT = 6333
+
+# Collections
+COLLECTION_FORMS = "clinical_forms"      # PDF forms
+COLLECTION_RECORDS = "clinical_records"  # JSONL records
+
+# Embedding model
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"     # 384 dimensions
+
+# Chunking parameters
+CHUNK_SIZE = 1024          # Target tokens per chunk
+CHUNK_OVERLAP = 150        # Overlap between chunks
+```
+
+#### PDF Ingestion (Clinical Forms)
+
+Ingest annotated PDF forms with automatic structure detection:
+
+```bash
+# Ingest all PDFs from configured directory
+python3 main.py --ingest-pdfs
+
+# Direct module usage
+python3 -m scripts.vector_db.ingest_pdfs
+```
+
+**Features:**
+- **Dynamic structure detection**: Automatically identifies headers, sections, and form fields
+- **Metadata extraction**: Captures form metadata (title, page, section, form type)
+- **Context-aware chunking**: Preserves document structure and relationships
+- **Batch processing**: Efficient parallel processing with progress tracking
+
+**Input:** `data/Indo-VAP/annotated_pdfs/*.pdf`  
+**Collection:** `clinical_forms`  
+**Metadata:** `form_name`, `page_number`, `section_title`, `chunk_type`
+
+#### JSONL Ingestion (Clinical Records)
+
+Convert clinical records to natural language for semantic search:
+
+```bash
+# Ingest all JSONL files from configured directory
+python3 main.py --ingest-records
+
+# Direct module usage
+python3 -m scripts.vector_db.ingest_records
+```
+
+**Features:**
+- **Natural language conversion**: Transforms structured records into readable text
+- **Field-level chunking**: Each meaningful field becomes searchable
+- **Metadata preservation**: Retains record IDs, form names, and field context
+- **Smart filtering**: Skips empty fields and technical metadata
+
+**Input:** `output/Indo-VAP/cleaned/*.jsonl`  
+**Collection:** `clinical_records`  
+**Metadata:** `record_id`, `form_name`, `field_name`, `record_number`
+
+#### Verify Ingestion
+
+Check collection status and vector counts:
+
+```python
+from scripts.vector_db.vector_store import VectorStore
+
+store = VectorStore()
+
+# List all collections
+collections = store.list_collections()
+print(f"Collections: {collections}")
+
+# Get collection info
+forms_info = store.get_collection_info("clinical_forms")
+print(f"Forms count: {forms_info['vectors_count']}")
+
+records_info = store.get_collection_info("clinical_records")
+print(f"Records count: {records_info['vectors_count']}")
+```
+
+#### Example: Semantic Search
+
+```python
+from scripts.vector_db.vector_store import VectorStore
+from scripts.vector_db.embeddings import EmbeddingService
+
+# Initialize
+store = VectorStore()
+embeddings = EmbeddingService()
+
+# Search clinical forms
+query = "tuberculosis treatment eligibility criteria"
+query_vector = embeddings.embed_query(query)
+results = store.search(
+    collection_name="clinical_forms",
+    query_vector=query_vector,
+    limit=5
+)
+
+for result in results:
+    print(f"Score: {result.score:.3f}")
+    print(f"Form: {result.payload['form_name']}")
+    print(f"Section: {result.payload.get('section_title', 'N/A')}")
+    print(f"Text: {result.payload['text'][:200]}...")
+    print()
+```
+
+#### Architecture Overview
+
+```
+┌─────────────────┐        ┌──────────────────┐
+│  Annotated PDFs │───────▶│  PDF Chunking    │
+└─────────────────┘        │  (Dynamic)       │
+                           └────────┬─────────┘
+                                    │
+                                    ▼
+                           ┌──────────────────┐
+                           │   Embeddings     │
+                           │  (MiniLM-L6-v2)  │
+                           └────────┬─────────┘
+                                    │
+                                    ▼
+┌─────────────────┐        ┌──────────────────┐
+│  JSONL Records  │───────▶│ JSONL Chunking   │
+└─────────────────┘        │ (Natural Lang)   │
+                           └────────┬─────────┘
+                                    │
+                                    ▼
+                           ┌──────────────────┐
+                           │  Qdrant Vector   │
+                           │    Database      │
+                           │ ┌──────────────┐ │
+                           │ │clinical_forms│ │
+                           │ ├──────────────┤ │
+                           │ │clinical_recs │ │
+                           │ └──────────────┘ │
+                           └──────────────────┘
+```
+
+#### Requirements
+
+The vector database requires these additional dependencies (already in `requirements.txt`):
+
+```bash
+pip install qdrant-client sentence-transformers pymupdf
+```
+
+#### Troubleshooting
+
+**Qdrant not running:**
+```bash
+# Start Qdrant with Docker
+docker run -p 6333:6333 -v $(pwd)/qdrant_storage:/qdrant/storage qdrant/qdrant
+
+# Or download and run locally
+# See: https://qdrant.tech/documentation/quick-start/
+```
+
+**Collection already exists:**
+```python
+# Drop and recreate
+store.drop_collection("clinical_forms")
+# Then re-run ingestion
+```
+
+**Memory issues with large PDFs:**
+- Reduce `CHUNK_SIZE` in `config.py`
+- Process PDFs in smaller batches
+- Increase available RAM
+
 ### Example Output
 
 ```
@@ -150,7 +350,7 @@ RePORTaLiN/
 │   ├── data_dictionary_and_mapping_specifications/
 │   └── dataset/
 │       └── Indo-vap_csv_files/    # Excel files for processing
-├── results/                        # Output directory
+├── output/                         # Output directory
 │   ├── data_dictionary_mappings/  # Processed dictionaries
 │   ├── dataset/                   # Extracted JSONL files
 │   └── deidentified/             # De-identified data
@@ -204,8 +404,8 @@ python3 main.py --skip-deidentification
 python3 main.py --verbose
 python3 main.py -v --enable-deidentification --countries IN
 
-# Get enhanced help with examples
-python3 main.py --help  # Shows usage examples and all options
+# Get enhanced help
+python3 main.py --help  # Shows all available options
 
 # Testing mode (no encryption)
 python3 main.py --enable-deidentification --no-encryption
@@ -383,8 +583,8 @@ python3 -m scripts.deidentify --list-countries
 # Direct de-identification
 python3 -m scripts.deidentify \
   --countries IN US \
-  --input-dir results/dataset/Indo-vap/cleaned \
-  --output-dir results/deidentified/Indo-vap
+  --input-dir output/dataset/Indo-vap/cleaned \
+  --output-dir output/deidentified/Indo-vap
 ```
 
 ## Troubleshooting
@@ -469,9 +669,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Version**: See `__version__.py` | **Status**: Beta (Active Development) | **Last Updated**: October 23, 2025
+**Version**: See `__version__.py` | **Status**: Beta (Active Development)
 
-**Latest Updates (October 23, 2025)**:
+**Latest Updates**:
 
 - **Documentation Enhancement**: Complete Sphinx documentation audit and version alignment
 - **Version Management**: Hybrid version management system with conventional commits

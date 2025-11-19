@@ -9,15 +9,14 @@
 # 3. IDEs & Editors
 # 4. Logs & Temporary Files
 # 5. Operating Systems
-# 6. Testing & Coverage
-# 7. Type Checking
-# 8. Jupyter Notebooks
-# 9. Documentation
-# 10. Security & Secrets (CRITICAL)
-# 11. De-identification & PHI/PII (CRITICAL)
-# 12. Data Science & ML
-# 13. Databases
-# 14. Project-Specific
+# 6. Type Checking
+# 7. Jupyter Notebooks
+# 8. Documentation
+# 9. Security & Secrets (CRITICAL)
+# 10. De-identification & PHI/PII (CRITICAL)
+# 11. Data Science & ML
+# 12. Databases
+# 13. Project-Specific
 
 # ============================================================================
 # 1. Python & Build Artifacts
@@ -125,23 +124,7 @@ $RECYCLE.BIN/
 .nfs*
 
 # ============================================================================
-# 6. Testing & Coverage
-# ============================================================================
-.pytest_cache/
-.tox/
-.nox/
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.cache
-nosetests.xml
-
-# ============================================================================
-# 7. Type Checking
+# 6. Type Checking
 # ============================================================================
 .mypy_cache/
 .dmypy.json
@@ -150,14 +133,14 @@ dmypy.json
 .pytype/
 
 # ============================================================================
-# 8. Jupyter Notebooks
+# 7. Jupyter Notebooks
 # ============================================================================
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 *-checkpoint.ipynb
 
 # ============================================================================
-# 9. Documentation
+# 8. Documentation
 # ============================================================================
 docs/sphinx/_build/
 docs/sphinx/_static/
@@ -165,8 +148,20 @@ docs/sphinx/_templates/
 docs/_build/
 site/
 
+# Doctest artifacts (files created during sphinx doctest runs)
+# These should only be created in temp directories, never in project root
+us_hipaa.json
+app.json
+output.jsonl
+meta.jsonl
+audit*.json
+mappings*.enc
+mappings*.json
+*_test.json
+*_test.jsonl
+
 # ============================================================================
-# 10. Security & Secrets (CRITICAL - DO NOT COMMIT)
+# 9. Security & Secrets (CRITICAL - DO NOT COMMIT)
 # ============================================================================
 # Encryption keys
 *.key
@@ -193,17 +188,17 @@ credentials.json
 # .git/
 
 # ============================================================================
-# 11. De-identification & PHI/PII (CRITICAL - DO NOT COMMIT)
+# 10. De-identification & PHI/PII (CRITICAL - DO NOT COMMIT)
 # ============================================================================
 # Mapping files (contain PHI/PII → pseudonym relationships)
 *_mappings.json
 *_mappings.json.enc
 *_deidentification_key.key
 *_deidentification_audit.json
-results/deidentified/mappings/
+output/deidentified/mappings/
 
 # Original dataset directories (may contain PHI/PII)
-results/dataset/
+output/dataset/
 
 # Any files marked as containing PHI/PII
 *_phi.json
@@ -211,7 +206,7 @@ results/dataset/
 *_sensitive.*
 
 # ============================================================================
-# 12. Data Science & ML Artifacts
+# 11. Data Science & ML Artifacts
 # ============================================================================
 *.pkl
 *.pickle
@@ -227,7 +222,7 @@ models/
 checkpoints/
 
 # ============================================================================
-# 13. Databases
+# 12. Databases
 # ============================================================================
 *.db
 *.sqlite
@@ -235,20 +230,20 @@ checkpoints/
 *.db-journal
 
 # ============================================================================
-# 14. Project-Specific
+# 13. Project-Specific
 # ============================================================================
 # Excel temporary files
 data/data_dictionary_and_mapping_specifications/~$*.xlsx
 ~$*.xlsx
 
-# Results directory (uncomment to exclude all results)
-# results/
+# Output directory (uncomment to exclude all output)
+# output/
 
 # Large data files (uncomment if needed)
 # data/dataset/
 # data/Annotated_PDFs/
 
-# AI/Editor cache and temporary files
+# Vision and Implementation plan files
 docs/.vision/
 docs/.vision/**
 

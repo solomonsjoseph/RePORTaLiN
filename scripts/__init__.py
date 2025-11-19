@@ -1,129 +1,59 @@
-"""
-RePORTaLiN Scripts Package
-===========================
+"""Clinical research data processing package for RePORTaLiN.
 
-Core data processing modules for clinical research data extraction, validation,
-and de-identification.
+This package provides the core data processing functionality for the RePORTaLiN
+(Report India) clinical study pipeline. It contains modules for loading data
+dictionaries, extracting raw data from Excel files, de-identifying PHI/PII,
+and ingesting data into vector databases for semantic search.
 
-This package provides high-level functions for the complete data processing pipeline:
-
-- **Data Dictionary Processing**: Load and validate study data dictionaries
-- **Data Extraction**: Convert Excel files to JSONL format with validation
-- **De-identification**: Advanced PHI/PII detection and pseudonymization (via utils)
-
-Public API
-----------
-The package exports 2 main high-level functions via ``__all__``:
-
-- ``load_study_dictionary``: Process data dictionary Excel files
-- ``extract_excel_to_jsonl``: Extract dataset Excel files to JSONL
-
-For more specialized functionality, import directly from submodules:
-
-- ``scripts.load_dictionary``: Dictionary processing (2 public functions)
-- ``scripts.extract_data``: Data extraction (6 public functions)
-- ``scripts.deidentify``: De-identification engine (10 public functions)
-- ``scripts.utils.country_regulations``: Privacy regulations (6 public functions)
-- ``scripts.utils.logging``: Enhanced logging (12 public functions)
-
-Usage Examples
---------------
-
-Basic Pipeline
-~~~~~~~~~~~~~~
-
-Process both data dictionary and dataset with default configuration::
-
-    from scripts import load_study_dictionary, extract_excel_to_jsonl
+Package Architecture:
+    The scripts package is organized into functional subpackages:
     
-    # Step 1: Load data dictionary
-    dict_success = load_study_dictionary()
+    **Core Pipeline Modules** (top-level):
+        - load_dictionary: Parse and validate data dictionary Excel files
+        - extract_data: Convert Excel datasets to JSONL format
+        - deidentify: Remove PHI/PII using country-specific patterns
     
-    # Step 2: Extract dataset (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
-    result = extract_excel_to_jsonl()
+    **Utility Subpackages**:
+        - utils/: Logging, country regulations, migration tools
+        - vector_db/: Vector database ingestion and search
+        - llm/: Large language model adapters (future)
+        - session/: Session management (future)
+        - cache/: Multi-level caching (future)
+
+Public API:
+    The package exposes two primary functions for the main pipeline:
     
-    if dict_success and result['files_created'] > 0:
-        print("✓ Pipeline completed successfully!")
+    - load_study_dictionary: Parse data dictionary Excel → JSON
+    - extract_excel_to_jsonl: Convert Excel datasets → JSONL records
 
-Custom Processing
-~~~~~~~~~~~~~~~~~
+Module Attributes:
+    __version__ (str): Current package version from __version__.py
+    __all__ (list): Explicitly exported symbols for `from scripts import *`
 
-Use individual modules for custom workflows::
+Example:
+    >>> # Import core pipeline functions
+    >>> from scripts import load_study_dictionary, extract_excel_to_jsonl
+    >>> 
+    >>> # Load data dictionary (Step 0)
+    >>> load_study_dictionary(
+    ...     file_path='data/Indo-VAP/data_dictionary/RePORT_DEB_to_Tables_mapping.xlsx',
+    ...     json_output_dir='output/data_dictionary_mappings'
+    ... )  # doctest: +SKIP
+    >>> 
+    >>> # Extract data to JSONL (Step 1)
+    >>> extract_excel_to_jsonl()  # doctest: +SKIP
 
-    from scripts.load_dictionary import process_excel_file
-    from scripts.extract_data import find_excel_files, process_excel_file as process_data
-    
-    # Custom dictionary processing
-    process_excel_file(
-        excel_path="custom_dict.xlsx",
-        output_dir="results/custom_dict"
-    )
-    
-    # Custom data extraction with file discovery
-    excel_files = find_excel_files("data/custom_dataset")
-    for file_path in excel_files:
-        process_data(
-            excel_path=file_path,
-            output_dir="results/custom_output"
-        )
+Notes:
+    - This __init__.py establishes the public API for the scripts package
+    - Only load_dictionary and extract_data are exposed at the top level
+    - Other modules (deidentify, vector_db, etc.) must be imported explicitly
+    - Version is imported from root __version__.py for consistency
 
-De-identification Workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Complete pipeline with de-identification::
-
-    from scripts import extract_excel_to_jsonl
-    from scripts.deidentify import deidentify_dataset, DeidentificationConfig
-    import config
-    
-    # Step 1: Extract data (uses config.DATASET_DIR and config.CLEAN_DATASET_DIR)
-    result = extract_excel_to_jsonl()
-    
-    # Step 2: De-identify with custom configuration
-    deidentify_config = DeidentificationConfig(
-        countries=['IN', 'US'],
-        enable_encryption=True
-    )
-    
-    deidentify_dataset(
-        input_dir=f"{config.CLEAN_DATASET_DIR}/cleaned",
-        output_dir="results/deidentified/Indo-vap",
-        config=deidentify_config
-    )
-
-Module Structure
-----------------
-
-The package is organized as follows::
-
-    scripts/
-    ├── __init__.py              # Package API (this file)
-    ├── load_dictionary.py       # Data dictionary processing
-    ├── extract_data.py          # Excel to JSONL extraction
-    ├── deidentify.py            # De-identification engine
-    └── utils/                   # Utility modules
-        ├── __init__.py
-        ├── country_regulations.py  # Privacy compliance
-        └── logging.py           # Enhanced logging
-
-Version History
----------------
-- v0.0.9: Enhanced package-level API with comprehensive documentation
-- v0.0.8: Enhanced load_dictionary module (public API, type hints, docs)
-- v0.0.7: Enhanced extract_data module (public API, type hints, docs)
-- v0.0.6: Enhanced deidentify module (public API, type safety, docs)
-- v0.0.5: Enhanced country_regulations module (public API, docs)
-- v0.0.4: Enhanced logging module (performance, type hints)
-- v0.0.3: Enhanced config module (utilities, robustness)
-- v0.0.1: Initial package structure
-
-See Also
---------
-- :mod:`scripts.load_dictionary` - Data dictionary processing
-- :mod:`scripts.extract_data` - Data extraction
-- :mod:`scripts.deidentify` - De-identification
-- :mod:`scripts.utils.country_regulations` - Privacy regulations
-- :mod:`scripts.utils.logging` - Logging utilities
+See Also:
+    main.py: Orchestrates the pipeline using these functions
+    config.py: Provides configuration for all scripts
+    scripts.deidentify: PHI/PII de-identification (not in __all__)
+    scripts.vector_db: Vector database ingestion (subpackage)
 """
 
 from .load_dictionary import load_study_dictionary

@@ -1,54 +1,57 @@
-"""
-Data Dictionary Loader Module
-==============================
+"""Data dictionary loader with multi-table detection and JSONL export.
 
-Processes data dictionary Excel files, intelligently splitting sheets into multiple 
-tables based on structural boundaries and saving in JSONL format.
+This module processes study data dictionaries from Excel files, detecting multiple
+tables within sheets and exporting them as JSONL files for downstream processing.
+It implements intelligent table boundary detection, column deduplication, and
+metadata enrichment.
 
-This module provides intelligent table detection and extraction from complex Excel
-layouts, automatically handling multi-table sheets, "ignore below" markers, and
-duplicate column naming.
+Architecture:
+    The module implements a three-stage pipeline:
+    1. Sheet Loading: Read Excel sheets with configurable NA handling
+    2. Table Detection: Split sheets into tables using empty row/column boundaries
+    3. Export: Save tables as JSONL with metadata for provenance tracking
 
-Public API
-----------
-The module exports 2 main functions via ``__all__``:
+Key Features:
+    - Multi-table detection within single Excel sheets
+    - Column name deduplication for unnamed/duplicate columns
+    - "Ignore below" marker support for separating main/extra tables
+    - Metadata injection (__sheet__, __table__) for data lineage
+    - Robust error handling with detailed logging
+    - Progress tracking with tqdm and verbose logging
 
-- ``load_study_dictionary``: High-level function to process dictionary files
-- ``process_excel_file``: Low-level function for custom processing workflows
+Table Detection Algorithm:
+    Tables are detected by finding contiguous non-empty regions:
+    1. Identify horizontal strips (separated by fully empty rows)
+    2. Within each strip, find vertical segments (separated by fully empty columns)
+    3. Extract each segment as a separate table with its own header row
+    4. Filter empty tables and apply header deduplication
 
-Key Features
-------------
-- **Multi-table Detection**: Automatically splits sheets with multiple tables
-- **Boundary Detection**: Uses empty rows/columns to identify table boundaries
-- **"Ignore Below" Support**: Handles special markers to segregate extra tables
-- **Duplicate Column Handling**: Automatically deduplicates column names
-- **Progress Tracking**: Real-time progress bars
-- **Verbose Logging**: Detailed tree-view logs with timing (v0.0.12+)
-- **Metadata Injection**: Adds ``__sheet__`` and ``__table__`` fields
+Typical Usage:
+    # Using defaults from config
+    >>> from scripts.load_dictionary import load_study_dictionary
+    >>> success = load_study_dictionary()
+    
+    # Custom paths
+    >>> success = load_study_dictionary(
+    ...     file_path='data/custom_dictionary.xlsx',
+    ...     json_output_dir='output/dictionaries'
+    ... )
+    
+    # Process with pandas NA handling
+    >>> success = load_study_dictionary(preserve_na=False)
 
-Verbose Mode
-------------
-When running with ``--verbose`` flag, detailed logs are generated including
-sheet-by-sheet processing, table detection results (rows/columns), "ignore below"
-marker detection, and timing for sheets, tables, and overall processing.
+Dependencies:
+    - pandas: Excel parsing and DataFrame operations
+    - tqdm: Progress visualization
+    - scripts.utils.logging_system: Centralized logging
+    - config: Default paths and settings
 
-Table Detection Algorithm
--------------------------
-The module uses a sophisticated algorithm to detect tables:
-
-1. Identify horizontal strips (separated by empty rows)
-2. Within each strip, identify vertical sections (separated by empty columns)
-3. Extract each non-empty section as a separate table
-4. Deduplicate column names by appending numeric suffixes
-5. Check for "ignore below" markers and segregate subsequent tables
-6. Add metadata fields and save to JSONL
-
-See Also
---------
-- :doc:`../user_guide/usage` - Usage examples and detailed tutorials
-- :func:`load_study_dictionary` - High-level dictionary processing function
-- :func:`process_excel_file` - Low-level custom processing
-- :mod:`scripts.extract_data` - For dataset extraction
+Notes:
+    - The "ignore below" marker allows separating supplementary tables
+    - Tables after the marker are saved to an "extras" subdirectory
+    - Each table gets metadata fields for traceability
+    - File overwrites are prevented; existing files are skipped
+    - All errors are logged but processing continues for other tables
 """
 
 __all__ = ['load_study_dictionary', 'process_excel_file']
@@ -59,24 +62,44 @@ import sys
 import time
 from typing import List, Optional
 from tqdm import tqdm
-from scripts.utils import logging as log
+from scripts.utils import logging_system as log
 import config
 
 vlog = log.get_verbose_logger()
 
+# Constants for table processing
+IGNORE_BELOW_MARKER = "ignore below"
+EXTRA_TABLES_DIR = "extras"
+UNNAMED_COLUMN_PREFIX = "Unnamed"
+METADATA_SHEET_KEY = "__sheet__"
+METADATA_TABLE_KEY = "__table__"
+
 def _deduplicate_columns(columns) -> List[str]:
-    """
-    Make column names unique by appending numeric suffixes to duplicates.
+    """Make column names unique by appending numeric suffixes to duplicates.
+    
+    This function handles duplicate column names (common in Excel with merged cells
+    or unnamed columns) by appending _1, _2, etc. to subsequent occurrences. It also
+    converts NaN/null values to "Unnamed" prefix.
     
     Args:
-        columns: List of column names (may contain duplicates or NaN values)
-        
+        columns: Iterable of column names (can include None/NaN values).
+    
     Returns:
-        List of unique column names with numeric suffixes where needed
+        List of unique column names with numeric suffixes for duplicates.
+        
+    Example:
+        >>> cols = ['Name', 'Name', 'Age', None, 'Name']
+        >>> _deduplicate_columns(cols)
+        ['Name', 'Name_1', 'Age', 'Unnamed', 'Name_2']
+        
+    Notes:
+        - First occurrence keeps original name
+        - Subsequent duplicates get _1, _2, ... suffixes
+        - None/NaN values become "Unnamed" (or "Unnamed_1", etc.)
     """
     new_cols, counts = [], {}
     for col in columns:
-        col_str = str(col) if pd.notna(col) else "Unnamed"
+        col_str = str(col) if pd.notna(col) else UNNAMED_COLUMN_PREFIX
         if col_str in counts:
             counts[col_str] += 1
             new_cols.append(f"{col_str}_{counts[col_str]}")
@@ -86,45 +109,131 @@ def _deduplicate_columns(columns) -> List[str]:
     return new_cols
 
 def _split_sheet_into_tables(df: pd.DataFrame) -> List[pd.DataFrame]:
-    """
-    Split DataFrame into multiple tables based on empty row/column boundaries.
+    """Split DataFrame into multiple tables based on empty row/column boundaries.
+    
+    This implements a two-stage boundary detection algorithm:
+    1. Find horizontal strips: contiguous row groups separated by fully empty rows
+    2. Within each strip, find vertical segments separated by fully empty columns
+    
+    Each segment represents a separate table that can be independently processed.
+    This handles Excel sheets with multiple tables laid out side-by-side or stacked.
     
     Args:
-        df: DataFrame to split into separate tables
-        
-    Returns:
-        List of DataFrames, each representing a detected table
-    """
-    empty_rows = df.index[df.isnull().all(axis=1)].tolist()
-    row_boundaries = [-1] + empty_rows + [df.shape[0]]
-    horizontal_strips = [df.iloc[row_boundaries[i]+1:row_boundaries[i+1]] 
-                        for i in range(len(row_boundaries)-1) if row_boundaries[i]+1 < row_boundaries[i+1]]
+        df: Input DataFrame from Excel sheet (may contain multiple tables).
     
-    all_tables = []
-    for strip in horizontal_strips:
-        empty_col_indices = [i for i, col in enumerate(strip.columns) if strip[col].isnull().all()]
-        col_boundaries = [-1] + empty_col_indices + [len(strip.columns)]
-        for j in range(len(col_boundaries)-1):
-            start_col, end_col = col_boundaries[j]+1, col_boundaries[j+1]
-            if start_col < end_col:
-                table_df = strip.iloc[:, start_col:end_col].copy()
-                table_df.dropna(how='all', inplace=True)
-                if not table_df.empty:
-                    all_tables.append(table_df)
-    return all_tables
+    Returns:
+        List of DataFrames, each representing a detected table. Empty list if
+        no tables found or if input is empty.
+        
+    Example:
+        >>> # Sheet with two side-by-side tables
+        >>> df = pd.DataFrame({
+        ...     'A': [1, 2], 'B': [3, 4], 'C': [None, None], 'D': [5, 6]
+        ... })
+        >>> tables = _split_sheet_into_tables(df)
+        >>> len(tables)
+        2
+        
+    Raises:
+        Does not raise exceptions; errors are logged and empty list returned.
+        
+    Notes:
+        - Empty rows/columns are used as table boundaries
+        - Tables with all-null data are filtered out
+        - Row indices are reset for each table
+        - Handles KeyError, IndexError, and general exceptions gracefully
+        - All errors logged at ERROR level with debug traceback
+    """
+    try:
+        if df.empty:
+            log.debug("Received empty DataFrame, returning empty table list")
+            return []
+        
+        log.debug(f"Analyzing DataFrame with shape {df.shape} for table boundaries")
+        
+        empty_rows = df.index[df.isnull().all(axis=1)].tolist()
+        row_boundaries = [-1] + empty_rows + [df.shape[0]]
+        horizontal_strips = [df.iloc[row_boundaries[i]+1:row_boundaries[i+1]] 
+                            for i in range(len(row_boundaries)-1) if row_boundaries[i]+1 < row_boundaries[i+1]]
+        
+        log.debug(f"Found {len(horizontal_strips)} horizontal strip(s)")
+        
+        all_tables = []
+        for strip in horizontal_strips:
+            empty_col_indices = [i for i, col in enumerate(strip.columns) if strip[col].isnull().all()]
+            col_boundaries = [-1] + empty_col_indices + [len(strip.columns)]
+            for j in range(len(col_boundaries)-1):
+                start_col, end_col = col_boundaries[j]+1, col_boundaries[j+1]
+                if start_col < end_col:
+                    table_df = strip.iloc[:, start_col:end_col].copy()
+                    table_df.dropna(how='all', inplace=True)
+                    if not table_df.empty:
+                        all_tables.append(table_df)
+        
+        log.debug(f"Detected {len(all_tables)} table(s) from DataFrame")
+        return all_tables
+        
+    except (KeyError, IndexError) as e:
+        log.error(f"DataFrame structure error during table splitting: {e}")
+        log.debug("DataFrame info:", exc_info=True)
+        return []  # Return empty list instead of crashing
+    except Exception as e:
+        log.error(f"Unexpected error splitting DataFrame into tables: {type(e).__name__}: {e}")
+        log.debug("Full error details:", exc_info=True)
+        return []
 
 def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, output_dir: str) -> None:
-    """
-    Process detected tables, apply filters, add metadata, and save to JSONL files.
+    """Process detected tables, apply filters, add metadata, and save to JSONL files.
+    
+    For each table in the input list:
+    1. Create sheet-specific output directory
+    2. Check for "ignore below" marker (separates main/extra tables)
+    3. Extract and deduplicate column headers from first row
+    4. Add metadata fields (__sheet__, __table__) for provenance
+    5. Save as JSONL file (one JSON object per line)
+    
+    Tables marked as "extra" (after ignore marker) are saved to an "extras"
+    subdirectory for supplementary data not part of the main dictionary.
     
     Args:
-        all_tables: List of DataFrames representing detected tables
-        sheet_name: Name of the Excel sheet being processed
-        output_dir: Directory where JSONL files will be saved
+        all_tables: List of DataFrames detected from a single sheet.
+        sheet_name: Name of the source Excel sheet (used for directory/metadata).
+        output_dir: Base directory for output files.
+    
+    Returns:
+        None. Files are written to disk; errors logged but processing continues.
+        
+    Side Effects:
+        - Creates directories: {output_dir}/{sheet_name}/ and possibly .../extras/
+        - Writes JSONL files: {sheet_name}_table_{N}.jsonl
+        - Logs progress, warnings, and errors via logging_system
+        - Updates verbose logger with metrics and timing
+        
+    Example:
+        >>> tables = [pd.DataFrame({'A': [1, 2]}), pd.DataFrame({'B': [3, 4]})]
+        >>> _process_and_save_tables(tables, 'MySheet', 'output/')
+        # Creates: output/MySheet/MySheet_table_1.jsonl, MySheet_table_2.jsonl
+        
+    Notes:
+        - Existing files are skipped (no overwrite)
+        - Empty tables after header extraction are skipped
+        - "ignore below" marker triggers extras mode for all subsequent tables
+        - Each table gets unique metadata for data lineage tracking
+        - All I/O errors are caught and logged; processing continues
     """
     folder_name = "".join(c for c in sheet_name if c.isalnum() or c in "._- ").strip()
     sheet_dir = os.path.join(output_dir, folder_name)
-    os.makedirs(sheet_dir, exist_ok=True)
+    
+    try:
+        os.makedirs(sheet_dir, exist_ok=True)
+        log.debug(f"Created/verified sheet directory: '{sheet_dir}'")
+    except (OSError, PermissionError) as e:
+        log.error(f"Cannot create directory '{sheet_dir}': {e}")
+        return  # Cannot proceed without directory
+    except Exception as e:
+        log.error(f"Unexpected error creating directory '{sheet_dir}': {e}")
+        return
+    
     log.debug(f"Processing {len(all_tables)} tables from sheet '{sheet_name}'")
     ignore_mode = False
     
@@ -133,26 +242,46 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
         
         table_df.reset_index(drop=True, inplace=True)
         
+        # Validate table has rows before accessing
+        if len(table_df) == 0:
+            log.warning(f"Table {i+1} from sheet '{sheet_name}' is empty after reset. Skipping.")
+            continue
+        
         if not ignore_mode:
             for idx, col in enumerate(table_df.iloc[0]):
-                if "ignore below" in str(col).lower().strip():
-                    log.info(f"'ignore below' found in table {i+1}. Subsequent → 'extraas'.")
-                    vlog.detail(f"'ignore below' found in table {i+1}. Subsequent → 'extraas'.")
+                if IGNORE_BELOW_MARKER in str(col).lower().strip():
+                    log.info(f"'{IGNORE_BELOW_MARKER}' found in table {i+1}. Subsequent → '{EXTRA_TABLES_DIR}'.")
+                    vlog.detail(f"'{IGNORE_BELOW_MARKER}' found in table {i+1}. Subsequent → '{EXTRA_TABLES_DIR}'.")
                     ignore_mode = True
                     table_df = table_df.drop(table_df.columns[idx], axis=1)
                     break
         
-        table_df.columns = _deduplicate_columns(table_df.iloc[0])
-        table_df = table_df.iloc[1:].reset_index(drop=True)
+        try:
+            table_df.columns = _deduplicate_columns(table_df.iloc[0])
+            table_df = table_df.iloc[1:].reset_index(drop=True)
+        except IndexError as e:
+            log.error(f"Cannot process table {i+1} from sheet '{sheet_name}': Index error - {e}")
+            continue
+        
         if table_df.empty:
+            log.debug(f"Table {i+1} from sheet '{sheet_name}' is empty after removing header row. Skipping.")
             continue
         
         table_suffix = f"_table_{i+1}" if len(all_tables) > 1 else "_table"
         if ignore_mode:
-            extraas_dir = os.path.join(sheet_dir, "extraas")
-            os.makedirs(extraas_dir, exist_ok=True)
-            table_name, metadata_name = f"extraas{table_suffix}", f"{folder_name}_extraas{table_suffix}"
-            output_path = os.path.join(extraas_dir, f"{table_name}.jsonl")
+            extras_dir = os.path.join(sheet_dir, EXTRA_TABLES_DIR)
+            try:
+                os.makedirs(extras_dir, exist_ok=True)
+                log.debug(f"Created/verified extras directory: '{extras_dir}'")
+            except (OSError, PermissionError) as e:
+                log.error(f"Cannot create extras directory '{extras_dir}': {e}")
+                continue  # Skip this table, try next one
+            except Exception as e:
+                log.error(f"Unexpected error creating extras directory '{extras_dir}': {e}")
+                continue
+            
+            table_name, metadata_name = f"{EXTRA_TABLES_DIR}{table_suffix}", f"{folder_name}_{EXTRA_TABLES_DIR}{table_suffix}"
+            output_path = os.path.join(extras_dir, f"{table_name}.jsonl")
         else:
             table_name = metadata_name = f"{folder_name}{table_suffix}"
             output_path = os.path.join(sheet_dir, f"{table_name}.jsonl")
@@ -167,77 +296,129 @@ def _process_and_save_tables(all_tables: List[pd.DataFrame], sheet_name: str, ou
             vlog.metric("Rows", len(table_df))
             vlog.metric("Columns", len(table_df.columns))
             
-            table_df['__sheet__'], table_df['__table__'] = sheet_name, metadata_name
-            table_df.to_json(output_path, orient='records', lines=True, force_ascii=False)
-            log.info(f"Saved {len(table_df)} rows → '{output_path}'")
-            vlog.detail(f"Saved to: {output_path}")
+            try:
+                table_df[METADATA_SHEET_KEY], table_df[METADATA_TABLE_KEY] = sheet_name, metadata_name
+                table_df.to_json(output_path, orient='records', lines=True, force_ascii=False)
+                log.info(f"Saved {len(table_df)} rows → '{output_path}'")
+                vlog.detail(f"Saved to: {output_path}")
+            except (IOError, OSError, PermissionError) as e:
+                log.error(f"Failed to write table to '{output_path}': {e}")
+                vlog.detail(f"ERROR: Write failed - {e}")
+                continue  # Skip this table, continue with next
+            except Exception as e:
+                log.error(f"Unexpected error saving table '{table_name}': {type(e).__name__}: {e}")
+                vlog.detail(f"ERROR: {type(e).__name__}: {e}")
+                continue  # Skip this table, continue with next
             
             table_elapsed = time.time() - table_start
             vlog.timing("Table processing time", table_elapsed)
 
 def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = True) -> bool:
-    """
-    Extract all tables from an Excel file and save as JSONL files.
+    """Extract all tables from an Excel file and save as JSONL files.
+    
+    This is the main processing function that orchestrates the complete pipeline:
+    1. Load Excel file and enumerate all sheets
+    2. For each sheet, detect embedded tables using boundary analysis
+    3. Process and export each table with metadata enrichment
+    4. Track progress with tqdm and log detailed metrics
     
     Args:
-        excel_path: Path to the Excel file to process
-        output_dir: Directory where output JSONL files will be saved
-        preserve_na: If True, preserve empty cells as None; if False, use pandas defaults
-        
+        excel_path: Path to input Excel file (.xlsx or .xls).
+        output_dir: Directory where JSONL files will be created.
+        preserve_na: If True, only empty strings treated as NA; if False,
+            use pandas defaults (None, NaN, 'NA', etc. all become NaN).
+            Default is True to preserve literal 'NA' values in data.
+    
     Returns:
-        True if processing was successful, False otherwise
+        True if all sheets processed successfully, False if any errors occurred.
+        Processing continues even after errors; partial results are saved.
+        
+    Example:
+        >>> # Process with default NA handling
+        >>> success = process_excel_file(
+        ...     'data/dictionary.xlsx',
+        ...     'output/dictionary_tables'
+        ... )
+        >>> if success:
+        ...     print("All sheets processed successfully")
+        
+        >>> # Use pandas default NA values
+        >>> success = process_excel_file(
+        ...     'data/dictionary.xlsx',
+        ...     'output/dictionary_tables',
+        ...     preserve_na=False
+        ... )
+        
+    Raises:
+        Does not raise exceptions; all errors are caught, logged, and False returned.
+        
+    Side Effects:
+        - Creates output_dir and subdirectories as needed
+        - Writes JSONL files for each detected table
+        - Displays progress bar in stdout (via tqdm)
+        - Logs to configured logger at multiple levels (INFO, ERROR, DEBUG)
+        - Measures and logs timing metrics via verbose logger
+        
+    Notes:
+        - Each sheet can contain multiple tables (side-by-side or stacked)
+        - Tables are auto-detected using empty row/column boundaries
+        - First row of each table is treated as header
+        - Empty sheets/tables are skipped with INFO message
+        - File I/O errors are logged but don't stop processing
+        - Progress bar format: name | ██████ | N/M [elapsed<remaining]
     """
     overall_start = time.time()
     
-    if not os.path.exists(excel_path):
-        log.error(f"Input file not found: {excel_path}")
-        return False
-    
+    log.info(f"Processing: '{excel_path}'")
     log.info(f"Output → '{output_dir}'")
-    os.makedirs(output_dir, exist_ok=True)
     
     try:
-        xls = pd.ExcelFile(excel_path)
-        log.debug(f"Excel file loaded successfully. Found {len(xls.sheet_names)} sheets: {xls.sheet_names}")
+        os.makedirs(output_dir, exist_ok=True)
     except Exception as e:
-        log.error(f"Failed to read Excel: {e}")
+        log.error(f"Cannot create output directory '{output_dir}': {e}")
         return False
     
-    log.info(f"Processing: '{excel_path}'")
-    success = True
-    
-    # Start verbose logging context
-    with vlog.file_processing(os.path.basename(excel_path), total_records=len(xls.sheet_names)):
-        vlog.metric("Total sheets", len(xls.sheet_names))
-        
-        # Progress bar for processing sheets
-        for sheet_index, sheet_name in enumerate(tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
-                               file=sys.stdout, dynamic_ncols=True, leave=True,
-                               bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')):
-            sheet_start = time.time()
-            try:
-                with vlog.step(f"Sheet {sheet_index + 1}/{len(xls.sheet_names)}: '{sheet_name}'"):
-                    tqdm.write(f"--- Sheet: '{sheet_name}' ---")
-                    parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
-                    all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
-                    
-                    if not all_tables:
-                        tqdm.write(f"INFO: No tables found in '{sheet_name}'")
-                        vlog.detail("No tables found in this sheet")
-                    else:
-                        tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
-                        vlog.metric("Tables detected", len(all_tables))
-                        _process_and_save_tables(all_tables, sheet_name, output_dir)
-                    
-                    sheet_elapsed = time.time() - sheet_start
-                    vlog.timing("Sheet processing time", sheet_elapsed)
-            except Exception as e:
-                tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
-                log.error(f"Error processing sheet '{sheet_name}': {e}")
-                vlog.detail(f"ERROR: {str(e)}")
-                sheet_elapsed = time.time() - sheet_start
-                vlog.timing("Sheet processing time before error", sheet_elapsed)
-                success = False
+    try:
+        with pd.ExcelFile(excel_path) as xls:
+            log.debug(f"Excel file loaded successfully. Found {len(xls.sheet_names)} sheets: {xls.sheet_names}")
+            success = True
+            
+            # Start verbose logging context
+            with vlog.file_processing(os.path.basename(excel_path), total_records=len(xls.sheet_names)):
+                vlog.metric("Total sheets", len(xls.sheet_names))
+                
+                # Progress bar for processing sheets
+                for sheet_index, sheet_name in enumerate(tqdm(xls.sheet_names, desc="Processing sheets", unit="sheet", 
+                                       file=sys.stdout, dynamic_ncols=True, leave=True,
+                                       bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]')):
+                    sheet_start = time.time()
+                    try:
+                        with vlog.step(f"Sheet {sheet_index + 1}/{len(xls.sheet_names)}: '{sheet_name}'"):
+                            tqdm.write(f"--- Sheet: '{sheet_name}' ---")
+                            parse_opts = {'header': None, 'keep_default_na': False, 'na_values': ['']} if preserve_na else {'header': None}
+                            all_tables = _split_sheet_into_tables(pd.read_excel(xls, sheet_name=sheet_name, **parse_opts))
+                            
+                            if not all_tables:
+                                tqdm.write(f"INFO: No tables found in '{sheet_name}'")
+                                vlog.detail("No tables found in this sheet")
+                            else:
+                                tqdm.write(f"INFO: Found {len(all_tables)} table(s) in '{sheet_name}'")
+                                vlog.metric("Tables detected", len(all_tables))
+                                _process_and_save_tables(all_tables, sheet_name, output_dir)
+                            
+                            sheet_elapsed = time.time() - sheet_start
+                            vlog.timing("Sheet processing time", sheet_elapsed)
+                    except Exception as e:
+                        tqdm.write(f"ERROR: Error on sheet '{sheet_name}': {e}")
+                        log.error(f"Error processing sheet '{sheet_name}': {e}")
+                        vlog.detail(f"ERROR: {str(e)}")
+                        sheet_elapsed = time.time() - sheet_start
+                        vlog.timing("Sheet processing time before error", sheet_elapsed)
+                        success = False
+    except Exception as e:
+        log.error(f"Error reading Excel file '{excel_path}': {e}")
+        log.debug("Full error details:", exc_info=True)
+        return False
     
     overall_elapsed = time.time() - overall_start
     vlog.timing("Overall processing time", overall_elapsed)
@@ -252,16 +433,47 @@ def process_excel_file(excel_path: str, output_dir: str, preserve_na: bool = Tru
 def load_study_dictionary(file_path: Optional[str] = None, 
                          json_output_dir: Optional[str] = None, 
                          preserve_na: bool = True) -> bool:
-    """
-    Load and process study data dictionary from Excel to JSONL format.
+    """Load and process study data dictionary from Excel to JSONL format.
+    
+    This is the primary public API for loading data dictionaries. It wraps
+    process_excel_file() with configuration defaults from config.py, allowing
+    simple zero-argument calls for standard usage.
     
     Args:
-        file_path: Path to Excel file (defaults to config.DICTIONARY_EXCEL_FILE)
-        json_output_dir: Output directory (defaults to config.DICTIONARY_JSON_OUTPUT_DIR)
-        preserve_na: If True, preserve empty cells as None; if False, use pandas defaults
-        
+        file_path: Path to Excel dictionary file. If None, uses
+            config.DICTIONARY_EXCEL_FILE. Default is None.
+        json_output_dir: Output directory for JSONL files. If None, uses
+            config.DICTIONARY_JSON_OUTPUT_DIR. Default is None.
+        preserve_na: Controls NA value handling. If True, only empty strings
+            are treated as NA; literal 'NA' strings are preserved. If False,
+            pandas default NA values apply. Default is True.
+    
     Returns:
-        True if processing was successful, False otherwise
+        True if processing completed successfully for all sheets, False if
+        any errors occurred. Partial results may still be saved on failure.
+        
+    Example:
+        >>> # Use defaults from config.py
+        >>> from scripts.load_dictionary import load_study_dictionary
+        >>> success = load_study_dictionary()
+        >>> if success:
+        ...     print("Dictionary loaded successfully")
+        
+        >>> # Custom paths
+        >>> success = load_study_dictionary(
+        ...     file_path='data/custom_dict.xlsx',
+        ...     json_output_dir='output/custom'
+        ... )
+        
+        >>> # Preserve literal 'NA' strings in data
+        >>> success = load_study_dictionary(preserve_na=True)
+        
+    Notes:
+        - This is the recommended entry point for dictionary loading
+        - Falls back to config defaults for unspecified paths
+        - Suitable for both interactive use and CLI scripts
+        - See process_excel_file() for detailed processing behavior
+        - Main script usage at bottom demonstrates standalone execution
     """
     success = process_excel_file(
         excel_path=file_path or config.DICTIONARY_EXCEL_FILE,

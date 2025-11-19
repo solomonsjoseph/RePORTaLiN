@@ -1,80 +1,64 @@
 #!/usr/bin/env python3
-"""
-RePORTaLiN Main Pipeline
-========================
+"""Clinical data processing pipeline for RePORTaLiN.
 
-Central entry point for the clinical data processing pipeline, orchestrating:
-- Data dictionary loading and validation
-- Excel to JSONL extraction with type conversion
-- PHI/PII de-identification with country-specific compliance
+This module provides the main entry point for the RePORTaLiN (Report India) 
+clinical study data processing pipeline. It orchestrates a multi-step workflow
+that transforms raw Excel datasets into clean, structured, and optionally 
+de-identified JSONL records suitable for analysis and vector database ingestion.
 
-This module provides a complete end-to-end pipeline with comprehensive error handling,
-progress tracking, and flexible configuration via command-line arguments.
+The pipeline consists of the following stages:
+    1. **Dictionary Loading (Step 0):** Parse and validate the data dictionary
+       Excel file to understand field definitions, types, and constraints.
+    2. **Data Extraction (Step 1):** Convert Excel datasets to JSONL format,
+       applying validation rules and creating both original and cleaned outputs.
+    3. **De-identification (Step 2):** Optional PHI/PII removal using country-
+       specific regex patterns, encryption, and date-shifting techniques.
+    4. **Vector DB Ingestion (Optional):** Embed PDF forms and JSONL records
+       into a vector database for semantic search capabilities.
 
-Public API
-----------
-Exports 2 main functions via ``__all__``:
+Architecture:
+    The pipeline follows a fail-fast philosophy. Each step is wrapped in error
+    handling via `run_step()`, which logs progress and exits immediately on 
+    failure. Configuration is centralized in `config.py`, and all operations
+    are logged to both console and `.logs/` directory.
 
-- ``main``: Main pipeline orchestrator
-- ``run_step``: Pipeline step executor with error handling
+Security:
+    - De-identification uses Fernet encryption (AES-128) for mapping storage
+    - Date shifting applies consistent random offsets per patient
+    - Country-specific patterns (Aadhaar, SSN, etc.) are validated via regex
+    - All encryption keys are managed securely in `config.py`
 
-Key Features
-------------
-- **Multi-Step Pipeline**: Dictionary → Extraction → De-identification
-- **Flexible Execution**: Skip individual steps or run complete pipeline
-- **Country Compliance**: Support for 14 countries (US, IN, ID, BR, etc.)
-- **Error Recovery**: Comprehensive error handling with detailed logging
-- **Version Tracking**: Built-in version management
+Usage:
+    Run the complete pipeline:
+        $ python main.py
+    
+    Skip dictionary loading and enable de-identification:
+        $ python main.py --skip-dictionary --enable-deidentification
+    
+    Process multiple countries with verbose logging:
+        $ python main.py -c IN US BR --verbose
+    
+    Ingest PDFs to vector database (dry run):
+        $ python main.py --ingest-pdfs --dry-run
 
-Pipeline Steps
---------------
+Example:
+    >>> # Basic pipeline execution (requires data setup)
+    >>> # This is a conceptual example - actual execution requires data files
+    >>> import sys
+    >>> sys.argv = ['main.py', '--version']
+    >>> # Would display: RePORTaLiN <version>
 
-**Step 0: Data Dictionary Loading (Optional)**
-- Processes Excel data dictionary files
-- Splits multi-table sheets automatically
-- Outputs JSONL format with metadata
+Notes:
+    - Requires Python 3.13+ for compatibility with dependencies
+    - All data paths are configured in `config.py`
+    - Shell completion available if `argcomplete` is installed
+    - See README.md and Sphinx docs for detailed setup instructions
 
-**Step 1: Data Extraction (Default)**
-- Converts Excel files to JSONL format
-- Dual output: original and cleaned versions
-- Type conversion and validation
-- Progress tracking with real-time feedback
-
-**Step 2: De-identification (Opt-in)**
-- PHI/PII detection and pseudonymization
-- Country-specific regulations (HIPAA, GDPR, DPDPA, etc.)
-- Encrypted mapping storage
-- Date shifting with interval preservation
-
-Error Handling
---------------
-
-The pipeline uses comprehensive error handling:
-
-1. **Step-level Errors**: Each step is wrapped in try/except
-2. **Validation Errors**: Invalid results cause immediate exit
-3. **Logging**: All errors logged with full stack traces
-4. **Exit Codes**: Non-zero exit on any failure
-
-Return Codes:
-- 0: Success
-- 1: Pipeline failure (any step)
-
-See Also
---------
-**User Documentation:**
-
-- :doc:`user_guide/quickstart` - Quick start guide with basic examples
-- :doc:`user_guide/usage` - Advanced usage patterns and workflows
-- :doc:`user_guide/configuration` - Configuration and command-line options
-- :doc:`developer_guide/architecture` - Technical architecture details
-
-**API Reference:**
-
-- :mod:`scripts.load_dictionary` - Data dictionary processing
-- :mod:`scripts.extract_data` - Data extraction
-- :mod:`scripts.deidentify` - De-identification
-- :mod:`config` - Configuration settings
+See Also:
+    config.py: Central configuration and path management
+    scripts.load_dictionary: Data dictionary parsing logic
+    scripts.extract_data: Excel to JSONL conversion
+    scripts.deidentify: PHI/PII de-identification engine
 """
 import argparse
 import logging
@@ -84,7 +68,10 @@ from pathlib import Path
 from scripts.load_dictionary import load_study_dictionary
 from scripts.extract_data import extract_excel_to_jsonl
 from scripts.deidentify import deidentify_dataset, DeidentificationConfig
-from scripts.utils import logging as log
+from scripts.utils import logging_system as log
+# Vector database ingestion modules
+from scripts.vector_db.ingest_pdfs import ingest_pdfs_to_vectordb
+from scripts.vector_db.ingest_records import ingest_records_to_vectordb
 import config
 
 try:
@@ -98,15 +85,70 @@ from __version__ import __version__
 __all__ = ['main', 'run_step']
 
 def run_step(step_name: str, func: Callable[[], Any]) -> Any:
-    """
-    Execute pipeline step with error handling and logging.
+    """Execute a pipeline step with comprehensive error handling and logging.
+    
+    This function wraps individual pipeline steps to provide consistent error
+    handling, logging, and exit behavior. It acts as the pipeline's safety net,
+    ensuring that any failure in a step is caught, logged, and results in a
+    clean exit with a non-zero status code.
+    
+    The function supports multiple failure modes:
+    - Boolean `False` return values indicate step failure
+    - Dict results with an 'errors' key indicate partial failure
+    - Uncaught exceptions are logged with full stack traces
+    
+    All steps are logged with clear start/success/failure messages to both
+    console and log files (see `config.LOG_NAME` for log file location).
     
     Args:
-        step_name: Name of the pipeline step
-        func: Callable function to execute
-        
+        step_name (str): Human-readable name of the pipeline step (e.g., 
+            "Step 1: Extracting Raw Data to JSONL"). Used in log messages
+            and error reporting.
+        func (Callable[[], Any]): Zero-argument callable that executes the
+            actual step logic. This should be a lambda or function reference
+            that performs the work and returns a result or raises an exception.
+    
     Returns:
-        Result from the function, or exits with code 1 on error
+        Any: The return value from `func()` if successful. Return type depends
+            on the specific step being executed (e.g., dict with statistics,
+            bool for success/failure, or None).
+    
+    Raises:
+        SystemExit: Always raised on failure (exit code 1). This terminates
+            the entire pipeline to prevent cascading errors from invalid data.
+            Reasons for exit:
+            - `func()` returns `False`
+            - `func()` returns a dict with non-empty 'errors' list
+            - `func()` raises any exception
+    
+    Example:
+        >>> import logging
+        >>> from scripts.utils import logging_system as log
+        >>> log.setup_logger(name='test', log_level=logging.INFO, simple_mode=True)
+        >>> # Successful step
+        >>> def successful_task():
+        ...     return {'processed': 100, 'errors': []}
+        >>> result = run_step("Test Task", successful_task)
+        >>> result['processed']
+        100
+        >>> # Failing step (returns False)
+        >>> def failing_task():
+        ...     return False
+        >>> try:
+        ...     run_step("Failing Task", failing_task)
+        ... except SystemExit as e:
+        ...     print(f"Exit code: {e.code}")
+        Exit code: 1
+    
+    Notes:
+        - This function uses `sys.exit(1)` rather than raising exceptions to
+          ensure clean termination visible to shell scripts and CI/CD systems.
+        - Stack traces are logged via `exc_info=True` for debugging.
+        - Success messages use `log.success()` for visual distinction in logs.
+    
+    See Also:
+        main: Orchestrates all pipeline steps using this wrapper
+        config.LOG_NAME: Configures the log file name
     """
     try:
         log.info(f"--- {step_name} ---")
@@ -127,23 +169,105 @@ def run_step(step_name: str, func: Callable[[], Any]) -> Any:
         sys.exit(1)
 
 def main() -> None:
-    """
-    Main pipeline orchestrating dictionary loading, data extraction, and de-identification.
+    """Orchestrate the complete clinical data processing pipeline.
     
-    Command-line Arguments:
-        --skip-dictionary: Skip data dictionary loading
-        --skip-extraction: Skip data extraction
-        --enable-deidentification: Enable de-identification (disabled by default)
-        --skip-deidentification: Skip de-identification even if enabled
-        --no-encryption: Disable encryption for de-identification mappings
-        -c, --countries: Country codes (e.g., IN US ID BR) or ALL
-        -v, --verbose: Enable verbose (DEBUG level) logging
+    This is the main entry point for the RePORTaLiN pipeline. It parses command-
+    line arguments, configures logging, validates the environment, and executes
+    the multi-step workflow to process clinical study data from raw Excel files
+    to clean, structured, and optionally de-identified JSONL records.
+    
+    The function implements a sequential pipeline with optional step skipping:
+    
+    **Step 0 - Dictionary Loading:**
+        Parses the data dictionary Excel file to extract field definitions,
+        data types, validation rules, and metadata. Outputs structured JSON
+        for downstream validation. (Skip with `--skip-dictionary`)
+    
+    **Step 1 - Data Extraction:**
+        Converts Excel datasets to JSONL format, applying validation rules
+        and creating both 'original/' (raw) and 'cleaned/' (validated) outputs.
+        (Skip with `--skip-extraction`)
+    
+    **Step 2 - De-identification (Optional):**
+        Removes PHI/PII using country-specific regex patterns, applies date
+        shifting, and encrypts mapping files. Enabled with 
+        `--enable-deidentification` flag. (Skip with `--skip-deidentification`)
+    
+    **Vector DB Ingestion (Optional):**
+        Embeds PDF forms and/or JSONL records into a vector database for
+        semantic search. Enabled with `--ingest-pdfs` or `--ingest-records`.
+    
+    Configuration and Validation:
+        - All paths, study names, and settings are loaded from `config.py`
+        - Configuration validation runs before any processing starts
+        - Required directories are created automatically if missing
+        - Logging is configured based on `--verbose` flag (default: simple mode)
+    
+    Command-Line Interface:
+        The function accepts numerous CLI arguments for fine-grained control:
+        
+        **Workflow Control:**
+            --skip-dictionary           Skip Step 0
+            --skip-extraction           Skip Step 1
+            --skip-deidentification     Skip Step 2
+            --enable-deidentification   Enable PHI/PII removal
+        
+        **De-identification Options:**
+            -c, --countries CODE [CODE ...]  Process specific countries (IN US BR)
+                                             or ALL for all patterns
+            --no-encryption             Disable mapping encryption (testing only)
+        
+        **Vector Database:**
+            --ingest-pdfs               Embed PDF forms to vector DB
+            --ingest-records            Embed JSONL records to vector DB
+            --dry-run                   Test ingestion without writing
+        
+        **Logging:**
+            -v, --verbose               Enable DEBUG logging with full output
+            --version                   Show version and exit
+    
+    Returns:
+        None: This function orchestrates the pipeline but does not return a
+            value. It exits with code 0 on success or code 1 on failure.
+    
+    Raises:
+        SystemExit: Always raised on failure (exit code 1). Reasons include:
+            - Configuration validation failure (missing directories)
+            - Any step failure (logged via `run_step()`)
+            - Uncaught exceptions in argument parsing or setup
+        FileNotFoundError: Caught and converted to SystemExit if required
+            directories are missing (data/<study>/datasets/, etc.)
+    
+    Example:
+        >>> # Simulate command-line execution (conceptual - requires data setup)
+        >>> import sys
+        >>> # Show version
+        >>> sys.argv = ['main.py', '--version']
+        >>> # Would display version and exit
+        >>> 
+        >>> # Run with verbose logging (requires actual data files)
+        >>> # sys.argv = ['main.py', '--verbose']
+        >>> # main()  # Would execute full pipeline with DEBUG logging
+    
+    Notes:
+        - Default logging: Simple mode (INFO level, minimal console output)
+        - Verbose mode (`-v`): DEBUG level with full context and stack traces
+        - All operations are logged to `.logs/<LOG_NAME>.log`
+        - Shell completion available if `argcomplete` package is installed
+        - De-identification is opt-in and disabled by default for safety
+    
+    See Also:
+        run_step: Wrapper for individual pipeline steps with error handling
+        config.validate_config: Validates directory structure and settings
+        scripts.load_dictionary.load_study_dictionary: Step 0 implementation
+        scripts.extract_data.extract_excel_to_jsonl: Step 1 implementation
+        scripts.deidentify.deidentify_dataset: Step 2 implementation
     """
     parser = argparse.ArgumentParser(
         prog='RePORTaLiN',
         description='Clinical data processing pipeline with de-identification support.',
         epilog="""
-Examples:
+Usage:
   %(prog)s                              # Run complete pipeline
   %(prog)s --skip-dictionary            # Skip dictionary, run extraction
   %(prog)s --enable-deidentification    # Run pipeline with de-identification
@@ -168,9 +292,16 @@ For detailed documentation, see the Sphinx docs or README.md
     parser.add_argument('-c', '--countries', nargs='+', metavar='CODE',
                        help="Country codes (IN US ID BR etc.) or ALL. Default: IN")
     parser.add_argument('-v', '--verbose', action='store_true',
-                       help="Enable verbose (DEBUG) logging with detailed context")
-    parser.add_argument('--simple', action='store_true',
-                       help="Enable simple logging (INFO level, minimal details)")
+                       help="Enable verbose (DEBUG) logging with detailed context. "
+                            "Default: Simple mode (INFO level, minimal console output)")
+    
+    # Vector database arguments
+    parser.add_argument('--ingest-pdfs', action='store_true',
+                       help="Ingest all PDF forms to vector database")
+    parser.add_argument('--ingest-records', action='store_true',
+                       help="Ingest all JSONL records to vector database")
+    parser.add_argument('--dry-run', action='store_true',
+                       help="Test ingestion without writing to database (use with --ingest-pdfs)")
     
     # Enable shell completion if available
     if ARGCOMPLETE_AVAILABLE:
@@ -178,24 +309,31 @@ For detailed documentation, see the Sphinx docs or README.md
     
     args = parser.parse_args()
 
-    # Set log level based on flags: verbose (DEBUG) > default (INFO) > simple (INFO but less console output)
+    # Set log level and mode: Default = simple mode (INFO, minimal console)
+    # Only --verbose flag enables DEBUG mode with full console output
     if args.verbose:
         log_level = logging.DEBUG
-    elif args.simple:
-        log_level = logging.INFO
+        simple_mode = False  # Full verbose output to console
     else:
-        log_level = config.LOG_LEVEL
+        # DEFAULT: Simple mode (INFO level, minimal console output)
+        log_level = logging.INFO
+        simple_mode = True
     
-    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=args.simple)
+    log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=simple_mode)
     log.info("Starting RePORTaLiN pipeline...")
     
-    # Validate configuration and warn about missing files
-    config_warnings = config.validate_config()
-    if config_warnings:
-        for warning in config_warnings:
-            log.warning(warning)
-        # Don't exit on warnings, just inform the user
-        log.info("Proceeding despite configuration warnings. Some features may not work.")
+    # Validate configuration (raises exceptions on errors)
+    try:
+        config.validate_config()
+        log.info("Configuration validated successfully")
+    except FileNotFoundError as e:
+        log.error(f"Configuration validation failed: {e}")
+        print(f"\n❌ Configuration Error: {e}")
+        print("\nPlease ensure your data directory structure is correct:")
+        print(f"  data/{config.STUDY_NAME}/datasets/")
+        print(f"  data/{config.STUDY_NAME}/annotated_pdfs/")
+        print(f"  data/{config.STUDY_NAME}/data_dictionary/")
+        sys.exit(1)
     
     # Ensure required directories exist
     config.ensure_directories()
@@ -223,13 +361,15 @@ For detailed documentation, see the Sphinx docs or README.md
     if args.enable_deidentification and not args.skip_deidentification:
         def run_deidentification():
             # Input directory contains original/ and cleaned/ subdirectories
-            input_dir = Path(config.CLEAN_DATASET_DIR)
+            clean_dataset_dir = Path(config.OUTPUT_DIR) / config.STUDY_NAME
+            # Process the parent directory to include both original/ and cleaned/
+            input_dir = clean_dataset_dir
             
-            # Output to dedicated deidentified directory within results
-            output_dir = Path(config.RESULTS_DIR) / "deidentified" / config.DATASET_NAME
+            # Output to dedicated deidentified directory within output
+            output_dir = Path(config.OUTPUT_DIR) / "deidentified" / config.STUDY_NAME
             
             log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
-            log.info(f"Processing both 'original' and 'cleaned' subdirectories...")
+            log.info(f"Processing both 'original/' and 'cleaned/' subdirectories...")
             
             # Parse countries argument
             countries = None
@@ -281,6 +421,17 @@ For detailed documentation, see the Sphinx docs or README.md
         log.info("--- Skipping Step 2: De-identification ---")
     else:
         log.info("--- De-identification disabled (use --enable-deidentification to enable) ---")
+
+    # Vector database ingestion
+    if args.ingest_pdfs:
+        run_step("Vector DB: Ingesting PDF Forms", 
+                lambda: ingest_pdfs_to_vectordb(
+                    study_name=config.STUDY_NAME,
+                    dry_run=args.dry_run
+                ))
+    
+    if args.ingest_records:
+        run_step("Vector DB: Ingesting JSONL Records", lambda: ingest_records_to_vectordb(study_name=config.STUDY_NAME))
 
     log.info("RePORTaLiN pipeline finished.")
 

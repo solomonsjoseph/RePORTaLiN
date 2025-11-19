@@ -1,48 +1,74 @@
-"""
-RePORTaLiN Utilities Package
-=============================
+"""Utility modules for clinical data processing and infrastructure.
 
-Utility modules for clinical data processing: logging, de-identification, and privacy compliance.
+This subpackage provides cross-cutting concerns and infrastructure utilities
+used throughout the RePORTaLiN pipeline. It includes centralized logging,
+country-specific regulations, documentation maintenance tools, and data
+migration utilities.
 
-This package provides cross-cutting functionality supporting the main data processing pipeline.
-
-Public API
-----------
-Exports 9 logging functions via ``__all__`` for convenient access:
-
-**Logging (from scripts.utils.logging):**
-- ``get_logger``, ``setup_logger``, ``get_log_file_path``
-- ``debug``, ``info``, ``warning``, ``error``, ``critical``, ``success``
-
-**Specialized functionality (import from submodules):**
-- ``scripts.utils.logging`` - Enhanced logging (11 exports)
-- ``scripts.deidentify`` - De-identification engine (10 exports)
-- ``scripts.utils.country_regulations`` - Privacy regulations (6 exports)
-
-Usage
------
-
-Basic logging (from utils package)::
-
-    from scripts.utils import get_logger, success
-    logger = get_logger(__name__)
-    success("Processing complete!")
-
-Specialized features (from submodules)::
-
-    from scripts.deidentify import deidentify_dataset
-    from scripts.utils.country_regulations import get_supported_countries
+Subpackage Architecture:
+    **Logging Infrastructure** (logging_system.py):
+        Centralized logging with dual output (console + file), color-coded
+        severity levels, and configurable verbosity modes.
     
-    # See individual module documentation for complete examples
+    **Country Regulations** (country_regulations.py):
+        Country-specific PHI/PII patterns (Aadhaar, SSN, CURP, etc.) with
+        validation regex for de-identification operations.
+    
+    **Documentation Tools** (doc_maintenance_toolkit.py):
+        Automated documentation maintenance, docstring generation helpers,
+        and Sphinx integration utilities.
+    
+    **Data Migration** (migrate_data_structure.py):
+        Version-specific data structure migration logic for upgrading
+        between RePORTaLiN versions without data loss.
 
-See Also
---------
-- :mod:`scripts.utils.logging` - Logging utilities
-- :mod:`scripts.deidentify` - De-identification
-- :mod:`scripts.utils.country_regulations` - Privacy compliance
+Public API:
+    The utils package exposes the centralized logging system at the top level
+    for easy access from any module:
+    
+    **Logging Functions**:
+        - setup_logger: Configure logger instance
+        - get_logger: Retrieve existing logger
+        - setup_logging: Legacy setup function (deprecated)
+        - get_log_file_path: Get path to log file
+        - debug, info, warning, error, critical, success: Direct log functions
+    
+    **Note**: Country regulations, doc tools, and migration utilities must
+    be imported explicitly from their respective modules.
+
+Module Attributes:
+    __version__ (str): Current package version
+    __all__ (list): Exported logging functions
+
+Example:
+    >>> # Import logging utilities
+    >>> from scripts.utils import setup_logger, info, error
+    >>> import logging
+    >>> 
+    >>> # Setup centralized logger
+    >>> setup_logger(name='my_pipeline', log_level=logging.INFO, simple_mode=True)
+    >>> 
+    >>> # Log messages
+    >>> info("Starting data processing...")  # doctest: +SKIP
+    >>> error("File not found: data.xlsx")  # doctest: +SKIP
+    >>> 
+    >>> # Import country regulations explicitly
+    >>> from scripts.utils.country_regulations import get_country_patterns
+    >>> patterns = get_country_patterns('IN')  # doctest: +SKIP
+
+Notes:
+    - Only logging functions are in __all__ (most commonly used)
+    - Other utilities require explicit imports from their modules
+    - All utilities share the same logger via logging_system
+    - Country patterns are loaded lazily on first access
+
+See Also:
+    scripts.utils.logging_system: Centralized logging implementation
+    scripts.utils.country_regulations: Country-specific patterns
+    main.py: Sets up logging using setup_logger()
 """
 
-from .logging import get_logger, setup_logger, get_log_file_path, debug, info, warning, error, critical, success
+from .logging_system import get_logger, setup_logging, setup_logger, get_log_file_path, debug, info, warning, error, critical, success
 from __version__ import __version__
 
-__all__ = ['get_logger', 'setup_logger', 'get_log_file_path', 'debug', 'info', 'warning', 'error', 'critical', 'success']
+__all__ = ['get_logger', 'setup_logging', 'setup_logger', 'get_log_file_path', 'debug', 'info', 'warning', 'error', 'critical', 'success']

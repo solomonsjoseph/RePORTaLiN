@@ -1,1094 +1,450 @@
 Architecture
 ============
 
-**For Developers: Comprehensive Technical Documentation**
-
-This document provides in-depth technical details about RePORTaLiN's architecture, internal
-algorithms, data structures, dependencies, design patterns, and extension points to enable
-effective maintenance, debugging, and feature development.
-
-**Last Updated:** October 23, 2025  
-**Current Version:** |version|  
-**Code Optimization:** 35% reduction (640 lines) while maintaining 100% functionality  
-**Historical Enhancements:** Enhanced modules from v0.0.1 through v0.0.12
+This document describes the technical architecture of the RePORTaLiN data pipeline.
 
 System Overview
 ---------------
 
-RePORTaLiN is designed as a modular, pipeline-based system for processing sensitive medical 
-research data from Excel to JSONL format with optional PHI/PII de-identification. The architecture 
-emphasizes:
-
-- **Simplicity**: Single entry point (``main.py``) with clear pipeline stages
-- **Modularity**: Clear separation of concerns with dedicated modules
-- **Robustness**: Comprehensive error handling with graceful degradation
-- **Transparency**: Detailed logging at every step with audit trails
-- **Security**: Encryption-by-default for de-identification mappings
-- **Compliance**: Multi-country privacy regulation support (14 countries)
-- **Performance**: Optimized for high throughput (benchmarks pending)
-
-Architecture Diagram
---------------------
+RePORTaLiN is built as a modular pipeline with clear separation of concerns:
 
 .. code-block:: text
 
    ┌─────────────────────────────────────────────────────────────┐
-   │                         main.py                             │
-   │                   (Pipeline Orchestrator)                   │
+   │                     RePORTaLiN System                       │
+   ├─────────────────────────────────────────────────────────────┤
    │                                                             │
-   │  • Command-line argument parsing                           │
-   │  • Step execution coordination                             │
-   │  • High-level error handling                              │
-   └───────────────────┬─────────────────────────────────────────┘
-                       │
-            ┌──────────┴───────────┐
-            │                      │
-            ▼                      ▼
-   ┌────────────────┐     ┌──────────────────┐
-   │  load_dict.py  │     │ extract_data.py  │
-   │                │     │                  │
-   │ • Sheet split  │     │ • File discovery │
-   │ • Table detect │     │ • Type convert   │
-   │ • Duplicate    │     │ • JSONL export   │
-   │   handling     │     │ • Progress track │
-   └────────┬───────┘     └────────┬─────────┘
-            │                      │
-            └──────────┬───────────┘
-                       │
-                       ▼
-              ┌────────────────┐
-              │   config.py    │
-              │                │
-              │ • Paths        │
-              │ • Settings     │
-              │ • Dynamic      │
-              │   detection    │
-              └────────┬───────┘
-                       │
-                       ▼
-              ┌────────────────┐
-              │ logging  │
-              │                │
-              │ • Log files    │
-              │ • Console out  │
-              │ • SUCCESS lvl  │
-              └────────────────┘
+   │  ┌─────────────┐  ┌─────────────┐  ┌──────────────┐       │
+   │  │   Config    │  │   Logging   │  │   Utilities  │       │
+   │  │   System    │  │   System    │  │   (Utils)    │       │
+   │  └─────────────┘  └─────────────┘  └──────────────┘       │
+   │                                                             │
+   │  ┌──────────────────────────────────────────────────────┐  │
+   │  │              Core Pipeline Modules                   │  │
+   │  ├──────────────────────────────────────────────────────┤  │
+   │  │  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │  │
+   │  │  │   Dictionary │→ │    Extract   │→ │  Deidentify│ │  │
+   │  │  │    Loader    │  │     Data     │  │            │  │  │
+   │  │  └──────────────┘  └──────────────┘  └───────────┘  │  │
+   │  └──────────────────────────────────────────────────────┘  │
+   │                                                             │
+   │  ┌──────────────────────────────────────────────────────┐  │
+   │  │             Supporting Services                      │  │
+   │  ├──────────────────────────────────────────────────────┤  │
+   │  │  ┌──────────────┐  ┌──────────────┐  ┌───────────┐  │  │
+   │  │  │  Vector DB   │  │     LLM      │  │   Cache   │  │  │
+   │  │  │   Service    │  │   Adapters   │  │  Service  │  │  │
+   │  │  └──────────────┘  └──────────────┘  └───────────┘  │  │
+   │  └──────────────────────────────────────────────────────┘  │
+   │                                                             │
+   └─────────────────────────────────────────────────────────────┘
 
 Core Components
 ---------------
 
-1. main.py - Pipeline Orchestrator
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Configuration System (config.py)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Purpose**: Central entry point and workflow coordinator
+Centralized configuration management using dataclasses and environment variables.
 
-**Responsibilities**:
+**Responsibilities:**
 
-- Parse command-line arguments
-- Execute pipeline steps in sequence
-- Handle top-level errors
-- Coordinate logging
+* Load configuration from `config.py` and `.env`
+* Provide type-safe access to settings
+* Validate configuration on startup
+* Support environment-specific overrides
 
-**Key Functions**:
+**Key Classes:**
 
-- ``main()``: Entry point, orchestrates full pipeline
-- ``run_step()``: Wrapper for step execution with error handling
+* ``Config``: Main configuration dataclass
 
-**Design Pattern**: Command pattern with error handling decorator
+Logging System
+~~~~~~~~~~~~~~
 
-2. config.py - Configuration Management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Comprehensive logging with file rotation and structured output.
 
-**Purpose**: Centralized configuration
+**Location:** ``scripts/utils/logging_system.py``
 
-**Responsibilities**:
+**Features:**
 
-- Define all file paths
-- Manage settings
-- Dynamic dataset detection
-- Path resolution
+* Automatic log rotation
+* Configurable log levels
+* Structured logging with timestamps
+* Error tracking and reporting
 
-**Key Features**:
+**Key Functions:**
 
-- Automatic dataset folder detection
-- Relative path resolution
-- Environment-agnostic configuration
-- Type hints for IDE support
+* ``get_logger(name)``: Get a configured logger
+* ``setup_logging()``: Initialize logging system
 
-**Design Pattern**: Module-level singleton
+Pipeline Modules
+----------------
 
-3. scripts/extract_data.py - Data Extraction
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Dictionary Loader
+~~~~~~~~~~~~~~~~~
 
-**Purpose**: Convert Excel files to JSONL
+**Location:** ``scripts/load_dictionary.py``
 
-**Responsibilities**:
+**Purpose:** Parse and validate data dictionary files
 
-- File discovery and validation
-- Excel reading and parsing
-- Data type conversion
-- JSONL serialization
-- Progress tracking with tqdm
+**Key Functions:**
 
-**Key Functions**:
+* ``load_data_dictionary(dict_path)``: Load from Excel
+* ``parse_field_definitions(df)``: Extract field metadata
+* ``validate_dictionary(dict_obj)``: Validate completeness
 
-- ``extract_excel_to_jsonl()``: Batch processing with progress bars
-- ``process_excel_file()``: Single file processing
-- ``convert_dataframe_to_jsonl()``: DataFrame conversion
-- ``clean_record_for_json()``: Type conversion
-- ``is_dataframe_empty()``: Empty detection
-- ``find_excel_files()``: File discovery
+**Data Flow:**
 
-**Progress Tracking**:
+1. Read Excel file
+2. Parse sheets (fields, validation, mappings)
+3. Build structured dictionary object
+4. Validate completeness and consistency
+5. Save for downstream use
 
-- Uses tqdm for all file and row processing
-- Status messages via tqdm.write() for clean output
-- Summary statistics after completion
+Data Extraction
+~~~~~~~~~~~~~~~
 
-**Design Pattern**: Pipeline pattern with functional composition
+**Location:** ``scripts/extract_data.py``
 
-4. scripts/load_dictionary.py - Dictionary Processing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Purpose:** Extract structured data from PDFs and Excel files
 
-**Purpose**: Process data dictionary Excel file
+**Key Components:**
 
-**Responsibilities**:
+* **PDF Parser**: Extract text from PDFs
+* **LLM Extractor**: Use LLM to identify and extract fields
+* **Excel Reader**: Direct column mapping for Excel data
+* **Validator**: Validate against data dictionary
 
-- Sheet processing with progress tracking
-- Table detection and splitting
-- Duplicate column handling
-- Table serialization
+**Data Flow:**
 
-**Key Functions**:
+1. Read source files (PDF/Excel)
+2. Chunk content for processing
+3. Extract fields using LLM or direct mapping
+4. Validate against dictionary
+5. Merge data from multiple sources
+6. Generate extraction report
 
-- ``load_study_dictionary()``: High-level API with tqdm progress bars
-- ``process_excel_file()``: Sheet processing
-- ``_split_sheet_into_tables()``: Table detection
-- ``_process_and_save_tables()``: Table output
-- ``_deduplicate_columns()``: Column name handling
+**Extraction Strategies:**
 
-**Progress Tracking**:
+* **Template-based**: For structured forms
+* **LLM-based**: For variable layouts
+* **Hybrid**: Combine both approaches
 
-- tqdm progress bars for sheet processing
-- tqdm.write() for status messages
-- Clean console output during processing
+De-identification
+~~~~~~~~~~~~~~~~~
 
-**Design Pattern**: Functional composition with table detection algorithm
+**Location:** ``scripts/deidentify.py``
 
-**Design Pattern**: Strategy pattern for table detection
+**Purpose:** Remove or pseudonymize PII
 
-5. scripts/utils/logging.py - Logging System
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Key Components:**
 
-**Purpose**: Centralized logging infrastructure
+* **PII Detector**: Identify PII fields and patterns
+* **Transformers**: Apply de-identification methods
+* **Validator**: Verify PII removal
+* **Auditor**: Generate audit trail
 
-**Responsibilities**:
+**De-identification Methods:**
 
-- Create timestamped log files
-- Dual output (console + file)
-- Custom SUCCESS log level
-- Structured logging with configurable verbosity
+* Date shifting with random offsets
+* Name removal/pseudonymization
+* Location generalization
+* Identifier hashing with secure salt
+* Free-text redaction using NER
 
-**Key Features**:
+**Data Flow:**
 
-- Custom SUCCESS level (between INFO and WARNING)
-- Timestamped log files in ``.logs/`` directory
-- Console and file handlers with different filtering
-- UTF-8 encoding for international characters
-- Works alongside tqdm for clean progress bar output
-- **Verbose mode**: DEBUG-level logging via ``-v`` flag
+1. Identify PII fields from dictionary
+2. Apply transformations by field type
+3. Scan free text for PII patterns
+4. Generate de-identification map (secure storage)
+5. Validate no PII remains
+6. Generate audit report
 
-**Log Levels**:
+Supporting Services
+-------------------
 
-.. code-block:: python
+Vector Database Service
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-   DEBUG (10)    # Verbose mode only: file processing, patterns, details
-   INFO (20)     # Default: major steps, summaries
-   SUCCESS (25)  # Custom: successful completions
-   WARNING (30)  # Potential issues
-   ERROR (40)    # Failures
-   CRITICAL (50) # Fatal errors
+**Location:** ``scripts/vector_db/``
 
-**Console vs. File Output**:
+**Purpose:** Semantic search and document retrieval
 
-- **Console**: Only SUCCESS, ERROR, and CRITICAL (keeps terminal clean)
-- **File**: INFO or DEBUG (depending on ``--verbose`` flag) and above
+**Key Modules:**
 
-**Verbose Logging**:
+* ``vector_store.py``: ChromaDB interface
+* ``embeddings.py``: Text embedding generation
+* ``adaptive_embeddings.py``: Context-aware embeddings
+* ``ingest_pdfs.py``: PDF document ingestion
+* ``ingest_records.py``: Record ingestion
+* ``pdf_chunking.py``: PDF text chunking
+* ``jsonl_chunking_nl.py``: JSONL chunking
 
-When ``--verbose`` or ``-v`` flag is used:
-
-- Log level set to DEBUG in ``main.py``
-- VerboseLogger class provides tree-view, context-managed output
-- Integrated into all three pipeline steps (Dictionary Loading, Data Extraction, De-identification)
-- Additional details logged throughout pipeline:
-  
-  - File lists and processing order
-  - Sheet/table detection details with row/column counts
-  - Duplicate column detection and removal reasons with detailed explanations
-  - Processing phases with timing information (per-file, per-sheet, per-table, overall)
-  - PHI/PII pattern matches and replacement counts (de-identification step)
-  - Record-level progress (every 1000 records for large files)
-  - Validation results with issue tracking
-  - Comprehensive timing for all operations
-
-**VerboseLogger Class**:
-
-The ``VerboseLogger`` class provides centralized verbose logging with tree-view formatting and context management:
-
-.. code-block:: python
-
-   # In module
-   from scripts.utils import logging as log
-   vlog = log.get_verbose_logger()
-   
-   # Usage in code
-   with vlog.file_processing("Data dictionary", total_records=43):
-       vlog.metric("Total sheets", 43)
-       
-       for sheet_idx, sheet_name in enumerate(sheets, 1):
-           with vlog.step(f"Sheet {sheet_idx}/{len(sheets)}: '{sheet_name}'"):
-               vlog.metric("Tables detected", num_tables)
-               vlog.detail("Processing table...")
-               vlog.timing("Sheet processing time", elapsed)
-
-**Output Format**:
+**Architecture:**
 
 .. code-block:: text
 
-    DEBUG: ├─ Processing: Data extraction (65 files)
-    DEBUG:   ├─ Total files to process: 65
-    DEBUG:   ├─ File 1/65: 10_TST.xlsx
-    DEBUG:   │  ├─ Loading Excel file
-    DEBUG:   │  │  ├─ Rows: 412
-    DEBUG:   │  │  ├─ Columns: 28
-    DEBUG:   │  ├─ Cleaning duplicate columns
-    DEBUG:   │  │  ├─ Marking SUBJID2 for removal (duplicate of SUBJID)
-    DEBUG:   │  │  ├─ Removed 3 duplicate columns: SUBJID2, AGE_2, PHONE_3
-    DEBUG:   │  └─ ⏱ Total processing time: 0.45s
-    DEBUG:   └─ ⏱ Overall extraction time: 32.15s
+   ┌─────────────┐
+   │  Documents  │
+   └──────┬──────┘
+          │
+          ▼
+   ┌─────────────┐
+   │   Chunker   │
+   └──────┬──────┘
+          │
+          ▼
+   ┌─────────────┐
+   │  Embeddings │
+   └──────┬──────┘
+          │
+          ▼
+   ┌─────────────┐
+   │  ChromaDB   │
+   │ Vector Store│
+   └─────────────┘
 
-**Key Methods**:
+LLM Adapters
+~~~~~~~~~~~~
 
-- ``file_processing(name, total_records)``: Wrap entire file processing
-- ``step(name)``: Wrap a processing step
-- ``detail(message)``: Log a detail line
-- ``metric(label, value)``: Log a metric/statistic
-- ``timing(operation, seconds)``: Log timing information
-- ``items_list(label, items, max_show)``: Log list of items with truncation
+**Location:** ``scripts/llm/``
 
-**Integration Pattern**:
+**Purpose:** Abstract LLM provider interactions
 
-All pipeline modules (``load_dictionary.py``, ``extract_data.py``, ``deidentify.py``) follow this pattern:
+**Key Modules:**
 
-1. Import verbose logger at module level:
-   
-   .. code-block:: python
-   
-      from scripts.utils import logging as log
-      vlog = log.get_verbose_logger()
+* ``base_adapter.py``: Base adapter interface
+* Provider-specific adapters (future)
 
-2. Wrap main processing functions with context managers:
-   
-   .. code-block:: python
-   
-      with vlog.file_processing(filename):
-          # Main processing
-          for item in items:
-              with vlog.step(f"Processing {item}"):
-                  # Item processing
-                  vlog.metric("Metric", value)
-                  vlog.timing("Operation", elapsed_time)
+**Design Pattern:** Strategy pattern for swappable LLM providers
 
-3. Always log both to file (verbose) and console (normal):
-   
-   .. code-block:: python
-   
-      log.debug(...)      # File only in verbose mode
-      log.info(...)       # File always
-      log.success(...)    # Console + file
-      vlog.detail(...)    # File only in verbose mode (via context)
+**Key Features:**
 
-**Usage**:
+* Unified interface for multiple providers
+* Streaming support
+* JSON mode for structured output
+* Error handling and retries
+* Token counting and cost tracking
 
-.. code-block:: python
+Cache Service
+~~~~~~~~~~~~~
 
-   from scripts.utils import logging as log
-   
-   # Standard (INFO level)
-   python main.py
-   
-   # Verbose (DEBUG level) with tree-view logs
-   python main.py -v
-   
-   # Verbose with de-identification
-   python main.py -v --enable-deidentification
-   
-   # In code
-   log.debug("Detailed processing info")  # Only in verbose mode
-   log.info("Major step completed")       # Always logged to file
-   log.success("Pipeline completed")      # Console + file
-   vlog.detail("Context-managed detail")  # Only in verbose mode
+**Location:** ``scripts/cache/``
 
-**Design Pattern**: Singleton logger instance with configurable formatting; VerboseLogger provides tree-view abstraction over standard logging
+**Purpose:** Cache expensive operations
 
-6. scripts/deidentify.py - De-identification Engine
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Use Cases:**
 
-**Purpose**: Remove PHI/PII from text data with pseudonymization
+* LLM responses (avoid re-extraction)
+* Parsed PDF content
+* Validation results
+* Embedding vectors
 
-**Responsibilities**:
+Utilities
+---------
 
-- Detect PHI/PII using regex patterns
-- Generate consistent pseudonyms
-- Encrypt and store mappings
-- Validate de-identified output
-- Support country-specific regulations
-- Progress tracking for large datasets
+Country Regulations
+~~~~~~~~~~~~~~~~~~~
 
-**Key Classes**:
+**Location:** ``scripts/utils/country_regulations.py``
 
-- ``DeidentificationEngine``: Main orchestrator
-- ``PseudonymGenerator``: Creates deterministic placeholders
-- ``MappingStore``: Secure encrypted storage
-- ``DateShifter``: Consistent date shifting
-- ``PatternLibrary``: Detection patterns
+**Purpose:** Manage regulatory requirements by region
 
-**Progress Tracking**:
+**Key Functions:**
 
-- tqdm progress bars for processing batches
-- tqdm.write() for status messages during processing
-- Summary statistics upon completion
+* ``get_pii_fields(region)``: Get PII fields for region
+* ``get_date_shift_rules(region)``: Get date shifting rules
+* ``validate_compliance(data, region)``: Check compliance
 
-**Design Pattern**: Strategy pattern for detection, Builder pattern for configuration
+Document Maintenance Toolkit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-7. scripts/utils/country_regulations.py - Country-Specific Regulations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Location:** ``scripts/utils/doc_maintenance_toolkit.py``
 
-**Purpose**: Manage country-specific data privacy regulations
+**Purpose:** Maintain documentation quality
 
-**Responsibilities**:
+**Key Functions:**
 
-- Define country-specific data fields
-- Provide detection patterns for local identifiers
-- Document regulatory requirements
-- Support multiple jurisdictions simultaneously
+* ``check_docstrings(filepath)``: Verify docstring presence
+* ``generate_docstring_template(func)``: Generate templates
+* ``validate_examples(docstring)``: Test docstring examples
 
-**Key Classes**:
+Data Structure Migration
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- ``CountryRegulationManager``: Orchestrates regulations
-- ``CountryRegulation``: Single country configuration
-- ``DataField``: Field definition with validation
-- ``PrivacyLevel`` / ``DataFieldType``: Enumerations
+**Location:** ``scripts/utils/migrate_data_structure.py``
 
-**Supported Countries**: US, EU, GB, CA, AU, IN, ID, BR, PH, ZA, KE, NG, GH, UG
+**Purpose:** Migrate data between schema versions
 
-**Design Pattern**: Registry pattern for country lookup, Factory pattern for regulation creation
+**Key Functions:**
+
+* ``migrate_to_version(data, target_version)``: Version migration
+* ``validate_schema(data, schema)``: Schema validation
 
 Data Flow
 ---------
 
-Step-by-Step Data Flow:
-
-.. code-block:: text
-
-   1. User invokes: python main.py
-                    │
-                    ▼
-   2. main.py initializes logging
-                    │
-                    ▼
-   3. Step 0: load_study_dictionary()
-                    │
-      ┌─────────────┴──────────────┐
-      │                            │
-      ▼                            ▼
-   Read Excel           Split sheets into tables
-   Dictionary                     │
-                                  ▼
-                        Deduplicate columns
-                                  │
-                                  ▼
-                        Save as JSONL in:
-                        results/data_dictionary_mappings/
-                    │
-                    ▼
-   4. Step 1: extract_excel_to_jsonl()
-                    │
-      ┌─────────────┴──────────────┐
-      │                            │
-      ▼                            ▼
-   Find Excel files    Process each file
-   in dataset/                    │
-                      ┌───────────┴────────────┐
-                      │                        │
-                      ▼                        ▼
-              Read Excel sheets    Convert data types
-                      │                        │
-                      ▼                        ▼
-              Clean records        Handle NaN/dates
-                      │                        │
-                      └───────────┬────────────┘
-                                  │
-                                  ▼
-                        Save as JSONL in:
-                        results/dataset/<dataset_name>/
-                            ├── original/  (all columns)
-                            └── cleaned/   (duplicates removed)
-                    │
-                    ▼
-   5. Step 2: deidentify_dataset() [OPTIONAL]
-                    │
-      ┌─────────────┴──────────────┐
-      │                            │
-      ▼                            ▼
-   Recursively find      Process each file
-   JSONL files                    │
-   in subdirs         ┌───────────┴────────────┐
-                      │                        │
-                      ▼                        ▼
-              Detect PHI/PII       Generate pseudonyms
-                      │                        │
-                      ▼                        ▼
-              Replace sensitive    Maintain mappings
-                   data                        │
-                      └───────────┬────────────┘
-                                  │
-                                  ▼
-                        Save de-identified in:
-                        results/deidentified/<dataset_name>/
-                            ├── original/  (de-identified)
-                            ├── cleaned/   (de-identified)
-                            └── _deidentification_audit.json
-                        
-                        Store encrypted mappings:
-                        results/deidentified/mappings/
-                            └── mappings.enc
-
-Data Flow Architecture
-----------------------
-
-The system processes data through three primary pipelines:
-
-**Pipeline 1: Data Dictionary Processing**
-
-.. code-block:: text
-
-   Excel File (Dictionary) → pd.read_excel() → Table Detection → Split Tables 
-   → Column Deduplication → "Ignore Below" Filter → JSONL Export (per table)
-   
-   Algorithm: Two-Phase Table Detection
-   1. Horizontal Split: Identify empty rows as boundaries
-   2. Vertical Split: Within horizontal strips, identify empty columns
-   3. Result: NxM tables from single sheet
-
-**Pipeline 2: Data Extraction**
-
-.. code-block:: text
-
-   Excel Files (Dataset) → find_excel_files() → pd.read_excel() 
-   → Type Conversion → Duplicate Column Removal → JSONL Export
-   → File Integrity Check → Statistics Collection
-   
-   Outputs: Two versions (original/, cleaned/) for validation
-
-**Pipeline 3: De-identification** *(Optional)*
-
-.. code-block:: text
-
-   JSONL Files → Pattern Matching (Regex + Country-Specific) 
-   → PHI/PII Detection → Pseudonym Generation (Cryptographic Hash) 
-   → Mapping Storage (Encrypted) → Date Shifting (Consistent Offset)
-   → Validation → Encrypted JSONL Output + Audit Log
-   
-   Security: Fernet encryption, deterministic pseudonyms, audit trails
-
-Design Decisions
-----------------
-
-1. JSONL Format
-~~~~~~~~~~~~~~~
-
-**Rationale**: 
-
-- Line-oriented: Each record is independent
-- Streaming friendly: Can process files line-by-line
-- Easy to merge: Just concatenate files
-- Human-readable: Each line is valid JSON
-- Standard format: Wide tool support
-
-**Alternative Considered**: CSV
-**Rejected Because**: CSV doesn't handle nested structures well
-
-2. Automatic Table Detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Rationale**:
-
-- Excel sheets often contain multiple logical tables
-- Empty rows/columns serve as natural separators
-- Preserves semantic structure of data
-
-**Algorithm**:
-
-1. Find maximum consecutive empty rows/columns
-2. Split at these boundaries
-3. Handle special "Ignore below" markers
-
-3. Dynamic Dataset Detection
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Rationale**:
-
-- Avoid hardcoding dataset names
-- Enable working with multiple datasets
-- Reduce configuration burden
-
-**Implementation**: Scan ``data/dataset/`` for first subdirectory
-
-4. Progress Tracking
+End-to-End Data Flow
 ~~~~~~~~~~~~~~~~~~~~
 
-**Rationale**:
-
-- Long-running operations need real-time feedback
-- Users want to know progress and time remaining
-- Helps identify slow operations
-- Clean console output is essential
-
-**Implementation**:
-
-- **tqdm** library for all progress bars (required dependency)
-- **tqdm.write()** for status messages during progress tracking
-- Consistent usage across all processing modules:
-  
-  - ``extract_data.py``: File and row processing
-  - ``load_dictionary.py``: Sheet processing
-  - ``deidentify.py``: Batch de-identification
-
-**Design Decision**: tqdm is a required dependency, not optional, ensuring consistent user experience
-
-5. Centralized Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Rationale**:
-
-- Single source of truth
-- Easy to modify paths
-- Reduces coupling
-- Testability
-
-**Alternative Considered**: Environment variables
-**Rejected Because**: More complex for non-technical users
-
-Algorithms and Data Structures
--------------------------------
-
-**Algorithm 1: Two-Phase Table Detection**
-
-Located in: ``scripts/load_dictionary.py`` → ``_split_sheet_into_tables()``
-
-**Purpose:** Intelligently split Excel sheets containing multiple logical tables into separate tables
-
-**Algorithm:**
-
 .. code-block:: text
 
-   Phase 1: Horizontal Splitting
-   1. Identify rows where ALL cells are null/empty
-   2. Use these rows as boundaries to split sheet into horizontal strips
-   3. Each strip potentially contains one or more tables side-by-side
+   Input Files                 Processing Stages              Output
+   ───────────                 ─────────────────              ──────
    
-   Phase 2: Vertical Splitting (within each horizontal strip)
-   1. Identify columns where ALL cells are null/empty
-   2. Use these columns as boundaries to split strip into tables
-   3. Remove completely empty tables
-   4. Drop rows that are entirely null
-   
-   Result: NxM independent tables from single sheet
+   Data Dict ──┐
+               ├──→ Dictionary Loader ──→ Dict Object ──┐
+   Config ─────┘                                         │
+                                                         │
+   PDFs ───────┐                                         │
+               ├──→ Data Extraction ──→ Raw Data ───────┤
+   Excel ──────┘         ▲                               │
+                         │                               │
+                         │                               │
+                    Vector DB                            │
+                    (Context)                            │
+                                                         │
+                                                         ▼
+   De-ID Rules ─────→ De-identification ──→ Clean Data ──→ Output Files
 
-**Data Structures:**
+Error Handling Strategy
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Levels:**
+
+1. **Validation**: Catch errors early during validation
+2. **Graceful Degradation**: Continue processing on non-critical errors
+3. **Recovery**: Save partial results before exit
+4. **Logging**: Comprehensive error logging for debugging
+
+**Example:**
 
 .. code-block:: python
 
-   # Input: Raw DataFrame (no assumptions about structure)
-   df: pd.DataFrame  # header=None, all data preserved
-   
-   # Intermediate: List of horizontal strips
-   horizontal_strips: List[pd.DataFrame]
-   
-   # Output: List of independent tables
-   all_tables: List[pd.DataFrame]
+   try:
+       data = extract_from_pdf(pdf_path)
+   except ExtractionError as e:
+       logger.error(f"Failed to extract from {pdf_path}: {e}")
+       # Save partial results
+       save_partial_results(partial_data)
+       # Continue with next file
+       continue
 
-**Edge Cases Handled:**
+Design Principles
+-----------------
 
-- Empty rows between tables (common in medical research data dictionaries)
-- Empty columns between tables (side-by-side table layouts)
-- Tables with no data rows (only headers) - preserved with metadata
-- "ignore below" markers - subsequent tables saved to separate directory
-- Duplicate column names - automatically suffixed with "_1", "_2", etc.
+Modularity
+~~~~~~~~~~
 
-**Complexity:** O(r × c) where r = rows, c = columns
+Each component has a single, well-defined responsibility. Components communicate through clear interfaces.
 
----
+Extensibility
+~~~~~~~~~~~~~
 
-**Algorithm 2: JSON Type Conversion**
+New features can be added without modifying existing code:
 
-Located in: ``scripts/extract_data.py`` → ``clean_record_for_json()``
+* Plugin architecture for LLM providers
+* Configurable de-identification rules
+* Custom validators
 
-**Purpose:** Convert pandas/numpy types to JSON-serializable Python types
+Testability
+~~~~~~~~~~~
 
-**Algorithm:**
+All components are unit-testable:
 
-.. code-block:: text
+* Dependency injection for external services
+* Mock-friendly interfaces
+* Isolated test fixtures
 
-   For each key-value pair in record:
-   1. If value is pd.isna(value) → None (JSON null)
-   2. If value is np.integer or np.floating → call .item() to get Python int/float
-   3. If value is pd.Timestamp, np.datetime64, datetime, date → convert to string
-   4. Otherwise → keep as-is
-   
-   Return cleaned dictionary
+Performance
+~~~~~~~~~~~
 
-**Type Mappings:**
+Optimized for large-scale processing:
 
-==================  ======================  ====================
-Pandas/Numpy Type   Python Type             JSON Type
-==================  ======================  ====================
-pd.NA, np.nan       None                    null
-np.int64            int                     number
-np.float64          float                   number
-pd.Timestamp        str                     string (ISO format)
-datetime            str                     string
-==================  ======================  ====================
+* Batch processing
+* Parallel execution
+* Result caching
+* Efficient data structures
 
-**Edge Cases:**
+Technology Stack
+----------------
 
-- Mixed-type columns → handled by pandas during read_excel()
-- Unicode characters → preserved with ensure_ascii=False
-- Large integers → may lose precision if > 2^53 (JSON limitation)
+Core Libraries
+~~~~~~~~~~~~~~
 
----
+* **Python 3.8+**: Programming language
+* **pandas**: Data manipulation
+* **openpyxl**: Excel file handling
+* **PyPDF2/pypdf**: PDF processing
 
-**Algorithm 3: Duplicate Column Detection and Removal**
+LLM Integration
+~~~~~~~~~~~~~~~
 
-Located in: ``scripts/extract_data.py`` → ``clean_duplicate_columns()``
+* **OpenAI API**: GPT models
+* **Anthropic API**: Claude models (future)
+* **Langchain**: LLM orchestration (future)
 
-**Purpose:** Remove duplicate columns with numeric suffixes (e.g., SUBJID2, SUBJID3)
+Vector Database
+~~~~~~~~~~~~~~~
 
-**Algorithm:**
+* **ChromaDB**: Vector storage and retrieval
+* **sentence-transformers**: Text embeddings
+* **HuggingFace**: Embedding models
 
-.. code-block:: text
+Development Tools
+~~~~~~~~~~~~~~~~~
 
-   For each column in DataFrame:
-   1. Match pattern: column_name ends with "_?" followed by digits
-   2. Extract base_name (everything before the suffix)
-   3. If base_name exists as a column:
-      - Mark current column for removal (it's a duplicate)
-      - Keep the base column
-   4. Otherwise:
-      - Keep the column
-   
-   Return DataFrame with only non-duplicate columns
+* **pytest**: Testing framework
+* **black**: Code formatting
+* **flake8**: Linting
+* **mypy**: Type checking
+* **sphinx**: Documentation generation
 
-**Regex Pattern:** ``^(.+?)_?(\d+)$``
+Deployment Considerations
+--------------------------
 
-**Examples:**
+Environment Setup
+~~~~~~~~~~~~~~~~~
 
-- ``SUBJID`` (base) + ``SUBJID2``, ``SUBJID3`` → Keep ``SUBJID``, remove others
-- ``NAME_1`` (numbered) + ``NAME`` (base) → Keep ``NAME``, remove ``NAME_1``
-- ``ID3`` (numbered) + ``ID`` (base) → Keep ``ID``, remove ``ID3``
+1. Python virtual environment
+2. Environment variables in `.env`
+3. Configuration in `config.py`
+4. Data directories structure
 
----
+Resource Requirements
+~~~~~~~~~~~~~~~~~~~~~
 
-**Algorithm 4: Cryptographic Pseudonymization**
+* **CPU**: Multi-core for parallel processing
+* **RAM**: 8GB minimum, 16GB recommended
+* **Disk**: 2GB for app, varies for data
+* **Network**: For LLM API calls
 
-Located in: ``scripts/deidentify.py`` → ``PseudonymGenerator.generate()``
-
-**Purpose:** Generate deterministic, unique pseudonyms for PHI/PII values
-
-**Algorithm:**
-
-.. code-block:: text
-
-   Input: (value, phi_type, template)
-   
-   1. Check cache: If (phi_type, value.lower()) already pseudonymized:
-      - Return cached pseudonym (ensures consistency)
-   
-   2. Generate deterministic ID:
-      a. Create hash_input = "{salt}:{phi_type}:{value}"
-      b. hash_digest = SHA256(hash_input)
-      c. Take first 4 bytes of digest
-      d. Encode as base32, strip padding, take first 6 chars
-      e. Result: Alphanumeric ID (e.g., "A4B8C3")
-   
-   3. Apply template:
-      - Replace {id} placeholder with generated ID
-      - Example: "PATIENT-{id}" → "PATIENT-A4B8C3"
-   
-   4. Cache and return pseudonym
-
-**Security Properties:**
-
-- **Deterministic:** Same input always produces same output (required for data consistency)
-- **One-way:** Cannot reverse SHA256 without salt
-- **Salt-dependent:** Different salt produces different pseudonyms
-- **Collision-resistant:** SHA256 ensures uniqueness
-
-**Data Structure:**
-
-.. code-block:: python
-
-   class PseudonymGenerator:
-       salt: str  # Cryptographic salt (32 bytes hex)
-       _cache: Dict[Tuple[PHIType, str], str]  # Memoization
-       _counter: Dict[PHIType, int]  # Statistics
-
----
-
-**Algorithm 5: Consistent Date Shifting (Country-Aware with Smart Validation)**
-
-Located in: ``scripts/deidentify.py`` → ``DateShifter.shift_date()``
-
-.. versionchanged:: 0.6.0
-   Enhanced date parsing with smart validation to handle ambiguous dates correctly.
-
-**Purpose:** Shift all dates by consistent offset to preserve temporal relationships,
-with intelligent multi-format detection, country-specific priority, and smart validation
-
-**The Ambiguity Challenge:**
-
-Dates like ``08/09/2020`` or ``12/12/2012`` can be interpreted differently:
-
-- **US Format (MM/DD):** 08/09/2020 = August 9, 2020
-- **India Format (DD/MM):** 08/09/2020 = September 8, 2020
-- **Symmetric:** 12/12/2012 = December 12, 2012 (same in both formats)
-
-**Solution:** Country-based priority with smart validation for unambiguous dates.
-
-**Algorithm:**
-
-.. code-block:: text
-
-   Input: date_string, country_code
-   
-   1. Check cache: If date_string already shifted:
-      - Return cached shifted date (O(1) lookup)
-   
-   2. Generate consistent offset (first time only):
-      a. hash_digest = SHA256(seed)
-      b. offset_int = first 4 bytes as integer
-      c. offset_days = (offset_int % (2 * range + 1)) - range
-      d. Cache offset for all future shifts
-   
-   3. Determine format priority based on country:
-      DD/MM/YYYY priority (day first):
-         Countries: IN, ID, BR, ZA, EU, GB, AU, KE, NG, GH, UG
-         Formats to try:
-            a. YYYY-MM-DD (ISO 8601) - always unambiguous
-            b. DD/MM/YYYY (country preference)
-            c. DD-MM-YYYY (hyphen variant)
-            d. DD.MM.YYYY (European dot notation)
-      
-      MM/DD/YYYY priority (month first):
-         Countries: US, PH, CA
-         Formats to try:
-            a. YYYY-MM-DD (ISO 8601) - always unambiguous
-            b. MM/DD/YYYY (country preference)
-            c. MM-DD-YYYY (hyphen variant)
-   
-   4. For each format in priority order:
-      a. Try parsing date_string with format
-      b. If parse successful:
-         
-         SMART VALIDATION (for ambiguous slash/hyphen formats):
-         
-         If format is MM/DD or DD/MM:
-            - Extract first_num and second_num from date string
-            
-            CASE 1: first_num > 12
-               → Must be day (no 13th month exists!)
-               → If trying MM/DD format: REJECT, try next format
-               → If trying DD/MM format: ACCEPT
-            
-            CASE 2: second_num > 12
-               → Must be day (no 13th month exists!)
-               → If trying DD/MM format: REJECT, try next format
-               → If trying MM/DD format: ACCEPT
-            
-            CASE 3: Both numbers ≤ 12 (ambiguous)
-               → Trust country preference (first matching format wins)
-               → Ensures consistency within dataset
-         
-         c. If validation passes: BREAK, use this format
-         d. If validation fails: Continue to next format
-      
-      c. If parse failed: Continue to next format
-   
-   5. If NO format succeeded:
-      - Return placeholder: [DATE-HASH]
-      - Log warning for manual review
-   
-   6. Apply shift with successful format:
-      a. shifted_date = parsed_date + timedelta(days=offset_days)
-      b. Format back to string in SAME format as input
-      c. Cache result: {date_string: shifted_string}
-   
-   7. Return shifted date string
-
-**Properties:**
-
-- **Unambiguous dates always correct:** ``13/05/2020`` parsed as May 13 (only valid interpretation)
-- **Ambiguous dates use country preference:** ``08/09/2020`` interpreted consistently per country
-- **Symmetric dates handled:** ``12/12/2012`` uses country format (though result is same)
-- **Consistent:** All dates shifted by SAME offset (preserves intervals)
-- **Deterministic:** Seed determines offset (reproducible)
-- **Format-preserving:** Output format matches input format
-- **HIPAA-compliant:** Dates obscured while relationships preserved
-
-**Example Flow - Unambiguous Date:**
-
-.. code-block:: python
-
-   # Processing "13/05/2020" for India (DD/MM preference)
-   
-   Step 1: Try YYYY-MM-DD
-      Result: ❌ Doesn't match pattern
-   
-   Step 2: Try DD/MM/YYYY (India preference)
-      Parse: ✅ Day=13, Month=05 (May 13, 2020)
-      Validate: first_num=13 > 12 ✅ Must be day (valid)
-      Result: ✅ SUCCESS → May 13, 2020
-   
-   # Processing "13/05/2020" for USA (MM/DD preference)
-   
-   Step 1: Try YYYY-MM-DD
-      Result: ❌ Doesn't match pattern
-   
-   Step 2: Try MM/DD/YYYY (USA preference)
-      Parse: ❌ Month=13 invalid (strptime fails)
-      Result: Continue to next format
-   
-   Step 3: Try DD/MM/YYYY (fallback)
-      Parse: ✅ Day=13, Month=05
-      Validate: first_num=13 > 12 ✅ Must be day (valid)
-      Result: ✅ SUCCESS → May 13, 2020
-
-**Example Flow - Ambiguous Date:**
-
-.. code-block:: python
-
-   # Processing "08/09/2020" for India (DD/MM preference)
-   
-   Step 1: Try YYYY-MM-DD
-      Result: ❌ Doesn't match pattern
-   
-   Step 2: Try DD/MM/YYYY (India preference)
-      Parse: ✅ Day=08, Month=09 (Sep 8, 2020)
-      Validate: first_num=8 ≤ 12 ✅, second_num=9 ≤ 12 ✅
-                Both ambiguous → Trust country preference
-      Result: ✅ SUCCESS → Sep 8, 2020 (India interpretation)
-   
-   # Processing "08/09/2020" for USA (MM/DD preference)
-   
-   Step 1: Try YYYY-MM-DD
-      Result: ❌ Doesn't match pattern
-   
-   Step 2: Try MM/DD/YYYY (USA preference)
-      Parse: ✅ Month=08, Day=09 (Aug 9, 2020)
-      Validate: first_num=8 ≤ 12 ✅, second_num=9 ≤ 12 ✅
-                Both ambiguous → Trust country preference
-      Result: ✅ SUCCESS → Aug 9, 2020 (USA interpretation)
-
-**Complete Example with Shifting:**
-
-.. code-block:: python
-
-   # For India (DD/MM/YYYY format):
-   shifter_in = DateShifter(country_code="IN", seed="abc123")
-   "2014-09-04" → "2013-12-14"  # ISO → Always Sep 4 (unambiguous)
-   "04/09/2014" → "14/12/2013"  # DD/MM → Sep 4, 2014 → Dec 14, 2013 (-265 days)
-   "09/09/2014" → "19/12/2013"  # DD/MM → Sep 9, 2014 → Dec 19, 2013 (-265 days)
-   "13/05/2020" → "03/08/2019"  # Unambiguous → May 13 (only valid parsing)
-   # Interval preserved: All dates shifted by -265 days
-
-   # For United States (MM/DD/YYYY format):
-   shifter_us = DateShifter(country_code="US", seed="abc123")
-   "2014-09-04" → "2013-12-14"  # ISO → Always Sep 4 (unambiguous)
-   "04/09/2014" → "07/17/2013"  # MM/DD → Apr 9, 2014 → Jul 17, 2013 (-265 days)
-   "04/14/2014" → "07/22/2013"  # MM/DD → Apr 14, 2014 → Jul 22, 2013 (-265 days)
-   "13/05/2020" → "08/03/2019"  # Unambiguous → May 13 (validation rejects MM/DD)
-   # Interval preserved: All dates shifted by -265 days
-
-**Time Complexity:**
-
-- **Cache hit:** O(1) - constant time lookup
-- **Cache miss:** O(f) where f = number of formats (typically 3-4)
-- **Overall:** O(1) amortized for repeated dates in large datasets
-
----
-
-**Data Structure: Mapping Store (Encrypted)**
-
-Located in: ``scripts/deidentify.py`` → ``MappingStore``
-
-**Purpose:** Securely store original → pseudonym mappings
-
-**Structure:**
-
-.. code-block:: python
-
-   # In-memory structure
-   mappings: Dict[str, Dict[str, Any]] = {
-       "PHI_TYPE:original_value": {
-           "original": "John Doe",  # Original sensitive value
-           "pseudonym": "PATIENT-A4B8C3",  # Generated pseudonym
-           "phi_type": "NAME_FULL",  # Type of PHI
-           "created_at": "2025-10-13T14:32:15",  # Timestamp
-           "metadata": {"pattern": "Full name pattern"}
-       },
-       ...
-   }
-   
-   # On-disk structure (encrypted with Fernet)
-   File: mappings.enc
-   Content: Fernet.encrypt(JSON.dumps(mappings))
-
-**Encryption:** Fernet (symmetric encryption, 128-bit AES in CBC mode with HMAC)
-
-**Security:**
-
-- Encryption key stored separately
-- Keys never committed to version control
-- Audit log exports WITHOUT original values by default
-
----
-
-**Data Structure: JSONL File Format**
-
-**Structure:**
-
-Each line is a valid JSON object (one record per line):
-
-.. code-block:: json
-
-   {"SUBJID": "INV001", "VISIT": 1, "TST_RESULT": "Positive", "source_file": "10_TST.xlsx"}
-   {"SUBJID": "INV002", "VISIT": 1, "TST_RESULT": "Negative", "source_file": "10_TST.xlsx"}
-   {"SUBJID": "INV003", "VISIT": 1, "TST_RESULT": "Positive", "source_file": "10_TST.xlsx"}
-
-**Advantages:**
-
-- Streamable: Can process without loading entire file into memory
-- Line-oriented: Easy to split, merge, or process in parallel
-- JSON-compatible: Works with standard JSON parsers
-- Human-readable: Can inspect with `head`, `tail`, `grep`
-
-**Metadata Fields:**
-
-- ``source_file``: Original Excel filename for traceability
-- ``_metadata``: Optional metadata (e.g., for empty files with structure)
-
----
-
-**Data Structure: Progress Tracking with tqdm**
-
-**Integration Pattern:**
-
-.. code-block:: python
-
-   from tqdm import tqdm
-   import sys
-   
-   # File-level progress
-   for file in tqdm(files, desc="Processing", unit="file", 
-                    file=sys.stdout, dynamic_ncols=True, leave=True):
-       # Use tqdm.write() instead of print() for clean output
-       tqdm.write(f"Processing: {file.name}")
-       
-       # Row-level progress (if needed)
-       for row in tqdm(rows, desc="Rows", leave=False):
-           process(row)
-   
-   # Result: Clean progress bars without interfering with logging
-
-**Why tqdm.write():**
-
-- Ensures messages don't corrupt progress bar display
-- Automatically repositions progress bar after message
-- Works with logging system
-
-Dependencies and Their Roles
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**pandas (>= 2.0.0)**
-
-- Role: DataFrame manipulation, Excel reading, data analysis
-- Key functions used:
-  - ``pd.read_excel()``: Excel file parsing
-  - ``df.to_json()``: JSONL export
-  - ``pd.isna()``: Null value detection
-- Why chosen: Industry standard for data manipulation in Python
-
-**openpyxl (>= 3.1.0)**
-
-- Role: Excel file format (.xlsx) support for pandas
-- Used by: ``pd.read_excel(engine='openpyxl')``
-- Why chosen: Pure Python, no external dependencies, handles modern Excel formats
-
-**numpy (>= 1.24.0)**
-
-- Role: Numerical operations, type handling
-- Key types used:
-  - ``np.int64``, ``np.float64``: Numeric types from pandas
-  - ``np.datetime64``: Datetime types
-  - ``np.nan``: Missing value representation
-- Why chosen: Required by pandas, efficient numerical operations
-
-**tqdm (>= 4.66.0)**
-
-- Role: Progress bars and user feedback
-- Key features:
-  - Real-time progress tracking
-  - ETA calculations
-  - Clean console output with ``tqdm.write()``
-- Why chosen: Most popular Python progress bar library, excellent integration
-
-**cryptography (>= 41.0.0)**
-
-- Role: Encryption for de-identification mappings
-- Key components:
-  - ``Fernet``: Symmetric encryption
-  - ``hashlib.sha256()``: Cryptographic hashing
-  - ``secrets``: Secure random number generation
-- Why chosen: Industry-standard cryptography library, HIPAA-compliant algorithms
-
-**sphinx (>= 7.0.0) + extensions**
-
-- Role: Documentation generation
-- Extensions used:
-  - ``sphinx.ext.autodoc``: Automatic API documentation from docstrings
-  - ``sphinx.ext.napoleon``: Google/NumPy style docstring support
-  - ``sphinx_autodoc_typehints``: Type hint documentation
-  - ``sphinx-autobuild``: Live documentation preview (dev dependency)
-- Why chosen: Standard for Python project documentation
-
-**Documentation Workflow**:
-
-.. versionadded:: 0.3.0
-   Added ``make docs-watch`` for automatic documentation rebuilding.
-
-- **Autodoc is ENABLED**: Sphinx automatically extracts documentation from Python docstrings
-- **NOT Automatic by Default**: Documentation does NOT rebuild automatically on every code change
-- **Manual Build**: Run ``make docs`` to regenerate documentation after changes
-- **Auto-Rebuild (Development)**: Use ``make docs-watch`` for live preview during documentation development
-
-**How Autodoc Works**:
-
-1. Write Google-style docstrings in Python code
-2. Use ``.. automodule::`` directives in ``.rst`` files
-3. Run ``make docs`` - Sphinx extracts docstrings and generates HTML
-4. Or use ``make docs-watch`` - Server auto-rebuilds on file changes
-
-**Important**: While autodoc **extracts** documentation automatically from code, 
-you must **build** the documentation manually (or use watch mode) to see the changes.
+Scalability
+~~~~~~~~~~~
+
+* Horizontal: Run multiple instances for different studies
+* Vertical: Increase batch size and worker count
+* Caching: Reduce redundant LLM calls
+
+Security
+~~~~~~~~
+
+* API keys in environment variables (not in code)
+* Secure storage of de-identification mappings
+* Encrypted data at rest (when required)
+* Audit logging for compliance
+
+Future Enhancements
+-------------------
+
+Planned Features
+~~~~~~~~~~~~~~~~
+
+* Web interface for pipeline management
+* Real-time processing dashboard
+* Advanced validation rules engine
+* Multi-language support
+* Distributed processing for large-scale studies
+
+See :doc:`contributing` for information on contributing to these features.
