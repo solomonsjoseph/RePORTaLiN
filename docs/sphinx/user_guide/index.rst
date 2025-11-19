@@ -64,11 +64,11 @@ Common User Tasks
 
 Need to accomplish a specific task? Jump to:
 
-- **Extract data from PDFs**: See :ref:`extracting-data-from-pdfs`
-- **Deidentify patient data**: See :ref:`deidentifying-data`
-- **Configure LLM providers**: See :ref:`llm-configuration`
-- **Load data dictionaries**: See :ref:`loading-data-dictionaries`
-- **Store data in vector database**: See :ref:`vector-database-storage`
+- **Extract data from PDFs**: See :doc:`data_pipeline`
+- **Deidentify patient data**: See :doc:`data_pipeline`
+- **Configure LLM providers**: See :doc:`configuration`
+- **Load data dictionaries**: See :doc:`data_pipeline`
+- **Store data in vector database**: See :doc:`data_pipeline`
 - **Troubleshoot issues**: See :doc:`faq`
 
 Getting Help
