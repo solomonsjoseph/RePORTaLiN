@@ -783,7 +783,7 @@ def extract_excel_to_jsonl() -> Dict[str, Any]:
             RESULT_PROCESSING_TIME: 0
         }
     
-    # Use new v0.3.0 config API: DATASETS_DIR and OUTPUT_DIR
+    # Use config API: DATASETS_DIR and OUTPUT_DIR
     clean_dataset_dir = os.path.join(config.OUTPUT_DIR, config.STUDY_NAME)
     log.info(f"Output directory: {clean_dataset_dir}")
     vlog.detail(f"Configuration: DATASETS_DIR={config.DATASETS_DIR}, OUTPUT_DIR={config.OUTPUT_DIR}, STUDY_NAME={config.STUDY_NAME}")

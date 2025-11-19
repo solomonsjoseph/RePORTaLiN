@@ -2959,12 +2959,12 @@ def main() -> int:
                 import os
                 import config as project_config
                 if not input_dir:
-                    # Auto-detect dataset directory from config (v0.3.0 API)
+                    # Auto-detect dataset directory from config API
                     clean_dataset_dir = os.path.join(project_config.OUTPUT_DIR, "cleaned_datasets")
                     input_dir = os.path.join(clean_dataset_dir, "cleaned")
                     print(f"Using auto-detected input directory: {input_dir}")
                 if not output_dir:
-                    # Use sensible default for output (v0.3.0 API)
+                    # Use sensible default for output
                     output_dir = os.path.join(project_config.OUTPUT_DIR, "deidentified", project_config.STUDY_NAME)
                     print(f"Using default output directory: {output_dir}")
             except (ImportError, AttributeError) as e:

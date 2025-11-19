@@ -69,7 +69,7 @@ from scripts.load_dictionary import load_study_dictionary
 from scripts.extract_data import extract_excel_to_jsonl
 from scripts.deidentify import deidentify_dataset, DeidentificationConfig
 from scripts.utils import logging_system as log
-# Vector database ingestion modules (v0.3.0)
+# Vector database ingestion modules
 from scripts.vector_db.ingest_pdfs import ingest_pdfs_to_vectordb
 from scripts.vector_db.ingest_records import ingest_records_to_vectordb
 import config
@@ -295,7 +295,7 @@ For detailed documentation, see the Sphinx docs or README.md
                        help="Enable verbose (DEBUG) logging with detailed context. "
                             "Default: Simple mode (INFO level, minimal console output)")
     
-    # Vector database arguments (v0.3.0)
+    # Vector database arguments
     parser.add_argument('--ingest-pdfs', action='store_true',
                        help="Ingest all PDF forms to vector database")
     parser.add_argument('--ingest-records', action='store_true',
@@ -322,7 +322,7 @@ For detailed documentation, see the Sphinx docs or README.md
     log.setup_logger(name=config.LOG_NAME, log_level=log_level, simple_mode=simple_mode)
     log.info("Starting RePORTaLiN pipeline...")
     
-    # Validate configuration (v0.3.0: raises exceptions on errors)
+    # Validate configuration (raises exceptions on errors)
     try:
         config.validate_config()
         log.info("Configuration validated successfully")
@@ -360,12 +360,12 @@ For detailed documentation, see the Sphinx docs or README.md
     # De-identification step (opt-in for now)
     if args.enable_deidentification and not args.skip_deidentification:
         def run_deidentification():
-            # Input directory contains original/ and cleaned/ subdirectories (v0.3.0)
+            # Input directory contains original/ and cleaned/ subdirectories
             clean_dataset_dir = Path(config.OUTPUT_DIR) / config.STUDY_NAME
             # Process the parent directory to include both original/ and cleaned/
             input_dir = clean_dataset_dir
             
-            # Output to dedicated deidentified directory within output (v0.3.0)
+            # Output to dedicated deidentified directory within output
             output_dir = Path(config.OUTPUT_DIR) / "deidentified" / config.STUDY_NAME
             
             log.info(f"De-identifying dataset: {input_dir} -> {output_dir}")
@@ -422,7 +422,7 @@ For detailed documentation, see the Sphinx docs or README.md
     else:
         log.info("--- De-identification disabled (use --enable-deidentification to enable) ---")
 
-    # Vector database ingestion (v0.3.0)
+    # Vector database ingestion
     if args.ingest_pdfs:
         run_step("Vector DB: Ingesting PDF Forms", 
                 lambda: ingest_pdfs_to_vectordb(

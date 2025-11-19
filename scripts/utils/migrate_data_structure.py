@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Data structure migration utility for RePORTaLiN v0.3.0 organization.
+"""Data structure migration utility for RePORTaLiN organization.
 
-Automates migration from legacy flat directory structure to v0.3.0's study-based
+Automates migration from legacy flat directory structure to study-based
 organization with intelligent study name detection and dual-mode file handling.
 
 **Migration Overview:**
@@ -24,7 +24,7 @@ This utility performs comprehensive data structure migration with:
    - Optional cleanup with user confirmation
    - Migration log generation for audit trail
 
-**Old Structure (Pre-v0.3.0):**
+**Old Structure:**
 ```
 data/
 ├── dataset/
@@ -39,7 +39,7 @@ data/
     └── RePORT_DEB_to_Tables_mapping.xlsx
 ```
 
-**New Structure (v0.3.0):**
+**New Structure:**
 ```
 data/
 └── Indo-VAP/                # Detected study name
@@ -169,7 +169,7 @@ def extract_study_name(data_dir: Path) -> str:
     5. **Validate**: Checks length (>=2 chars) and rejects generic names
     6. **Fallback**: Returns 'ext_data' if detection fails or name is generic
     
-    This ensures consistent, meaningful study identifiers for the v0.3.0
+    This ensures consistent, meaningful study identifiers for the
     directory structure while handling edge cases gracefully.
     
     Args:
@@ -253,7 +253,7 @@ def extract_study_name(data_dir: Path) -> str:
 
 
 class DataMigrationManager:
-    """Manages migration of data structure from legacy to v0.3.0 format.
+    """Manages migration of data structure from legacy to standardized format.
     
     Orchestrates complete migration workflow with dual-mode operation for
     custom (external) vs default (in-place) data paths. Provides safe,
@@ -397,7 +397,7 @@ class DataMigrationManager:
         """Build migration path mappings based on detected study name and actual folders.
         
         Scans source directory for actual subdirectories and constructs mapping
-        dictionary from old structure paths to new v0.3.0 paths. Handles variable
+        dictionary from old structure paths to new standardized paths. Handles variable
         folder names (e.g., "Indo-VAP_csv_files" vs "TB-Trial_excel_files").
         
         Mapping logic:
@@ -468,7 +468,7 @@ class DataMigrationManager:
         return mappings
     
     def is_already_migrated(self) -> bool:
-        """Check if data is already in v0.3.0 structure format.
+        """Check if data is already in standardized structure format.
         
         Detects if migration has already been performed by checking for
         new structure subdirectories (datasets/, annotated_pdfs/,
@@ -478,7 +478,7 @@ class DataMigrationManager:
         duplicate operations.
         
         Returns:
-            True if data already migrated to v0.3.0 format, False otherwise.
+            True if data already migrated to standardized format, False otherwise.
         
         Side Effects:
             - Logs success message if already migrated
@@ -492,7 +492,7 @@ class DataMigrationManager:
             ...     print("Need to migrate")
             >>> # After migration
             >>> if manager.is_already_migrated():  # doctest: +SKIP
-            ...     print("Already in v0.3.0 format, skipping")
+            ...     print("Already in standardized format, skipping")
         
         Note:
             Checks for ALL three subdirectories (datasets/, annotated_pdfs/,
@@ -512,7 +512,7 @@ class DataMigrationManager:
         )
         
         if has_new_structure:
-            log.info(f"✅ Data already in v0.3.0 format: {study_dir}")
+            log.info(f"✅ Data already in standardized format: {study_dir}")
             return True
         
         return False
@@ -596,7 +596,7 @@ class DataMigrationManager:
         return True
     
     def create_new_structure(self) -> bool:
-        """Create new v0.3.0 directory structure based on detected study name.
+        """Create new directory structure based on detected study name.
         
         Creates three-tier directory hierarchy:
         - <study_name>/datasets/        # For Excel/CSV data files
@@ -1076,7 +1076,7 @@ class DataMigrationManager:
             ...     print("Migration failed - check logs")
         
         Note:
-            Idempotent - safe to run multiple times. Detects existing v0.3.0
+            Idempotent - safe to run multiple times. Detects existing
             structure and skips redundant work. Dry-run mode recommended for
             testing before actual migration.
         """
@@ -1093,10 +1093,10 @@ class DataMigrationManager:
         else:
             log.info("📂 Default path mode: Files will be MOVED (originals deleted)")
         
-        # Step 0: Check if already migrated to v0.3.0 format
+        # Step 0: Check if already migrated to standardized format
         if self.is_already_migrated():
             log.info("="*60)
-            log.info("✅ Data is already in v0.3.0 format!")
+            log.info("✅ Data is already in standardized format!")
             log.info("="*60)
             log.info("No migration needed. Exiting.")
             return True
@@ -1214,7 +1214,7 @@ def main():
     """
     
     parser = argparse.ArgumentParser(
-        description='Migrate RePORTaLiN data structure to v0.3.0 organization',
+        description='Migrate RePORTaLiN data structure to standardized organization',
         epilog='Example: python3 migrate.py --dry-run  # Test migration without changes'
     )
     parser.add_argument(

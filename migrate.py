@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Data migration wrapper script for RePORTaLiN v0.3.0 directory structure.
+"""Data migration wrapper script for RePORTaLiN directory structure.
 
 This module serves as the command-line entry point for migrating existing
-RePORTaLiN data from older directory structures to the v0.3.0 standardized
+RePORTaLiN data from older directory structures to the standardized
 layout. It acts as a thin wrapper around the actual migration logic in
 `scripts.utils.migrate_data_structure`, providing proper path setup and
 a user-friendly interface.
 
 Migration Purpose:
-    Version 0.3.0 introduced a new directory structure with explicit
+    The current version introduced a new directory structure with explicit
     separation of original and cleaned datasets:
     
-    **Old Structure (pre-v0.3.0)**::
+    **Old Structure:**
         output/{STUDY_NAME}/*.jsonl  # Mixed original and cleaned files
     
-    **New Structure (v0.3.0+)**::
+    **New Structure:**
         output/{STUDY_NAME}/original/*.jsonl  # Raw extraction output
         output/{STUDY_NAME}/cleaned/*.jsonl   # Validated/cleaned records
     

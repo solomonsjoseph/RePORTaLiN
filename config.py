@@ -117,7 +117,7 @@ except ImportError:
 # Constants
 DEFAULT_DATASET_NAME = "Indo-VAP"  # Default study name
 
-# Explicitly define public API (v0.3.0)
+# Explicitly define public API
 __all__ = [
     # Base paths
     'BASE_DIR', 'DATA_DIR', 'OUTPUT_DIR', 'LOGS_DIR', 'TMP_DIR',
