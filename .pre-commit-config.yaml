@@ -1,0 +1,6 @@
+# Pre-commit Configuration
+# =========================
+# Minimal configuration to satisfy pre-commit framework
+# Version bumping is handled by custom .git/hooks/bump-version
+
+repos: []  # No additional hooks - version bumping handled by custom hook

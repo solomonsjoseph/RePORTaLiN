@@ -438,11 +438,11 @@ The `--verbose` flag now provides detailed debugging context with file and line 
 ```bash
 # Standard logging (INFO level)
 python3 main.py
-# Log format: 2025-10-22 19:17:11 - reportalin - INFO - Processing data
+# Log format: 2024-10-22 19:17:11 - reportalin - INFO - Processing data
 
 # Verbose logging (DEBUG level with context)
 python3 main.py --verbose
-# Log format: 2025-10-22 19:17:11 - reportalin - DEBUG - [main.py:123] - Processing data
+# Log format: 2024-10-22 19:17:11 - reportalin - DEBUG - [main.py:123] - Processing data
 #                                                          ↑ Shows source location
 ```
 
